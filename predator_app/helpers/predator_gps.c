@@ -57,13 +57,10 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
 void predator_gps_init(PredatorApp* app) {
     if(!app) return;
     
-    // DEMO MODE: Skip hardware initialization
+    // Check if UART is initialized
     if (app->gps_uart == NULL) {
-        FURI_LOG_I("Predator", "Demo mode: GPS hardware access disabled");
+        FURI_LOG_E("Predator", "GPS UART not initialized");
         app->gps_connected = false;
-        app->latitude = 37.7749f;  // Demo coordinates - San Francisco
-        app->longitude = -122.4194f;
-        app->satellites = 8;  // Fake satellite count for demo
         return;
     }
     
@@ -122,29 +119,18 @@ void predator_gps_deinit(PredatorApp* app) {
 void predator_gps_update(PredatorApp* app) {
     if (!app) return;
     
-    // In demo mode (no hardware), generate simulated GPS data
-    if (app->gps_uart == NULL) {
-        static uint32_t counter = 0;
-        
-        // Simulate GPS connection
-        app->gps_connected = true;
-        
-        // Every 10 updates, change the simulated position slightly to show movement
-        if (counter % 10 == 0) {
-            // Small random position change to simulate movement
-            app->latitude += ((float)(rand() % 10) - 5) * 0.0001f;
-            app->longitude += ((float)(rand() % 10) - 5) * 0.0001f;
-            
-            // Vary the satellite count between 7-12 for realism
-            app->satellites = 7 + (rand() % 6);
-        }
-        
-        counter++;
-        return;
-    }
+    // Data is updated automatically via UART callback
+    // Just check GPS connection status
     
-    // With real hardware, data is updated via UART callback
-    // No additional action needed here
+    // If no satellites after 30 seconds, check power switch
+    static uint32_t check_counter = 0;
+    if (app->satellites == 0 && (check_counter++ % 30 == 0)) {
+        // Re-check power switch
+        if (furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH)) {
+            FURI_LOG_W("Predator", "GPS power switch is off");
+            app->gps_connected = false;
+        }
+    }
 }
 
 bool predator_gps_parse_nmea(PredatorApp* app, const char* sentence) {

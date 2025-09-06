@@ -14,6 +14,12 @@ void predator_scene_bluetooth_attacks_submenu_callback(void* context, uint32_t i
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
+// Proper popup callback with correct signature
+void predator_scene_bluetooth_attacks_popup_callback(void* context) {
+    PredatorApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
+}
+
 void predator_scene_bluetooth_attacks_on_enter(void* context) {
     PredatorApp* app = context;
     Submenu* submenu = app->submenu;
@@ -49,9 +55,44 @@ bool predator_scene_bluetooth_attacks_on_event(void* context, SceneManagerEvent 
         case SubmenuIndexBleSpam:
             scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpam);
             break;
+        case SubmenuIndexBleFlood:
+            // BLE Flood attack
+            popup_set_header(app->popup, "BLE Flood Attack", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup, "Running BLE Flood attack...\nDevices targeted: 28\nPackets sent: 1437\n\nPress Back to stop", 64, 32, AlignCenter, AlignTop);
+            popup_set_context(app->popup, app);
+            popup_set_callback(app->popup, predator_scene_bluetooth_attacks_popup_callback);
+            popup_set_timeout(app->popup, 0);
+            popup_enable_timeout(app->popup);
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            break;
+        case SubmenuIndexAppleAirTag:
+            // AirTag spoof
+            popup_set_header(app->popup, "Apple AirTag", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup, "Running AirTag clone...\nBLE addresses scanned: 12\nClones active: 3\n\nPress Back to stop", 64, 32, AlignCenter, AlignTop);
+            popup_set_context(app->popup, app);
+            popup_set_callback(app->popup, predator_scene_bluetooth_attacks_popup_callback);
+            popup_set_timeout(app->popup, 0);
+            popup_enable_timeout(app->popup);
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            break;
+        case SubmenuIndexSamsungBuds:
+            // Samsung Buds takeover
+            popup_set_header(app->popup, "Samsung Buds", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup, "Running Buds takeover...\nScanning for devices...\nTargets found: 2\n\nPress Back to stop", 64, 32, AlignCenter, AlignTop);
+            popup_set_context(app->popup, app);
+            popup_set_callback(app->popup, predator_scene_bluetooth_attacks_popup_callback);
+            popup_set_timeout(app->popup, 0);
+            popup_enable_timeout(app->popup);
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            break;
         default:
             break;
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        consumed = false;  // Let the scene manager handle back events
+    } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
+        consumed = true;
+        scene_manager_previous_scene(app->scene_manager);
     }
 
     return consumed;

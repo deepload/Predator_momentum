@@ -18,20 +18,17 @@ void predator_scene_wifi_attacks_on_enter(void* context) {
     PredatorApp* app = context;
     Submenu* submenu = app->submenu;
 
+    // DEMO MODE: Display only options that won't crash
     submenu_add_item(
-        submenu, "📡 WiFi Scanner", SubmenuIndexWifiScan, predator_scene_wifi_attacks_submenu_callback, app);
+        submenu, "📡 WiFi Scanner (Demo)", SubmenuIndexWifiScan, predator_scene_wifi_attacks_submenu_callback, app);
     submenu_add_item(
-        submenu, "💥 Deauth Attack", SubmenuIndexWifiDeauth, predator_scene_wifi_attacks_submenu_callback, app);
+        submenu, "💥 Deauth Attack (Demo)", SubmenuIndexWifiDeauth, predator_scene_wifi_attacks_submenu_callback, app);
     submenu_add_item(
-        submenu, "👥 Evil Twin AP", SubmenuIndexWifiEvilTwin, predator_scene_wifi_attacks_submenu_callback, app);
-    submenu_add_item(
-        submenu, "🤝 Handshake Capture", SubmenuIndexWifiHandshakeCapture, predator_scene_wifi_attacks_submenu_callback, app);
-    submenu_add_item(
-        submenu, "🤖 Pwnagotchi Mode", SubmenuIndexWifiPwnagotchi, predator_scene_wifi_attacks_submenu_callback, app);
-
-    submenu_set_selected_item(
-        submenu, scene_manager_get_scene_state(app->scene_manager, PredatorSceneWifiAttacks));
-
+        submenu, "👥 Evil Twin AP (Demo)", SubmenuIndexWifiEvilTwin, predator_scene_wifi_attacks_submenu_callback, app);
+    
+    // Set default selection to first item
+    submenu_set_selected_item(submenu, 0);
+    
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
 

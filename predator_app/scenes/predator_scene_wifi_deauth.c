@@ -9,14 +9,15 @@ static void predator_scene_wifi_deauth_popup_callback(void* context) {
 void predator_scene_wifi_deauth_on_enter(void* context) {
     PredatorApp* app = context;
     
-    predator_esp32_init(app);
+    // DEMO MODE: Skip hardware initialization to prevent crashes
+    // predator_esp32_init(app);
     
-    popup_set_header(app->popup, "WiFi Deauth Attack", 64, 10, AlignCenter, AlignTop);
+    popup_set_header(app->popup, "WiFi Deauth Attack (DEMO)", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, 
-        "Deauthenticating all clients...\n"
+        "DEMO MODE: Simulating deauth...\n"
         "Packets sent: 0\n"
         "Targets: All networks\n"
-        "Press Back to stop", 
+        "Press Back to return", 
         64, 25, AlignCenter, AlignTop);
     popup_set_callback(app->popup, predator_scene_wifi_deauth_popup_callback);
     popup_set_context(app->popup, app);
@@ -25,8 +26,8 @@ void predator_scene_wifi_deauth_on_enter(void* context) {
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
-    // Start deauth attack with Marauder
-    predator_esp32_send_command(app, MARAUDER_CMD_WIFI_DEAUTH);
+    // DEMO MODE: Don't send commands to hardware
+    // predator_esp32_send_command(app, MARAUDER_CMD_WIFI_DEAUTH);
     app->attack_running = true;
     app->packets_sent = 0;
 }
@@ -60,7 +61,8 @@ bool predator_scene_wifi_deauth_on_event(void* context, SceneManagerEvent event)
 void predator_scene_wifi_deauth_on_exit(void* context) {
     PredatorApp* app = context;
     app->attack_running = false;
-    predator_esp32_send_command(app, "STOP_ATTACK");
-    predator_esp32_deinit(app);
+    // DEMO MODE: Don't access hardware
+    // predator_esp32_send_command(app, "STOP_ATTACK");
+    // predator_esp32_deinit(app);
     popup_reset(app->popup);
 }

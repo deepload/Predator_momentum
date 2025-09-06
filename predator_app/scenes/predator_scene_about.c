@@ -36,6 +36,8 @@ void predator_scene_about_on_enter(void* context) {
         "⚠️ FOR EDUCATIONAL USE ONLY\n"
         "Use responsibly and legally!\n"
         "\n"
+        "Special thanks to: Dario Amodei\n"
+        "\n"
         "Press Back to return");
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);

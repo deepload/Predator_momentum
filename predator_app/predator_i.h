@@ -72,6 +72,9 @@ typedef struct PredatorApp {
     uint32_t satellites;
     struct PredatorUart* gps_uart;
     
+    // SubGHz data
+    void* subghz_txrx;
+    
 } PredatorApp;
 
 
