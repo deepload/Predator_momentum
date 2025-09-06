@@ -1,9 +1,11 @@
 #include "../predator_i.h"
 #include "predator_subghz.h"
 #include <furi.h>
-#include <furi_hal.h>
-#include <furi_hal_gpio.h>
 #include <stdlib.h>
+
+// *** EMERGENCY STABLE BUILD ***
+// Complete stub implementation with NO hardware access
+// All functions are safe stubs that don't access hardware
 
 // Car model names mapping
 static const char* car_model_names[CarModelCount] = {
@@ -19,124 +21,42 @@ static const char* car_command_names[CarCommandCount] = {
     "Unlock", "Lock", "Open Trunk", "Start Engine", "Panic Alarm"
 };
 
-// Frequencies for different car models
-static const uint32_t car_frequencies[CarModelCount] = {
-    433920000, // Toyota
-    433420000, // Honda
-    315000000, // Ford
-    315000000, // Chevrolet
-    433920000, // BMW
-    433920000, // Mercedes
-    868350000, // Audi
-    433920000, // Volkswagen
-    433920000, // Nissan
-    433920000, // Hyundai
-    433920000, // Kia
-    315000000, // Tesla
-    433920000, // Subaru
-    315000000, // Jeep
-    315000000, // Chrysler
-    315000000, // Dodge
-    315000000, // Cadillac
-    433920000, // Lexus
-    315000000, // Infiniti
-    433420000, // Acura
-    433920000, // Mazda
-    433920000, // Mitsubishi
-    433920000, // Porsche
-    433920000, // Range Rover
-    433920000, // Jaguar
-    433920000, // Volvo
-    433920000, // Fiat
-    433920000, // Peugeot
-    433920000, // Renault
-    433920000, // Skoda
-    433920000, // Lamborghini
-    433920000, // Ferrari
-    433920000, // Maserati
-    433920000, // Bentley
-    433920000  // Rolls Royce
-};
-
+// SAFE IMPLEMENTATION: No hardware access
 void predator_subghz_init(PredatorApp* app) {
-    furi_assert(app);
-    
-    // Initialize SubGHz - no need to explicitly acquire, just check if TX is allowed
-    if(!furi_hal_subghz_is_frequency_valid(433920000)) {
-        FURI_LOG_E("Predator", "Default frequency not valid: 433.92MHz");
-    }
-    
-    // Check external radio module status
-    if(furi_hal_gpio_read(&gpio_cc1101_g0)) {
-        FURI_LOG_I("Predator", "External CC1101 module detected");
-    }
+    UNUSED(app);
+    FURI_LOG_I("Predator", "SubGHz hardware access disabled for stability");
 }
 
 void predator_subghz_deinit(PredatorApp* app) {
-    furi_assert(app);
-    
-    // Clean up - not much to do here as we don't acquire resources
-    furi_hal_subghz_sleep();
+    UNUSED(app);
+    // No hardware to deinitialize
 }
 
 void predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) {
-    furi_assert(app);
-    
-    if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        FURI_LOG_E("Predator", "Invalid frequency: %lu", frequency);
-        return;
-    }
-    
-    FURI_LOG_I("Predator", "Starting car key bruteforce on %lu Hz", frequency);
-    furi_hal_subghz_reset();
-    // Use standard API for SubGHz without special preset
-    furi_hal_subghz_set_frequency_and_path(frequency);
-    
-    // Initialize TX
-    furi_hal_subghz_tx();
+    UNUSED(app);
+    UNUSED(frequency);
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Car bruteforce on %lu Hz", frequency);
 }
 
 void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code) {
-    furi_assert(app);
-    
-    FURI_LOG_I("Predator", "Sending car key code: %08lX", key_code);
-    // Signal transmission implementation would go here
-    // Just a stub for now as actual implementation would depend on protocols
+    UNUSED(app);
+    UNUSED(key_code);
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Sending key code: %08lX", key_code);
 }
 
 void predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
-    furi_assert(app);
-    
-    if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        FURI_LOG_E("Predator", "Invalid frequency: %lu", frequency);
-        return;
-    }
-    
-    FURI_LOG_I("Predator", "Starting jamming on %lu Hz", frequency);
-    furi_hal_subghz_reset();
-    furi_hal_subghz_set_frequency_and_path(frequency);
-    
-    // Initialize TX
-    furi_hal_subghz_tx();
+    UNUSED(app);
+    UNUSED(frequency);
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Jamming on %lu Hz", frequency);
 }
 
 void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
-    furi_assert(app);
-    
-    uint32_t tesla_freq = 315000000;
-    if(!furi_hal_subghz_is_frequency_valid(tesla_freq)) {
-        FURI_LOG_E("Predator", "Invalid frequency: 315MHz");
-        return;
-    }
-    
-    FURI_LOG_I("Predator", "Sending Tesla charge port signal");
-    furi_hal_subghz_reset();
-    furi_hal_subghz_set_frequency_and_path(tesla_freq);
-    
-    // Initialize TX
-    furi_hal_subghz_tx();
-    
-    // Signal transmission implementation would go here
+    UNUSED(app);
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Tesla charge port signal");
 }
 
 const char* predator_subghz_get_car_model_name(CarModel model) {
@@ -154,60 +74,32 @@ const char* predator_subghz_get_car_command_name(CarCommand command) {
 }
 
 void predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarCommand command) {
-    furi_assert(app);
+    UNUSED(app);
     
     if((unsigned int)model >= CarModelCount || (unsigned int)command >= CarCommandCount) {
         FURI_LOG_E("Predator", "Invalid car model or command");
         return;
     }
     
-    uint32_t frequency = car_frequencies[model];
-    
-    if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        FURI_LOG_E("Predator", "Invalid frequency: %lu", frequency);
-        return;
-    }
-    
-    FURI_LOG_I("Predator", "Sending %s command to %s on %lu Hz",
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Sending %s command to %s", 
               predator_subghz_get_car_command_name(command),
-              predator_subghz_get_car_model_name(model),
-              frequency);
-              
-    furi_hal_subghz_reset();
-    furi_hal_subghz_set_frequency_and_path(frequency);
-    
-    // Initialize TX
-    furi_hal_subghz_tx();
-    
-    // Signal transmission implementation would go here
+              predator_subghz_get_car_model_name(model));
 }
 
 void predator_subghz_start_passive_car_opener(PredatorApp* app) {
-    furi_assert(app);
-    
-    FURI_LOG_I("Predator", "Starting passive car opener mode");
-    // Initialize RX mode for car opener relay
-    uint32_t frequency = 433920000; // Most common car frequency
-    
-    if(furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_hal_subghz_reset();
-        furi_hal_subghz_set_frequency_and_path(frequency);
-        furi_hal_subghz_rx();
-    }
+    UNUSED(app);
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Passive car opener mode");
 }
 
 void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
-    furi_assert(app);
-    
-    FURI_LOG_I("Predator", "Stopping passive car opener mode");
-    furi_hal_subghz_sleep();
+    UNUSED(app);
+    // Simulation only - no hardware access
+    FURI_LOG_I("Predator", "[SIMULATED] Stopping passive car opener");
 }
 
 void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
-    furi_assert(app);
-    
-    if(app->attack_running) {
-        // Implementation of periodic check
-        // Here we would check for received signals and relay them
-    }
+    UNUSED(app);
+    // No-op for safety
 }

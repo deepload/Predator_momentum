@@ -24,23 +24,23 @@ void predator_scene_start_on_enter(void* context) {
     Submenu* submenu = app->submenu;
 
     submenu_add_item(
-        submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, predator_scene_start_submenu_callback, app);
+        submenu, "📡 WiFi Attacks (DEMO)", SubmenuIndexWifiAttacks, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "📱 Bluetooth Attacks", SubmenuIndexBluetoothAttacks, predator_scene_start_submenu_callback, app);
+        submenu, "📱 Bluetooth Attacks (DEMO)", SubmenuIndexBluetoothAttacks, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "📻 SubGHz/RF Attacks", SubmenuIndexSubghzAttacks, predator_scene_start_submenu_callback, app);
+        submenu, "📻 SubGHz/RF Attacks (DEMO)", SubmenuIndexSubghzAttacks, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "🚗 Car Attacks", SubmenuIndexCarAttacks, predator_scene_start_submenu_callback, app);
+        submenu, "🚗 Car Attacks (DEMO)", SubmenuIndexCarAttacks, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "💳 RFID/NFC Attacks", SubmenuIndexRfidAttacks, predator_scene_start_submenu_callback, app);
+        submenu, "💳 RFID/NFC Attacks (DEMO)", SubmenuIndexRfidAttacks, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "🛰️ GPS Tracker", SubmenuIndexGpsTracker, predator_scene_start_submenu_callback, app);
+        submenu, "🛰️ GPS Tracker (DEMO)", SubmenuIndexGpsTracker, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "🗺️ Wardriving", SubmenuIndexWardriving, predator_scene_start_submenu_callback, app);
+        submenu, "🗺️ Wardriving (DEMO)", SubmenuIndexWardriving, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "🎭 Social Engineering", SubmenuIndexSocialEngineering, predator_scene_start_submenu_callback, app);
+        submenu, "🎭 Social Engineering (DEMO)", SubmenuIndexSocialEngineering, predator_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "⚙️ Settings", SubmenuIndexSettings, predator_scene_start_submenu_callback, app);
+        submenu, "⚙️ Settings (DEMO)", SubmenuIndexSettings, predator_scene_start_submenu_callback, app);
     submenu_add_item(
         submenu, "ℹ️ About", SubmenuIndexAbout, predator_scene_start_submenu_callback, app);
 

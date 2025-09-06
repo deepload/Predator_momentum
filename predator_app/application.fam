@@ -3,7 +3,7 @@ App(
     name="Predator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
-    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt"],
+    requires=["gui", "dialogs", "storage", "notification"],
     stack_size=4 * 1024,
     fap_category="Tools",
     fap_description="Pen testing toolkit for Flipper Zero",
