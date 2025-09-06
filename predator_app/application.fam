@@ -1,0 +1,23 @@
+App(
+    appid="predator",
+    name="Predator",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=[
+        "gui",
+        "dialogs",
+        "storage",
+        "notification",
+        "subghz",
+        "nfc",
+        "bt",
+        "infrared",
+    ],
+    stack_size=4 * 1024,
+    order=10,
+    fap_icon="predator.png",
+    fap_category="Tools",
+    fap_author="Predator Team",
+    fap_version="1.0",
+    fap_description="Advanced penetration testing toolkit for Flipper Zero with Predator module",
+)
