@@ -55,6 +55,18 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
 }
 
 void predator_gps_init(PredatorApp* app) {
+    if(!app) return;
+    
+    // DEMO MODE: Skip hardware initialization
+    if (app->gps_uart == NULL) {
+        FURI_LOG_I("Predator", "Demo mode: GPS hardware access disabled");
+        app->gps_connected = false;
+        app->latitude = 37.7749f;  // Demo coordinates - San Francisco
+        app->longitude = -122.4194f;
+        app->satellites = 8;  // Fake satellite count for demo
+        return;
+    }
+    
     // Check GPS power switch state (front left switch must be down)
     furi_hal_gpio_init(PREDATOR_GPS_POWER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
     if(furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH)) {
@@ -108,8 +120,31 @@ void predator_gps_deinit(PredatorApp* app) {
 }
 
 void predator_gps_update(PredatorApp* app) {
-    // GPS data is updated via UART callback
-    UNUSED(app);
+    if (!app) return;
+    
+    // In demo mode (no hardware), generate simulated GPS data
+    if (app->gps_uart == NULL) {
+        static uint32_t counter = 0;
+        
+        // Simulate GPS connection
+        app->gps_connected = true;
+        
+        // Every 10 updates, change the simulated position slightly to show movement
+        if (counter % 10 == 0) {
+            // Small random position change to simulate movement
+            app->latitude += ((float)(rand() % 10) - 5) * 0.0001f;
+            app->longitude += ((float)(rand() % 10) - 5) * 0.0001f;
+            
+            // Vary the satellite count between 7-12 for realism
+            app->satellites = 7 + (rand() % 6);
+        }
+        
+        counter++;
+        return;
+    }
+    
+    // With real hardware, data is updated via UART callback
+    // No additional action needed here
 }
 
 bool predator_gps_parse_nmea(PredatorApp* app, const char* sentence) {

@@ -73,7 +73,8 @@ PredatorUart* predator_uart_init(
 }
 
 void predator_uart_deinit(PredatorUart* uart) {
-    furi_assert(uart);
+    // Safety check - return if NULL
+    if (!uart) return;
     
     uart->running = false;
     furi_thread_join(uart->rx_thread);
@@ -88,17 +89,20 @@ void predator_uart_deinit(PredatorUart* uart) {
 }
 
 void predator_uart_tx(PredatorUart* uart, uint8_t* data, size_t len) {
-    furi_assert(uart);
+    // Safety check - return if NULL
+    if (!uart) return;
     furi_hal_serial_tx(uart->serial_handle, data, len);
 }
 
 void predator_uart_set_br(PredatorUart* uart, uint32_t baud) {
-    furi_assert(uart);
+    // Safety check - return if NULL
+    if (!uart) return;
     furi_hal_serial_set_br(uart->serial_handle, baud);
 }
 
 void predator_uart_set_rx_callback(PredatorUart* uart, PredatorUartRxCallback callback, void* context) {
-    furi_assert(uart);
+    // Safety check - return if NULL
+    if (!uart) return;
     uart->rx_callback = callback;
     uart->rx_callback_context = context;
 }
