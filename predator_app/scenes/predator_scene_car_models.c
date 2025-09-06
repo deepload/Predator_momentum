@@ -19,6 +19,12 @@ typedef struct {
 // Create local state object to persist between scene callbacks
 static CarModelsSceneState* car_models_state = NULL;
 
+// Submenu callback for selections
+static void predator_scene_car_models_submenu_callback(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
+
 // Helper function to format the menu headers
 static void predator_scene_car_models_update_menu(PredatorApp* app, CarModelsState state) {
     Submenu* submenu = app->submenu;
@@ -56,11 +62,7 @@ static void predator_scene_car_models_popup_callback(void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
 }
 
-// Submenu callback for selections
-void predator_scene_car_models_submenu_callback(void* context, uint32_t index) {
-    PredatorApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, index);
-}
+// This function is now defined as static above
 
 void predator_scene_car_models_on_enter(void* context) {
     PredatorApp* app = context;

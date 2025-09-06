@@ -35,6 +35,7 @@ typedef enum {
     PredatorCustomEventEsp32Disconnected,
     PredatorCustomEventWifiScanComplete,
     PredatorCustomEventDeauthComplete,
+    PredatorCustomEventGpsUpdate,
 } PredatorCustomEvent;
 
 typedef struct PredatorApp {

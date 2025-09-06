@@ -1,5 +1,9 @@
 #include "../predator_i.h"
 #include "../helpers/predator_gps.h"
+#include "predator_scene.h"
+#include <furi.h>
+#include <gui/view.h>
+#include <gui/elements.h>
 
 static void predator_scene_gps_tracker_popup_callback(void* context) {
     PredatorApp* app = context;
@@ -23,8 +27,8 @@ void predator_scene_gps_tracker_on_enter(void* context) {
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
-    popup_set_icon(app->popup, 79, 46, &I_ButtonRight_7x7);
-    popup_set_text(app->popup, "Debug", 98, 48, AlignCenter, AlignCenter);
+    // Use text instead of icon
+    popup_set_text(app->popup, "[->] Debug", 98, 48, AlignCenter, AlignCenter);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
@@ -40,12 +44,13 @@ bool predator_scene_gps_tracker_on_event(void* context, SceneManagerEvent event)
             consumed = true;
             scene_manager_previous_scene(app->scene_manager);
         }
-    } else if(event.type == SceneManagerEventTypeKey) {
-        if(event.event == InputKeyRight) {
-            // Switch to GPS debug scene
-            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsDebug);
-            consumed = true;
-        }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        consumed = true;
+        scene_manager_previous_scene(app->scene_manager);
+    } else if(event.type == SceneManagerEventTypeCustom && event.event == InputKeyRight) {
+        // Switch to GPS debug scene - use GpsDebug scene which is at index 20 per predator_scene_config.h
+        scene_manager_next_scene(app->scene_manager, 20); // PredatorSceneGpsDebug
+        consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             predator_gps_update(app);

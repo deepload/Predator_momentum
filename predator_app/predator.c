@@ -48,7 +48,8 @@ PredatorApp* predator_app_alloc() {
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&predator_scene_handlers, app);
 
-    view_dispatcher_set_queue_enabled(app->view_dispatcher, true);
+    // Note: using default queue management
+    // The deprecated view_dispatcher_enable_queue would have been here
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
     view_dispatcher_set_custom_event_callback(app->view_dispatcher, predator_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(app->view_dispatcher, predator_back_event_callback);

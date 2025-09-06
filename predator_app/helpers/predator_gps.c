@@ -1,10 +1,10 @@
 #include "predator_gps.h"
 #include "../predator_i.h"
 #include "../predator_uart.h"
+#include "predator_string.h"
 #include <furi.h>
-#include <furi_hal.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Forward declaration for GPS debug tracking function
 extern void predator_gps_debug_track_nmea(const char* nmea);
@@ -91,7 +91,7 @@ void predator_gps_init(PredatorApp* app) {
     };
     
     // Send configuration commands to GPS module
-    for (int i = 0; i < sizeof(config_cmds)/sizeof(config_cmds[0]); i++) {
+    for (size_t i = 0; i < sizeof(config_cmds)/sizeof(config_cmds[0]); i++) {
         if (app->gps_uart) {
             predator_uart_tx(app->gps_uart, (uint8_t*)config_cmds[i], strlen(config_cmds[i]));
             furi_delay_ms(100); // Short delay between commands
@@ -121,90 +121,95 @@ bool predator_gps_parse_nmea(PredatorApp* app, const char* sentence) {
         // Format: $GPGSV,3,1,11,03,03,111,00,04,15,270,00,06,01,010,00,13,06,292,00*74
         //         $GPGSV,num_msgs,msg_num,num_sats,...
 
-        char* sentence_copy = strdup(sentence);
-        char* token = strtok(sentence_copy, ",");
-        int field = 0;
-        
-        while(token != NULL && field < 4) {  // We only need the 4th field (num_sats)
-            if(field == 3 && strlen(token) > 0) {
-                // This field is the total number of satellites in view
-                uint32_t sats_in_view = atoi(token);
-                if(sats_in_view > app->satellites) {
-                    app->satellites = sats_in_view;
-                }
-                if(sats_in_view > 0) {
-                    app->gps_connected = true;
-                }
+        // Get the 4th field (number of satellites)
+        char* sats_field = predator_get_next_field(sentence, 3, ',');
+        if(sats_field && strlen(sats_field) > 0) {
+            // This field is the total number of satellites in view
+            uint32_t sats_in_view = atoi(sats_field);
+            if(sats_in_view > app->satellites) {
+                app->satellites = sats_in_view;
             }
-            token = strtok(NULL, ",");
-            field++;
+            if(sats_in_view > 0) {
+                app->gps_connected = true;
+            }
         }
         
-        free(sentence_copy);
         return true;
     }
     
     // Parse GGA sentence (primary position data)
     if(strncmp(sentence, "$GPGGA", 6) == 0 || strncmp(sentence, "$GNGGA", 6) == 0) {
-        char* sentence_copy = strdup(sentence);
-        char* token = strtok(sentence_copy, ",");
-        int field = 0;
+        // Parse GGA data
         
-        // Track if we found valid coordinates
-        bool found_valid_pos = false;
+        // Process latitude (field 2 and 3)
+        char* lat_str = predator_get_next_field(sentence, 2, ',');
+        char* ns_indicator = predator_get_next_field(sentence, 3, ',');
         
-        while(token != NULL && field < 15) {
-            switch(field) {
-                case 2: // Latitude
-                    if(strlen(token) > 0) {
-                        float lat_raw = strtof(token, NULL);
-                        // Convert DDMM.MMMM to DD.DDDD
-                        int degrees = (int)(lat_raw / 100);
-                        float minutes = lat_raw - (degrees * 100);
-                        app->latitude = degrees + (minutes / 60.0f);
-                        found_valid_pos = true;
-                    }
-                    break;
-                case 3: // N/S indicator
-                    if(token[0] == 'S' || token[0] == 's') {
-                        app->latitude = -app->latitude; // South is negative
-                    }
-                    break;
-                case 4: // Longitude
-                    if(strlen(token) > 0) {
-                        float lon_raw = strtof(token, NULL);
-                        // Convert DDDMM.MMMM to DDD.DDDD
-                        int degrees = (int)(lon_raw / 100);
-                        float minutes = lon_raw - (degrees * 100);
-                        app->longitude = degrees + (minutes / 60.0f);
-                        found_valid_pos = true;
-                    }
-                    break;
-                case 5: // E/W indicator
-                    if(token[0] == 'W' || token[0] == 'w') {
-                        app->longitude = -app->longitude; // West is negative
-                    }
-                    break;
-                case 7: // Number of satellites
-                    if(strlen(token) > 0) {
-                        uint32_t num_sats = atoi(token);
-                        if(num_sats > 0) {
-                            app->satellites = num_sats;
-                            app->gps_connected = true;
-                        }
-                    }
-                    break;
+        if(lat_str && strlen(lat_str) > 0 && ns_indicator && (*ns_indicator == 'N' || *ns_indicator == 'S')) {
+            char ns = *ns_indicator;
+            
+            // Convert DDMM.MMMM to decimal degrees
+            char* dot = strchr(lat_str, '.');
+            if(dot) {
+                int dot_pos = dot - lat_str;
+                if(dot_pos >= 2) {
+                    char deg_part[10] = {0};
+                    char min_part[15] = {0};
+                    
+                    strncpy(deg_part, lat_str, dot_pos - 2);
+                    strcpy(min_part, lat_str + dot_pos - 2);
+                    
+                    float degrees = strtof(deg_part, NULL);
+                    float minutes = strtof(min_part, NULL);
+                    
+                    app->latitude = degrees + (minutes / 60.0f);
+                    
+                    // Apply N/S sign
+                    if(ns == 'S') app->latitude = -app->latitude;
+                    
+                    app->gps_connected = true;
+                }
             }
-            token = strtok(NULL, ",");
-            field++;
         }
         
-        // If we got valid position, consider the GPS connected
-        if(found_valid_pos) {
+        // Process longitude (field 4 and 5)
+        char* lon_str = predator_get_next_field(sentence, 4, ',');
+        char* ew_indicator = predator_get_next_field(sentence, 5, ',');
+        
+        if(lon_str && strlen(lon_str) > 0 && ew_indicator && (*ew_indicator == 'E' || *ew_indicator == 'W')) {
+            char ew = *ew_indicator;
+            
+            // Convert DDDMM.MMMM to decimal degrees
+            char* dot = strchr(lon_str, '.');
+            if(dot) {
+                int dot_pos = dot - lon_str;
+                if(dot_pos >= 2) {
+                    char deg_part[10] = {0};
+                    char min_part[15] = {0};
+                    
+                    strncpy(deg_part, lon_str, dot_pos - 2);
+                    strcpy(min_part, lon_str + dot_pos - 2);
+                    
+                    float degrees = strtof(deg_part, NULL);
+                    float minutes = strtof(min_part, NULL);
+                    
+                    app->longitude = degrees + (minutes / 60.0f);
+                    
+                    // Apply E/W sign
+                    if(ew == 'W') app->longitude = -app->longitude;
+                    
+                    app->gps_connected = true;
+                }
+            }
+        }
+        
+        // Get number of satellites (field 7)
+        char* sats_str = predator_get_next_field(sentence, 7, ',');
+        if(sats_str && strlen(sats_str) > 0) {
+            app->satellites = atoi(sats_str);
             app->gps_connected = true;
         }
         
-        free(sentence_copy);
         return true;
     }
     
@@ -212,27 +217,15 @@ bool predator_gps_parse_nmea(PredatorApp* app, const char* sentence) {
     if(strncmp(sentence, "$GPRMC", 6) == 0 || strncmp(sentence, "$GNRMC", 6) == 0) {
         // RMC = Recommended Minimum specific GPS/Transit data
         // We parse this to get status information and backup position
-        char* sentence_copy = strdup(sentence);
-        char* token = strtok(sentence_copy, ",");
-        int field = 0;
         
-        bool valid_fix = false;
-        
-        while(token != NULL && field < 12) {
-            switch(field) {
-                case 2: // Status (A=active/valid, V=void/invalid)
-                    if(token[0] == 'A') {
-                        valid_fix = true;
-                        app->gps_connected = true;
-                    }
-                    break;
-            }
-            token = strtok(NULL, ",");
-            field++;
+        // Get status field (field 2: A=active, V=void)
+        char* status_field = predator_get_next_field(sentence, 2, ',');
+        if(status_field && *status_field == 'A') {
+            app->gps_connected = true;
+            // We could also parse additional fields here if needed
         }
         
-        free(sentence_copy);
-        return valid_fix;
+        return true;
     }
     
     return false;

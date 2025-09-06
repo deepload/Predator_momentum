@@ -1,9 +1,12 @@
 #include "../predator_i.h"
 #include "../helpers/predator_gps.h"
 #include "predator_scene.h"
+#include <furi.h>
+#include <gui/view.h>
+#include <gui/elements.h>
 
 #define GPS_UPDATE_INTERVAL_MS 500
-#define GPS_STATS_BUFFER_SIZE 128
+#define GPS_STATS_BUFFER_SIZE 512
 
 typedef struct {
     uint32_t nmea_count;
@@ -27,7 +30,11 @@ static void predator_gps_debug_update_callback(void* context) {
 static void predator_scene_gps_debug_widget_callback(GuiButtonType result, InputType type, void* context) {
     PredatorApp* app = context;
     if(type == InputTypeShort) {
-        view_dispatcher_send_custom_event(app->view_dispatcher, result);
+        if (result == GuiButtonTypeLeft) {
+            scene_manager_handle_back_event(app->scene_manager);
+        } else {
+            view_dispatcher_send_custom_event(app->view_dispatcher, result);
+        }
     }
 }
 
@@ -44,10 +51,8 @@ void predator_scene_gps_debug_on_enter(void* context) {
     
     // Clear widget and set up UI
     widget_reset(widget);
-    widget_set_font(widget, FontPrimary);
-    widget_add_text_scroll_element(widget, 0, 0, 128, 64, "Initializing GPS debug...");
-    widget_set_context(widget, app);
-    widget_set_button_callback(widget, predator_scene_gps_debug_widget_callback);
+    widget_add_string_element(widget, 64, 32, AlignCenter, AlignCenter, FontPrimary, "Initializing GPS debug...");
+    widget_add_button_element(widget, GuiButtonTypeLeft, "Back", predator_scene_gps_debug_widget_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);
     
@@ -55,7 +60,7 @@ void predator_scene_gps_debug_on_enter(void* context) {
     furi_timer_start(gps_debug_state->update_timer, GPS_UPDATE_INTERVAL_MS);
     
     // Force immediate update
-    predator_scene_gps_debug_update_callback(app);
+    predator_gps_debug_update_callback(app);
 }
 
 bool predator_scene_gps_debug_on_event(void* context, SceneManagerEvent event) {
@@ -100,8 +105,9 @@ bool predator_scene_gps_debug_on_event(void* context, SceneManagerEvent event) {
             }
             
             // Update widget
-            widget_add_text_scroll_element(widget, 0, 0, 128, 52, stats_buf);
-            widget_add_button_element(widget, GuiButtonTypeLeft, "Back", scene_manager_handle_back_event, app);
+            widget_reset(widget);
+            widget_add_string_multiline_element(widget, 0, 0, AlignLeft, AlignTop, FontPrimary, stats_buf);
+            widget_add_button_element(widget, GuiButtonTypeLeft, "Back", predator_scene_gps_debug_widget_callback, app);
             
             // Increment NMEA counter if we received data
             if(app->gps_connected) {
