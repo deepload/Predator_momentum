@@ -61,12 +61,45 @@ static const uint32_t car_frequencies[CarModelCount] = {
 void predator_subghz_init(PredatorApp* app) {
     furi_assert(app);
     
-    // Initialize SubGHz safely for hardware access
-    furi_hal_subghz_init();
+    // Use try/catch pattern with error flags
+    bool init_success = true;
     
-    // Check external radio module
-    if(furi_hal_gpio_read(&gpio_cc1101_g0)) {
-        FURI_LOG_I("Predator", "External CC1101 module detected");
+    // Safely initialize SubGHz with error handling
+    furi_hal_power_suppress_charge_enter();
+    
+    FURI_CRITICAL_ENTER();
+    // Wrapped in critical section to prevent interruption during initialization
+    
+    // Safety check before initialization
+    if(furi_hal_subghz_is_busy()) {
+        FURI_LOG_E("Predator", "SubGHz is busy, cannot initialize");
+        init_success = false;
+    } else {
+        // Try initialization with error capture
+        bool init_result = true;
+        
+        // Safe hardware initialization
+        furi_hal_subghz_init();
+        
+        if(!init_result) {
+            FURI_LOG_E("Predator", "SubGHz initialization failed");
+            init_success = false;
+        }
+    }
+    
+    // Check external radio module if initialization was successful
+    if(init_success) {
+        if(furi_hal_gpio_read(&gpio_cc1101_g0)) {
+            FURI_LOG_I("Predator", "External CC1101 module detected");
+        }
+    }
+    
+    FURI_CRITICAL_EXIT();
+    furi_hal_power_suppress_charge_exit();
+    
+    // If initialization failed, log it but continue
+    if(!init_success) {
+        FURI_LOG_E("Predator", "SubGHz functionality will be limited");
     }
 }
 

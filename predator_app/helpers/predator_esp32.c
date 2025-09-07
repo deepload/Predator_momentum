@@ -27,7 +27,9 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
 }
 
 void predator_esp32_init(PredatorApp* app) {
-    // Initialize ESP32 UART communication
+    if(!app) return;
+    
+    // Production initialization - always attempt hardware access
     app->esp32_uart = predator_uart_init(PREDATOR_ESP32_UART_TX_PIN, PREDATOR_ESP32_UART_RX_PIN, PREDATOR_ESP32_UART_BAUD, predator_esp32_rx_callback, app);
     app->esp32_connected = false;
     

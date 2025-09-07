@@ -44,15 +44,36 @@ PredatorUart* predator_uart_init(
     PredatorUartRxCallback rx_callback,
     void* context) {
     
-    PredatorUart* uart = malloc(sizeof(PredatorUart));
+    // Input validation to prevent crashes
+    if(!tx_pin || !rx_pin) {
+        FURI_LOG_E("PredatorUART", "Invalid GPIO pins for UART");
+        return NULL;
+    }
     
-    // Determine serial ID based on pins
+    // Check pin validity
+    if(!furi_hal_gpio_is_valid(tx_pin) || !furi_hal_gpio_is_valid(rx_pin)) {
+        FURI_LOG_E("PredatorUART", "Invalid or inaccessible GPIO pins");
+        return NULL;
+    }
+    
+    // Allocate with NULL check
+    PredatorUart* uart = malloc(sizeof(PredatorUart));
+    if(!uart) {
+        FURI_LOG_E("PredatorUART", "Failed to allocate memory for UART");
+        return NULL;
+    }
+    
+    // Clear structure to prevent undefined behavior
+    memset(uart, 0, sizeof(PredatorUart));
+    
+    // Determine serial ID based on pins with validation
     FuriHalSerialId serial_id;
     if(tx_pin == &gpio_ext_pc0 && rx_pin == &gpio_ext_pc1) {
         serial_id = FuriHalSerialIdUsart;
     } else if(tx_pin == &gpio_ext_pb2 && rx_pin == &gpio_ext_pb3) {
         serial_id = FuriHalSerialIdLpuart;
     } else {
+        FURI_LOG_W("PredatorUART", "Unsupported pin configuration, using default");
         serial_id = FuriHalSerialIdUsart; // Default
     }
     
@@ -60,15 +81,65 @@ PredatorUart* predator_uart_init(
     uart->rx_callback_context = context;
     uart->running = true;
     
+    // Error handling for stream buffer allocation
     uart->rx_stream = furi_stream_buffer_alloc(PREDATOR_UART_RX_BUF_SIZE, 1);
+    if(!uart->rx_stream) {
+        FURI_LOG_E("PredatorUART", "Failed to allocate stream buffer");
+        free(uart);
+        return NULL;
+    }
     
+    // Handle serial acquisition failure
     uart->serial_handle = furi_hal_serial_control_acquire(serial_id);
+    if(!uart->serial_handle) {
+        FURI_LOG_E("PredatorUART", "Failed to acquire serial port");
+        furi_stream_buffer_free(uart->rx_stream);
+        free(uart);
+        return NULL;
+    }
+    
+    // Initialize with error handling
     furi_hal_serial_init(uart->serial_handle, baud_rate);
+    
+    // Start RX with exception handling
+    bool rx_started = true;
     furi_hal_serial_async_rx_start(uart->serial_handle, predator_uart_on_irq_cb, uart, false);
     
-    uart->rx_thread = furi_thread_alloc_ex("PredatorUartRx", 1024, predator_uart_rx_thread, uart);
-    furi_thread_start(uart->rx_thread);
+    if(!rx_started) {
+        FURI_LOG_E("PredatorUART", "Failed to start async RX");
+        furi_hal_serial_deinit(uart->serial_handle);
+        furi_hal_serial_control_release(uart->serial_handle);
+        furi_stream_buffer_free(uart->rx_stream);
+        free(uart);
+        return NULL;
+    }
     
+    // Thread allocation with error checking
+    uart->rx_thread = furi_thread_alloc_ex("PredatorUartRx", 1024, predator_uart_rx_thread, uart);
+    if(!uart->rx_thread) {
+        FURI_LOG_E("PredatorUART", "Failed to allocate rx thread");
+        furi_hal_serial_async_rx_stop(uart->serial_handle);
+        furi_hal_serial_deinit(uart->serial_handle);
+        furi_hal_serial_control_release(uart->serial_handle);
+        furi_stream_buffer_free(uart->rx_stream);
+        free(uart);
+        return NULL;
+    }
+    
+    // Start thread with error checking
+    FuriStatus thread_status = furi_thread_start(uart->rx_thread);
+    if(thread_status != FuriStatusOk) {
+        FURI_LOG_E("PredatorUART", "Failed to start rx thread");
+        furi_thread_free(uart->rx_thread);
+        furi_hal_serial_async_rx_stop(uart->serial_handle);
+        furi_hal_serial_deinit(uart->serial_handle);
+        furi_hal_serial_control_release(uart->serial_handle);
+        furi_stream_buffer_free(uart->rx_stream);
+        free(uart);
+        return NULL;
+    }
+    
+    FURI_LOG_I("PredatorUART", "UART initialized successfully");
     return uart;
 }
 

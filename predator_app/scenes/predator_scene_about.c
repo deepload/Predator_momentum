@@ -39,15 +39,13 @@ void predator_scene_about_on_enter(void* context) {
         "• Social Engineering Tools\n"
     );
     
-    // Append availability notice based on module connection
-    if(!app->module_connected) {
-        strcat(about_text, 
-            "\n"
-            "\u26A0\uFE0F LIMITED FUNCTIONALITY \u26A0\uFE0F\n"
-            "Some features require the\n"
-            "Predator module to be connected.\n"
-        );
-    }
+    // Add hardware status section regardless of module connection
+    strcat(about_text, 
+        "\n"
+        "Switch Controls:\n"
+        "• Left: GPS Power (Down=Flipper)\n"
+        "• Right: Marauder Enable\n"
+    );
     
     // Add standard footer
     strcat(about_text, 

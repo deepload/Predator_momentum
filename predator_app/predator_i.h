@@ -36,7 +36,22 @@ typedef enum {
     PredatorCustomEventWifiScanComplete,
     PredatorCustomEventDeauthComplete,
     PredatorCustomEventGpsUpdate,
+    PredatorCustomEventError,         // Generic error event
+    PredatorCustomEventHardwareError, // Hardware-specific error
+    PredatorCustomEventRecovery,      // System recovered from error
 } PredatorCustomEvent;
+
+// Error types for user-friendly notifications
+typedef enum {
+    PredatorErrorNone = 0,
+    PredatorErrorGpioInit,    // GPIO initialization failed
+    PredatorErrorUartInit,    // UART initialization failed
+    PredatorErrorSubGhzInit,  // SubGHz initialization failed
+    PredatorErrorMemory,      // Memory allocation failed
+    PredatorErrorHardware,    // General hardware failure
+    PredatorErrorTimeout,     // Operation timed out
+    PredatorErrorNotConnected // Module not connected
+} PredatorErrorType;
 
 typedef struct PredatorApp {
     Gui* gui;
@@ -52,6 +67,12 @@ typedef struct PredatorApp {
     Popup* popup;
     Loading* loading;
     Widget* widget;
+    
+    // Error tracking system
+    PredatorErrorType last_error;
+    bool has_error;
+    char error_message[128];
+    uint32_t error_timestamp;
     
     char text_store[PREDATOR_TEXT_STORE_SIZE + 1];
     

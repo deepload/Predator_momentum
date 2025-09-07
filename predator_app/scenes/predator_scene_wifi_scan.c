@@ -9,11 +9,11 @@ static void predator_scene_wifi_scan_popup_callback(void* context) {
 void predator_scene_wifi_scan_on_enter(void* context) {
     PredatorApp* app = context;
     
-    // DEMO MODE: Skip actual hardware initialization
-    // No ESP32 initialization in demo mode to prevent crashes
+    // Initialize ESP32 hardware if not already done
+    predator_esp32_init(app);
     
-    popup_set_header(app->popup, "WiFi Scanner (DEMO)", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "DEMO MODE: Simulating scan...\nNo hardware access\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+    popup_set_header(app->popup, "WiFi Scanner", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Scanning for WiFi networks...\nNetworks found: 0\nPress Back to return", 64, 25, AlignCenter, AlignTop);
     popup_set_callback(app->popup, predator_scene_wifi_scan_popup_callback);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
@@ -21,8 +21,8 @@ void predator_scene_wifi_scan_on_enter(void* context) {
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
-    // Demo mode - don't access hardware
-    // Just set up variables for simulation
+    // Start scan command
+    predator_esp32_wifi_scan(app);
     app->attack_running = true;
     app->targets_found = 0;
 }
@@ -56,7 +56,7 @@ bool predator_scene_wifi_scan_on_event(void* context, SceneManagerEvent event) {
 void predator_scene_wifi_scan_on_exit(void* context) {
     PredatorApp* app = context;
     app->attack_running = false;
-    // DEMO MODE: Don't try to deinitialize ESP32 hardware
-    // predator_esp32_deinit(app);
+    // Stop the scan command
+    predator_esp32_stop_attack(app);
     popup_reset(app->popup);
 }
