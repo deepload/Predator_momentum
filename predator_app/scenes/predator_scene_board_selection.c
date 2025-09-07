@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "../helpers/predator_boards.h"
 #include "predator_scene.h"
+#include <gui/view_dispatcher.h>
 
 enum SubmenuIndex {
     SubmenuIndexOriginalBoard,
@@ -65,6 +66,9 @@ void predator_scene_board_selection_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
 
+// Add a static flag to track if we're in the confirmation view
+static bool in_confirmation_view = false;
+
 // Setup confirmation view 
 static void setup_board_confirmation(PredatorApp* app, const char* board_name) {
     widget_reset(app->widget);
@@ -77,6 +81,7 @@ static void setup_board_confirmation(PredatorApp* app, const char* board_name) {
     widget_add_string_multiline_element(
         app->widget, 64, 32, AlignCenter, AlignCenter, FontPrimary, text);
     
+    in_confirmation_view = true; // Set flag when switching to widget view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);
 }
 
@@ -125,10 +130,12 @@ bool predator_scene_board_selection_on_event(void* context, SceneManagerEvent ev
             setup_board_confirmation(app, predator_boards_get_name(selected_type));
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        // If we're in the widget confirmation view, return to previous scene
-        // Otherwise, allow normal back button handling
-        if(view_dispatcher_get_current_view(app->view_dispatcher) == PredatorViewWidget) {
+        // For the board selection scene:
+        // If we're viewing the selection confirmation (widget view), return to previous scene
+        // Otherwise, let normal back button handling work
+        if(in_confirmation_view) {
             scene_manager_previous_scene(app->scene_manager);
+            in_confirmation_view = false; // Reset flag
             consumed = true;
         } else {
             consumed = false; 
@@ -140,6 +147,10 @@ bool predator_scene_board_selection_on_event(void* context, SceneManagerEvent ev
 
 void predator_scene_board_selection_on_exit(void* context) {
     PredatorApp* app = context;
+    
+    // Reset view tracking flag
+    in_confirmation_view = false;
+    
     submenu_reset(app->submenu);
     widget_reset(app->widget);
 }

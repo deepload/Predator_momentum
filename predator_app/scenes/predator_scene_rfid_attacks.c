@@ -1,4 +1,5 @@
 #include "../predator_i.h"
+#include "predator_scene.h"
 
 enum SubmenuIndex {
     SubmenuIndexRfidClone,

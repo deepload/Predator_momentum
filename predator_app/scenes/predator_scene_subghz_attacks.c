@@ -13,6 +13,12 @@ void predator_scene_subghz_attacks_submenu_callback(void* context, uint32_t inde
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
+// Popup callback for when an attack is running
+static void predator_scene_subghz_attacks_popup_callback(void* context) {
+    PredatorApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
+}
+
 void predator_scene_subghz_attacks_on_enter(void* context) {
     PredatorApp* app = context;
     Submenu* submenu = app->submenu;
@@ -36,15 +42,55 @@ bool predator_scene_subghz_attacks_on_event(void* context, SceneManagerEvent eve
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        consumed = true;
-        switch(event.event) {
-        case SubmenuIndexSubghzJamming:
-            popup_set_header(app->popup, "RF Jamming", 64, 10, AlignCenter, AlignTop);
-            popup_set_text(app->popup, "Jamming 433.92 MHz...\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-            break;
-        default:
-            break;
+        // Handle popup back button press
+        if(event.event == PredatorCustomEventPopupBack) {
+            // Return to submenu view
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
+            
+            // Clean up any running attacks
+            if(app->attack_running) {
+                app->attack_running = false;
+            }
+            
+            consumed = true;
+        } else {
+            // Handle menu selection
+            consumed = true;
+            switch(event.event) {
+            case SubmenuIndexSubghzJamming:
+                popup_set_header(app->popup, "RF Jamming", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, "Jamming 433.92 MHz...\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
+                popup_set_context(app->popup, app);
+                popup_set_timeout(app->popup, 0);
+                popup_enable_timeout(app->popup);
+                app->attack_running = true;
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+                break;
+            case SubmenuIndexSubghzReplay:
+                popup_set_header(app->popup, "Signal Replay", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, "Replaying captured signal...\nFrequency: 433.92MHz\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
+                popup_set_context(app->popup, app);
+                popup_set_timeout(app->popup, 0);
+                popup_enable_timeout(app->popup);
+                app->attack_running = true;
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+                break;
+            case SubmenuIndexSubghzBruteforce:
+                popup_set_header(app->popup, "RF Bruteforce", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, "Bruteforcing codes...\nFrequency: 433.92MHz\nProgress: 0%\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
+                popup_set_context(app->popup, app);
+                popup_set_timeout(app->popup, 0);
+                popup_enable_timeout(app->popup);
+                app->attack_running = true;
+                app->packets_sent = 0;
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+                break;
+            default:
+                break;
+            }
         }
     }
 

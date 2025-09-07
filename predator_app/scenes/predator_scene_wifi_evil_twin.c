@@ -41,6 +41,12 @@ bool predator_scene_wifi_evil_twin_on_event(void* context, SceneManagerEvent eve
             consumed = true;
             scene_manager_previous_scene(app->scene_manager);
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        // Handle direct back button press
+        consumed = true;
+        app->attack_running = false;
+        predator_esp32_stop_attack(app);
+        scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             if(furi_get_tick() % 30 == 0) app->targets_found++; // Simulate clients connecting
