@@ -26,7 +26,7 @@ void predator_scene_about_on_enter(void* context) {
         module_status);
     
     // Append remaining capabilities to about text
-    strcat(about_text, 
+    strncat(about_text, 
         "\n"
         "Attack Capabilities:\n"
         "• WiFi (Deauth, Evil Twin, Scan)\n"
@@ -36,26 +36,29 @@ void predator_scene_about_on_enter(void* context) {
         "• Tesla Charge Port (315MHz)\n"
         "• RFID/NFC (Clone, Bruteforce)\n"
         "• GPS Tracking & Wardriving\n"
-        "• Social Engineering Tools\n"
+        "• Social Engineering Tools\n",
+        sizeof(about_text) - strlen(about_text) - 1
     );
     
     // Add hardware status section regardless of module connection
-    strcat(about_text, 
+    strncat(about_text, 
         "\n"
         "Switch Controls:\n"
         "• Left: GPS Power (Down=Flipper)\n"
-        "• Right: Marauder Enable\n"
+        "• Right: Marauder Enable\n",
+        sizeof(about_text) - strlen(about_text) - 1
     );
     
     // Add standard footer
-    strcat(about_text, 
+    strncat(about_text, 
         "\n"
-        "\u26A0\uFE0F FOR EDUCATIONAL USE ONLY\n"
+        "⚠\uFE0F FOR EDUCATIONAL USE ONLY\n"
         "Use responsibly and legally!\n"
         "\n"
         "Special thanks to: Dario Amodei\n"
         "\n"
-        "Press Back to return"
+        "Press Back to return",
+        sizeof(about_text) - strlen(about_text) - 1
     );
     
     widget_add_text_scroll_element(
