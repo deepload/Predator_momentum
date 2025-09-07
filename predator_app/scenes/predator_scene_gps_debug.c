@@ -130,7 +130,12 @@ void predator_scene_gps_debug_on_exit(void* context) {
     // Stop the update timer
     if(gps_debug_state && gps_debug_state->update_timer) {
         furi_timer_stop(gps_debug_state->update_timer);
+        furi_timer_free(gps_debug_state->update_timer);
+        gps_debug_state->update_timer = NULL;
     }
+    
+    // We don't free gps_debug_state here as it's used across invocations
+    // If we want to completely free it, we should do it in the app's on_exit handler
     
     // Reset widget
     widget_reset(app->widget);

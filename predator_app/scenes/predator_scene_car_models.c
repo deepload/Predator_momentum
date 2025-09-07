@@ -59,7 +59,14 @@ static void predator_scene_car_models_update_menu(PredatorApp* app, CarModelsSta
 // Popup callback for when a command is being transmitted
 static void predator_scene_car_models_popup_callback(void* context) {
     PredatorApp* app = context;
+    
+    // When the popup back button is pressed, send a custom event to handle it
     view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
+    
+    // Clean up any ongoing transmissions
+    if(car_models_state && car_models_state->transmitting) {
+        car_models_state->transmitting = false;
+    }
 }
 
 // This function is now defined as static above
@@ -149,9 +156,59 @@ bool predator_scene_car_models_on_event(void* context, SceneManagerEvent event) 
             car_models_state->selected_command = event.event;
             car_models_state->transmitting = true;
             
-            // Switch to transmitting screen and restart the scene
-            scene_manager_previous_scene(app->scene_manager);
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModels);
+            // Stay in the current scene and switch to popup view directly
+            // without redirecting to previous scene
+            
+            // Setup the popup for transmission
+            popup_set_header(app->popup, "Transmitting...", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup, 
+                "Sending car command...\n"
+                "Please wait", 
+                64, 25, AlignCenter, AlignTop);
+            popup_set_callback(app->popup, predator_scene_car_models_popup_callback);
+            popup_set_context(app->popup, app);
+            popup_set_timeout(app->popup, 0);
+            popup_enable_timeout(app->popup);
+            
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            
+            // Initialize SubGHz if needed
+            if(!app->subghz_txrx) {
+                predator_subghz_init(app);
+                
+                // Check if initialization failed
+                if(!app->subghz_txrx) {
+                    // Show error and return to command selection
+                    popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+                    popup_set_text(app->popup, 
+                        "Failed to initialize SubGHz.\n"
+                        "Check hardware connection\n"
+                        "and try again.", 
+                        64, 25, AlignCenter, AlignTop);
+                    car_models_state->transmitting = false;
+                    consumed = true;
+                    return consumed;
+                }
+            }
+            
+            // Send the command
+            predator_subghz_send_car_command(app, 
+                car_models_state->selected_model, 
+                car_models_state->selected_command);
+            
+            // Add success notification
+            notification_message(app->notifications, &sequence_success);
+                
+            // Update UI with completion info
+            char result_text[128];
+            snprintf(result_text, sizeof(result_text), 
+                "Transmission complete!\n"
+                "Model: %s\n"
+                "Command: %s", 
+                predator_subghz_get_car_model_name(car_models_state->selected_model),
+                predator_subghz_get_car_command_name(car_models_state->selected_command));
+            popup_set_text(app->popup, result_text, 64, 25, AlignCenter, AlignTop);
+            
             consumed = true;
         } else if(event.event == PredatorCustomEventPopupBack) {
             // Return to car model selection

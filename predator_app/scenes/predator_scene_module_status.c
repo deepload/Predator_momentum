@@ -7,10 +7,16 @@
 
 static void module_status_button_cb(GuiButtonType type, InputType input, void* context) {
     if(input != InputTypeShort) return;
-    if(type != GuiButtonTypeCenter) return;
     PredatorApp* app = context;
     if(!app) return;
-    view_dispatcher_send_custom_event(app->view_dispatcher, 1);
+    
+    if(type == GuiButtonTypeCenter) {
+        // Probe request (center button)
+        view_dispatcher_send_custom_event(app->view_dispatcher, 1);
+    } else if(type == GuiButtonTypeLeft) {
+        // Back button (left button)
+        view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventBack);
+    }
 }
 
 static void module_status_build_widget(PredatorApp* app) {
@@ -96,9 +102,16 @@ bool predator_scene_module_status_on_event(void* context, SceneManagerEvent even
         // Periodically refresh the status text
         module_status_build_widget(app);
     } else if(event.type == SceneManagerEventTypeCustom) {
-        // Treat any custom event here as a Probe request (widget center pressed)
-        module_status_probe(app);
-        module_status_build_widget(app);
+        if(event.event == PredatorCustomEventBack) {
+            // Handle back button press from widget
+            consumed = true;
+            scene_manager_previous_scene(app->scene_manager);
+        } else {
+            // Treat other custom events as Probe requests (widget center pressed)
+            module_status_probe(app);
+            module_status_build_widget(app);
+            consumed = true;
+        }
     }
 
     return consumed;

@@ -70,10 +70,21 @@ void predator_scene_about_on_enter(void* context) {
 }
 
 bool predator_scene_about_on_event(void* context, SceneManagerEvent event) {
-    PredatorApp* app = context;
-    bool consumed = false;
-    UNUSED(app);
+    UNUSED(context);
     UNUSED(event);
+    bool consumed = false;
+    
+    if(event.type == SceneManagerEventTypeCustom) {
+        // Handle any custom events if needed in the future
+        consumed = true;
+    } else if(event.type == SceneManagerEventTypeBack) {
+        // Let the scene manager handle the back button
+        consumed = false;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        // Update any dynamic content if needed
+        // Currently no dynamic content in about screen
+    }
+    
     return consumed;
 }
 

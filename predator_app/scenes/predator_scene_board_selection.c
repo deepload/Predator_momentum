@@ -16,6 +16,8 @@ void predator_scene_board_selection_submenu_callback(void* context, uint32_t ind
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
+// No forward declarations needed
+
 void predator_scene_board_selection_on_enter(void* context) {
     PredatorApp* app = context;
     Submenu* submenu = app->submenu;
@@ -63,31 +65,29 @@ void predator_scene_board_selection_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
 
-// Helper function to show selection confirmation
-static void show_board_confirmation(PredatorApp* app, const char* board_name) {
+// Setup confirmation view 
+static void setup_board_confirmation(PredatorApp* app, const char* board_name) {
     widget_reset(app->widget);
     
     char text[128];
     snprintf(text, sizeof(text), 
-            "Board Selected:\n\n%s\n\nSettings saved.",
+            "Board Selected:\n\n%s\n\nSettings saved.\n\nPress back to continue",
             board_name);
     
     widget_add_string_multiline_element(
         app->widget, 64, 32, AlignCenter, AlignCenter, FontPrimary, text);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);
-    
-    // Auto-return after 2 seconds
-    furi_delay_ms(2000);
-    
-    scene_manager_previous_scene(app->scene_manager);
 }
+
+// Forward declaration not needed anymore
 
 bool predator_scene_board_selection_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     bool consumed = false;
     
     if(event.type == SceneManagerEventTypeCustom) {
+        // Handle board selection from submenu
         consumed = true;
         PredatorBoardType selected_type = PredatorBoardTypeUnknown;
         
@@ -122,10 +122,17 @@ bool predator_scene_board_selection_on_event(void* context, SceneManagerEvent ev
             predator_boards_save_selection(app->storage, selected_type);
             
             // Show confirmation
-            show_board_confirmation(app, predator_boards_get_name(selected_type));
+            setup_board_confirmation(app, predator_boards_get_name(selected_type));
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        consumed = false; // Allow normal back button handling
+        // If we're in the widget confirmation view, return to previous scene
+        // Otherwise, allow normal back button handling
+        if(view_dispatcher_get_current_view(app->view_dispatcher) == PredatorViewWidget) {
+            scene_manager_previous_scene(app->scene_manager);
+            consumed = true;
+        } else {
+            consumed = false; 
+        }
     }
     
     return consumed;
@@ -134,4 +141,5 @@ bool predator_scene_board_selection_on_event(void* context, SceneManagerEvent ev
 void predator_scene_board_selection_on_exit(void* context) {
     PredatorApp* app = context;
     submenu_reset(app->submenu);
+    widget_reset(app->widget);
 }

@@ -75,14 +75,26 @@ bool predator_scene_car_key_bruteforce_on_event(void* context, SceneManagerEvent
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == PredatorCustomEventPopupBack) {
+            // Handle popup back event
             consumed = true;
+            
+            // Clean up resources
+            app->attack_running = false;
+            if(app->subghz_txrx) {
+                predator_subghz_deinit(app);
+            }
+            notification_message(app->notifications, &sequence_blink_stop);
+            
+            // Return to previous scene
             scene_manager_previous_scene(app->scene_manager);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        // Explicit stop on back
+        // Explicit stop on back button press
         consumed = true;
         app->attack_running = false;
-        predator_subghz_deinit(app);
+        if(app->subghz_txrx) {
+            predator_subghz_deinit(app);
+        }
         notification_message(app->notifications, &sequence_blink_stop);
         scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {

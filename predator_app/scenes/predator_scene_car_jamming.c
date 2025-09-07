@@ -139,7 +139,17 @@ bool predator_scene_car_jamming_on_event(void* context, SceneManagerEvent event)
 
 void predator_scene_car_jamming_on_exit(void* context) {
     PredatorApp* app = context;
+    
+    // Always ensure we clean up resources when exiting
     app->attack_running = false;
-    predator_subghz_deinit(app);
+    
+    // Handle case where SubGHz might not be initialized
+    if(app->subghz_txrx) {
+        predator_subghz_deinit(app);
+    }
+    
+    // Reset notification LED state
+    notification_message(app->notifications, &sequence_reset_red);
+    
     popup_reset(app->popup);
 }

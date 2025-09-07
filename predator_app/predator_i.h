@@ -41,6 +41,8 @@ typedef enum {
     PredatorCustomEventError,         // Generic error event
     PredatorCustomEventHardwareError, // Hardware-specific error
     PredatorCustomEventRecovery,      // System recovered from error
+    PredatorCustomEventTimerExpired,  // Timer callback expired event
+    PredatorCustomEventBack,          // Custom back button event
 } PredatorCustomEvent;
 
 // Error types for user-friendly notifications
@@ -61,6 +63,7 @@ typedef struct PredatorApp {
     NotificationApp* notifications;
     DialogsApp* dialogs;
     Storage* storage;
+    FuriTimer* timer;         // Timer for non-blocking delays
     
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
