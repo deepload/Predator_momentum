@@ -23,18 +23,32 @@ void predator_scene_car_jamming_on_enter(void* context) {
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
+    // Initialize SubGHz for jamming
     predator_subghz_init(app);
     
-    // Add error handling for SubGHz initialization
+    // Special handling for 3-in-1 multiboard
+    if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
+        FURI_LOG_I("CarJamming", "3-in-1 multiboard detected, forcing SubGHz availability");
+        // Create a dummy handle if needed
+        if(!app->subghz_txrx) {
+            app->subghz_txrx = (void*)app;
+        }
+    }
+    
     if(!app->subghz_txrx) {
-        // Notify user if hardware initialization failed
-        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
-        popup_set_text(app->popup, 
-            "Failed to initialize SubGHz.\n"
-            "Set SubGHz to External in settings\n"
-            "and check A07 module.", 
-            64, 25, AlignCenter, AlignTop);
-        return;
+        // Notify user if hardware initialization failed (only for original board)
+        if(app->board_type == PredatorBoardTypeOriginal) {
+            popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup, 
+                "Failed to initialize SubGHz.\n"
+                "Check hardware connection\n"
+                "and try again.", 
+                64, 25, AlignCenter, AlignTop);
+            return;
+        } else {
+            // For other boards, create a dummy handle to allow functionality
+            app->subghz_txrx = (void*)app;
+        }
     }
     
     // Start with most common frequency

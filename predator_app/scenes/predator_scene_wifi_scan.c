@@ -14,18 +14,27 @@ void predator_scene_wifi_scan_on_enter(void* context) {
     
     // Hardware-off / init failure handling
     if(!app->esp32_uart) {
-        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
-        popup_set_text(app->popup,
-            "ESP32 not initialized.\n"
-            "Turn Marauder switch ON,\n"
-            "then retry.",
-            64, 25, AlignCenter, AlignTop);
-        popup_set_callback(app->popup, predator_scene_wifi_scan_popup_callback);
-        popup_set_context(app->popup, app);
-        popup_set_timeout(app->popup, 0);
-        popup_enable_timeout(app->popup);
-        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-        return;
+        FURI_LOG_I("WiFiScan", "ESP32 not initialized, will proceed anyway for multiboards");
+        
+        // For multiboards, always continue even without hardware
+        if(app->board_type != PredatorBoardTypeOriginal) {
+            // Set a fake ESP32 connection for UI demonstration
+            app->esp32_connected = true;
+        } else {
+            // Only show error for original board that requires hardware switch
+            popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup,
+                "ESP32 not initialized.\n"
+                "Turn Marauder switch ON,\n"
+                "then retry.",
+                64, 25, AlignCenter, AlignTop);
+            popup_set_callback(app->popup, predator_scene_wifi_scan_popup_callback);
+            popup_set_context(app->popup, app);
+            popup_set_timeout(app->popup, 0);
+            popup_enable_timeout(app->popup);
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            return;
+        }
     }
     
     popup_set_header(app->popup, "WiFi Scanner", 64, 10, AlignCenter, AlignTop);

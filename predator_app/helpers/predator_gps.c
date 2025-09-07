@@ -67,20 +67,25 @@ void predator_gps_init(PredatorApp* app) {
     
     FURI_LOG_I("PredatorGPS", "Using board: %s", board_config->name);
     
-    // Check GPS power switch state if board has one
+    // For all board types except the original, assume GPS is always enabled if connected
     bool enable_gps = true;
-    if(board_config->gps_power_switch) {
+    
+    // Only check switch for original board type that has dedicated switches
+    if(app->board_type == PredatorBoardTypeOriginal && board_config->gps_power_switch) {
         furi_hal_gpio_init(board_config->gps_power_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
         // Switch is active-low: ON when read == 0
         enable_gps = !furi_hal_gpio_read(board_config->gps_power_switch);
         
         if(!enable_gps) {
             app->gps_connected = false;
-            FURI_LOG_W("PredatorGPS", "GPS power switch is OFF (switch down to enable)");
+            FURI_LOG_W("PredatorGPS", "GPS power switch is OFF on original board");
             return;
         } else {
             FURI_LOG_I("PredatorGPS", "GPS power switch is ON");
         }
+    } else {
+        // For all other board types, assume GPS is always enabled if physically connected
+        FURI_LOG_I("PredatorGPS", "Using %s - GPS always enabled if connected", board_config->name);
     }
     
     // Initialize UART for GPS communication using board-specific pins

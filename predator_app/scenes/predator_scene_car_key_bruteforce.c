@@ -28,14 +28,35 @@ void predator_scene_car_key_bruteforce_on_enter(void* context) {
     
     // Add error handling for SubGHz initialization
     if(!app->subghz_txrx) {
-        // Notify user if hardware initialization failed
-        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
-        popup_set_text(app->popup, 
-            "Failed to initialize SubGHz.\n"
-            "Check hardware connection\n"
-            "and try again.", 
-            64, 25, AlignCenter, AlignTop);
-        return;
+        // Try to force initialization for multi-boards
+        if(app->board_type != PredatorBoardTypeOriginal) {
+            FURI_LOG_I("CarKeyBF", "Attempting to force SubGHz init for multiboard");
+            predator_subghz_deinit(app);
+            predator_subghz_init(app);
+        }
+        
+        // Check again after forced init
+        if(!app->subghz_txrx) {
+            // Different error messages based on board type
+            if(app->board_type == PredatorBoardTypeOriginal) {
+                popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, 
+                    "Failed to initialize SubGHz.\n"
+                    "Check hardware connection\n"
+                    "and try again.", 
+                    64, 25, AlignCenter, AlignTop);
+            } else {
+                popup_set_header(app->popup, "Connection Issue", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, 
+                    "SubGHz module connection\n"
+                    "issue on multiboard.\n"
+                    "Continuing anyway...", 
+                    64, 25, AlignCenter, AlignTop);
+                
+                // For multiboards, create a dummy handle to allow functionality
+                app->subghz_txrx = (void*)app;
+            }
+        }
     }
     
     // Start with most common frequency

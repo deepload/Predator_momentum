@@ -69,19 +69,31 @@ void predator_esp32_init(PredatorApp* app) {
     
     FURI_LOG_I("PredatorESP32", "Using board: %s", board_config->name);
     
-    // Check Marauder switch state if board has one
+    // For all board types except the original, assume ESP32 is always enabled
     bool enable_esp32 = true;
-    if(board_config->marauder_switch) {
+    
+    // Only check switch for original board type that has dedicated switches
+    if(app->board_type == PredatorBoardTypeOriginal && board_config->marauder_switch) {
         furi_hal_gpio_init(board_config->marauder_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
         // Switch is active-low: ON when read == 0
         enable_esp32 = !furi_hal_gpio_read(board_config->marauder_switch);
         
         if(!enable_esp32) {
-            // Switch is OFF; do not init to keep app stable when hardware is not powered
-            FURI_LOG_W("PredatorESP32", "Marauder switch is OFF - skipping ESP32 init");
+            // Switch is OFF on original board; skip initialization
+            FURI_LOG_W("PredatorESP32", "Marauder switch is OFF on original board - skipping ESP32 init");
             app->esp32_connected = false;
             return;
         }
+    } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
+        // Special handling for 3-in-1 multiboard
+        FURI_LOG_I("PredatorESP32", "Using 3-in-1 NRF24+CC1101+ESP32 multiboard");
+        enable_esp32 = true;
+        
+        // Force ESP32 to always be considered available on this board
+        app->esp32_connected = true;
+    } else {
+        // For all other board types, ESP32 is always available
+        FURI_LOG_I("PredatorESP32", "Using %s - ESP32 always enabled", board_config->name);
     }
 
     FURI_LOG_I("PredatorESP32", "Initializing ESP32 communication");

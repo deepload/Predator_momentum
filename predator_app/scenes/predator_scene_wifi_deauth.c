@@ -12,13 +12,31 @@ void predator_scene_wifi_deauth_on_enter(void* context) {
     // Initialize ESP32 hardware
     predator_esp32_init(app);
     
+    // Attempt to force ESP32 initialization for multiboards
+    if(!app->esp32_uart && app->board_type != PredatorBoardTypeOriginal) {
+        FURI_LOG_I("WiFiDeauth", "Attempting to force ESP32 init for multiboard");
+        predator_esp32_deinit(app); // Clean up any partial state
+        predator_esp32_init(app);   // Force init
+    }
+    
+    // Check again after potential forced init
     if(!app->esp32_uart) {
-        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
-        popup_set_text(app->popup,
-            "ESP32 not initialized.\n"
-            "Turn Marauder switch ON,\n"
-            "then retry.",
-            64, 25, AlignCenter, AlignTop);
+        // Different error messages based on board type
+        if(app->board_type == PredatorBoardTypeOriginal) {
+            popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup,
+                "ESP32 not initialized.\n"
+                "Turn Marauder switch ON,\n"
+                "then retry.",
+                64, 25, AlignCenter, AlignTop);
+        } else {
+            popup_set_header(app->popup, "Connection Error", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup,
+                "ESP32 connection failed.\n"
+                "Check board connections\n"
+                "and try again.",
+                64, 25, AlignCenter, AlignTop);
+        }
         popup_set_callback(app->popup, predator_scene_wifi_deauth_popup_callback);
         popup_set_context(app->popup, app);
         popup_set_timeout(app->popup, 0);
