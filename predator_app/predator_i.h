@@ -65,6 +65,9 @@ typedef struct PredatorApp {
     FuriStreamBuffer* esp32_stream;
     struct PredatorUart* esp32_uart;
     
+    // Hardware detection
+    bool module_connected;    // Is Predator module physically attached
+    
     // GPS data
     bool gps_connected;
     float latitude;
