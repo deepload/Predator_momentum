@@ -7,6 +7,7 @@ enum SubmenuIndex {
     SubmenuIndex3in1AIOBoard,
     SubmenuIndexDrB0rkMultiBoard,
     SubmenuIndex3in1NrfCcEspBoard,
+    SubmenuIndexScreen28Board,
     SubmenuIndexAutoDetect,
 };
 
@@ -41,6 +42,12 @@ void predator_scene_board_selection_on_enter(void* context) {
     submenu_add_item(submenu, 
                     "3-in-1 NRF24+CC1101+ESP32", 
                     SubmenuIndex3in1NrfCcEspBoard, 
+                    predator_scene_board_selection_submenu_callback, 
+                    app);
+    
+    submenu_add_item(submenu, 
+                    "2.8-inch Predator Screen", 
+                    SubmenuIndexScreen28Board, 
                     predator_scene_board_selection_submenu_callback, 
                     app);
     
@@ -96,6 +103,9 @@ bool predator_scene_board_selection_on_event(void* context, SceneManagerEvent ev
             break;
         case SubmenuIndex3in1NrfCcEspBoard:
             selected_type = PredatorBoardType3in1NrfCcEsp;
+            break;
+        case SubmenuIndexScreen28Board:
+            selected_type = PredatorBoardTypeScreen28;
             break;
         case SubmenuIndexAutoDetect:
             selected_type = predator_boards_detect();

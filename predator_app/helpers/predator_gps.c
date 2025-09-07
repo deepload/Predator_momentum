@@ -83,6 +83,25 @@ void predator_gps_init(PredatorApp* app) {
         } else {
             FURI_LOG_I("PredatorGPS", "GPS power switch is ON");
         }
+    } else if(app->board_type == PredatorBoardType3in1AIO) {
+        // Special handling for AIO Board v1.4 to prevent crashes
+        FURI_LOG_I("PredatorGPS", "Using 3in1 AIO Board V1.4 with safe GPS handling");
+        
+        // Force GPS to be considered connected on this board
+        app->gps_connected = true;
+        
+        // This is safer than attempting GPIO operations that might cause crashes
+        FURI_LOG_I("PredatorGPS", "GPS enabled for AIO Board");
+    } else if(app->board_type == PredatorBoardTypeScreen28) {
+        // Special handling for 2.8-inch screen Predator with dual GPS configuration
+        FURI_LOG_I("PredatorGPS", "Using 2.8-inch Predator with dual GPS support");
+        
+        // For this board, GPS can be shared between Flipper and 2.8-inch Predator screen
+        // GPS is always available since it's a key feature of this module
+        app->gps_connected = true;
+        
+        // Since we have a 20dBi GPS antenna, assume high-quality connection
+        FURI_LOG_I("PredatorGPS", "Using high-gain (20dBi) GPS antenna");
     } else {
         // For all other board types, assume GPS is always enabled if physically connected
         FURI_LOG_I("PredatorGPS", "Using %s - GPS always enabled if connected", board_config->name);

@@ -68,12 +68,29 @@ static const PredatorBoardConfig predator_3in1_nrf_cc_esp_config = {
     .rf_power_dbm = 10
 };
 
+// Configuration for the 2.8-inch screen Predator ESP32-S2 with GPS and 433M RF
+static const PredatorBoardConfig predator_screen28_config = {
+    .type = PredatorBoardTypeScreen28,
+    .name = "2.8-inch Predator Screen",
+    .esp32_tx_pin = &gpio_ext_pc0, // Pin 15
+    .esp32_rx_pin = &gpio_ext_pc1, // Pin 16
+    .esp32_baud_rate = 115200,
+    .gps_tx_pin = &gpio_ext_pb2, // Pin 13
+    .gps_rx_pin = &gpio_ext_pb3, // Pin 14
+    .gps_baud_rate = 9600,
+    .gps_power_switch = NULL, // Shared GPS power management
+    .marauder_switch = NULL, // No dedicated switch
+    .has_external_rf = true, 
+    .rf_power_dbm = 12 // Higher power external antenna (20dBi for GPS, 3dBi for 433M)
+};
+
 // Array of all supported board configurations
 static const PredatorBoardConfig predator_board_configs[] = {
     predator_original_config,
     predator_3in1_aio_config,
     predator_drb0rk_multi_v2_config,
-    predator_3in1_nrf_cc_esp_config
+    predator_3in1_nrf_cc_esp_config,
+    predator_screen28_config
 };
 
 const PredatorBoardConfig* predator_boards_get_configs() {

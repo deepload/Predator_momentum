@@ -13,6 +13,7 @@ typedef enum {
     PredatorBoardType3in1AIO, // 3in1-AIO-Expansion-Board 
     PredatorBoardTypeDrB0rkMultiV2, // DrB0rk Multi Board v2
     PredatorBoardType3in1NrfCcEsp, // 3-in-1 NRF24 + CC1101 + ESP32 Multiboard
+    PredatorBoardTypeScreen28, // 2.8-inch screen Predator ESP32-S2 with 433M RF and GPS
     PredatorBoardTypeCount // Keep this last
 } PredatorBoardType;
 

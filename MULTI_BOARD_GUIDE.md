@@ -8,6 +8,7 @@ The Predator app now supports multiple expansion boards for the Flipper Zero:
 2. **3in1 AIO Board V1.4** - SecureTechware's 3in1-AIO-Expansion-Board
 3. **DrB0rk Multi Board V2** - DrB0rk's Multi-board with ESP32 and NRF24
 4. **3-in-1 NRF24+CC1101+ESP32** - Generic 3-in-1 multiboard combining NRF24, CC1101 and ESP32
+5. **2.8-inch Predator Screen** - ESP32-S2 module with 2.8-inch screen, 433M RF, and GPS
 
 This guide explains how to configure and use the Predator app with these different expansion boards.
 
@@ -23,6 +24,7 @@ You can select or change your board type through the settings menu:
    - 3in1 AIO Board V1.4
    - DrB0rk Multi Board V2
    - 3-in-1 NRF24+CC1101+ESP32
+   - 2.8-inch Predator Screen
    - Auto Detect (tries to automatically detect your board)
 
 Your selection will be saved and remembered for future sessions.
@@ -101,6 +103,16 @@ You can check the current status of your expansion board:
 - Functions include NRF24 sniffing, mousejacking, extended SubGHz range via CC1101, and ESP32 Marauder capabilities.
 - Uses pins 15/16 for ESP32 communication and pins 13/14 for GPS (if connected).
 - No dedicated power switches, components are always powered when connected.
+
+### 2.8-inch Screen Predator Module
+
+- Integrated 2.8-inch screen for standalone Predator functionality
+- ESP32-S2 module, 433M RF module, and GPS module in one package
+- Dual GPS configuration - can be shared between Flipper and the 2.8-inch screen
+- High-gain antennas: 3dBi for 2.4GHz, 20dBi for GPS, 3dBi for 433M
+- Built-in 800mAh battery for extended usage
+- Uses pins 15/16 for ESP32-S2 communication and pins 13/14 for GPS
+- External RF accessible through Flipper's SubGHz menu
 
 ## Adding Support for New Boards
 
