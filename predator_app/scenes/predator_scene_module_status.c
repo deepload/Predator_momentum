@@ -4,6 +4,14 @@
 #include <gui/elements.h>
 #include <stdio.h>
 
+static void module_status_button_cb(GuiButtonType type, InputType input, void* context) {
+    if(input != InputTypeShort) return;
+    if(type != GuiButtonTypeCenter) return;
+    PredatorApp* app = context;
+    if(!app) return;
+    view_dispatcher_send_custom_event(app->view_dispatcher, 1);
+}
+
 static void module_status_build_widget(PredatorApp* app) {
     if(!app || !app->widget) return;
 
@@ -44,7 +52,7 @@ static void module_status_build_widget(PredatorApp* app) {
     widget_add_string_element(app->widget, 6, 64, AlignLeft, AlignBottom, FontSecondary, line);
 
     // Add a Probe button (Center) to query ESP32 status when Marauder switch is ON
-    widget_add_button_element(app->widget, GuiButtonTypeCenter, "Probe ESP32", 64, 34);
+    widget_add_button_element(app->widget, GuiButtonTypeCenter, "Probe ESP32", module_status_button_cb, app);
     widget_add_string_element(app->widget, 64, 52, AlignCenter, AlignTop, FontSecondary, "Back to exit");
 }
 

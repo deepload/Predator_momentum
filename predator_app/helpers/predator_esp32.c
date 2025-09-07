@@ -25,6 +25,8 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
     
     // Process ESP32 response with safety checks
     if(app) {
+        // Any incoming data indicates the UART path is alive
+        app->esp32_connected = true;
         // Check for connection status
         if(strstr((char*)safe_buf, "ESP32") || strstr((char*)safe_buf, "Marauder")) {
             app->esp32_connected = true;
