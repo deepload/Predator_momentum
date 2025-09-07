@@ -25,6 +25,15 @@
 void popup_callback_ok(void* context);
 void predator_app_free(PredatorApp* app);
 
+// Safe mode constants
+#define PREDATOR_SAFE_MODE_KEY     "predator_safe_mode"
+#define PREDATOR_SAFE_MODE_TIMEOUT 3  // Seconds to wait before normal startup
+#define PREDATOR_CRASH_THRESHOLD   3  // Number of crashes before safe mode
+
+// Global safe mode state
+static bool predator_safe_mode = false;
+static uint8_t predator_crash_counter = 0;
+
 static bool predator_custom_event_callback(void* context, uint32_t event) {
     // Check for NULL context
     if(context == NULL) {
@@ -417,8 +426,97 @@ void predator_app_free(PredatorApp* app) {
     free(app);
 }
 
+// Helper function to check if safe mode should be activated
+static bool predator_should_use_safe_mode(Storage* storage) {
+    if(!storage) return true; // Default to safe mode if storage is not available
+    
+    FuriString* path = furi_string_alloc();
+    furi_string_printf(path, "/ext/%s", PREDATOR_SAFE_MODE_KEY);
+    
+    bool safe_mode = false;
+    
+    // Check if crash counter file exists
+    File* file = storage_file_alloc(storage);
+    if(storage_file_exists(storage, furi_string_get_cstr(path))) {
+        if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+            uint8_t counter = 0;
+            uint16_t bytes_read = storage_file_read(file, &counter, sizeof(counter));
+            if(bytes_read == sizeof(counter) && counter >= PREDATOR_CRASH_THRESHOLD) {
+                safe_mode = true;
+                FURI_LOG_W("Predator", "Safe mode activated: crash counter = %d", counter);
+            }
+            storage_file_close(file);
+        }
+    }
+    
+    storage_file_free(file);
+    furi_string_free(path);
+    return safe_mode;
+}
+
+// Helper function to update crash counter
+static void predator_update_crash_counter(Storage* storage, bool increment) {
+    if(!storage) return;
+    
+    FuriString* path = furi_string_alloc();
+    furi_string_printf(path, "/ext/%s", PREDATOR_SAFE_MODE_KEY);
+    
+    File* file = storage_file_alloc(storage);
+    uint8_t counter = 0;
+    
+    // Read existing counter if file exists
+    if(storage_file_exists(storage, furi_string_get_cstr(path)) && 
+       storage_file_open(file, furi_string_get_cstr(path), FSAM_READ_WRITE, FSOM_OPEN_EXISTING)) {
+        storage_file_read(file, &counter, sizeof(counter));
+    } else if(storage_file_open(file, furi_string_get_cstr(path), FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
+        // New file created
+    } else {
+        // Failed to open file
+        storage_file_free(file);
+        furi_string_free(path);
+        return;
+    }
+    
+    // Update counter
+    if(increment && counter < 255) {
+        counter++;
+    } else if(!increment) {
+        counter = 0; // Reset counter on clean exit
+    }
+    
+    // Write counter back
+    storage_file_seek(file, 0, true);
+    storage_file_write(file, &counter, sizeof(counter));
+    storage_file_close(file);
+    storage_file_free(file);
+    furi_string_free(path);
+}
+
 int32_t predator_app(void* p) {
     UNUSED(p);
+    
+    // First, check for safe mode
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    predator_safe_mode = predator_should_use_safe_mode(storage);
+    
+    // Increment crash counter - will be reset to 0 on clean exit
+    predator_update_crash_counter(storage, true);
+    
+    // Close storage temporarily - will be reopened by app
+    furi_record_close(RECORD_STORAGE);
+    
+    // Show notification if in safe mode
+    if(predator_safe_mode) {
+        NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+        notification_message(notification, &sequence_set_red_255);
+        notification_message(notification, &sequence_set_vibro_on);
+        furi_delay_ms(300);
+        notification_message(notification, &sequence_set_vibro_off);
+        furi_record_close(RECORD_NOTIFICATION);
+        
+        // Give user time to see notification before proceeding
+        furi_delay_ms(1000);
+    }
     
     // Critical error handling for main entry point
     PredatorApp* app = predator_app_alloc();
@@ -426,6 +524,9 @@ int32_t predator_app(void* p) {
         FURI_LOG_E("Predator", "Failed to allocate application memory");
         return 255; // Fatal error code
     }
+    
+    // Set safe mode flag in app
+    app->safe_mode = predator_safe_mode;
     
     // Only run view dispatcher if it was successfully initialized
     if(app->view_dispatcher) {
@@ -437,6 +538,11 @@ int32_t predator_app(void* p) {
             notification_message(app->notifications, &sequence_error);
         }
     }
+    
+    // Clean exit - reset crash counter
+    storage = furi_record_open(RECORD_STORAGE);
+    predator_update_crash_counter(storage, false);
+    furi_record_close(RECORD_STORAGE);
     
     // Safe cleanup
     predator_app_free(app);

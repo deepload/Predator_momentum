@@ -14,26 +14,64 @@ struct PredatorUart {
 };
 
 static int32_t predator_uart_rx_thread(void* context) {
+    // Critical safety check
+    if(!context) {
+        FURI_LOG_E("PredatorUART", "NULL context in RX thread");
+        return -1;
+    }
+    
     PredatorUart* uart = (PredatorUart*)context;
     uint8_t data[64];
     
-    while(uart->running) {
-        size_t len = furi_stream_buffer_receive(uart->rx_stream, data, sizeof(data), 100);
-        if(len > 0 && uart->rx_callback) {
-            uart->rx_callback(data, len, uart->rx_callback_context);
-        }
+    // Verify stream buffer exists before entering loop
+    if(!uart->rx_stream) {
+        FURI_LOG_E("PredatorUART", "NULL rx_stream in RX thread");
+        return -1;
     }
     
+    // Main receive loop with thorough null checks
+    while(uart && uart->rx_stream && uart->running) {
+        // Use shorter timeout to check running flag more frequently
+        size_t len = furi_stream_buffer_receive(uart->rx_stream, data, sizeof(data), 50);
+        
+        // Only call callback if we have valid data and callback is set
+        if(len > 0 && uart && uart->rx_callback) {
+            // Safety check - capture callback locally in case it changes during execution
+            PredatorUartRxCallback callback = uart->rx_callback;
+            void* callback_context = uart->rx_callback_context;
+            
+            // Only call if we have both a valid callback and context
+            if(callback) {
+                callback(data, len, callback_context);
+            }
+        }
+        
+        // Brief pause to prevent CPU hogging
+        furi_delay_us(100);
+    }
+    
+    FURI_LOG_I("PredatorUART", "RX thread exiting cleanly");
     return 0;
 }
 
 static void predator_uart_on_irq_cb(FuriHalSerialHandle* handle, FuriHalSerialRxEvent event, void* context) {
-    UNUSED(handle);
+    // Critical safety checks
+    if(!handle || !context) {
+        // Cannot log from IRQ context
+        return;
+    }
+    
     PredatorUart* uart = (PredatorUart*)context;
     
-    if(event == FuriHalSerialRxEventData) {
+    // Handle receive event with null pointer protections
+    if(event == FuriHalSerialRxEventData && uart && uart->serial_handle && uart->rx_stream) {
+        // Get data safely
         uint8_t data = furi_hal_serial_async_rx(uart->serial_handle);
-        furi_stream_buffer_send(uart->rx_stream, &data, 1, 0);
+        
+        // Send to buffer only if stream exists and running flag is set
+        if(uart->running) {
+            furi_stream_buffer_send(uart->rx_stream, &data, 1, 0);
+        }
     }
 }
 
@@ -123,13 +161,10 @@ PredatorUart* predator_uart_init(
         return NULL;
     }
     
-    // Start thread
-    furi_thread_start(uart->rx_thread);
-    
-    // Thread started successfully if we got here
-    bool thread_ok = true;
-    if(!thread_ok) {
-        FURI_LOG_E("PredatorUART", "Failed to start rx thread");
+    // Start thread with error handling
+    FuriStatus thread_status = furi_thread_start(uart->rx_thread);
+    if(thread_status != FuriStatusOk) {
+        FURI_LOG_E("PredatorUART", "Failed to start rx thread (status: %d)", thread_status);
         furi_thread_free(uart->rx_thread);
         furi_hal_serial_async_rx_stop(uart->serial_handle);
         furi_hal_serial_deinit(uart->serial_handle);
@@ -147,33 +182,79 @@ void predator_uart_deinit(PredatorUart* uart) {
     // Safety check - return if NULL
     if (!uart) return;
     
+    // First mark thread as not running to prevent callbacks during cleanup
     uart->running = false;
-    furi_thread_join(uart->rx_thread);
-    furi_thread_free(uart->rx_thread);
     
-    furi_hal_serial_async_rx_stop(uart->serial_handle);
-    furi_hal_serial_deinit(uart->serial_handle);
-    furi_hal_serial_control_release(uart->serial_handle);
-    furi_stream_buffer_free(uart->rx_stream);
+    // Safety checks for each component
+    if (uart->rx_thread) {
+        // Allow thread time to exit cleanly
+        furi_delay_ms(10);
+        furi_thread_join(uart->rx_thread);
+        furi_thread_free(uart->rx_thread);
+        uart->rx_thread = NULL;
+    }
+    
+    // Safely clean up serial components
+    if (uart->serial_handle) {
+        furi_hal_serial_async_rx_stop(uart->serial_handle);
+        furi_hal_serial_deinit(uart->serial_handle);
+        furi_hal_serial_control_release(uart->serial_handle);
+        uart->serial_handle = NULL;
+    }
+    
+    // Free stream buffer if it exists
+    if (uart->rx_stream) {
+        furi_stream_buffer_free(uart->rx_stream);
+        uart->rx_stream = NULL;
+    }
     
     free(uart);
 }
 
 void predator_uart_tx(PredatorUart* uart, uint8_t* data, size_t len) {
-    // Safety check - return if NULL
-    if (!uart) return;
+    // Safety check - return if NULL or invalid parameters
+    if (!uart || !data || len == 0) return;
+    
+    // Check if serial handle is valid
+    if (!uart->serial_handle) {
+        FURI_LOG_E("PredatorUART", "Attempted TX on invalid serial handle");
+        return;
+    }
+    
+    // Send data with error handling
     furi_hal_serial_tx(uart->serial_handle, data, len);
 }
 
 void predator_uart_set_br(PredatorUart* uart, uint32_t baud) {
     // Safety check - return if NULL
     if (!uart) return;
+    
+    // Check if serial handle is valid
+    if (!uart->serial_handle) {
+        FURI_LOG_E("PredatorUART", "Attempted to set baud rate on invalid serial handle");
+        return;
+    }
+    
     furi_hal_serial_set_br(uart->serial_handle, baud);
 }
 
 void predator_uart_set_rx_callback(PredatorUart* uart, PredatorUartRxCallback callback, void* context) {
     // Safety check - return if NULL
     if (!uart) return;
+    
+    // First disable running to prevent thread from using callback during change
+    bool was_running = uart->running;
+    uart->running = false;
+    
+    // Wait a moment to ensure thread sees the change
+    if (was_running) {
+        furi_delay_ms(5);
+    }
+    
+    // Update callback info
     uart->rx_callback = callback;
     uart->rx_callback_context = context;
+    
+    // Restore running state
+    uart->running = was_running;
 }

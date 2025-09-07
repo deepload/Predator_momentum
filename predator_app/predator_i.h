@@ -54,11 +54,16 @@ typedef enum {
 } PredatorErrorType;
 
 typedef struct PredatorApp {
+    // System resources
     Gui* gui;
     NotificationApp* notifications;
     DialogsApp* dialogs;
     Storage* storage;
     
+    // Application state
+    bool safe_mode;           // Whether app is running in safe mode with reduced functionality
+    
+    // UI components
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
     

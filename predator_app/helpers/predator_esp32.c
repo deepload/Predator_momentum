@@ -6,51 +6,161 @@
 #include <string.h>
 
 void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
+    // Critical safety checks
+    if(!buf || !len || !context) {
+        return;
+    }
+    
     PredatorApp* app = (PredatorApp*)context;
     
-    // Process ESP32 response
-    if(len > 0) {
+    // Ensure buf is null-terminated for string operations
+    uint8_t* safe_buf = malloc(len + 1);
+    if(!safe_buf) {
+        return; // Memory allocation failed
+    }
+    
+    // Copy and null-terminate
+    memcpy(safe_buf, buf, len);
+    safe_buf[len] = '\0';
+    
+    // Process ESP32 response with safety checks
+    if(app) {
         // Check for connection status
-        if(strstr((char*)buf, "ESP32") || strstr((char*)buf, "Marauder")) {
+        if(strstr((char*)safe_buf, "ESP32") || strstr((char*)safe_buf, "Marauder")) {
             app->esp32_connected = true;
         }
         
         // Parse scan results, attack status, etc.
-        if(strstr((char*)buf, "AP Found:")) {
+        if(strstr((char*)safe_buf, "AP Found:")) {
             app->targets_found++;
         }
         
-        if(strstr((char*)buf, "Deauth sent:")) {
+        if(strstr((char*)safe_buf, "Deauth sent:")) {
             app->packets_sent++;
         }
     }
+    
+    // Clean up
+    free(safe_buf);
 }
 
 void predator_esp32_init(PredatorApp* app) {
-    if(!app) return;
+    // Critical safety check
+    if(!app) {
+        FURI_LOG_E("PredatorESP32", "NULL app pointer in init");
+        return;
+    }
     
-    // Production initialization - always attempt hardware access
-    app->esp32_uart = predator_uart_init(PREDATOR_ESP32_UART_TX_PIN, PREDATOR_ESP32_UART_RX_PIN, PREDATOR_ESP32_UART_BAUD, predator_esp32_rx_callback, app);
+    // Make sure we don't initialize twice
+    if(app->esp32_uart) {
+        FURI_LOG_I("PredatorESP32", "ESP32 already initialized");
+        return;
+    }
+    
+    FURI_LOG_I("PredatorESP32", "Initializing ESP32 communication");
+    
+    // Initialize with safety checks
     app->esp32_connected = false;
     
+    // Delay for hardware stabilization
+    furi_delay_ms(10);
+    
+    // Initialize UART with error handling
+    app->esp32_uart = predator_uart_init(
+        PREDATOR_ESP32_UART_TX_PIN,
+        PREDATOR_ESP32_UART_RX_PIN,
+        PREDATOR_ESP32_UART_BAUD,
+        predator_esp32_rx_callback,
+        app);
+        
+    if(!app->esp32_uart) {
+        FURI_LOG_E("PredatorESP32", "Failed to initialize UART");
+        return;
+    }
+    
     // Send status command to check connection
-    predator_esp32_send_command(app, MARAUDER_CMD_STATUS);
+    // Only if UART initialization was successful
+    bool cmd_sent = predator_esp32_send_command(app, MARAUDER_CMD_STATUS);
+    
+    if(!cmd_sent) {
+        FURI_LOG_W("PredatorESP32", "Failed to send initial status command");
+    }
+    
+    // Give ESP32 time to respond
+    furi_delay_ms(100);
 }
 
 void predator_esp32_deinit(PredatorApp* app) {
+    // Critical safety check
+    if(!app) {
+        FURI_LOG_E("PredatorESP32", "NULL app pointer in deinit");
+        return;
+    }
+    
+    // Log deinit operation
+    FURI_LOG_I("PredatorESP32", "Deinitializing ESP32 communication");
+    
+    // Clean up UART if it exists
     if(app->esp32_uart) {
+        // Try to send stop command before deinit
+        predator_esp32_send_command(app, MARAUDER_CMD_STOP);
+        
+        // Small delay to allow command to be sent
+        furi_delay_ms(10);
+        
+        // Now close UART
         predator_uart_deinit(app->esp32_uart);
         app->esp32_uart = NULL;
     }
+    
+    // Reset connection status
     app->esp32_connected = false;
 }
 
 bool predator_esp32_send_command(PredatorApp* app, const char* command) {
-    if(!app || !app->esp32_uart || !command) return false;
+    // Critical safety checks with specific error messages
+    if(!app) {
+        FURI_LOG_E("PredatorESP32", "NULL app pointer in send_command");
+        return false;
+    }
     
+    if(!app->esp32_uart) {
+        FURI_LOG_E("PredatorESP32", "NULL uart pointer in send_command");
+        return false;
+    }
+    
+    if(!command) {
+        FURI_LOG_E("PredatorESP32", "NULL command in send_command");
+        return false;
+    }
+    
+    // Copy command to avoid potential memory corruption
     size_t len = strlen(command);
-    predator_uart_tx(app->esp32_uart, (uint8_t*)command, len);
+    if(len == 0 || len > 128) { // Sanity check on command length
+        FURI_LOG_E("PredatorESP32", "Invalid command length: %d", (int)len);
+        return false;
+    }
+    
+    // Use a temporary buffer for the command
+    char* safe_cmd = malloc(len + 1);
+    if(!safe_cmd) {
+        FURI_LOG_E("PredatorESP32", "Memory allocation failed for command");
+        return false;
+    }
+    
+    // Copy and terminate
+    memcpy(safe_cmd, command, len);
+    safe_cmd[len] = '\0';
+    
+    // Log the command for debugging
+    FURI_LOG_D("PredatorESP32", "Sending command: %s", safe_cmd);
+    
+    // Send the command with error handling
+    predator_uart_tx(app->esp32_uart, (uint8_t*)safe_cmd, len);
     predator_uart_tx(app->esp32_uart, (uint8_t*)"\r\n", 2);
+    
+    // Clean up
+    free(safe_cmd);
     
     return true;
 }
