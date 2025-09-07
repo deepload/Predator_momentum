@@ -91,13 +91,29 @@ void predator_scene_car_models_on_enter(void* context) {
         
         view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
         
-        // Initialize SubGHz
+        // Initialize SubGHz with error handling
         predator_subghz_init(app);
+        
+        // Add error handling for SubGHz initialization
+        if(!app->subghz_txrx) {
+            // Notify user if hardware initialization failed
+            popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+            popup_set_text(app->popup, 
+                "Failed to initialize SubGHz.\n"
+                "Check hardware connection\n"
+                "and try again.", 
+                64, 25, AlignCenter, AlignTop);
+            car_models_state->transmitting = false;
+            return;
+        }
         
         // Send the command
         predator_subghz_send_car_command(app, 
             car_models_state->selected_model, 
             car_models_state->selected_command);
+        
+        // Add success notification
+        notification_message(app->notifications, &sequence_success);
             
         // Update UI with completion info
         char result_text[128];
@@ -163,9 +179,18 @@ void predator_scene_car_models_on_exit(void* context) {
     PredatorApp* app = context;
     
     // Clean up if transmitting
-    if(car_models_state->transmitting) {
+    if(car_models_state && car_models_state->transmitting) {
         predator_subghz_deinit(app);
         car_models_state->transmitting = false;
+    }
+    
+    // Free memory for scene state when app completely exits
+    if(scene_manager_get_scene_state(app->scene_manager, PredatorSceneStart) == 0xFF) {
+        // We're fully exiting the app, free the memory
+        if(car_models_state) {
+            free(car_models_state);
+            car_models_state = NULL;
+        }
     }
     
     // Reset views

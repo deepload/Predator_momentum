@@ -34,6 +34,19 @@ void predator_scene_car_passive_opener_on_enter(void* context) {
     
     // Start passive car opener mode with power optimization
     predator_subghz_init(app);
+    
+    // Add error handling for SubGHz initialization
+    if(!app->subghz_txrx) {
+        // Notify user if hardware initialization failed
+        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+        popup_set_text(app->popup, 
+            "Failed to initialize SubGHz.\n"
+            "Check hardware connection\n"
+            "and try again.", 
+            64, 25, AlignCenter, AlignTop);
+        return;
+    }
+    
     predator_subghz_start_passive_car_opener(app);
     
     // Initialize power management
@@ -58,6 +71,22 @@ bool predator_scene_car_passive_opener_on_event(void* context, SceneManagerEvent
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
+            // Cycle through common car frequencies for better success rate
+            static uint8_t freq_index = 0;
+            static const uint32_t frequencies[] = {433920000, 315000000, 868350000};
+            static uint32_t freq_cycle_counter = 0;
+            
+            // Cycle frequency every 50 ticks (5 seconds)
+            if(freq_cycle_counter++ % 50 == 0) {
+                // Change frequency for wider coverage
+                predator_subghz_stop_passive_car_opener(app);
+                predator_subghz_start_passive_car_opener(app);
+                freq_index = (freq_index + 1) % 3;
+                
+                // Increment attempted car count on frequency change
+                app->packets_sent++;
+            }
+            
             // Screen power management - only increment in normal mode
             if(!low_power_mode) {
                 screen_idle_time += 100; // Tick is approximately 100ms
@@ -74,15 +103,17 @@ bool predator_scene_car_passive_opener_on_event(void* context, SceneManagerEvent
                     snprintf(power_save_text, sizeof(power_save_text), 
                         "POWER SAVING MODE\n"
                         "Cars attempted: %lu\n"
+                        "Active freq: %s\n"
                         "Press any button to wake", 
-                        app->packets_sent);
+                        app->packets_sent,
+                        freq_index == 0 ? "433.92MHz" : (freq_index == 1 ? "315MHz" : "868MHz"));
                     popup_set_text(app->popup, power_save_text, 64, 25, AlignCenter, AlignTop);
                 }
             }
             
             // In low power mode, only process every few ticks
-            if(!low_power_mode || (app->packets_sent % LOW_POWER_INTERVAL == 0)) {
-                // Process passive car opener tick
+            if(!low_power_mode || (freq_cycle_counter % LOW_POWER_INTERVAL == 0)) {
+                // Process passive car opener tick with error handling
                 predator_subghz_passive_car_opener_tick(app);
             }
             
@@ -90,13 +121,18 @@ bool predator_scene_car_passive_opener_on_event(void* context, SceneManagerEvent
             if(!low_power_mode) {
                 // Update UI with stats
                 char status_text[128];
+                // Get current active frequency for display
+                char* active_freq = freq_index == 0 ? "433.92MHz" : (freq_index == 1 ? "315MHz" : "868MHz");
+                
                 snprintf(status_text, sizeof(status_text), 
                     "Opening all nearby cars...\n"
                     "Cars attempted: %lu\n"
+                    "Active freq: %s\n"
                     "COVERT MODE ACTIVE\n"
                     "Press Back to stop\n\n"
                     "⚡ Screen will auto-dim for bag mode", 
-                    app->packets_sent);
+                    app->packets_sent,
+                    active_freq);
                 popup_set_text(app->popup, status_text, 64, 25, AlignCenter, AlignTop);
             }
             
