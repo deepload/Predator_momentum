@@ -10,6 +10,10 @@ typedef enum {
 } PredatorScene;
 #undef ADD_SCENE
 
+// Explicitly reference RFID scenes to ensure they're recognized
+#define PredatorSceneRfidClone 17
+#define PredatorSceneRfidBruteforce 18
+
 extern const SceneManagerHandlers predator_scene_handlers;
 
 // Generate scene on_enter handlers declaration
