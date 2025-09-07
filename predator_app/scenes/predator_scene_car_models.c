@@ -161,13 +161,13 @@ bool predator_scene_car_models_on_event(void* context, SceneManagerEvent event) 
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        if(car_models_state->state == CarModelsStateCommand) {
+        if(car_models_state && car_models_state->state == CarModelsStateCommand) {
             // Go back to model selection instead of leaving the scene
             car_models_state->state = CarModelsStateModel;
             predator_scene_car_models_update_menu(app, CarModelsStateModel);
             consumed = true;
         } else {
-            // Actually go back
+            // Exit scene
             consumed = false;
         }
     }
@@ -184,13 +184,10 @@ void predator_scene_car_models_on_exit(void* context) {
         car_models_state->transmitting = false;
     }
     
-    // Free memory for scene state when app completely exits
-    if(scene_manager_get_scene_state(app->scene_manager, PredatorSceneStart) == 0xFF) {
-        // We're fully exiting the app, free the memory
-        if(car_models_state) {
-            free(car_models_state);
-            car_models_state = NULL;
-        }
+    // Always free local scene state on exit to avoid leaks and stale selection state
+    if(car_models_state) {
+        free(car_models_state);
+        car_models_state = NULL;
     }
     
     // Reset views

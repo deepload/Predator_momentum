@@ -57,6 +57,15 @@ void predator_esp32_init(PredatorApp* app) {
         return;
     }
     
+    // Check Marauder switch state before touching UART
+    furi_hal_gpio_init(PREDATOR_MARAUDER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
+    if(!furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH)) {
+        // Switch appears OFF (down); do not init to keep app stable when hardware is not powered
+        FURI_LOG_W("PredatorESP32", "Marauder switch is OFF - skipping ESP32 init");
+        app->esp32_connected = false;
+        return;
+    }
+
     FURI_LOG_I("PredatorESP32", "Initializing ESP32 communication");
     
     // Initialize with safety checks
@@ -78,13 +87,8 @@ void predator_esp32_init(PredatorApp* app) {
         return;
     }
     
-    // Send status command to check connection
-    // Only if UART initialization was successful
-    bool cmd_sent = predator_esp32_send_command(app, MARAUDER_CMD_STATUS);
-    
-    if(!cmd_sent) {
-        FURI_LOG_W("PredatorESP32", "Failed to send initial status command");
-    }
+    // Optionally send status command to check connection (non-fatal)
+    predator_esp32_send_command(app, MARAUDER_CMD_STATUS);
     
     // Give ESP32 time to respond
     furi_delay_ms(100);

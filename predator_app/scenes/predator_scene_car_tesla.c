@@ -24,6 +24,15 @@ void predator_scene_car_tesla_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     predator_subghz_init(app);
+    if(!app->subghz_txrx) {
+        popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+        popup_set_text(app->popup,
+            "Failed to initialize SubGHz.\n"
+            "Set SubGHz to External and\n"
+            "check A07 module.",
+            64, 25, AlignCenter, AlignTop);
+        return;
+    }
     app->attack_running = true;
     app->packets_sent = 0;
 }
@@ -37,6 +46,12 @@ bool predator_scene_car_tesla_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             scene_manager_previous_scene(app->scene_manager);
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        consumed = true;
+        app->attack_running = false;
+        predator_subghz_deinit(app);
+        notification_message(app->notifications, &sequence_blink_stop);
+        scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             app->packets_sent++;

@@ -31,8 +31,8 @@ void predator_scene_car_jamming_on_enter(void* context) {
         popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
         popup_set_text(app->popup, 
             "Failed to initialize SubGHz.\n"
-            "Check hardware connection\n"
-            "and try again.", 
+            "Set SubGHz to External in settings\n"
+            "and check A07 module.", 
             64, 25, AlignCenter, AlignTop);
         return;
     }
@@ -57,6 +57,15 @@ bool predator_scene_car_jamming_on_event(void* context, SceneManagerEvent event)
             consumed = true;
             scene_manager_previous_scene(app->scene_manager);
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        // Clean stop on back
+        consumed = true;
+        if(app->attack_running) {
+            app->attack_running = false;
+            predator_subghz_deinit(app);
+            notification_message(app->notifications, &sequence_blink_stop);
+        }
+        scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             // Increment safety counter (10 ticks = 1 second approximately)

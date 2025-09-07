@@ -57,13 +57,6 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
 void predator_gps_init(PredatorApp* app) {
     if(!app) return;
     
-    // Check if UART is initialized
-    if (app->gps_uart == NULL) {
-        FURI_LOG_E("Predator", "GPS UART not initialized");
-        app->gps_connected = false;
-        return;
-    }
-    
     // Check GPS power switch state (front left switch must be down)
     furi_hal_gpio_init(PREDATOR_GPS_POWER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
     if(furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH)) {
@@ -72,8 +65,15 @@ void predator_gps_init(PredatorApp* app) {
         return; // GPS switch is up (using internal battery)
     }
     
-    // Initialize UART for GPS communication on pins 13,14
-    app->gps_uart = predator_uart_init(PREDATOR_GPS_UART_TX_PIN, PREDATOR_GPS_UART_RX_PIN, GPS_UART_BAUD, predator_gps_rx_callback, app);
+    // Initialize UART for GPS communication on pins 13,14 if not already
+    if(!app->gps_uart) {
+        app->gps_uart = predator_uart_init(
+            PREDATOR_GPS_UART_TX_PIN,
+            PREDATOR_GPS_UART_RX_PIN,
+            GPS_UART_BAUD,
+            predator_gps_rx_callback,
+            app);
+    }
     
     if (app->gps_uart == NULL) {
         FURI_LOG_E("Predator", "Failed to initialize GPS UART");

@@ -232,8 +232,8 @@ PredatorApp* predator_app_alloc() {
     furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow); // Marauder switch
     
     // Combine detection methods for reliable result
-    // In production, we primarily use the ID pin, but check all methods
-    app->module_connected = true; // Default to true for production testing
+    // Default to not connected; detection can update this later based on GPIO/successful comms
+    app->module_connected = false;
     
     FURI_LOG_I("Predator", "Module detection: %s", app->module_connected ? "Connected" : "Not connected");
     

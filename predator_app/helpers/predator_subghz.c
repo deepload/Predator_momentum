@@ -98,6 +98,10 @@ void predator_subghz_init(PredatorApp* app) {
     if(!init_success) {
         FURI_LOG_E("Predator", "SubGHz functionality will be limited");
     }
+
+    // Provide a non-null placeholder handle so scenes know init "succeeded" for now
+    // This will be replaced with a real worker handle when the RF backend is implemented
+    app->subghz_txrx = init_success ? (void*)app : NULL;
 }
 
 void predator_subghz_deinit(PredatorApp* app) {
@@ -106,6 +110,8 @@ void predator_subghz_deinit(PredatorApp* app) {
     // Clean up - using compatible API approach
     // furi_hal_subghz_sleep();
     // No direct calls to disabled API
+
+    app->subghz_txrx = NULL;
 }
 
 void predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) {

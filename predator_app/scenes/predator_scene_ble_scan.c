@@ -12,14 +12,19 @@ void predator_scene_ble_scan_on_enter(void* context) {
     predator_esp32_init(app);
     
     // Add error handling for ESP32 initialization
-    if(!app->esp32_connected) {
+    if(!app->esp32_uart) {
         // Notify user if hardware initialization failed
         popup_set_header(app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
         popup_set_text(app->popup, 
-            "Failed to initialize ESP32.\n"
-            "Check hardware connection\n"
-            "and Marauder switch position.", 
+            "ESP32 not initialized.\n"
+            "Turn Marauder switch ON,\n"
+            "then retry.", 
             64, 25, AlignCenter, AlignTop);
+        popup_set_callback(app->popup, predator_scene_ble_scan_popup_callback);
+        popup_set_context(app->popup, app);
+        popup_set_timeout(app->popup, 0);
+        popup_enable_timeout(app->popup);
+        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
         return;
     }
     
@@ -51,6 +56,11 @@ bool predator_scene_ble_scan_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             scene_manager_previous_scene(app->scene_manager);
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        consumed = true;
+        app->attack_running = false;
+        predator_esp32_stop_attack(app);
+        scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             // Create more realistic BLE device discovery pattern
