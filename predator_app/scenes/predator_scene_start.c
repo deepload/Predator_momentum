@@ -10,6 +10,7 @@ enum SubmenuIndex {
     SubmenuIndexGpsTracker,
     SubmenuIndexWardriving,
     SubmenuIndexSocialEngineering,
+    SubmenuIndexModuleStatus,
     SubmenuIndexSettings,
     SubmenuIndexAbout,
 };
@@ -39,6 +40,8 @@ void predator_scene_start_on_enter(void* context) {
         submenu, "🗺️ Wardriving", SubmenuIndexWardriving, predator_scene_start_submenu_callback, app);
     submenu_add_item(
         submenu, "🎭 Social Engineering", SubmenuIndexSocialEngineering, predator_scene_start_submenu_callback, app);
+    submenu_add_item(
+        submenu, "🧩 Module Status", SubmenuIndexModuleStatus, predator_scene_start_submenu_callback, app);
     submenu_add_item(
         submenu, "⚙️ Settings", SubmenuIndexSettings, predator_scene_start_submenu_callback, app);
     submenu_add_item(
@@ -81,6 +84,9 @@ bool predator_scene_start_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexSocialEngineering:
             scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineering);
+            break;
+        case SubmenuIndexModuleStatus:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatus);
             break;
         case SubmenuIndexSettings:
             scene_manager_next_scene(app->scene_manager, PredatorSceneSettings);

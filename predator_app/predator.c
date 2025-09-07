@@ -32,7 +32,6 @@ void predator_app_free(PredatorApp* app);
 
 // Global safe mode state
 static bool predator_safe_mode = false;
-static uint8_t predator_crash_counter = 0;
 
 static bool predator_custom_event_callback(void* context, uint32_t event) {
     // Check for NULL context
@@ -241,37 +240,18 @@ PredatorApp* predator_app_alloc() {
     // Initialize hardware modules with robust error handling
     furi_hal_power_suppress_charge_enter();
 
-    // Disable interrupts during critical GPIO setup
+    // Perform ONLY the minimal GPIO configuration in a critical section.
+    // Do NOT call heavy APIs (UART init/threads/alloc) while interrupts are disabled.
     FURI_CRITICAL_ENTER();
-    
-    // Try/catch equivalent with error recovery
     bool gpio_error = false;
-    
-    // Simple pin test by trying to read them
-    gpio_error = false;
-    
-    // Only proceed with UART if GPIO is valid and app is valid
+    // (Optional) any quick GPIO validation would go here
+    FURI_CRITICAL_EXIT();
+
+    // Defer UART initialization to specific scenes (WiFi/GPS) to avoid early crashes
+    // in Momentum's furi_hal_serial when the module isn't ready yet.
     if(!gpio_error && app) {
-        // Initialize ESP32 UART with error handling
-        app->esp32_uart = NULL; // Initialize to NULL first
-        
-        // No need to check pointer addresses - they're defined as macros
-        app->esp32_uart = predator_uart_init(PREDATOR_ESP32_UART_TX_PIN, PREDATOR_ESP32_UART_RX_PIN, 
-                                          PREDATOR_ESP32_UART_BAUD, predator_esp32_rx_callback, app);
-        
-        // Initialize GPS UART with error handling
-        app->gps_uart = NULL; // Initialize to NULL first
-        
-        // No need to check pointer addresses - they're defined as macros
-        app->gps_uart = predator_uart_init(PREDATOR_GPS_UART_TX_PIN, PREDATOR_GPS_UART_RX_PIN, 
-                                        PREDATOR_GPS_UART_BAUD, predator_gps_rx_callback, app);
-        
-        // Only log success if at least one UART initialized successfully
-        if(app->esp32_uart || app->gps_uart) {
-            FURI_LOG_I("Predator", "Hardware interfaces initialized successfully");
-        } else {
-            FURI_LOG_W("Predator", "No hardware interfaces initialized successfully");
-        }
+        app->esp32_uart = NULL;
+        app->gps_uart = NULL;
     } else {
         // Safe fallback if GPIO validation failed or app is NULL
         if(app) {
@@ -281,8 +261,6 @@ PredatorApp* predator_app_alloc() {
         FURI_LOG_E("Predator", "Hardware initialization failed - using fallback mode");
     }
     
-    // Re-enable interrupts after critical section
-    FURI_CRITICAL_EXIT();
     furi_hal_power_suppress_charge_exit();
     
     // Initialize error tracking system with NULL check
@@ -509,9 +487,7 @@ int32_t predator_app(void* p) {
     if(predator_safe_mode) {
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
         notification_message(notification, &sequence_set_red_255);
-        notification_message(notification, &sequence_set_vibro_on);
         furi_delay_ms(300);
-        notification_message(notification, &sequence_set_vibro_off);
         furi_record_close(RECORD_NOTIFICATION);
         
         // Give user time to see notification before proceeding
