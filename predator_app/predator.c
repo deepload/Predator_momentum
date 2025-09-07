@@ -141,6 +141,9 @@ PredatorApp* predator_app_alloc() {
     // Initialize to zeros to prevent undefined behavior with uninitialized fields
     memset(app, 0, sizeof(PredatorApp));
 
+    // Default to unknown board type, will be overridden by detection/config
+    app->board_type = PredatorBoardTypeUnknown;
+
     // Open required records with null checks
     app->gui = furi_record_open(RECORD_GUI);
     app->notifications = furi_record_open(RECORD_NOTIFICATION);
@@ -240,6 +243,28 @@ PredatorApp* predator_app_alloc() {
     
     // Initialize hardware modules with robust error handling
     furi_hal_power_suppress_charge_enter();
+    
+    // Try to load board type from storage or auto-detect
+    app->board_type = predator_boards_load_selection(app->storage);
+    if (app->board_type == PredatorBoardTypeUnknown) {
+        // Try to auto-detect board
+        app->board_type = predator_boards_detect();
+        
+        if (app->board_type != PredatorBoardTypeUnknown) {
+            // Save detected board type
+            predator_boards_save_selection(app->storage, app->board_type);
+            FURI_LOG_I("Predator", "Auto-detected board type: %s", 
+                      predator_boards_get_name(app->board_type));
+        } else {
+            // Default to original if detection fails
+            app->board_type = PredatorBoardTypeOriginal;
+            FURI_LOG_I("Predator", "Using default board type: %s", 
+                      predator_boards_get_name(app->board_type));
+        }
+    } else {
+        FURI_LOG_I("Predator", "Loaded board type from config: %s", 
+                  predator_boards_get_name(app->board_type));
+    }
 
     // Perform ONLY the minimal GPIO configuration in a critical section.
     // Do NOT call heavy APIs (UART init/threads/alloc) while interrupts are disabled.

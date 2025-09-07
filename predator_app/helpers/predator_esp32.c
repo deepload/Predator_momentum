@@ -1,6 +1,7 @@
 #include "predator_esp32.h"
 #include "../predator_i.h"
 #include "../predator_uart.h"
+#include "predator_boards.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <string.h>
@@ -59,14 +60,28 @@ void predator_esp32_init(PredatorApp* app) {
         return;
     }
     
-    // Check Marauder switch state before touching UART (active-low: ON when read == 0)
-    furi_hal_gpio_init(PREDATOR_MARAUDER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
-    bool marauder_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
-    if(!marauder_on) {
-        // Switch is OFF; do not init to keep app stable when hardware is not powered
-        FURI_LOG_W("PredatorESP32", "Marauder switch is OFF - skipping ESP32 init");
-        app->esp32_connected = false;
+    // Get board configuration
+    const PredatorBoardConfig* board_config = predator_boards_get_config(app->board_type);
+    if(!board_config) {
+        FURI_LOG_E("PredatorESP32", "Invalid board configuration");
         return;
+    }
+    
+    FURI_LOG_I("PredatorESP32", "Using board: %s", board_config->name);
+    
+    // Check Marauder switch state if board has one
+    bool enable_esp32 = true;
+    if(board_config->marauder_switch) {
+        furi_hal_gpio_init(board_config->marauder_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        // Switch is active-low: ON when read == 0
+        enable_esp32 = !furi_hal_gpio_read(board_config->marauder_switch);
+        
+        if(!enable_esp32) {
+            // Switch is OFF; do not init to keep app stable when hardware is not powered
+            FURI_LOG_W("PredatorESP32", "Marauder switch is OFF - skipping ESP32 init");
+            app->esp32_connected = false;
+            return;
+        }
     }
 
     FURI_LOG_I("PredatorESP32", "Initializing ESP32 communication");
@@ -77,11 +92,11 @@ void predator_esp32_init(PredatorApp* app) {
     // Delay for hardware stabilization
     furi_delay_ms(10);
     
-    // Initialize UART with error handling
+    // Initialize UART with error handling using board-specific pins
     app->esp32_uart = predator_uart_init(
-        PREDATOR_ESP32_UART_TX_PIN,
-        PREDATOR_ESP32_UART_RX_PIN,
-        PREDATOR_ESP32_UART_BAUD,
+        board_config->esp32_tx_pin,
+        board_config->esp32_rx_pin,
+        board_config->esp32_baud_rate,
         predator_esp32_rx_callback,
         app);
         
@@ -89,6 +104,8 @@ void predator_esp32_init(PredatorApp* app) {
         FURI_LOG_E("PredatorESP32", "Failed to initialize UART");
         return;
     }
+    
+    FURI_LOG_I("PredatorESP32", "ESP32 UART initialized on board: %s", board_config->name);
     
     // Optionally send status command to check connection (non-fatal)
     predator_esp32_send_command(app, MARAUDER_CMD_STATUS);

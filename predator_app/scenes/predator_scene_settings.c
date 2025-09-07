@@ -1,9 +1,12 @@
 #include "../predator_i.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
+#include "../helpers/predator_boards.h"
+#include "predator_scene.h"
 
 enum SubmenuIndex {
     SubmenuIndexModuleStatus,
+    SubmenuIndexBoardSelection,
     SubmenuIndexFrequencyConfig,
     SubmenuIndexPowerSettings,
     SubmenuIndexLogSettings,
@@ -21,6 +24,8 @@ void predator_scene_settings_on_enter(void* context) {
 
     submenu_add_item(
         submenu, "📊 Module Status", SubmenuIndexModuleStatus, predator_scene_settings_submenu_callback, app);
+    submenu_add_item(
+        submenu, "🔌 Board Selection", SubmenuIndexBoardSelection, predator_scene_settings_submenu_callback, app);
     submenu_add_item(
         submenu, "📡 Frequency Config", SubmenuIndexFrequencyConfig, predator_scene_settings_submenu_callback, app);
     submenu_add_item(
@@ -46,13 +51,25 @@ bool predator_scene_settings_on_event(void* context, SceneManagerEvent event) {
                 predator_esp32_init(app);
                 predator_gps_init(app);
                 
-                bool marauder_switch = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
-                bool gps_switch = !furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH);
+                const PredatorBoardConfig* board = predator_boards_get_config(app->board_type);
+                
+                // Read switch states if board has switches
+                bool marauder_switch = false;
+                bool gps_switch = false;
+                
+                if(board->marauder_switch) {
+                    marauder_switch = !furi_hal_gpio_read(board->marauder_switch);
+                }
+                
+                if(board->gps_power_switch) {
+                    gps_switch = !furi_hal_gpio_read(board->gps_power_switch);
+                }
                 bool charging = furi_hal_gpio_read(PREDATOR_CHARGING_LED);
                 
                 char status_text[512];
                 snprintf(status_text, sizeof(status_text),
                     "PREDATOR MODULE STATUS\n\n"
+                    "Board: %s\n"
                     "ESP32S2 Marauder: %s\n"
                     "GPS Module: %s\n"
                     "A07 433MHz: Ready ✓\n"
@@ -67,6 +84,7 @@ bool predator_scene_settings_on_event(void* context, SceneManagerEvent event) {
                     "• Marauder: %s\n"
                     "• GPS Power: %s\n\n"
                     "Press Back to return",
+                    board->name,
                     app->esp32_connected ? "Connected ✓" : "Disconnected ✗",
                     app->gps_connected ? "Active ✓" : "Searching...",
                     charging ? "Charging" : "Ready",
@@ -84,6 +102,11 @@ bool predator_scene_settings_on_event(void* context, SceneManagerEvent event) {
                 predator_gps_deinit(app);
             }
             break;
+            
+        case SubmenuIndexBoardSelection:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelection);
+            break;
+            
         default:
             break;
         }

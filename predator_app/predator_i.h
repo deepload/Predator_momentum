@@ -14,6 +14,8 @@
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
 
+#include "helpers/predator_boards.h"
+
 #define PREDATOR_TEXT_STORE_SIZE 256
 
 typedef enum {
@@ -62,6 +64,7 @@ typedef struct PredatorApp {
     
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
+    PredatorBoardType board_type;  // Type of expansion board attached
     
     // UI components
     ViewDispatcher* view_dispatcher;

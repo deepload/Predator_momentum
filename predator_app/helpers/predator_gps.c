@@ -2,6 +2,7 @@
 #include "../predator_i.h"
 #include "../predator_uart.h"
 #include "predator_string.h"
+#include "predator_boards.h"
 #include <furi.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,20 +58,37 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
 void predator_gps_init(PredatorApp* app) {
     if(!app) return;
     
-    // Check GPS power switch state (front left switch must be down)
-    furi_hal_gpio_init(PREDATOR_GPS_POWER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
-    if(furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH)) {
-        app->gps_connected = false;
-        FURI_LOG_W("Predator", "GPS power switch is off (switch down to enable)");
-        return; // GPS switch is up (using internal battery)
+    // Get board configuration
+    const PredatorBoardConfig* board_config = predator_boards_get_config(app->board_type);
+    if(!board_config) {
+        FURI_LOG_E("PredatorGPS", "Invalid board configuration");
+        return;
     }
     
-    // Initialize UART for GPS communication on pins 13,14 if not already
+    FURI_LOG_I("PredatorGPS", "Using board: %s", board_config->name);
+    
+    // Check GPS power switch state if board has one
+    bool enable_gps = true;
+    if(board_config->gps_power_switch) {
+        furi_hal_gpio_init(board_config->gps_power_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        // Switch is active-low: ON when read == 0
+        enable_gps = !furi_hal_gpio_read(board_config->gps_power_switch);
+        
+        if(!enable_gps) {
+            app->gps_connected = false;
+            FURI_LOG_W("PredatorGPS", "GPS power switch is OFF (switch down to enable)");
+            return;
+        } else {
+            FURI_LOG_I("PredatorGPS", "GPS power switch is ON");
+        }
+    }
+    
+    // Initialize UART for GPS communication using board-specific pins
     if(!app->gps_uart) {
         app->gps_uart = predator_uart_init(
-            PREDATOR_GPS_UART_TX_PIN,
-            PREDATOR_GPS_UART_RX_PIN,
-            GPS_UART_BAUD,
+            board_config->gps_tx_pin,
+            board_config->gps_rx_pin,
+            board_config->gps_baud_rate,
             predator_gps_rx_callback,
             app);
     }

@@ -1,5 +1,6 @@
 #include "../predator_i.h"
 #include "../helpers/predator_esp32.h"
+#include "../helpers/predator_boards.h"
 #include "predator_scene.h"
 #include <gui/elements.h>
 #include <stdio.h>
@@ -26,10 +27,16 @@ static void module_status_build_widget(PredatorApp* app) {
     // Rebuild widget contents
     widget_reset(app->widget);
     widget_add_string_element(app->widget, 64, 4, AlignCenter, AlignTop, FontSecondary, "Module Status");
+    
+    // Add board type information
+    const char* board_name = predator_boards_get_name(app->board_type);
+    widget_add_string_element(app->widget, 64, 15, AlignCenter, AlignTop, FontPrimary, board_name);
 
     char line[64];
 
-    snprintf(line, sizeof(line), "Predator: %s", connected ? "Connected" : "Not Detected");
+    // Board is now displayed at the top, so this line is redundant
+    // Just show connection status
+    snprintf(line, sizeof(line), "Status: %s", connected ? "Connected" : "Not Detected");
     widget_add_string_element(app->widget, 6, 18, AlignLeft, AlignTop, FontSecondary, line);
 
     if(app->esp32_uart) {
