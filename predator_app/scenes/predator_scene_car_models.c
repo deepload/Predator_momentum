@@ -119,8 +119,8 @@ void predator_scene_car_models_on_enter(void* context) {
             car_models_state->selected_model, 
             car_models_state->selected_command);
         
-        // Add success notification
-        notification_message(app->notifications, &sequence_success);
+        // Removed noisy notification for silent operation
+        // notification_message(app->notifications, &sequence_success);
             
         // Update UI with completion info
         char result_text[128];
@@ -196,8 +196,8 @@ bool predator_scene_car_models_on_event(void* context, SceneManagerEvent event) 
                 car_models_state->selected_model, 
                 car_models_state->selected_command);
             
-            // Add success notification
-            notification_message(app->notifications, &sequence_success);
+            // Removed noisy notification for silent operation
+            // notification_message(app->notifications, &sequence_success);
                 
             // Update UI with completion info
             char result_text[128];

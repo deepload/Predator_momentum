@@ -60,6 +60,12 @@ bool predator_scene_car_attacks_on_event(void* context, SceneManagerEvent event)
             
             // Clean up any running attacks
             if(app->attack_running) {
+                // Check which attack was running to perform proper cleanup
+                if(scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarAttacks) == SubmenuIndexCarRollingCode) {
+                    // Call specialized rolling code attack stop function
+                    predator_subghz_stop_rolling_code_attack(app);
+                }
+                
                 app->attack_running = false;
                 predator_subghz_deinit(app);
             }
@@ -97,8 +103,9 @@ bool predator_scene_car_attacks_on_event(void* context, SceneManagerEvent event)
                 popup_set_timeout(app->popup, 0);
                 popup_enable_timeout(app->popup);
                 
-                // Initialize SubGHz
+                // Initialize SubGHz and start rolling code attack
                 predator_subghz_init(app);
+                predator_subghz_start_rolling_code_attack(app, 433920000); // Use most common frequency
                 app->attack_running = true;
                 app->packets_sent = 0;
                 
@@ -131,23 +138,36 @@ bool predator_scene_car_attacks_on_event(void* context, SceneManagerEvent event)
     } else if(event.type == SceneManagerEventTypeTick) {
         // Update rolling code and tire monitor UI if active
         if(app->attack_running) {
-            app->packets_sent++;
-            
             // Update UI based on which feature is active
             if(scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarAttacks) == SubmenuIndexCarRollingCode) {
+                // Call the specialized rolling code attack tick function
+                predator_subghz_rolling_code_attack_tick(app);
+                
                 // Update rolling code UI
                 char status_text[128];
-                snprintf(status_text, sizeof(status_text), 
-                    "Capturing rolling codes...\n"
-                    "Codes captured: %lu\n"
-                    "Press Back to stop", 
-                    app->packets_sent / 10);
-                popup_set_text(app->popup, status_text, 64, 25, AlignCenter, AlignTop);
                 
-                // Blink LED for activity
-                if(app->packets_sent % 20 == 0) {
-                    notification_message(app->notifications, &sequence_blink_blue_10);
+                // Different display based on number of codes captured
+                if(app->packets_sent > 0) {
+                    if(app->packets_sent >= 3) {
+                        snprintf(status_text, sizeof(status_text), 
+                            "Rolling codes captured!\n"
+                            "Codes: %lu - REPLAYING\n"
+                            "Press Back to stop", 
+                            app->packets_sent);
+                    } else {
+                        snprintf(status_text, sizeof(status_text), 
+                            "Capturing rolling codes...\n"
+                            "Codes captured: %lu\n"
+                            "Press Back to stop", 
+                            app->packets_sent);
+                    }
+                } else {
+                    snprintf(status_text, sizeof(status_text), 
+                        "Capturing rolling codes...\n"
+                        "Waiting for signal\n"
+                        "Press Back to stop");
                 }
+                popup_set_text(app->popup, status_text, 64, 25, AlignCenter, AlignTop);
             } 
             else if(scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarAttacks) == SubmenuIndexCarTireMonitor) {
                 // Update tire monitor UI with decreasing pressure

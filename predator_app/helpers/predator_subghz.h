@@ -59,6 +59,11 @@ void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code);
 void predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency);
 void predator_subghz_send_tesla_charge_port(PredatorApp* app);
 
+// Rolling code attack functions
+void predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency);
+void predator_subghz_stop_rolling_code_attack(PredatorApp* app);
+void predator_subghz_rolling_code_attack_tick(PredatorApp* app);
+
 // New car model specific functions
 const char* predator_subghz_get_car_model_name(CarModel model);
 const char* predator_subghz_get_car_command_name(CarCommand command);
