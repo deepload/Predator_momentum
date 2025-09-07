@@ -70,21 +70,15 @@ void predator_subghz_init(PredatorApp* app) {
     FURI_CRITICAL_ENTER();
     // Wrapped in critical section to prevent interruption during initialization
     
-    // Safety check before initialization
-    if(furi_hal_subghz_is_busy()) {
-        FURI_LOG_E("Predator", "SubGHz is busy, cannot initialize");
+    // Try initialization with error capture
+    bool init_result = true;
+    
+    // Safe hardware initialization
+    furi_hal_subghz_init();
+    
+    if(!init_result) {
+        FURI_LOG_E("Predator", "SubGHz initialization failed");
         init_success = false;
-    } else {
-        // Try initialization with error capture
-        bool init_result = true;
-        
-        // Safe hardware initialization
-        furi_hal_subghz_init();
-        
-        if(!init_result) {
-            FURI_LOG_E("Predator", "SubGHz initialization failed");
-            init_success = false;
-        }
     }
     
     // Check external radio module if initialization was successful

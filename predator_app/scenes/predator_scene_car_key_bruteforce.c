@@ -62,7 +62,6 @@ bool predator_scene_car_key_bruteforce_on_event(void* context, SceneManagerEvent
             static uint8_t freq_index = 0;
             static const uint32_t frequencies[] = {433920000, 315000000, 868350000};
             static const char* freq_names[] = {"433.92 MHz", "315 MHz", "868.35 MHz"};
-            static uint32_t freq_cycle_counter = 0;
             
             app->packets_sent++;
             

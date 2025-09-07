@@ -2,6 +2,13 @@
 #include <furi.h>
 #include <notification/notification_messages.h>
 
+// Implementation of popup callback function
+static void popup_callback_ok(void* context) {
+    furi_assert(context);
+    PredatorApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
+}
+
 #define ERROR_NOTIFY_TIMEOUT 2000 // 2 seconds
 
 void predator_error_init(PredatorApp* app) {

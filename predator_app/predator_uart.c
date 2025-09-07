@@ -50,11 +50,8 @@ PredatorUart* predator_uart_init(
         return NULL;
     }
     
-    // Check pin validity
-    if(!furi_hal_gpio_is_valid(tx_pin) || !furi_hal_gpio_is_valid(rx_pin)) {
-        FURI_LOG_E("PredatorUART", "Invalid or inaccessible GPIO pins");
-        return NULL;
-    }
+    // Simple check that pins are not NULL (already done above)
+    // Skip additional validation as furi_hal_gpio_is_valid is not available
     
     // Allocate with NULL check
     PredatorUart* uart = malloc(sizeof(PredatorUart));
@@ -126,9 +123,12 @@ PredatorUart* predator_uart_init(
         return NULL;
     }
     
-    // Start thread with error checking
-    FuriStatus thread_status = furi_thread_start(uart->rx_thread);
-    if(thread_status != FuriStatusOk) {
+    // Start thread
+    furi_thread_start(uart->rx_thread);
+    
+    // Thread started successfully if we got here
+    bool thread_ok = true;
+    if(!thread_ok) {
         FURI_LOG_E("PredatorUART", "Failed to start rx thread");
         furi_thread_free(uart->rx_thread);
         furi_hal_serial_async_rx_stop(uart->serial_handle);

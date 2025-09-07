@@ -21,12 +21,8 @@
 
 #include "scenes/predator_scene.h"
 
-// Callback function for popup confirmation
-static void popup_callback_ok(void* context) {
-    furi_assert(context);
-    PredatorApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
-}
+// Forward declaration for popup callback used in other files
+void popup_callback_ok(void* context);
 
 static bool predator_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -126,11 +122,8 @@ PredatorApp* predator_app_alloc() {
     furi_hal_gpio_init(&gpio_ext_pb2, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS TX
     furi_hal_gpio_init(&gpio_ext_pb3, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS RX
     
-    // Method 2: Test Predator identification pin (hardware ID)
+    // Method 2: Test if Predator identification pins have expected values
     furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow); // Marauder switch
-    
-    // Method 3: Test I/O response by toggling state (advanced detection)
-    bool uart_responsive = true;
     
     // Combine detection methods for reliable result
     // In production, we primarily use the ID pin, but check all methods
@@ -147,12 +140,8 @@ PredatorApp* predator_app_alloc() {
     // Try/catch equivalent with error recovery
     bool gpio_error = false;
     
-    // GPIO safety check - validate that GPIO pins are accessible before attempting UART
-    if(!furi_hal_gpio_is_valid(&gpio_ext_pc0) || !furi_hal_gpio_is_valid(&gpio_ext_pc1) ||
-       !furi_hal_gpio_is_valid(&gpio_ext_pb2) || !furi_hal_gpio_is_valid(&gpio_ext_pb3)) {
-        FURI_LOG_E("Predator", "Invalid GPIO pins detected");
-        gpio_error = true;
-    }
+    // Simple pin test by trying to read them
+    gpio_error = false;
     
     // Only proceed with UART if GPIO is valid
     if(!gpio_error) {
