@@ -3,8 +3,14 @@ App(
     name="Predator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
-    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt"],
-    stack_size=4 * 1024,
+    # Icon reference removed until valid icon is available
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power", "music_player"],
+    stack_size=8 * 1024,
     fap_category="Tools",
     fap_description="Pen testing toolkit for Flipper Zero",
+    fap_version="1.1",
+    fap_author="Nico Lococo",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=18000"],
 )
