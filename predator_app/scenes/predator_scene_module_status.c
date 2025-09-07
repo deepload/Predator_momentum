@@ -4,67 +4,69 @@
 #include <gui/elements.h>
 #include <stdio.h>
 
-static void draw_status(Canvas* canvas, PredatorApp* app) {
-    canvas_clear(canvas);
-    canvas_set_color(canvas, ColorBlack);
-    canvas_set_font(canvas, FontSecondary);
+static void module_status_build_widget(PredatorApp* app) {
+    if(!app || !app->widget) return;
 
-    // Title
-    elements_multiline_text_aligned(canvas, 64, 4, AlignCenter, AlignTop, "Module Status");
+    // Gather state
+    // Treat front switches as active-low (ON when GPIO reads 0)
+    bool marauder_switch_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
+    bool gps_switch_on = !furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH);
+
+    // Consider the module "Connected" if any UART was initialized or any switch is ON
+    bool connected = (app->esp32_uart || app->gps_uart || marauder_switch_on || gps_switch_on);
+
+    // Rebuild widget contents
+    widget_reset(app->widget);
+    widget_add_string_element(app->widget, 64, 4, AlignCenter, AlignTop, FontSecondary, "Module Status");
 
     char line[64];
 
-    // Read hardware switch states (safe GPIO reads)
-    bool marauder_switch_on = false;
-    bool gps_switch_on = false;
-    
-    // Use try/catch style: if reads fail in future SDKs, still render UI
-    marauder_switch_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH) ? false : true;
-    gps_switch_on = !furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH) ? false : true;
+    snprintf(line, sizeof(line), "Predator: %s", connected ? "Connected" : "Not Detected");
+    widget_add_string_element(app->widget, 6, 18, AlignLeft, AlignTop, FontSecondary, line);
 
-    // Module presence heuristic: only mark Connected if we have any active UART or switch is ON
-    bool connected_heuristic = (app->esp32_uart || app->gps_uart || marauder_switch_on || gps_switch_on);
-    snprintf(line, sizeof(line), "Predator: %s", connected_heuristic ? "Likely Connected" : "Unknown");
-    elements_multiline_text_aligned(canvas, 6, 18, AlignLeft, AlignTop, line);
-
-    // ESP32
     if(app->esp32_uart) {
-        snprintf(line, sizeof(line), "ESP32: %s", app->esp32_connected ? "OK" : "Waiting...");
+        snprintf(line, sizeof(line), "ESP32: %s", app->esp32_connected ? "OK" : "UART Up");
     } else {
         snprintf(line, sizeof(line), "ESP32: Not initialized");
     }
-    elements_multiline_text_aligned(canvas, 6, 30, AlignLeft, AlignTop, line);
+    widget_add_string_element(app->widget, 6, 30, AlignLeft, AlignTop, FontSecondary, line);
 
-    // GPS
     if(app->gps_connected) {
         snprintf(line, sizeof(line), "GPS: %lu sats", (unsigned long)app->satellites);
     } else {
         snprintf(line, sizeof(line), "GPS: Not initialized");
     }
-    elements_multiline_text_aligned(canvas, 6, 42, AlignLeft, AlignTop, line);
+    widget_add_string_element(app->widget, 6, 42, AlignLeft, AlignTop, FontSecondary, line);
 
-    // Switch states (useful for diagnostics)
-    snprintf(line, sizeof(line), "Marauder SW: %s", marauder_switch_on ? "ON" : "OFF");
-    elements_multiline_text_aligned(canvas, 6, 54, AlignLeft, AlignTop, line);
+    snprintf(line, sizeof(line), "Marauder SW: %s (raw=%d)", marauder_switch_on ? "ON" : "OFF", !marauder_switch_on);
+    widget_add_string_element(app->widget, 6, 54, AlignLeft, AlignTop, FontSecondary, line);
+    snprintf(line, sizeof(line), "GPS SW: %s (raw=%d)", gps_switch_on ? "ON" : "OFF", !gps_switch_on);
+    widget_add_string_element(app->widget, 6, 64, AlignLeft, AlignBottom, FontSecondary, line);
 
-    // Hint
-    elements_multiline_text_aligned(canvas, 64, 62, AlignCenter, AlignBottom, "Back to exit");
+    // Add a Probe button (Center) to query ESP32 status when Marauder switch is ON
+    widget_add_button_element(app->widget, GuiButtonTypeCenter, "Probe ESP32", 64, 34);
+    widget_add_string_element(app->widget, 64, 52, AlignCenter, AlignTop, FontSecondary, "Back to exit");
 }
 
-static void view_draw_callback(Canvas* canvas, void* context) {
-    PredatorApp* app = context;
-    draw_status(canvas, app);
+// Handle Probe action from Center button via navigation events
+static void module_status_probe(PredatorApp* app) {
+    if(!app) return;
+    // Only probe if Marauder switch is ON to avoid risky init when hardware is off
+    bool marauder_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
+    if(marauder_on) {
+        // Initialize if not yet and then send status
+        if(!app->esp32_uart) {
+            predator_esp32_init(app);
+        }
+        if(app->esp32_uart) {
+            predator_esp32_get_status(app);
+        }
+    }
 }
 
 void predator_scene_module_status_on_enter(void* context) {
     PredatorApp* app = context;
-
-    // Use widget for simple status rendering
-    widget_reset(app->widget);
-    View* v = widget_get_view(app->widget);
-    view_set_draw_callback(v, view_draw_callback);
-    view_set_context(v, app);
-
+    module_status_build_widget(app);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);
 }
 
@@ -76,11 +78,12 @@ bool predator_scene_module_status_on_event(void* context, SceneManagerEvent even
         consumed = true;
         scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {
-        // Force re-draw to update status lines
-        view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventRecovery);
+        // Periodically refresh the status text
+        module_status_build_widget(app);
     } else if(event.type == SceneManagerEventTypeCustom) {
-        // Any custom event -> refresh view
-        (void)app; // unused
+        // Treat any custom event here as a Probe request (widget center pressed)
+        module_status_probe(app);
+        module_status_build_widget(app);
     }
 
     return consumed;

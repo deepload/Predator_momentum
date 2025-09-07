@@ -57,10 +57,11 @@ void predator_esp32_init(PredatorApp* app) {
         return;
     }
     
-    // Check Marauder switch state before touching UART
+    // Check Marauder switch state before touching UART (active-low: ON when read == 0)
     furi_hal_gpio_init(PREDATOR_MARAUDER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
-    if(!furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH)) {
-        // Switch appears OFF (down); do not init to keep app stable when hardware is not powered
+    bool marauder_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
+    if(!marauder_on) {
+        // Switch is OFF; do not init to keep app stable when hardware is not powered
         FURI_LOG_W("PredatorESP32", "Marauder switch is OFF - skipping ESP32 init");
         app->esp32_connected = false;
         return;

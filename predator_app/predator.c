@@ -227,6 +227,7 @@ PredatorApp* predator_app_alloc() {
     furi_hal_gpio_init(&gpio_ext_pc1, GpioModeInput, GpioPullUp, GpioSpeedLow); // ESP32 RX
     furi_hal_gpio_init(&gpio_ext_pb2, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS TX
     furi_hal_gpio_init(&gpio_ext_pb3, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS RX
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS power switch
     
     // Method 2: Test if Predator identification pins have expected values
     furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow); // Marauder switch
