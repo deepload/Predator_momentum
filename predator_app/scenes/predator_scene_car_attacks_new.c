@@ -36,7 +36,6 @@ static const CarMenuItem car_items[] = {
 };
 
 #define CAR_ITEMS_COUNT (sizeof(car_items) / sizeof(car_items[0]))
-#define ITEMS_ON_SCREEN 5
 
 static void car_attacks_menu_draw_callback(Canvas* canvas, void* context) {
     PredatorApp* app = context;
@@ -303,7 +302,7 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpener);
             break;
         case SubmenuIndexCarKeyBruteforce:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforce);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKey);
             break;
         case SubmenuIndexCarJamming:
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarJamming);

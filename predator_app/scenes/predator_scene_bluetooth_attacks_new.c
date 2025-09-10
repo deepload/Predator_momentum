@@ -232,7 +232,7 @@ void predator_scene_bluetooth_attacks_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
-    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         bluetooth_attacks_menu_view_free(view);
     }

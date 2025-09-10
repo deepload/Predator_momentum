@@ -33,7 +33,6 @@ static const BoardMenuItem board_items[] = {
 };
 
 #define BOARD_ITEMS_COUNT (sizeof(board_items) / sizeof(board_items[0]))
-#define ITEMS_ON_SCREEN 4
 
 static void board_selection_view_draw_callback(Canvas* canvas, void* context) {
     PredatorApp* app = context;
@@ -232,8 +231,8 @@ static View* board_selection_view_alloc(PredatorApp* app) {
     view_set_input_callback(view, board_selection_view_input_callback);
     
     // Set model and free callback
-    predator_predator_view_set_model(view, state);
-    predator_predator_view_set_model_free_callback(view, free);
+    predator_view_set_model(view, state);
+    predator_view_set_model_free_callback(view, free);
     
     return view;
 }

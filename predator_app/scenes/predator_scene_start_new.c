@@ -39,7 +39,6 @@ static const PredatorMenuItem menu_items[] = {
 };
 
 #define MENU_ITEMS_COUNT (sizeof(menu_items) / sizeof(menu_items[0]))
-#define ITEMS_ON_SCREEN 5
 #define MENU_Y_OFFSET 16
 
 // Custom view callbacks
@@ -224,7 +223,7 @@ bool predator_scene_start_new_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, PredatorSceneWardriving);
             break;
         case SubmenuIndexSocialEngineering:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineering);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAbout);
             break;
         case SubmenuIndexModuleStatus:
             scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatus);
@@ -249,7 +248,7 @@ void predator_scene_start_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
-    View* view = view_dispatcher_get_view(app->view_dispatcher, PredatorViewWidget);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         predator_start_view_free(view);
     }

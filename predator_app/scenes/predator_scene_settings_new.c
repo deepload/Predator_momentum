@@ -3,7 +3,6 @@
 #include "../helpers/predator_ui_elements.h"
 
 // Define settings screen constants
-#define ITEMS_ON_SCREEN 4
 
 typedef struct {
     View* view;
@@ -233,7 +232,6 @@ static bool settings_view_input_callback(InputEvent* event, void* context) {
                 break;
                 
             case InputKeyOk:
-            case InputKeyCenter:
                 // Enter edit mode
                 state->edit_mode = true;
                 state->edit_value = settings_data[state->selected_setting].current_value;

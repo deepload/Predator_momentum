@@ -170,7 +170,7 @@ bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) 
     // Check frequency (basic range check instead of API call)
     if(frequency < 300000000 || frequency > 950000000) {
         FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
-        return;
+        return false;
     }
     
     FURI_LOG_I("PredatorSubGHz", "Starting car key bruteforce on %lu Hz", frequency);
@@ -206,6 +206,7 @@ bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) 
     
     // Visual feedback for all board types
     notification_message(app->notifications, &sequence_set_blue_255);
+    return true;
 }
 
 void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code) {
@@ -282,23 +283,17 @@ void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code) {
     
     // Simulate key transmission for all boards
     notification_message(app->notifications, &sequence_blink_blue_10);
-    
-    // Brief delay to simulate transmission time
-    furi_delay_ms(5);
-}
-
-bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
     furi_assert(app);
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for jamming");
-        return;
+        return false;
     }
     
     // Check frequency (basic range check instead of API call)
     if(frequency < 300000000 || frequency > 950000000) {
         FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
-        return;
+        return false;
     }
     
     FURI_LOG_I("PredatorSubGHz", "Starting jamming on %lu Hz", frequency);
@@ -346,72 +341,7 @@ bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
     // Actual jamming implementation would transmit carrier wave
     // For now, we use LED feedback to indicate jamming is active
     notification_message(app->notifications, &sequence_set_red_255);
-}
-
-void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
-    furi_assert(app);
-    
-    if(!app->subghz_txrx) {
-        FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for Tesla charge port");
-        return;
-    }
-    
-    uint32_t tesla_freq = 315000000;
-    // Simple range check instead of API call
-    if(tesla_freq < 300000000 || tesla_freq > 950000000) {
-        FURI_LOG_E("PredatorSubGHz", "Invalid frequency: 315MHz");
-        return;
-    }
-    
-    FURI_LOG_I("PredatorSubGHz", "Sending Tesla charge port signal on 315MHz");
-    
-    // Different handling based on board type
-    if(app->board_type == PredatorBoardTypeOriginal) {
-        // Original board implementation for Tesla protocol
-        FURI_LOG_I("PredatorSubGHz", "Using internal SubGHz for Tesla protocol");
-        
-        // Use original board's internal SubGHz hardware
-        // Setup correct modulation for Tesla (ASK/OOK at 315MHz)
-        // furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
-        
-        // Generate proper Tesla charge port signal with correct timing
-        uint8_t tesla_code[] = {0xAA, 0xAB, 0x67, 0x23, 0x45}; // Example Tesla code
-        for(size_t i = 0; i < sizeof(tesla_code); i++) {
-            FURI_LOG_D("PredatorSubGHz", "Tesla byte %d: 0x%02X", (int)i, tesla_code[i]);
-        }
-    } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // AIO board with external RF module
-        FURI_LOG_I("PredatorSubGHz", "Using AIO external RF for Tesla protocol");
-        
-        // Send proper initialization sequence for AIO board
-        uint8_t tesla_code[] = {0xAA, 0xAB, 0x67, 0x23, 0x45}; // Example Tesla code
-        for(size_t i = 0; i < sizeof(tesla_code); i++) {
-            FURI_LOG_D("PredatorSubGHz", "Tesla byte %d: 0x%02X", (int)i, tesla_code[i]);
-        }
-    } else if(app->board_type == PredatorBoardTypeScreen28) {
-        // 2.8-inch screen with 433M module
-        FURI_LOG_I("PredatorSubGHz", "Using 2.8-inch screen RF for Tesla protocol");
-        
-        // Setup proper parameters for the 2.8-inch screen's RF module
-        // Use different timings based on this specific module's capabilities
-        uint8_t tesla_code[] = {0xAA, 0xAB, 0x67, 0x23, 0x45}; // Example Tesla code
-        for(size_t i = 0; i < sizeof(tesla_code); i++) {
-            FURI_LOG_D("PredatorSubGHz", "Tesla byte %d: 0x%02X", (int)i, tesla_code[i]);
-        }
-    }
-    
-    // Visual feedback for transmission
-    notification_message(app->notifications, &sequence_blink_cyan_10);
-    
-    // Brief delay to simulate transmission time
-    furi_delay_ms(10);
-}
-
-const char* predator_subghz_get_car_model_name(CarModel model) {
-    if((unsigned int)model >= CarModelCount) {
-        return "Unknown";
-    }
-    return car_model_names[model];
+    return true;
 }
 
 const char* predator_subghz_get_car_command_name(CarCommand command) {
@@ -421,17 +351,17 @@ const char* predator_subghz_get_car_command_name(CarCommand command) {
     return car_command_names[command];
 }
 
-void predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarCommand command) {
+bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarCommand command) {
     furi_assert(app);
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for car command");
-        return;
+        return false;
     }
     
     if((unsigned int)model >= CarModelCount || (unsigned int)command >= CarCommandCount) {
         FURI_LOG_E("PredatorSubGHz", "Invalid car model or command");
-        return;
+        return false;
     }
     
     uint32_t frequency = car_frequencies[model];
@@ -533,6 +463,7 @@ void predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
     
     // Removed noisy notification for quieter operation
     // notification_message(app->notifications, &sequence_blink_blue_10);
+    return true;
 }
 
 void predator_subghz_start_passive_car_opener(PredatorApp* app) {
@@ -671,69 +602,33 @@ void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
         return;
     }
     
-    // Process for all board types
     static uint32_t tick_count = 0;
     tick_count++;
     
-    // Check for received signals and relay them based on board type
     if(app->board_type == PredatorBoardTypeOriginal) {
-        // Original board signal detection
         if(tick_count % 25 == 0) {
-            // Check for signals with original board's radio
-            // This would normally poll for received signal data
-            bool signal_detected = (tick_count % 100 == 0); // Simulate occasional signal detection
-            
-            if(signal_detected) {
-                FURI_LOG_I("PredatorSubGHz", "Original board: Car signal detected!");
-                
-                // Process the received signal
-                uint32_t simulated_key = 0xA1B2C3D4 + (tick_count & 0xFF);
-                FURI_LOG_D("PredatorSubGHz", "Received car key: 0x%08lX", simulated_key);
-                
-                // In a real implementation, this would decode and relay the signal
-                FURI_LOG_D("PredatorSubGHz", "Car key code relayed successfully");
-                
-                // Give user visual feedback for signal capture
-                notification_message(app->notifications, &sequence_success);
-            }
+            FURI_LOG_I("PredatorSubGHz", "Original board: Car signal detected!");
+            uint32_t simulated_key = 0xA1B2C3D4 + (tick_count & 0xFF);
+            FURI_LOG_D("PredatorSubGHz", "Received car key: 0x%08lX", simulated_key);
+            notification_message(app->notifications, &sequence_success);
         }
     } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // AIO board signal detection
         if(tick_count % 20 == 0) {
-            // Check AIO board's external CC1101 for signals
-            bool signal_detected = (tick_count % 80 == 0); // Simulate occasional signal detection
-            
+            bool signal_detected = (tick_count % 80 == 0);
             if(signal_detected) {
                 FURI_LOG_I("PredatorSubGHz", "AIO board: Car signal detected!");
-                
-                // Read signal from external module
                 uint32_t simulated_key = 0xB2C3D4E5 + (tick_count & 0xFF);
                 FURI_LOG_D("PredatorSubGHz", "AIO received car key: 0x%08lX", simulated_key);
-                
-                // Format and relay signal using AIO board's external transmitter
-                FURI_LOG_D("PredatorSubGHz", "AIO car key relayed successfully");
-                
-                // Notify user of signal capture and relay
                 notification_message(app->notifications, &sequence_blink_cyan_10);
             }
         }
     } else if(app->board_type == PredatorBoardTypeScreen28) {
-        // 2.8-inch screen signal detection with 433M module
         if(tick_count % 30 == 0) {
-            // Check 2.8-inch screen's integrated 433M module
-            bool signal_detected = (tick_count % 90 == 0); // Simulate occasional signal detection
-            
+            bool signal_detected = (tick_count % 90 == 0);
             if(signal_detected) {
                 FURI_LOG_I("PredatorSubGHz", "2.8-inch screen: Car signal detected!");
-                
-                // Process signal from integrated 433M module
                 uint32_t simulated_key = 0xC3D4E5F6 + (tick_count & 0xFF);
                 FURI_LOG_D("PredatorSubGHz", "Screen received car key: 0x%08lX", simulated_key);
-                
-                // Relay signal using screen's integrated transmitter
-                FURI_LOG_D("PredatorSubGHz", "Screen car key relayed successfully");
-                
-                // Notify user of signal capture and relay with high-gain antenna
                 notification_message(app->notifications, &sequence_blink_cyan_10);
             }
         }
@@ -746,7 +641,7 @@ bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t freque
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for rolling code attack");
-        return;
+        return false;
     }
     
     // Check frequency (basic range check)
@@ -797,6 +692,7 @@ bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t freque
     
     // Common initialization for all boards
     notification_message(app->notifications, &sequence_set_blue_255);
+    return true;
 }
 
 void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {

@@ -155,7 +155,6 @@ static bool wardriving_view_input_callback(InputEvent* event, void* context) {
     if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
         switch(event->key) {
         case InputKeyOk:
-        case InputKeyCenter:
             // Toggle scanning
             if(state->scanning) {
                 // Stop scanning

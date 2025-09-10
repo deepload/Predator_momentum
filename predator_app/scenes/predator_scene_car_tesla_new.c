@@ -176,7 +176,7 @@ void predator_scene_car_tesla_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = view_dispatcher_get_view(app->view_dispatcher, PredatorViewPopup);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         tesla_charge_port_view_free(view);
     }

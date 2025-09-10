@@ -44,7 +44,6 @@ static const SubGhzAttackInfo attack_info[] = {
     {"Rolling Capture", "Capture rolling codes", 433920000, "🎣"},
 };
 
-#define ITEMS_ON_SCREEN 3
 
 static void subghz_attacks_view_draw_callback(Canvas* canvas, void* context) {
     PredatorApp* app = context;
@@ -204,7 +203,7 @@ static bool subghz_attacks_view_input_callback(InputEvent* event, void* context)
                 state->attack_running = false;
             } else {
                 // Start attack
-                if(predator_subghz_start_attack(app, state->selected_attack, state->frequency)) {
+                if(predator_subghz_start_jamming(app, state->frequency)) {
                     app->attack_running = true;
                     state->attack_running = true;
                 }

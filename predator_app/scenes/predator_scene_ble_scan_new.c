@@ -183,7 +183,6 @@ static bool ble_scan_view_input_callback(InputEvent* event, void* context) {
             break;
             
         case InputKeyOk:
-        case InputKeyCenter:
             // Toggle scanning
             if(state->scanning) {
                 // Stop scanning

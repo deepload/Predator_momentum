@@ -131,7 +131,7 @@ static bool gps_tracker_view_input_callback(InputEvent* event, void* context) {
             break;
         case InputKeyRight:
             // Switch to GPS debug scene
-            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsDebug);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGPSDebug);
             consumed = true;
             break;
         default:

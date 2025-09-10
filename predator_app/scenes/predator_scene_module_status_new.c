@@ -49,6 +49,7 @@ static void module_status_view_draw_callback(Canvas* canvas, void* context) {
     
     // Consider the module "Connected" if any UART is initialized or any switch is ON
     bool connected = (app->esp32_uart || app->gps_uart || marauder_switch_on || gps_switch_on);
+    (void)connected;
     
     canvas_clear(canvas);
     
@@ -118,7 +119,6 @@ static bool module_status_view_input_callback(InputEvent* event, void* context) 
             consumed = true;
             break;
         case InputKeyOk:
-        case InputKeyCenter:
             // Probe ESP32 status
             bool marauder_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
             if(marauder_on) {
