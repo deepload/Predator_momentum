@@ -2,6 +2,7 @@
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_models.h"
+#include "../helpers/predator_models_seed.h"
 #include "../helpers/predator_ui_elements.h"
 
 typedef struct {

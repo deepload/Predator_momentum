@@ -129,10 +129,10 @@ static void wardriving_view_draw_callback(Canvas* canvas, void* context) {
         
         // Draw scanning animation (avoid strcat)
         char scan_text[16] = "SCANNING";
-        uint8_t base_len = 8; // strlen("SCANNING")
+        size_t base_len = 8; // strlen("SCANNING")
         uint8_t dots = animation_frame;
         if(dots > 3) dots = 3;
-        for(uint8_t i = 0; i < dots && base_len + i + 1 < sizeof(scan_text); i++) {
+        for(uint8_t i = 0; i < dots && (base_len + i + 1) < sizeof(scan_text); i++) {
             scan_text[base_len + i] = '.';
             scan_text[base_len + i + 1] = '\0';
         }
