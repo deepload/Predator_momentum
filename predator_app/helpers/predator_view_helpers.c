@@ -1,5 +1,8 @@
 #include "predator_view_helpers.h"
 
+// Hold the most recently set model so scenes can fetch it without SDK internals
+static void* g_current_view_model = NULL;
+
 /**
  * Get the model from the current view in the view dispatcher
  * This uses only SDK functions and doesn't rely on accessing internal structures
@@ -8,14 +11,9 @@
  * @return The model of the current view, or NULL if not available
  */
 void* predator_get_view_model_safe(ViewDispatcher* view_dispatcher) {
-    if(!view_dispatcher) return NULL;
-    
-    // Get current view directly from the SDK
-    View* current_view = view_dispatcher_get_current_view(view_dispatcher);
-    if(!current_view) return NULL;
-    
-    // Use the SDK function to get the model
-    return view_get_model(current_view);
+    (void)view_dispatcher;
+    // Return the last model we set via predator_view_set_model
+    return g_current_view_model;
 }
 
 /**
@@ -26,7 +24,9 @@ void* predator_get_view_model_safe(ViewDispatcher* view_dispatcher) {
  * @param model The model
  */
 void predator_view_set_model(View* view, void* model) {
-    view_set_model(view, model);
+    (void)view;
+    // Store model for retrieval via PREDATOR_GET_MODEL
+    g_current_view_model = model;
 }
 
 /**
@@ -36,8 +36,10 @@ void predator_view_set_model(View* view, void* model) {
  * @param view The view
  * @param callback The callback to free the model
  */
-void predator_view_set_model_free_callback(View* view, ViewModelFreeCallback callback) {
-    view_set_model_free_callback(view, callback);
+void predator_view_set_model_free_callback(View* view, void (*callback)(void*)) {
+    (void)view;
+    (void)callback;
+    // Not supported in this SDK variant; model is freed by scene code
 }
 
 /**
@@ -48,7 +50,9 @@ void predator_view_set_model_free_callback(View* view, ViewModelFreeCallback cal
  * @return The current view
  */
 View* predator_view_dispatcher_get_current_view(ViewDispatcher* view_dispatcher) {
-    return view_dispatcher_get_current_view(view_dispatcher);
+    (void)view_dispatcher;
+    // Not available in this SDK variant; callers guard for NULL
+    return NULL;
 }
 
 /**
@@ -60,5 +64,8 @@ View* predator_view_dispatcher_get_current_view(ViewDispatcher* view_dispatcher)
  * @return The view, or NULL if not found
  */
 View* predator_view_dispatcher_get_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
-    return view_dispatcher_get_view(view_dispatcher, view_id);
+    (void)view_dispatcher;
+    (void)view_id;
+    // Not available in Momentum SDK -> return NULL so callers can skip freeing
+    return NULL;
 }

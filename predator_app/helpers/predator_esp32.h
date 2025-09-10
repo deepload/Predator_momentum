@@ -21,7 +21,7 @@ bool predator_esp32_wifi_evil_twin(PredatorApp* app);
 
 // Bluetooth attack functions
 bool predator_esp32_ble_scan(PredatorApp* app);
-bool predator_esp32_ble_spam(PredatorApp* app);
+bool predator_esp32_ble_spam(PredatorApp* app, uint8_t mode);
 
 // Wardriving functions
 bool predator_esp32_wardrive(PredatorApp* app);

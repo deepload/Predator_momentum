@@ -273,7 +273,8 @@ bool predator_esp32_ble_scan(PredatorApp* app) {
     return predator_esp32_send_command(app, MARAUDER_CMD_BLE_SCAN);
 }
 
-bool predator_esp32_ble_spam(PredatorApp* app) {
+bool predator_esp32_ble_spam(PredatorApp* app, uint8_t mode) {
+    (void)mode; // Mode currently unused; reserved for future variations
     return predator_esp32_send_command(app, MARAUDER_CMD_BLE_SPAM);
 }
 

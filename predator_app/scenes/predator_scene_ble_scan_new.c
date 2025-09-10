@@ -1,4 +1,5 @@
-#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
 
@@ -220,8 +221,8 @@ static View* ble_scan_view_alloc(PredatorApp* app) {
     strncpy(state->device_name, "No devices found", sizeof(state->device_name));
     strncpy(state->device_mac, "--:--:--:--:--:--", sizeof(state->device_mac));
     
-    predator_predator_view_set_model(view, state);
-    predator_predator_view_set_model_free_callback(view, free);
+    predator_view_set_model(view, state);
+    predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -278,7 +279,7 @@ void predator_scene_ble_scan_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         ble_scan_view_free(view);
     }

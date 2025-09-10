@@ -2,16 +2,7 @@
 
 #include <gui/scene_manager.h>
 
-// Scene IDs are already defined in predator_i.h
-// Use predefined enum values instead of redefining
-#define ADD_SCENE(prefix, name, id)
-#include "predator_scene_config.h"
-#undef ADD_SCENE
-
-// Explicitly reference RFID scenes to ensure they're recognized
-#define PredatorSceneRfidClone 17
-#define PredatorSceneRfidBruteforce 18
-
+// Use legacy config list which matches function names (many files end with _new)
 extern const SceneManagerHandlers predator_scene_handlers;
 
 // Generate scene on_enter handlers declaration

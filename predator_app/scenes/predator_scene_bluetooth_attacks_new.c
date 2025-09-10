@@ -1,4 +1,6 @@
-#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
+#include "predator_submenu_index.h"
 #include "../helpers/predator_ui_elements.h"
 #include "predator_scene.h"
 
@@ -180,8 +182,8 @@ static View* bluetooth_attacks_menu_view_alloc(PredatorApp* app) {
     view_set_input_callback(view, bluetooth_attacks_menu_input_callback);
     
     // Set model and free callback
-    predator_predator_view_set_model(view, state);
-    predator_predator_view_set_model_free_callback(view, free);
+    predator_view_set_model(view, state);
+    predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -211,10 +213,10 @@ bool predator_scene_bluetooth_attacks_new_on_event(void* context, SceneManagerEv
         consumed = true;
         switch(event.event) {
         case SubmenuIndexBleScan:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScan);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBLEScan);
             break;
         case SubmenuIndexBleSpam:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScan);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBLESpam);
             break;
         default:
             consumed = false;

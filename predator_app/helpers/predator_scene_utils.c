@@ -108,8 +108,8 @@ bool predator_scene_transition_safe(PredatorApp* app, uint32_t next_scene) {
         can_transition = (app->subghz_txrx != NULL);
     }
     // GPS scenes
-    else if(next_scene == PredatorSceneGpsDebug ||
-            next_scene == PredatorSceneGpsTracker) {
+    else if(next_scene == PredatorSceneGPSDebug ||
+            next_scene == PredatorSceneGPSTracker) {
         // Check GPS initialization for GPS scenes
         can_transition = (app->gps_uart != NULL);
     }
