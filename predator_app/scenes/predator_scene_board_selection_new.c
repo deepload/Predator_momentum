@@ -1,6 +1,7 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_boards.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_view_helpers.h"
 #include "predator_scene.h"
 
 typedef struct {
@@ -38,8 +39,8 @@ static void board_selection_view_draw_callback(Canvas* canvas, void* context) {
     
     if(!app) return;
     
-    // Get view state
-    BoardSelectionView* state = view_get_model(app->view_dispatcher->current_view);
+    // Get view state using helper macro
+    BoardSelectionView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BoardSelectionView);
     if(!state) return;
     
     canvas_clear(canvas);
@@ -139,8 +140,8 @@ static bool board_selection_view_input_callback(InputEvent* event, void* context
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Get view state
-    BoardSelectionView* state = view_get_model(app->view_dispatcher->current_view);
+    // Get view state using helper macro
+    BoardSelectionView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BoardSelectionView);
     if(!state) return consumed;
     
     // Navigation controls
@@ -230,8 +231,8 @@ static View* board_selection_view_alloc(PredatorApp* app) {
     view_set_input_callback(view, board_selection_view_input_callback);
     
     // Set model and free callback
-    view_set_model(view, state);
-    view_set_model_free_callback(view, free);
+    predator_predator_view_set_model(view, state);
+    predator_predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -256,8 +257,8 @@ bool predator_scene_board_selection_new_on_event(void* context, SceneManagerEven
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Get view state
-    BoardSelectionView* state = view_get_model(app->view_dispatcher->current_view);
+    // Get view state using helper macro
+    BoardSelectionView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BoardSelectionView);
     
     if(event.type == SceneManagerEventTypeBack) {
         // Handle back differently depending on state
@@ -274,13 +275,18 @@ bool predator_scene_board_selection_new_on_event(void* context, SceneManagerEven
 void predator_scene_board_selection_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Remove and free custom view
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
-    View* view = view_dispatcher_get_current_view(app->view_dispatcher);
+    // Free custom view
+    View* view = predator_view_dispatcher_get_view(app->view_dispatcher, PredatorViewWidget);
     if(view) {
         board_selection_view_free(view);
     }
     
+    // Remove the view from dispatcher
+    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
+    
     // Restore standard widget view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 }
+
+
+

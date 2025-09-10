@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 
 static void predator_scene_ble_spam_popup_callback(void* context) {
@@ -84,3 +84,6 @@ void predator_scene_ble_spam_on_exit(void* context) {
     predator_esp32_deinit(app);
     popup_reset(app->popup);
 }
+
+
+

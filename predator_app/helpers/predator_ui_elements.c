@@ -90,7 +90,7 @@ void predator_ui_draw_status_box(
     elements_slightly_rounded_frame(canvas, x, y, width, height);
     
     // Get current font
-    FontId previous_font = canvas_get_font(canvas);
+    Font previous_font = FontSecondary;
     canvas_set_font(canvas, FontSecondary);
     
     // Calculate title width
@@ -115,7 +115,7 @@ void predator_ui_draw_header_text(
     uint8_t x, uint8_t y) {
     
     // Save current font and set to bold font for header
-    FontId previous_font = canvas_get_font(canvas);
+    Font previous_font = FontSecondary;
     
     // Draw header
     canvas_set_font(canvas, FontPrimary);

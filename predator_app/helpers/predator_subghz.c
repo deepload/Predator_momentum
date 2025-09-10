@@ -159,12 +159,12 @@ void predator_subghz_deinit(PredatorApp* app) {
     app->subghz_txrx = NULL;
 }
 
-void predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) {
+bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) {
     furi_assert(app);
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for car key bruteforce");
-        return;
+        return false;
     }
     
     // Check frequency (basic range check instead of API call)
@@ -287,7 +287,7 @@ void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code) {
     furi_delay_ms(5);
 }
 
-void predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
+bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
     furi_assert(app);
     
     if(!app->subghz_txrx) {
@@ -741,7 +741,7 @@ void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
 }
 
 // Rolling code attack related functions
-void predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
+bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
     furi_assert(app);
     
     if(!app->subghz_txrx) {

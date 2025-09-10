@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_boards.h"
 #include "predator_scene.h"
 #include <gui/view_dispatcher.h>
@@ -154,3 +154,6 @@ void predator_scene_board_selection_on_exit(void* context) {
     submenu_reset(app->submenu);
     widget_reset(app->widget);
 }
+
+
+

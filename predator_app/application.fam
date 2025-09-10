@@ -13,34 +13,26 @@ App(
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
     cdefines=["HEAP_SIZE=18000"],
-    # Explicitly include all UI files
+    # Explicit sources to avoid compiling backup_scenes or deprecated helpers
     sources=[
-        "*.c",
-        "helpers/*.c",
-        "helpers/predator_ui_callbacks.c", 
+        # Core
+        "predator.c",
+
+        # Helpers (explicit list)
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_esp32.c",
+        "helpers/predator_gps.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_subghz.c",
+        "helpers/predator_ui_callbacks.c",
         "helpers/predator_ui_elements.c",
         "helpers/predator_ui_math.c",
+        "helpers/predator_view_helpers.c",
+        "helpers/predator_watchdog.c",
+
+        # Scenes (both legacy and new)
         "scenes/*.c",
-        "scenes/predator_scene_start_new.c",
-        "scenes/predator_scene_car_tesla_new.c",
-        "scenes/predator_scene_car_jamming_new.c",
-        "scenes/predator_scene_car_key_bruteforce_new.c",
-        "scenes/predator_scene_car_passive_opener_new.c",
-        "scenes/predator_scene_car_models_new.c",
-        "scenes/predator_scene_rfid_clone_new.c",
-        "scenes/predator_scene_rfid_bruteforce_new.c",
-        "scenes/predator_scene_rfid_attacks_new.c",
-        "scenes/predator_scene_wifi_deauth_new.c",
-        "scenes/predator_scene_wifi_scan_new.c",
-        "scenes/predator_scene_wifi_attacks_new.c",
-        "scenes/predator_scene_wifi_evil_twin_new.c",
-        "scenes/predator_scene_module_status_new.c",
-        "scenes/predator_scene_gps_tracker_new.c",
-        "scenes/predator_scene_about_new.c",
-        "scenes/predator_scene_ble_scan_new.c",
-        "scenes/predator_scene_ble_spam_new.c",
-        "scenes/predator_scene_settings_new.c",
-        "scenes/predator_scene_subghz_attacks_new.c",
-        "scenes/predator_scene_wardriving_new.c",
     ],
 )

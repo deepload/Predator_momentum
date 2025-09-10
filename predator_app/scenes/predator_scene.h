@@ -2,12 +2,10 @@
 
 #include <gui/scene_manager.h>
 
-// Generate scene id and total number
-#define ADD_SCENE(prefix, name, id) PredatorScene##id,
-typedef enum {
+// Scene IDs are already defined in predator_i.h
+// Use predefined enum values instead of redefining
+#define ADD_SCENE(prefix, name, id)
 #include "predator_scene_config.h"
-    PredatorSceneNum,
-} PredatorScene;
 #undef ADD_SCENE
 
 // Explicitly reference RFID scenes to ensure they're recognized

@@ -23,8 +23,9 @@ bool predator_esp32_wifi_evil_twin(PredatorApp* app);
 bool predator_esp32_ble_scan(PredatorApp* app);
 bool predator_esp32_ble_spam(PredatorApp* app);
 
-// Wardriving function
+// Wardriving functions
 bool predator_esp32_wardrive(PredatorApp* app);
+bool predator_esp32_start_wardriving(PredatorApp* app);
 
 // Status and control
 bool predator_esp32_stop_attack(PredatorApp* app);

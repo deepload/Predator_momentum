@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_subghz.h"
 #include "predator_scene.h"
 
@@ -196,3 +196,6 @@ void predator_scene_car_attacks_on_exit(void* context) {
     PredatorApp* app = context;
     submenu_reset(app->submenu);
 }
+
+
+

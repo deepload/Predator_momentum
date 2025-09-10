@@ -27,6 +27,47 @@ typedef enum {
 } PredatorView;
 
 typedef enum {
+    PredatorSceneStart,
+    PredatorSceneMainMenu,
+    PredatorSceneBoardSelection,
+    PredatorSceneWifiMenu,
+    PredatorSceneWifiScan,
+    PredatorSceneWifiAttacks,
+    PredatorSceneWifiDeauth,
+    PredatorSceneWifiSniff,
+    PredatorSceneWifiEvilTwin,
+    PredatorSceneWifiHandshakeCapture,
+    PredatorSceneWifiPwnagotchi,
+    PredatorSceneBLEMenu,
+    PredatorSceneBLEScan,
+    PredatorSceneBLESpam,
+    PredatorSceneBluetoothAttacks,
+    PredatorSceneSubGhzMenu,
+    PredatorSceneSubGhzAttacks,
+    PredatorSceneSubGhzJamming,
+    PredatorSceneSubGhzScanner,
+    PredatorSceneRfidMenu,
+    PredatorSceneRfidAttacks,
+    PredatorSceneRfidBruteforce,
+    PredatorSceneRfidClone,
+    PredatorSceneCarMenu,
+    PredatorSceneCarAttacks,
+    PredatorSceneCarModels,
+    PredatorSceneCarKey,
+    PredatorSceneCarJamming,
+    PredatorSceneCarPassiveOpener,
+    PredatorSceneCarTesla,
+    PredatorSceneModuleStatus,
+    PredatorSceneSettings,
+    PredatorSceneAbout,
+    PredatorSceneWardriving,
+    PredatorSceneGPSTracker,
+    PredatorSceneGPSDebug,
+    PredatorSceneExternalTools,
+    PredatorSceneCount
+} PredatorScene;
+
+typedef enum {
     PredatorEventTypeKey,
     PredatorEventTypeCustom,
 } PredatorEventType;

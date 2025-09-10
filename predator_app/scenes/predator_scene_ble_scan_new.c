@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
 
@@ -18,7 +18,7 @@ static void ble_scan_view_draw_callback(Canvas* canvas, void* context) {
     if(!app) return;
     
     // Get view state
-    BleScanView* state = view_get_model(app->view_dispatcher->current_view);
+    BleScanView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BleScanView);
     if(!state) return;
     
     // Update animation frame
@@ -170,7 +170,7 @@ static bool ble_scan_view_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
     
     // Get view state
-    BleScanView* state = view_get_model(app->view_dispatcher->current_view);
+    BleScanView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BleScanView);
     if(!state) return consumed;
     
     if(event->type == InputTypeShort) {
@@ -220,8 +220,8 @@ static View* ble_scan_view_alloc(PredatorApp* app) {
     strncpy(state->device_name, "No devices found", sizeof(state->device_name));
     strncpy(state->device_mac, "--:--:--:--:--:--", sizeof(state->device_mac));
     
-    view_set_model(view, state);
-    view_set_model_free_callback(view, free);
+    predator_predator_view_set_model(view, state);
+    predator_predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -278,7 +278,7 @@ void predator_scene_ble_scan_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         ble_scan_view_free(view);
     }
@@ -286,3 +286,6 @@ void predator_scene_ble_scan_new_on_exit(void* context) {
     // Restore standard popup view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
 }
+
+
+

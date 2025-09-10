@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "predator_scene.h"
 
 enum SubmenuIndex {
@@ -127,3 +127,6 @@ void predator_scene_bluetooth_attacks_on_exit(void* context) {
     PredatorApp* app = context;
     submenu_reset(app->submenu);
 }
+
+
+

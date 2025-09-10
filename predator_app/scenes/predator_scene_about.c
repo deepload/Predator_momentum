@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 
 void predator_scene_about_on_enter(void* context) {
     PredatorApp* app = context;
@@ -92,3 +92,6 @@ void predator_scene_about_on_exit(void* context) {
     PredatorApp* app = context;
     widget_reset(app->widget);
 }
+
+
+

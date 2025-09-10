@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_ui_elements.h"
 #include "predator_scene.h"
 
@@ -31,7 +31,7 @@ static void bluetooth_attacks_menu_draw_callback(Canvas* canvas, void* context) 
     if(!app) return;
     
     // Get view state
-    BluetoothAttacksMenuView* state = view_get_model(app->view_dispatcher->current_view);
+    BluetoothAttacksMenuView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BluetoothAttacksMenuView);
     if(!state) return;
     
     canvas_clear(canvas);
@@ -113,7 +113,7 @@ static bool bluetooth_attacks_menu_input_callback(InputEvent* event, void* conte
     bool consumed = false;
     
     // Get view state
-    BluetoothAttacksMenuView* state = view_get_model(app->view_dispatcher->current_view);
+    BluetoothAttacksMenuView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BluetoothAttacksMenuView);
     if(!state) return consumed;
     
     // Navigation controls
@@ -180,8 +180,8 @@ static View* bluetooth_attacks_menu_view_alloc(PredatorApp* app) {
     view_set_input_callback(view, bluetooth_attacks_menu_input_callback);
     
     // Set model and free callback
-    view_set_model(view, state);
-    view_set_model_free_callback(view, free);
+    predator_predator_view_set_model(view, state);
+    predator_predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -230,7 +230,7 @@ void predator_scene_bluetooth_attacks_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
-    View* view = view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         bluetooth_attacks_menu_view_free(view);
     }
@@ -238,3 +238,6 @@ void predator_scene_bluetooth_attacks_new_on_exit(void* context) {
     // Restore standard submenu view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, submenu_get_view(app->submenu));
 }
+
+
+

@@ -1,4 +1,4 @@
-#include "../predator_i.h"
+#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
 
@@ -44,7 +44,7 @@ static void ble_spam_view_draw_callback(Canvas* canvas, void* context) {
     if(!app) return;
     
     // Get view state
-    BleSpamView* state = view_get_model(app->view_dispatcher->current_view);
+    BleSpamView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BleSpamView);
     if(!state) return;
     
     // Update animation frame
@@ -151,7 +151,7 @@ static bool ble_spam_view_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
     
     // Get view state
-    BleSpamView* state = view_get_model(app->view_dispatcher->current_view);
+    BleSpamView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BleSpamView);
     if(!state) return consumed;
     
     if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
@@ -217,8 +217,8 @@ static View* ble_spam_view_alloc(PredatorApp* app) {
     state->devices_spoofed = 0;
     state->attack_running = false;
     
-    view_set_model(view, state);
-    view_set_model_free_callback(view, free);
+    predator_predator_view_set_model(view, state);
+    predator_predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -279,7 +279,7 @@ void predator_scene_ble_spam_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         ble_spam_view_free(view);
     }
@@ -287,3 +287,6 @@ void predator_scene_ble_spam_new_on_exit(void* context) {
     // Restore standard popup view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
 }
+
+
+
