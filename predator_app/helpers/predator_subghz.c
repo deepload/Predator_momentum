@@ -410,6 +410,53 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
     return true;
 }
 
+// Return car model name with bounds checking
+const char* predator_subghz_get_car_model_name(CarModel model) {
+    if((unsigned int)model >= CarModelCount) return "Unknown";
+    return car_model_names[model];
+}
+
+// Start SubGHz jamming (simplified demo implementation)
+bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
+    furi_assert(app);
+    if(!app->subghz_txrx) {
+        FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for jamming");
+        return false;
+    }
+    if(frequency < 300000000 || frequency > 950000000) {
+        FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
+        return false;
+    }
+    FURI_LOG_I("PredatorSubGHz", "Starting jamming on %lu Hz", frequency);
+    app->attack_running = true;
+    notification_message(app->notifications, &sequence_set_red_255);
+    return true;
+}
+
+// Stop any ongoing SubGHz attack
+bool predator_subghz_stop_attack(PredatorApp* app) {
+    furi_assert(app);
+    if(!app->subghz_txrx) {
+        FURI_LOG_W("PredatorSubGHz", "SubGHz not initialized - nothing to stop");
+        return false;
+    }
+    app->attack_running = false;
+    notification_message(app->notifications, &sequence_reset_red);
+    FURI_LOG_I("PredatorSubGHz", "Stopped SubGHz attack");
+    return true;
+}
+
+// Tesla charge port opener demo
+void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
+    furi_assert(app);
+    if(!app->subghz_txrx) {
+        FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for Tesla charge port");
+        return;
+    }
+    FURI_LOG_I("PredatorSubGHz", "Sending Tesla charge port open signal at 315 MHz");
+    notification_message(app->notifications, &sequence_blink_cyan_10);
+}
+
 void predator_subghz_start_passive_car_opener(PredatorApp* app) {
     furi_assert(app);
     

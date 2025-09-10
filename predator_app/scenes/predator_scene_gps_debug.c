@@ -27,6 +27,24 @@ static void predator_gps_debug_update_callback(void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventGpsUpdate);
 }
 
+// Forward declarations of original handlers to avoid implicit declaration
+void predator_scene_gps_debug_on_enter(void* context);
+bool predator_scene_gps_debug_on_event(void* context, SceneManagerEvent event);
+void predator_scene_gps_debug_on_exit(void* context);
+
+// Wrappers to match *_new symbols expected by scene_config
+void predator_scene_gps_debug_new_on_enter(void* context) {
+    predator_scene_gps_debug_on_enter(context);
+}
+
+bool predator_scene_gps_debug_new_on_event(void* context, SceneManagerEvent event) {
+    return predator_scene_gps_debug_on_event(context, event);
+}
+
+void predator_scene_gps_debug_new_on_exit(void* context) {
+    predator_scene_gps_debug_on_exit(context);
+}
+
 // Widget callback for back button
 static void predator_scene_gps_debug_widget_callback(GuiButtonType result, InputType type, void* context) {
     PredatorApp* app = context;

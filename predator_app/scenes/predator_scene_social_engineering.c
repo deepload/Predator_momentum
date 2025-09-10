@@ -97,4 +97,17 @@ void predator_scene_social_engineering_on_exit(void* context) {
     submenu_reset(app->submenu);
 }
 
+// Wrappers expected by scene config ("*_new") that delegate to existing implementations
+void predator_scene_social_engineering_new_on_enter(void* context) {
+    predator_scene_social_engineering_on_enter(context);
+}
+
+bool predator_scene_social_engineering_new_on_event(void* context, SceneManagerEvent event) {
+    return predator_scene_social_engineering_on_event(context, event);
+}
+
+void predator_scene_social_engineering_new_on_exit(void* context) {
+    predator_scene_social_engineering_on_exit(context);
+}
+
 

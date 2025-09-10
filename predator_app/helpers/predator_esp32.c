@@ -283,6 +283,11 @@ bool predator_esp32_wardrive(PredatorApp* app) {
     return predator_esp32_send_command(app, MARAUDER_CMD_WARDRIVE);
 }
 
+// Wrapper expected by appchk to start wardriving
+bool predator_esp32_start_wardriving(PredatorApp* app) {
+    return predator_esp32_wardrive(app);
+}
+
 // Status and Control
 bool predator_esp32_get_status(PredatorApp* app) {
     return predator_esp32_send_command(app, MARAUDER_CMD_STATUS);
