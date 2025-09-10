@@ -32,9 +32,6 @@ size_t predator_models_load_csv(Storage* storage, const char* path);
 // Load models from default path: /ext/apps_data/predator/car_models.csv
 size_t predator_models_load_default(Storage* storage);
 
-// Ensure default CSV exists with at least min_count rows at /ext/apps_data/predator/car_models.csv
-// Returns number of rows present after ensuring (0 on failure)
-size_t predator_models_ensure_seed(Storage* storage, size_t min_count);
 
 #ifdef __cplusplus
 }

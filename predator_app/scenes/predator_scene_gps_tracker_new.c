@@ -81,10 +81,10 @@ static void gps_tracker_view_draw_callback(Canvas* canvas, void* context) {
         // Show searching animation with dots
         char search_text[16] = "Searching";
         // Safe append of up to 3 dots without strcat
-        uint8_t base_len = 9; // strlen("Searching")
+        size_t base_len = 9; // strlen("Searching")
         uint8_t dots = animation_frame;
         if(dots > 3) dots = 3;
-        for(uint8_t i = 0; i < dots && base_len + i + 1 < sizeof(search_text); i++) {
+        for(uint8_t i = 0; i < dots && (base_len + i + 1) < sizeof(search_text); i++) {
             search_text[base_len + i] = '.';
             search_text[base_len + i + 1] = '\0';
         }

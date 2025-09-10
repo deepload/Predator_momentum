@@ -127,10 +127,14 @@ static void wardriving_view_draw_callback(Canvas* canvas, void* context) {
             canvas_draw_str(canvas, 12, 68, "WiFi: Scanning...");
         }
         
-        // Draw scanning animation
+        // Draw scanning animation (avoid strcat)
         char scan_text[16] = "SCANNING";
-        for(uint8_t i = 0; i < animation_frame; i++) {
-            strcat(scan_text, ".");
+        uint8_t base_len = 8; // strlen("SCANNING")
+        uint8_t dots = animation_frame;
+        if(dots > 3) dots = 3;
+        for(uint8_t i = 0; i < dots && base_len + i + 1 < sizeof(scan_text); i++) {
+            scan_text[base_len + i] = '.';
+            scan_text[base_len + i + 1] = '\0';
         }
         canvas_draw_str(canvas, 12, 78, scan_text);
     } else {

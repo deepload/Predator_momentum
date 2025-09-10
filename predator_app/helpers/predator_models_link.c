@@ -1,5 +1,6 @@
-// Aggregator to ensure model CSV implementations are compiled into the app
-// This file pulls in the implementation units so the linker finds the symbols.
+// Disabled: application.fam now lists explicit sources (predator_models.c and predator_models_seed.c).
+// This file is kept as an empty translation unit to avoid build system picking it up accidentally.
 
-#include "predator_models.c"
-#include "predator_models_seed.c"
+// Intentionally left blank.
+
+// Aggregator disabled. Explicit sources are listed in application.fam.

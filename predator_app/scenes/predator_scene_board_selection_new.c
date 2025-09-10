@@ -115,14 +115,14 @@ static void board_selection_view_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorBlack);
     }
     
-    // Draw scroll indicators if needed
-    if(state->scroll_position > 0) {
-        canvas_draw_icon(canvas, 120, 25, &I_ButtonUp_4x7);
-    }
-    
-    if(state->scroll_position + ITEMS_ON_SCREEN < state->menu_items_count) {
-        canvas_draw_icon(canvas, 120, 55, &I_ButtonDown_4x7);
-    }
+    // Draw scroll indicators with vector chevrons
+    predator_ui_draw_scroll_vertical(
+        canvas,
+        120,
+        25,
+        55,
+        state->scroll_position > 0,
+        (state->scroll_position + ITEMS_ON_SCREEN) < state->menu_items_count);
     
     // Draw current board info
     predator_ui_draw_status_box(canvas, "Current Board", 10, 65, 108, 14);

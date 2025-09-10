@@ -87,6 +87,25 @@ static void car_models_view_draw_callback(Canvas* canvas, void* context) {
     
     canvas_clear(canvas);
     
+    // Determine data source (external CSV or built-in)
+    size_t external_count = predator_models_count();
+    bool use_external = (external_count > 0);
+    uint16_t total_count = use_external ? (uint16_t)external_count : (uint16_t)CAR_MODELS_COUNT;
+    
+    // Clamp selection to valid range regardless of source
+    if(total_count == 0) {
+        // Safety: if both sources empty (shouldn't happen), do nothing further
+        return;
+    }
+    if(state->selected_car >= total_count) {
+        state->selected_car = (uint8_t)(total_count - 1);
+    }
+    // Also clamp current page to valid range
+    uint8_t max_page = (uint8_t)((total_count - 1) / ITEMS_PER_PAGE);
+    if(state->current_page > max_page) {
+        state->current_page = max_page;
+    }
+    
     // Draw title
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 64, 8, AlignCenter, AlignCenter, "Car Models");
@@ -94,10 +113,15 @@ static void car_models_view_draw_callback(Canvas* canvas, void* context) {
     // Draw separator
     canvas_draw_line(canvas, 0, 16, 128, 16);
     
-    // Determine data source (external CSV or built-in)
-    size_t external_count = predator_models_count();
-    bool use_external = (external_count > 0);
-    uint16_t total_count = use_external ? (uint16_t)external_count : (uint16_t)CAR_MODELS_COUNT;
+    // Show data source tag (CSV count or Built-in) on header
+    canvas_set_font(canvas, FontSecondary);
+    char source_tag[20];
+    if(use_external) {
+        snprintf(source_tag, sizeof(source_tag), "CSV %u", (unsigned)external_count);
+    } else {
+        snprintf(source_tag, sizeof(source_tag), "Built-in");
+    }
+    canvas_draw_str_aligned(canvas, 124, 8, AlignRight, AlignCenter, source_tag);
 
     // Calculate page details
     uint8_t start_idx = (uint8_t)(state->current_page * ITEMS_PER_PAGE);
@@ -132,6 +156,12 @@ static void car_models_view_draw_callback(Canvas* canvas, void* context) {
         
         // Reset color
         canvas_set_color(canvas, ColorBlack);
+    }
+    
+    // Draw slim scrollbar for list
+    {
+        uint8_t visible_items = (uint8_t)(end_idx - start_idx);
+        predator_ui_draw_scrollbar(canvas, 125, 22, 36, (uint8_t)total_count, start_idx, visible_items);
     }
     
     // Draw car details box for selected car
@@ -177,6 +207,29 @@ static void car_models_view_draw_callback(Canvas* canvas, void* context) {
                  selected->make, selected->remote_type, freq_text);
     }
     canvas_draw_str_aligned(canvas, 64, 70, AlignCenter, AlignCenter, detail_text);
+    
+    // Draw compact chips for frequency and type
+    {
+        const char* type_str = NULL;
+        if(use_external) {
+            const PredatorCarModel* m = predator_models_get(state->selected_car);
+            type_str = m ? m->remote_type : "?";
+        } else {
+            type_str = selected->remote_type;
+        }
+        canvas_set_font(canvas, FontSecondary);
+        int16_t w1 = canvas_string_width(canvas, freq_text);
+        int16_t w2 = canvas_string_width(canvas, type_str);
+        uint8_t chip_y = 78;
+        uint8_t x1 = 10;
+        uint8_t x2 = (uint8_t)(x1 + w1 + 12);
+        // Chip for frequency
+        canvas_draw_frame(canvas, x1, chip_y - 9, (uint8_t)(w1 + 10), 12);
+        canvas_draw_str(canvas, (uint8_t)(x1 + 5), chip_y, freq_text);
+        // Chip for type
+        canvas_draw_frame(canvas, x2, chip_y - 9, (uint8_t)(w2 + 10), 12);
+        canvas_draw_str(canvas, (uint8_t)(x2 + 5), chip_y, type_str);
+    }
     
     // Draw command sent indicator when button is pressed
     if(state->command_sent) {

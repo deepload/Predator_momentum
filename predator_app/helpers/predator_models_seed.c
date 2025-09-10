@@ -1,5 +1,4 @@
 #include "predator_models_seed.h"
-#include "predator_models.h"
 #include <furi.h>
 #include <storage/storage.h>
 #include <string.h>
