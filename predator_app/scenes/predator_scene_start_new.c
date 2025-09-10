@@ -82,14 +82,14 @@ static void predator_start_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorBlack);
     }
     
-    // Draw scroll indicators if needed
-    if(model->scroll_position > 0) {
-        canvas_draw_icon(canvas, 120, MENU_Y_OFFSET, &I_ButtonUp_4x7);
-    }
-    
-    if(model->scroll_position + ITEMS_ON_SCREEN < model->menu_items_count) {
-        canvas_draw_icon(canvas, 120, MENU_Y_OFFSET + 40, &I_ButtonDown_4x7);
-    }
+    // Draw scroll indicators with vector chevrons
+    predator_ui_draw_scroll_vertical(
+        canvas,
+        120,
+        MENU_Y_OFFSET,
+        MENU_Y_OFFSET + 40,
+        model->scroll_position > 0,
+        (model->scroll_position + ITEMS_ON_SCREEN) < model->menu_items_count);
     
     // Draw status/help text at the bottom
     canvas_set_font(canvas, FontSecondary);

@@ -6,12 +6,6 @@
 #include <gui/view_dispatcher.h>
 #include <gui/elements.h>
 
-// Include standard icons
-extern const Icon I_ButtonLeft_4x7;
-extern const Icon I_ButtonRight_4x7;
-extern const Icon I_ButtonUp_4x7;
-extern const Icon I_ButtonDown_4x7;
-
 // Progress bar styles
 typedef enum {
     ProgressBarStyleNormal,    // Default style
@@ -76,6 +70,37 @@ void predator_ui_draw_header_text(
     const char* header,
     const char* text,
     uint8_t x, uint8_t y);
+
+// Lightweight vector arrows (6x7) to replace firmware icons in external apps
+void predator_ui_draw_arrow_up(Canvas* canvas, uint8_t x, uint8_t y);
+void predator_ui_draw_arrow_down(Canvas* canvas, uint8_t x, uint8_t y);
+void predator_ui_draw_arrow_left(Canvas* canvas, uint8_t x, uint8_t y);
+void predator_ui_draw_arrow_right(Canvas* canvas, uint8_t x, uint8_t y);
+
+// Unified scroll helpers with subtle animation
+void predator_ui_draw_scroll_vertical(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y_top,
+    uint8_t y_bottom,
+    bool can_up,
+    bool can_down);
+
+void predator_ui_draw_nav_hints_lr(
+    Canvas* canvas,
+    uint8_t y,
+    bool show_left,
+    bool show_right);
+
+// Slim scrollbar for lists
+void predator_ui_draw_scrollbar(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t height,
+    uint8_t total_items,
+    uint8_t first_visible,
+    uint8_t visible_items);
 
 // Car attacks and RFID attacks popup callbacks
 void predator_scene_car_attacks_popup_callback(void* context);

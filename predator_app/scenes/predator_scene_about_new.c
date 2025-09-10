@@ -129,14 +129,12 @@ static void about_view_draw_callback(Canvas* canvas, void* context) {
     snprintf(page_text, sizeof(page_text), "%d/%d", state->current_page + 1, state->total_pages);
     canvas_draw_str_aligned(canvas, 64, 70, AlignCenter, AlignCenter, page_text);
     
-    // Draw navigation hints
-    if(state->current_page > 0) {
-        canvas_draw_icon(canvas, 32, 70, &I_ButtonLeft_4x7);
-    }
-    
-    if(state->current_page < state->total_pages - 1) {
-        canvas_draw_icon(canvas, 92, 70, &I_ButtonRight_4x7);
-    }
+    // Draw navigation hints (vector arrows)
+    predator_ui_draw_nav_hints_lr(
+        canvas,
+        70,
+        state->current_page > 0,
+        state->current_page < state->total_pages - 1);
 }
 
 static bool about_view_input_callback(InputEvent* event, void* context) {

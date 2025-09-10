@@ -136,14 +136,14 @@ static void car_attacks_menu_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorBlack);
     }
     
-    // Draw scroll indicators if needed
-    if(scroll_position > 0) {
-        canvas_draw_icon(canvas, 112, 24, &I_ButtonUp_4x7);
-    }
-    
-    if(scroll_position + ITEMS_ON_SCREEN < state->items_count) {
-        canvas_draw_icon(canvas, 112, 62, &I_ButtonDown_4x7);
-    }
+    // Draw scroll indicators with vector chevrons
+    predator_ui_draw_scroll_vertical(
+        canvas,
+        112,
+        24,
+        62,
+        scroll_position > 0,
+        (scroll_position + ITEMS_ON_SCREEN) < state->items_count);
     
     // Draw controls
     elements_button_left(canvas, "Back");

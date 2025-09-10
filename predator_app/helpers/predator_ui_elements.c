@@ -132,3 +132,90 @@ void predator_ui_draw_header_text(
     // Restore previous font
     canvas_set_font(canvas, previous_font);
 }
+
+// Draw small vector arrows (6x7) so we don't depend on firmware icon exports
+// x,y is the top-left corner of a 6x7 cell
+void predator_ui_draw_arrow_up(Canvas* canvas, uint8_t x, uint8_t y) {
+    // Up chevron: two lines forming a ^ shape
+    canvas_draw_line(canvas, x + 0, y + 5, x + 3, y + 2);
+    canvas_draw_line(canvas, x + 3, y + 2, x + 6, y + 5);
+}
+
+void predator_ui_draw_arrow_down(Canvas* canvas, uint8_t x, uint8_t y) {
+    // Down chevron: two lines forming a v shape
+    canvas_draw_line(canvas, x + 0, y + 2, x + 3, y + 5);
+    canvas_draw_line(canvas, x + 3, y + 5, x + 6, y + 2);
+}
+
+void predator_ui_draw_arrow_left(Canvas* canvas, uint8_t x, uint8_t y) {
+    // Left chevron: two lines forming a < shape
+    canvas_draw_line(canvas, x + 4, y + 0, x + 1, y + 3);
+    canvas_draw_line(canvas, x + 1, y + 3, x + 4, y + 6);
+}
+
+void predator_ui_draw_arrow_right(Canvas* canvas, uint8_t x, uint8_t y) {
+    // Right chevron: two lines forming a > shape
+    canvas_draw_line(canvas, x + 2, y + 0, x + 5, y + 3);
+    canvas_draw_line(canvas, x + 5, y + 3, x + 2, y + 6);
+}
+
+void predator_ui_draw_scroll_vertical(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y_top,
+    uint8_t y_bottom,
+    bool can_up,
+    bool can_down) {
+    // Draw up/down chevrons with a subtle 2-frame pulse animation
+    uint8_t phase = (furi_get_tick() / 250) % 2; // 0..1
+    uint8_t offset = phase ? 1 : 0;
+
+    if(can_up) {
+        predator_ui_draw_arrow_up(canvas, x, (uint8_t)(y_top - offset));
+        predator_ui_draw_arrow_up(canvas, x, (uint8_t)(y_top + 2 - offset));
+    }
+    if(can_down) {
+        predator_ui_draw_arrow_down(canvas, x, (uint8_t)(y_bottom - 2 + offset));
+        predator_ui_draw_arrow_down(canvas, x, (uint8_t)(y_bottom + offset));
+    }
+}
+
+void predator_ui_draw_nav_hints_lr(
+    Canvas* canvas,
+    uint8_t y,
+    bool show_left,
+    bool show_right) {
+    if(show_left) predator_ui_draw_arrow_left(canvas, 20, (uint8_t)(y - 3));
+    if(show_right) predator_ui_draw_arrow_right(canvas, 102, (uint8_t)(y - 3));
+}
+
+void predator_ui_draw_scrollbar(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t height,
+    uint8_t total_items,
+    uint8_t first_visible,
+    uint8_t visible_items) {
+    if(height < 4) return;
+    if(visible_items == 0 || total_items == 0 || first_visible >= total_items) return;
+    if(visible_items > total_items) visible_items = total_items;
+
+    // Draw track
+    canvas_draw_frame(canvas, x, y, 2, height);
+
+    // Thumb size proportional to visible/total with a minimum
+    uint8_t thumb_h = (uint8_t)((uint16_t)height * visible_items / total_items);
+    if(thumb_h < 4) thumb_h = 4;
+    if(thumb_h > height - 2) thumb_h = height - 2;
+
+    // Thumb position proportional to first_visible
+    uint8_t max_first = total_items - visible_items;
+    uint8_t thumb_y = y + 1;
+    if(max_first > 0) {
+        thumb_y = (uint8_t)(y + 1 + ((uint16_t)(height - 2 - thumb_h) * first_visible) / max_first);
+    }
+
+    // Draw thumb
+    canvas_draw_box(canvas, x + 1, thumb_y, 1, thumb_h);
+}

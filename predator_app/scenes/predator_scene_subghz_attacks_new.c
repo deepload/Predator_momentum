@@ -113,26 +113,29 @@ static void subghz_attacks_view_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorBlack);
     }
     
-    // Draw scroll indicators if needed
-    if(state->scroll_position > 0) {
-        canvas_draw_icon(canvas, 120, 26, &I_ButtonUp_4x7);
-    }
-    
-    if(state->scroll_position + visible_items < state->num_attacks) {
-        canvas_draw_icon(canvas, 120, 50, &I_ButtonDown_4x7);
-    }
+    // Draw scroll indicators if needed (vector chevrons)
+    predator_ui_draw_scroll_vertical(
+        canvas,
+        120,
+        26,
+        50,
+        state->scroll_position > 0,
+        (state->scroll_position + visible_items) < state->num_attacks);
     
     // Draw attack description
     predator_ui_draw_status_box(canvas, "Info", 10, 62, 108, 24);
     
     canvas_set_font(canvas, FontSecondary);
     
-    // Draw frequency
+    // Draw frequency without floating point to avoid double-promotion
     char freq_text[24];
-    if(state->frequency >= 1000000) {
-        snprintf(freq_text, sizeof(freq_text), "Freq: %.1f MHz", (double)(state->frequency / 1000000.0f));
+    if(state->frequency >= 1000000U) {
+        unsigned long mhz_int = (unsigned long)(state->frequency / 1000000U);
+        unsigned long mhz_tenths = (unsigned long)(((state->frequency % 1000000U) + 50000U) / 100000U);
+        snprintf(freq_text, sizeof(freq_text), "Freq: %lu.%lu MHz", mhz_int, mhz_tenths);
     } else {
-        snprintf(freq_text, sizeof(freq_text), "Freq: %.1f kHz", (double)(state->frequency / 1000.0f));
+        unsigned long khz = (unsigned long)(state->frequency / 1000U);
+        snprintf(freq_text, sizeof(freq_text), "Freq: %lu kHz", khz);
     }
     canvas_draw_str(canvas, 16, 72, freq_text);
     

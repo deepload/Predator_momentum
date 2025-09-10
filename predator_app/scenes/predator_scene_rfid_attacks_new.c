@@ -89,14 +89,14 @@ static void rfid_attacks_menu_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorBlack);
     }
     
-    // Draw scroll indicators if needed
-    if(state->scroll_position > 0) {
-        canvas_draw_icon(canvas, 116, 20, &I_ButtonUp_4x7);
-    }
-    
-    if(state->scroll_position + ITEMS_ON_SCREEN < state->menu_items_count) {
-        canvas_draw_icon(canvas, 116, 60, &I_ButtonDown_4x7);
-    }
+    // Draw scroll indicators with vector chevrons
+    predator_ui_draw_scroll_vertical(
+        canvas,
+        116,
+        20,
+        60,
+        state->scroll_position > 0,
+        (state->scroll_position + ITEMS_ON_SCREEN) < state->menu_items_count);
     
     // Draw attack description box
     predator_ui_draw_status_box(canvas, "Description", 10, 65, 108, 15);

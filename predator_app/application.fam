@@ -23,6 +23,7 @@ App(
         "helpers/predator_error.c",
         "helpers/predator_esp32.c",
         "helpers/predator_gps.c",
+        "helpers/predator_models_link.c",
         "helpers/predator_scene_utils.c",
         "helpers/predator_string.c",
         "helpers/predator_subghz.c",
@@ -31,6 +32,7 @@ App(
         "helpers/predator_ui_math.c",
         "helpers/predator_view_helpers.c",
         "helpers/predator_watchdog.c",
+        "predator_uart.c",
 
         # Scene router
         "scenes/predator_scene.c",
@@ -55,6 +57,7 @@ App(
         "scenes/predator_scene_rfid_clone_new.c",
         "scenes/predator_scene_rfid_bruteforce_new.c",
         "scenes/predator_scene_gps_tracker_new.c",
+        "scenes/predator_scene_gps_debug.c",
         "scenes/predator_scene_wardriving_new.c",
         "scenes/predator_scene_module_status_new.c",
         "scenes/predator_scene_settings_new.c",

@@ -23,6 +23,59 @@ static void trim(char* s) {
     }
 }
 
+// Parse decimal string with optional fractional part and scale to integer without floats
+// Example: s="433.92" scale=1000000 -> 433920000
+static bool parse_decimal_scaled(const char* s, uint32_t scale, uint32_t* out) {
+    if(!s || !out) return false;
+    // Extract signless integer and fractional parts
+    const char* dot = strchr(s, '.');
+    uint64_t result = 0;
+    if(!dot) {
+        // No fractional part
+        for(const char* p = s; *p; ++p) {
+            if(!isdigit((unsigned char)*p)) return false;
+            result = result * 10 + (uint64_t)(*p - '0');
+            if(result > 0xFFFFFFFFULL) return false;
+        }
+        // Multiply by scale
+        uint64_t hz = result * (uint64_t)scale;
+        if(hz > 0xFFFFFFFFULL) return false;
+        *out = (uint32_t)hz;
+        return true;
+    } else {
+        // Integer part
+        for(const char* p = s; p < dot; ++p) {
+            if(!isdigit((unsigned char)*p)) return false;
+            result = result * 10 + (uint64_t)(*p - '0');
+            if(result > 0xFFFFFFFFULL) return false;
+        }
+        // Start with integer * scale
+        uint64_t hz = result * (uint64_t)scale;
+        // Fractional part: take up to 6 digits to avoid overflow
+        const char* f = dot + 1;
+        uint32_t frac = 0;
+        uint32_t frac_scale = scale;
+        uint8_t digits = 0;
+        while(*f && isdigit((unsigned char)*f) && digits < 6 && frac_scale > 1) {
+            frac_scale /= 10;
+            frac = frac * 10 + (uint32_t)(*f - '0');
+            f++; digits++;
+        }
+        // Round to nearest by peeking next digit if any
+        if(*f && isdigit((unsigned char)*f) && frac_scale > 1) {
+            uint8_t next = (uint8_t)(*f - '0');
+            uint32_t add = (next >= 5) ? 1 : 0;
+            frac += add;
+        }
+        // Apply fractional as frac * (scale / 10^digits)
+        uint64_t hz_add = (uint64_t)frac * (uint64_t)frac_scale;
+        hz += hz_add;
+        if(hz > 0xFFFFFFFFULL) return false;
+        *out = (uint32_t)hz;
+        return true;
+    }
+}
+
 static bool parse_frequency(const char* token, uint32_t* out_hz) {
     if(!token || !out_hz) return false;
     char buf[32];
@@ -56,19 +109,15 @@ static bool parse_frequency(const char* token, uint32_t* out_hz) {
     valbuf[vlen] = '\0';
     trim(valbuf);
 
-    double val = strtod(valbuf, NULL);
     // Normalize unit
     for(char* p = suffix; *p; ++p) *p = (char)tolower((unsigned char)*p);
 
     if(strstr(suffix, "mhz")) {
-        *out_hz = (uint32_t)(val * 1000000.0);
-        return true;
+        return parse_decimal_scaled(valbuf, 1000000U, out_hz);
     } else if(strstr(suffix, "khz")) {
-        *out_hz = (uint32_t)(val * 1000.0);
-        return true;
+        return parse_decimal_scaled(valbuf, 1000U, out_hz);
     } else if(strstr(suffix, "hz")) {
-        *out_hz = (uint32_t)(val);
-        return true;
+        return parse_decimal_scaled(valbuf, 1U, out_hz);
     }
 
     return false;

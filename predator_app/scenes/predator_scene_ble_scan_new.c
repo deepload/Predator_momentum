@@ -117,10 +117,14 @@ static void ble_scan_view_draw_callback(Canvas* canvas, void* context) {
     // Status text
     canvas_draw_str(canvas, 50, 42, "Status:");
     if(state->scanning) {
-        // Show animated scanning status
+        // Show animated scanning status without strcat
         char scan_text[16] = "Scanning";
-        for(uint8_t i = 0; i < (animation_frame % 4); i++) {
-            strcat(scan_text, ".");
+        uint8_t base_len = 8; // strlen("Scanning")
+        uint8_t dots = (animation_frame % 4);
+        if(dots > 3) dots = 3;
+        for(uint8_t i = 0; i < dots && base_len + i + 1 < sizeof(scan_text); i++) {
+            scan_text[base_len + i] = '.';
+            scan_text[base_len + i + 1] = '\0';
         }
         canvas_draw_str(canvas, 90, 42, scan_text);
     } else {

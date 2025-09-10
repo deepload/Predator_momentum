@@ -80,8 +80,13 @@ static void gps_tracker_view_draw_callback(Canvas* canvas, void* context) {
     } else {
         // Show searching animation with dots
         char search_text[16] = "Searching";
-        for(uint8_t i = 0; i < animation_frame; i++) {
-            strcat(search_text, ".");
+        // Safe append of up to 3 dots without strcat
+        uint8_t base_len = 9; // strlen("Searching")
+        uint8_t dots = animation_frame;
+        if(dots > 3) dots = 3;
+        for(uint8_t i = 0; i < dots && base_len + i + 1 < sizeof(search_text); i++) {
+            search_text[base_len + i] = '.';
+            search_text[base_len + i + 1] = '\0';
         }
         canvas_draw_str_aligned(canvas, 73, 42, AlignCenter, AlignCenter, search_text);
     }
@@ -116,7 +121,8 @@ static void gps_tracker_view_draw_callback(Canvas* canvas, void* context) {
     
     // Draw debug button hint
     canvas_draw_str(canvas, 6, 64, "Debug");
-    canvas_draw_icon(canvas, 36, 62, &I_ButtonRight_4x7);
+    // Use vector arrow (no firmware icon dependency)
+    predator_ui_draw_arrow_right(canvas, 36, 59);
 }
 
 static bool gps_tracker_view_input_callback(InputEvent* event, void* context) {

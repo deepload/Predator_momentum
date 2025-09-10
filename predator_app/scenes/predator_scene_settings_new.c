@@ -96,9 +96,12 @@ static void settings_view_draw_callback(Canvas* canvas, void* context) {
                    settings_data[item_idx].current_value);
         }
         
-        // Add units if applicable
+        // Add units if applicable (without strncat)
         if(settings_data[item_idx].units[0] != '\0') {
-            strncat(value_str, settings_data[item_idx].units, sizeof(value_str) - strlen(value_str) - 1);
+            size_t cur_len = strlen(value_str);
+            if(cur_len < sizeof(value_str) - 1) {
+                snprintf(value_str + cur_len, sizeof(value_str) - cur_len, "%s", settings_data[item_idx].units);
+            }
         }
         
         // Draw value with right alignment
@@ -109,14 +112,14 @@ static void settings_view_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorBlack);
     }
     
-    // Draw scroll indicators if needed
-    if(state->scroll_position > 0) {
-        canvas_draw_icon(canvas, 120, 17, &I_ButtonUp_4x7);
-    }
-    
-    if(state->scroll_position + visible_items < state->num_settings) {
-        canvas_draw_icon(canvas, 120, 60, &I_ButtonDown_4x7);
-    }
+    // Draw scroll indicators with vector chevrons
+    predator_ui_draw_scroll_vertical(
+        canvas,
+        120,
+        17,
+        60,
+        state->scroll_position > 0,
+        (state->scroll_position + visible_items) < state->num_settings);
     
     // Draw setting description
     predator_ui_draw_status_box(canvas, "Description", 4, 86, 120, 24);
