@@ -1,4 +1,5 @@
-#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
 
@@ -125,7 +126,6 @@ static bool wifi_scan_view_input_callback(InputEvent* event, void* context) {
             break;
         
         case InputKeyOk:
-        case InputKeyCenter:
             if(!state->scanning && state->esp32_initialized) {
                 // Start scan
                 predator_esp32_wifi_scan(app);

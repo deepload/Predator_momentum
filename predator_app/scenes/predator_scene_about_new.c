@@ -1,4 +1,5 @@
-#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_ui_elements.h"
 #include "predator_scene.h"
 
@@ -187,8 +188,8 @@ static View* about_view_alloc(PredatorApp* app) {
     state->current_page = 0;
     state->total_pages = ABOUT_PAGES_COUNT;
     
-    predator_predator_view_set_model(view, state);
-    predator_predator_view_set_model_free_callback(view, free);
+    predator_view_set_model(view, state);
+    predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -227,7 +228,7 @@ void predator_scene_about_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
-    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         about_view_free(view);
     }

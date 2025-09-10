@@ -1,4 +1,5 @@
-#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_gps.h"
 #include "predator_scene.h"
 #include <furi.h>

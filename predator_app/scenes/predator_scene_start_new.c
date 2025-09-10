@@ -1,11 +1,11 @@
 #include "../predator_i.h"
 #include "../helpers/predator_view_helpers.h"
+#include "../helpers/predator_ui_elements.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
 #include <furi.h>
 #include <gui/canvas.h>
 #include <gui/elements.h>
-#include <gui/icons.h>
 
 typedef struct {
     uint8_t selected_menu_index;
