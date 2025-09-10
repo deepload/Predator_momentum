@@ -102,7 +102,7 @@ bool predator_scene_transition_safe(PredatorApp* app, uint32_t next_scene) {
         can_transition = (app->esp32_uart != NULL);
     }
     // Car attack scenes
-    else if(next_scene == PredatorSceneCarKeyBruteforce ||
+    else if(next_scene == PredatorSceneCarKey ||
             next_scene == PredatorSceneCarJamming) {
         // Check SubGHz initialization for car attack scenes
         can_transition = (app->subghz_txrx != NULL);

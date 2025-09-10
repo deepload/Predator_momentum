@@ -3,11 +3,6 @@
 #include "../helpers/predator_ui_elements.h"
 #include <gui/canvas.h>
 
-static void predator_scene_rfid_clone_new_popup_callback(void* context) {
-    PredatorApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
-}
-
 // Custom view for RFID clone
 typedef struct {
     View* view;
@@ -156,7 +151,7 @@ void predator_scene_rfid_clone_new_on_exit(void* context) {
     
     // Remove and free our custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = view_dispatcher_get_view(app->view_dispatcher, PredatorViewPopup);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         rfid_clone_view_free(view);
     }

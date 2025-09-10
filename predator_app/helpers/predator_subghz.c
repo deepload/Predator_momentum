@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 // Car model names mapping
-static const char* car_model_names[CarModelCount] = {
+static const char* car_model_names[CarModelCount] __attribute__((used)) = {
     "Toyota", "Honda", "Ford", "Chevrolet", "BMW", "Mercedes", "Audi", "Volkswagen",
     "Nissan", "Hyundai", "Kia", "Tesla", "Subaru", "Jeep", "Chrysler", "Dodge",
     "Cadillac", "Lexus", "Infiniti", "Acura", "Mazda", "Mitsubishi", "Porsche",
@@ -283,65 +283,9 @@ void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code) {
     
     // Simulate key transmission for all boards
     notification_message(app->notifications, &sequence_blink_blue_10);
-    furi_assert(app);
     
-    if(!app->subghz_txrx) {
-        FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for jamming");
-        return false;
-    }
-    
-    // Check frequency (basic range check instead of API call)
-    if(frequency < 300000000 || frequency > 950000000) {
-        FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
-        return false;
-    }
-    
-    FURI_LOG_I("PredatorSubGHz", "Starting jamming on %lu Hz", frequency);
-    
-    // Different handling based on board type
-    if(app->board_type == PredatorBoardTypeOriginal) {
-        // Original board implementation using internal hardware
-        FURI_LOG_I("PredatorSubGHz", "Jamming with original board on %lu Hz", frequency);
-        
-        // Configure internal SubGHz hardware for jamming
-        // In real implementation, we'd set continuous transmission mode
-        uint8_t jam_power = 0x7F; // Maximum power for jamming
-        FURI_LOG_D("PredatorSubGHz", "Setting jamming power to 0x%02X", jam_power);
-        
-        // Configure modulation for effective jamming (ASK/OOK)
-        uint8_t mod_type = 0x02; // ASK modulation
-        FURI_LOG_D("PredatorSubGHz", "Jamming modulation: 0x%02X", mod_type);
-    } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // AIO board with external RF implementation
-        FURI_LOG_I("PredatorSubGHz", "Jamming with AIO board on %lu Hz", frequency);
-        
-        // Configure external CC1101 for maximum power jamming
-        uint8_t aio_jam_config[] = {0x1D, 0x55, 0x7F};
-        FURI_LOG_D("PredatorSubGHz", "AIO jamming config: %02X %02X %02X",
-                  aio_jam_config[0], aio_jam_config[1], aio_jam_config[2]);
-        
-        // AIO board supports higher power with external antenna
-        FURI_LOG_D("PredatorSubGHz", "External antenna enabled for jamming");
-    } else if(app->board_type == PredatorBoardTypeScreen28) {
-        // 2.8-inch screen with 433M module implementation
-        FURI_LOG_I("PredatorSubGHz", "Jamming with 2.8-inch screen on %lu Hz", frequency);
-        
-        // Special configuration for 2.8-inch screen's integrated RF module
-        uint8_t screen_rf_config = 0x0C; // 12dBm output power
-        FURI_LOG_D("PredatorSubGHz", "Screen RF power: %d dBm", screen_rf_config);
-        
-        // Set up continuous carrier wave for jamming
-        FURI_LOG_D("PredatorSubGHz", "Continuous carrier enabled");
-    } else {
-        // Generic implementation for other boards
-        FURI_LOG_I("PredatorSubGHz", "Jamming with generic settings on %lu Hz", frequency);
-        FURI_LOG_D("PredatorSubGHz", "Generic jamming config 0x40 0x58 0x2D applied");
-    }
-    
-    // Actual jamming implementation would transmit carrier wave
-    // For now, we use LED feedback to indicate jamming is active
-    notification_message(app->notifications, &sequence_set_red_255);
-    return true;
+    // Brief delay to simulate transmission time
+    furi_delay_ms(5);
 }
 
 const char* predator_subghz_get_car_command_name(CarCommand command) {
@@ -369,7 +313,7 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
     // Simple range check instead of API call
     if(frequency < 300000000 || frequency > 950000000) {
         FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
-        return;
+        return false;
     }
     
     FURI_LOG_I("PredatorSubGHz", "Sending %s command to %s on %lu Hz",

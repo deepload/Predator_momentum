@@ -44,6 +44,7 @@ static const PredatorMenuItem menu_items[] = {
 // Custom view callbacks
 static void predator_start_draw_callback(Canvas* canvas, void* context) {
     PredatorApp* app = context;
+    (void)app;
     canvas_clear(canvas);
     
     // Draw logo at the top
