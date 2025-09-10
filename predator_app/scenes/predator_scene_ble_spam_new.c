@@ -1,4 +1,5 @@
-#include "../predator_i.h"\n#include "../helpers/predator_view_helpers.h"
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
 
@@ -171,7 +172,6 @@ static bool ble_spam_view_input_callback(InputEvent* event, void* context) {
             break;
             
         case InputKeyOk:
-        case InputKeyCenter:
             if(state->attack_running) {
                 // Stop attack
                 predator_esp32_stop_attack(app);
@@ -217,8 +217,8 @@ static View* ble_spam_view_alloc(PredatorApp* app) {
     state->devices_spoofed = 0;
     state->attack_running = false;
     
-    predator_predator_view_set_model(view, state);
-    predator_predator_view_set_model_free_callback(view, free);
+    predator_view_set_model(view, state);
+    predator_view_set_model_free_callback(view, free);
     
     return view;
 }
@@ -279,7 +279,7 @@ void predator_scene_ble_spam_new_on_exit(void* context) {
     
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = predator_predator_view_dispatcher_get_current_view(app->view_dispatcher);
+    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
     if(view) {
         ble_spam_view_free(view);
     }
