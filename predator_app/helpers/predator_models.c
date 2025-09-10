@@ -173,11 +173,23 @@ size_t predator_models_load_csv(Storage* storage, const char* path) {
         while(*p && isspace((unsigned char)*p)) p++;
         if(*p == '\0' || *p == '#') continue;
 
-        // Parse CSV tokens
-        char* make = strtok(line, ",");
-        char* model = strtok(NULL, ",");
-        char* freq = strtok(NULL, ",");
-        char* type = strtok(NULL, ",");
+        // Parse CSV tokens without strtok (disabled); simple comma splitter
+        char* fields[4] = {0};
+        for(int fi = 0; fi < 4; ++fi) {
+            if(!p) { fields[fi] = NULL; continue; }
+            fields[fi] = p;
+            char* c = strchr(p, ',');
+            if(c) {
+                *c = '\0';
+                p = c + 1;
+            } else {
+                p = NULL;
+            }
+        }
+        char* make = fields[0];
+        char* model = fields[1];
+        char* freq = fields[2];
+        char* type = fields[3];
         if(!make || !model || !freq || !type) continue;
 
         trim(make); trim(model); trim(freq); trim(type);
