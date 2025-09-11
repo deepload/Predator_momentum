@@ -256,9 +256,6 @@ static View* car_attacks_menu_view_alloc(PredatorApp* app) {
     return view;
 }
 
-static void car_attacks_menu_view_free(View* view) {
-    view_free(view);
-}
 
 void predator_scene_car_attacks_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -266,13 +263,15 @@ void predator_scene_car_attacks_new_on_enter(void* context) {
     // Create custom view
     View* view = car_attacks_menu_view_alloc(app);
     
+    // Switch to a safe view before replacing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace submenu view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
     // Restore previous selection if available
-    CarAttacksMenuView* state = view_get_model(view);
+    CarAttacksMenuView* state = PREDATOR_GET_MODEL(app->view_dispatcher, CarAttacksMenuView);
     if(state) {
         state->selected_index = scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarAttacks);
     }
@@ -282,9 +281,8 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Get view state
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    CarAttacksMenuView* state = view_get_model(view);
+    // Get view state safely for Momentum SDK
+    CarAttacksMenuView* state = PREDATOR_GET_MODEL(app->view_dispatcher, CarAttacksMenuView);
     
     if(event.type == SceneManagerEventTypeCustom) {
         // Save the selected index for when returning to this scene
@@ -368,14 +366,10 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
 void predator_scene_car_attacks_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Remove and free custom view
+    // Switch to a safe view before removing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    // Remove custom view and restore default submenu view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    if(view) {
-        car_attacks_menu_view_free(view);
-    }
-    
-    // Restore standard submenu view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, submenu_get_view(app->submenu));
 }
 

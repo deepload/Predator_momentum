@@ -247,6 +247,9 @@ bool predator_scene_start_new_on_event(void* context, SceneManagerEvent event) {
 void predator_scene_start_new_on_exit(void* context) {
     PredatorApp* app = context;
     
+    // Switch to a safe view before removing the current one to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    
     // Remove and free custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);

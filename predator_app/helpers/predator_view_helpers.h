@@ -17,6 +17,13 @@ void* predator_get_view_model_safe(ViewDispatcher* view_dispatcher);
  */
 #define PREDATOR_GET_MODEL(view_dispatcher, type) ((type*)predator_get_view_model_safe(view_dispatcher))
 
+// Momentum SDK may not expose view_get_model reliably for custom views.
+// Provide a safe compatibility macro that returns the last model set via
+// predator_view_set_model(), ignoring the view pointer.
+#ifndef view_get_model
+#define view_get_model(view) (predator_get_view_model_safe(NULL))
+#endif
+
 /**
  * Set the model for the view
  * This is a compatibility wrapper for SDK function

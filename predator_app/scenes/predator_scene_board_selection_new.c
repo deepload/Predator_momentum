@@ -237,9 +237,6 @@ static View* board_selection_view_alloc(PredatorApp* app) {
     return view;
 }
 
-static void board_selection_view_free(View* view) {
-    view_free(view);
-}
 
 void predator_scene_board_selection_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -247,6 +244,8 @@ void predator_scene_board_selection_new_on_enter(void* context) {
     // Create custom view
     View* view = board_selection_view_alloc(app);
     
+    // Switch to a safe view before replacing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace widget view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, view);
@@ -275,16 +274,10 @@ bool predator_scene_board_selection_new_on_event(void* context, SceneManagerEven
 void predator_scene_board_selection_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Free custom view
-    View* view = predator_view_dispatcher_get_view(app->view_dispatcher, PredatorViewWidget);
-    if(view) {
-        board_selection_view_free(view);
-    }
-    
-    // Remove the view from dispatcher
+    // Switch to a safe view before removing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    // Remove custom view and restore default widget view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
-    
-    // Restore standard widget view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 }
 

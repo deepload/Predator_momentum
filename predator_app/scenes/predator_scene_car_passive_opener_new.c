@@ -144,9 +144,6 @@ static View* passive_opener_view_alloc(PredatorApp* app) {
     return view;
 }
 
-static void passive_opener_view_free(View* view) {
-    view_free(view);
-}
 
 void predator_scene_car_passive_opener_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -154,6 +151,8 @@ void predator_scene_car_passive_opener_new_on_enter(void* context) {
     // Create custom view
     View* view = passive_opener_view_alloc(app);
     
+    // Switch to a safe view before replacing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace popup view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, view);
@@ -182,9 +181,8 @@ bool predator_scene_car_passive_opener_new_on_event(void* context, SceneManagerE
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Get view and state
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    PassiveOpenerView* state = view_get_model(view);
+    // Get state safely for Momentum SDK
+    PassiveOpenerView* state = PREDATOR_GET_MODEL(app->view_dispatcher, PassiveOpenerView);
     
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == PredatorCustomEventPopupBack) {
@@ -254,9 +252,8 @@ void predator_scene_car_passive_opener_new_on_exit(void* context) {
     PredatorApp* app = context;
     app->attack_running = false;
     
-    // Get view and state
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    PassiveOpenerView* state = view_get_model(view);
+    // Get state safely for Momentum SDK
+    PassiveOpenerView* state = PREDATOR_GET_MODEL(app->view_dispatcher, PassiveOpenerView);
     
     // Restore normal display brightness if we were in low power
     if(state && state->low_power_mode) {
@@ -270,11 +267,10 @@ void predator_scene_car_passive_opener_new_on_exit(void* context) {
     // Play exit tone
     notification_message(app->notifications, &sequence_blink_stop);
     
-    // Remove and free custom view
+    // Switch to a safe view before removing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    // Remove custom view and restore default popup view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    passive_opener_view_free(view);
-    
-    // Restore standard popup view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
 }
 

@@ -192,9 +192,6 @@ static View* about_view_alloc(PredatorApp* app) {
     return view;
 }
 
-static void about_view_free(View* view) {
-    view_free(view);
-}
 
 void predator_scene_about_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -202,6 +199,8 @@ void predator_scene_about_new_on_enter(void* context) {
     // Create custom view
     View* view = about_view_alloc(app);
     
+    // Switch to a safe view before replacing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace widget view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, view);
@@ -224,14 +223,10 @@ bool predator_scene_about_new_on_event(void* context, SceneManagerEvent event) {
 void predator_scene_about_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Remove and free custom view
+    // Switch to a safe view before removing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    // Remove custom view and restore default widget view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    if(view) {
-        about_view_free(view);
-    }
-    
-    // Restore standard widget view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 }
 

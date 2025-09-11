@@ -268,9 +268,6 @@ static View* subghz_attacks_view_alloc(PredatorApp* app) {
     return view;
 }
 
-static void subghz_attacks_view_free(View* view) {
-    view_free(view);
-}
 
 void predator_scene_subghz_attacks_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -281,6 +278,8 @@ void predator_scene_subghz_attacks_new_on_enter(void* context) {
     // Create custom view
     View* view = subghz_attacks_view_alloc(app);
     
+    // Switch to a safe view before replacing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace submenu view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, view);
@@ -321,14 +320,10 @@ void predator_scene_subghz_attacks_new_on_exit(void* context) {
     // Clean up hardware
     predator_subghz_deinit(app);
     
-    // Remove and free custom view
+    // Switch to a safe view before removing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    // Remove custom view and restore default submenu view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    if(view) {
-        subghz_attacks_view_free(view);
-    }
-    
-    // Restore standard submenu view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, submenu_get_view(app->submenu));
 }
 

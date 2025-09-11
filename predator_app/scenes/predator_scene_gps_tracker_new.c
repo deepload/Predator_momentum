@@ -167,9 +167,6 @@ static View* gps_tracker_view_alloc(PredatorApp* app) {
     return view;
 }
 
-static void gps_tracker_view_free(View* view) {
-    view_free(view);
-}
 
 void predator_scene_gps_tracker_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -180,6 +177,8 @@ void predator_scene_gps_tracker_new_on_enter(void* context) {
     // Create custom view
     View* view = gps_tracker_view_alloc(app);
     
+    // Switch to a safe view before replacing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace popup view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, view);
@@ -221,14 +220,10 @@ void predator_scene_gps_tracker_new_on_exit(void* context) {
     // Deinitialize GPS
     predator_gps_deinit(app);
     
-    // Remove and free custom view
+    // Switch to a safe view before removing to avoid dispatcher crash
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
+    // Remove custom view and restore default popup view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    View* view = predator_view_dispatcher_get_current_view(app->view_dispatcher);
-    if(view) {
-        gps_tracker_view_free(view);
-    }
-    
-    // Restore standard popup view
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
 }
 
