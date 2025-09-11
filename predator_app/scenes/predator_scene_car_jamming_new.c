@@ -186,8 +186,6 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     // Create custom view
     View* view = car_jamming_view_alloc(app);
     
-    // Switch to a safe view before replacing to avoid dispatcher crash
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace popup view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, view);
@@ -234,8 +232,6 @@ void predator_scene_car_jamming_new_on_exit(void* context) {
     // Clean up
     predator_subghz_deinit(app);
     
-    // Switch to a safe view before removing to avoid dispatcher crash
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Remove custom view and restore default popup view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));

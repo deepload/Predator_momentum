@@ -169,8 +169,6 @@ void predator_scene_module_status_new_on_enter(void* context) {
     // Create custom view
     View* view = module_status_view_alloc(app);
     
-    // Switch to a safe view before replacing to avoid dispatcher crash
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace widget view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, view);
@@ -201,8 +199,6 @@ bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent 
 void predator_scene_module_status_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Switch to a safe view before removing to avoid dispatcher crash
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Remove custom view and restore default widget view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));

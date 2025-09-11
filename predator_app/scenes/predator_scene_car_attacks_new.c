@@ -263,8 +263,6 @@ void predator_scene_car_attacks_new_on_enter(void* context) {
     // Create custom view
     View* view = car_attacks_menu_view_alloc(app);
     
-    // Switch to a safe view before replacing to avoid dispatcher crash
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Replace submenu view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, view);
@@ -366,8 +364,6 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
 void predator_scene_car_attacks_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Switch to a safe view before removing to avoid dispatcher crash
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewLoading);
     // Remove custom view and restore default submenu view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubmenu);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubmenu, submenu_get_view(app->submenu));
