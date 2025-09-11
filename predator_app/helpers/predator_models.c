@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_CAR_MODELS 1000
+#define MAX_CAR_MODELS 128
 
 static PredatorCarModel g_models[MAX_CAR_MODELS];
 static size_t g_model_count = 0;

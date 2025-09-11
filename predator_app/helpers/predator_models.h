@@ -9,10 +9,10 @@ extern "C" {
 #endif
 
 typedef struct {
-    char make[24];
-    char model[48];
+    char make[16];
+    char model[40];
     uint32_t frequency; // Hz
-    char remote_type[24];
+    char remote_type[16];
 } PredatorCarModel;
 
 // Returns number of models currently loaded from CSV (0 if none)
