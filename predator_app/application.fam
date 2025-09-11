@@ -59,7 +59,7 @@ App(
         "scenes/predator_scene_rfid_bruteforce_new.c",
         "scenes/predator_scene_gps_tracker_new.c",
         "scenes/predator_scene_gps_debug.c",
-        "scenes/predator_scene_social_engineering.c",
+        "scenes/predator_scene_social_engineering_new.c",
         "scenes/predator_scene_wardriving_new.c",
         "scenes/predator_scene_module_status_new.c",
         "scenes/predator_scene_settings_new.c",
