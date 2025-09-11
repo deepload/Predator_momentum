@@ -2,14 +2,7 @@
 
 #include <gui/scene_manager.h>
 
-// Generate scene id and total number
-#define ADD_SCENE(prefix, name, id) PredatorScene##id,
-typedef enum {
-#include "predator_scene_config.h"
-    PredatorSceneNum,
-} PredatorScene;
-#undef ADD_SCENE
-
+// Use legacy config list which matches function names (many files end with _new)
 extern const SceneManagerHandlers predator_scene_handlers;
 
 // Generate scene on_enter handlers declaration

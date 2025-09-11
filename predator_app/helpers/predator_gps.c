@@ -2,6 +2,7 @@
 #include "../predator_i.h"
 #include "../predator_uart.h"
 #include "predator_string.h"
+#include "predator_boards.h"
 #include <furi.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,23 +58,64 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
 void predator_gps_init(PredatorApp* app) {
     if(!app) return;
     
-    // Check if UART is initialized
-    if (app->gps_uart == NULL) {
-        FURI_LOG_E("Predator", "GPS UART not initialized");
-        app->gps_connected = false;
+    // Get board configuration
+    const PredatorBoardConfig* board_config = predator_boards_get_config(app->board_type);
+    if(!board_config) {
+        FURI_LOG_E("PredatorGPS", "Invalid board configuration");
         return;
     }
     
-    // Check GPS power switch state (front left switch must be down)
-    furi_hal_gpio_init(PREDATOR_GPS_POWER_SWITCH, GpioModeInput, GpioPullUp, GpioSpeedLow);
-    if(furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH)) {
-        app->gps_connected = false;
-        FURI_LOG_W("Predator", "GPS power switch is off (switch down to enable)");
-        return; // GPS switch is up (using internal battery)
+    FURI_LOG_I("PredatorGPS", "Using board: %s", board_config->name);
+    
+    // For all board types except the original, assume GPS is always enabled if connected
+    bool enable_gps = true;
+    
+    // Only check switch for original board type that has dedicated switches
+    if(app->board_type == PredatorBoardTypeOriginal && board_config->gps_power_switch) {
+        furi_hal_gpio_init(board_config->gps_power_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        // Switch is active-low: ON when read == 0
+        enable_gps = !furi_hal_gpio_read(board_config->gps_power_switch);
+        
+        if(!enable_gps) {
+            app->gps_connected = false;
+            FURI_LOG_W("PredatorGPS", "GPS power switch is OFF on original board");
+            return;
+        } else {
+            FURI_LOG_I("PredatorGPS", "GPS power switch is ON");
+        }
+    } else if(app->board_type == PredatorBoardType3in1AIO) {
+        // Special handling for AIO Board v1.4 to prevent crashes
+        FURI_LOG_I("PredatorGPS", "Using 3in1 AIO Board V1.4 with safe GPS handling");
+        
+        // Force GPS to be considered connected on this board
+        app->gps_connected = true;
+        
+        // This is safer than attempting GPIO operations that might cause crashes
+        FURI_LOG_I("PredatorGPS", "GPS enabled for AIO Board");
+    } else if(app->board_type == PredatorBoardTypeScreen28) {
+        // Special handling for 2.8-inch screen Predator with dual GPS configuration
+        FURI_LOG_I("PredatorGPS", "Using 2.8-inch Predator with dual GPS support");
+        
+        // For this board, GPS can be shared between Flipper and 2.8-inch Predator screen
+        // GPS is always available since it's a key feature of this module
+        app->gps_connected = true;
+        
+        // Since we have a 20dBi GPS antenna, assume high-quality connection
+        FURI_LOG_I("PredatorGPS", "Using high-gain (20dBi) GPS antenna");
+    } else {
+        // For all other board types, assume GPS is always enabled if physically connected
+        FURI_LOG_I("PredatorGPS", "Using %s - GPS always enabled if connected", board_config->name);
     }
     
-    // Initialize UART for GPS communication on pins 13,14
-    app->gps_uart = predator_uart_init(PREDATOR_GPS_UART_TX_PIN, PREDATOR_GPS_UART_RX_PIN, GPS_UART_BAUD, predator_gps_rx_callback, app);
+    // Initialize UART for GPS communication using board-specific pins
+    if(!app->gps_uart) {
+        app->gps_uart = predator_uart_init(
+            board_config->gps_tx_pin,
+            board_config->gps_rx_pin,
+            board_config->gps_baud_rate,
+            predator_gps_rx_callback,
+            app);
+    }
     
     if (app->gps_uart == NULL) {
         FURI_LOG_E("Predator", "Failed to initialize GPS UART");

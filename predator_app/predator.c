@@ -32,7 +32,6 @@ void predator_app_free(PredatorApp* app);
 
 // Global safe mode state
 static bool predator_safe_mode = false;
-static uint8_t predator_crash_counter = 0;
 
 static bool predator_custom_event_callback(void* context, uint32_t event) {
     // Check for NULL context
@@ -142,6 +141,9 @@ PredatorApp* predator_app_alloc() {
     // Initialize to zeros to prevent undefined behavior with uninitialized fields
     memset(app, 0, sizeof(PredatorApp));
 
+    // Default to unknown board type, will be overridden by detection/config
+    app->board_type = PredatorBoardTypeUnknown;
+
     // Open required records with null checks
     app->gui = furi_record_open(RECORD_GUI);
     app->notifications = furi_record_open(RECORD_NOTIFICATION);
@@ -217,7 +219,7 @@ PredatorApp* predator_app_alloc() {
         predator_app_free(app);
         return NULL;
     }
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
+    // Do NOT add PredatorViewWidget here. Scenes manage this slot with their custom views.
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
@@ -228,50 +230,54 @@ PredatorApp* predator_app_alloc() {
     furi_hal_gpio_init(&gpio_ext_pc1, GpioModeInput, GpioPullUp, GpioSpeedLow); // ESP32 RX
     furi_hal_gpio_init(&gpio_ext_pb2, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS TX
     furi_hal_gpio_init(&gpio_ext_pb3, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS RX
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeInput, GpioPullUp, GpioSpeedLow); // GPS power switch
     
     // Method 2: Test if Predator identification pins have expected values
     furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow); // Marauder switch
     
     // Combine detection methods for reliable result
-    // In production, we primarily use the ID pin, but check all methods
-    app->module_connected = true; // Default to true for production testing
+    // Default to not connected; detection can update this later based on GPIO/successful comms
+    app->module_connected = false;
     
     FURI_LOG_I("Predator", "Module detection: %s", app->module_connected ? "Connected" : "Not connected");
     
     // Initialize hardware modules with robust error handling
     furi_hal_power_suppress_charge_enter();
-
-    // Disable interrupts during critical GPIO setup
-    FURI_CRITICAL_ENTER();
     
-    // Try/catch equivalent with error recovery
-    bool gpio_error = false;
-    
-    // Simple pin test by trying to read them
-    gpio_error = false;
-    
-    // Only proceed with UART if GPIO is valid and app is valid
-    if(!gpio_error && app) {
-        // Initialize ESP32 UART with error handling
-        app->esp32_uart = NULL; // Initialize to NULL first
+    // Try to load board type from storage or auto-detect
+    app->board_type = predator_boards_load_selection(app->storage);
+    if (app->board_type == PredatorBoardTypeUnknown) {
+        // Try to auto-detect board
+        app->board_type = predator_boards_detect();
         
-        // No need to check pointer addresses - they're defined as macros
-        app->esp32_uart = predator_uart_init(PREDATOR_ESP32_UART_TX_PIN, PREDATOR_ESP32_UART_RX_PIN, 
-                                          PREDATOR_ESP32_UART_BAUD, predator_esp32_rx_callback, app);
-        
-        // Initialize GPS UART with error handling
-        app->gps_uart = NULL; // Initialize to NULL first
-        
-        // No need to check pointer addresses - they're defined as macros
-        app->gps_uart = predator_uart_init(PREDATOR_GPS_UART_TX_PIN, PREDATOR_GPS_UART_RX_PIN, 
-                                        PREDATOR_GPS_UART_BAUD, predator_gps_rx_callback, app);
-        
-        // Only log success if at least one UART initialized successfully
-        if(app->esp32_uart || app->gps_uart) {
-            FURI_LOG_I("Predator", "Hardware interfaces initialized successfully");
+        if (app->board_type != PredatorBoardTypeUnknown) {
+            // Save detected board type
+            predator_boards_save_selection(app->storage, app->board_type);
+            FURI_LOG_I("Predator", "Auto-detected board type: %s", 
+                      predator_boards_get_name(app->board_type));
         } else {
-            FURI_LOG_W("Predator", "No hardware interfaces initialized successfully");
+            // Default to original if detection fails
+            app->board_type = PredatorBoardTypeOriginal;
+            FURI_LOG_I("Predator", "Using default board type: %s", 
+                      predator_boards_get_name(app->board_type));
         }
+    } else {
+        FURI_LOG_I("Predator", "Loaded board type from config: %s", 
+                  predator_boards_get_name(app->board_type));
+    }
+
+    // Perform ONLY the minimal GPIO configuration in a critical section.
+    // Do NOT call heavy APIs (UART init/threads/alloc) while interrupts are disabled.
+    FURI_CRITICAL_ENTER();
+    bool gpio_error = false;
+    // (Optional) any quick GPIO validation would go here
+    FURI_CRITICAL_EXIT();
+
+    // Defer UART initialization to specific scenes (WiFi/GPS) to avoid early crashes
+    // in Momentum's furi_hal_serial when the module isn't ready yet.
+    if(!gpio_error && app) {
+        app->esp32_uart = NULL;
+        app->gps_uart = NULL;
     } else {
         // Safe fallback if GPIO validation failed or app is NULL
         if(app) {
@@ -281,8 +287,6 @@ PredatorApp* predator_app_alloc() {
         FURI_LOG_E("Predator", "Hardware initialization failed - using fallback mode");
     }
     
-    // Re-enable interrupts after critical section
-    FURI_CRITICAL_EXIT();
     furi_hal_power_suppress_charge_exit();
     
     // Initialize error tracking system with NULL check
@@ -509,9 +513,7 @@ int32_t predator_app(void* p) {
     if(predator_safe_mode) {
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
         notification_message(notification, &sequence_set_red_255);
-        notification_message(notification, &sequence_set_vibro_on);
         furi_delay_ms(300);
-        notification_message(notification, &sequence_set_vibro_off);
         furi_record_close(RECORD_NOTIFICATION);
         
         // Give user time to see notification before proceeding

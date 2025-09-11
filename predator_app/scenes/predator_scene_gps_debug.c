@@ -1,4 +1,5 @@
 #include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_gps.h"
 #include "predator_scene.h"
 #include <furi.h>
@@ -24,6 +25,24 @@ static GpsDebugState* gps_debug_state = NULL;
 static void predator_gps_debug_update_callback(void* context) {
     PredatorApp* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventGpsUpdate);
+}
+
+// Forward declarations of original handlers to avoid implicit declaration
+void predator_scene_gps_debug_on_enter(void* context);
+bool predator_scene_gps_debug_on_event(void* context, SceneManagerEvent event);
+void predator_scene_gps_debug_on_exit(void* context);
+
+// Wrappers to match *_new symbols expected by scene_config
+void predator_scene_gps_debug_new_on_enter(void* context) {
+    predator_scene_gps_debug_on_enter(context);
+}
+
+bool predator_scene_gps_debug_new_on_event(void* context, SceneManagerEvent event) {
+    return predator_scene_gps_debug_on_event(context, event);
+}
+
+void predator_scene_gps_debug_new_on_exit(void* context) {
+    predator_scene_gps_debug_on_exit(context);
 }
 
 // Widget callback for back button
@@ -130,7 +149,12 @@ void predator_scene_gps_debug_on_exit(void* context) {
     // Stop the update timer
     if(gps_debug_state && gps_debug_state->update_timer) {
         furi_timer_stop(gps_debug_state->update_timer);
+        furi_timer_free(gps_debug_state->update_timer);
+        gps_debug_state->update_timer = NULL;
     }
+    
+    // We don't free gps_debug_state here as it's used across invocations
+    // If we want to completely free it, we should do it in the app's on_exit handler
     
     // Reset widget
     widget_reset(app->widget);
@@ -163,3 +187,5 @@ void predator_gps_debug_track_nmea(const char* nmea) {
         gps_debug_state->gsv_count++;
     }
 }
+
+

@@ -14,6 +14,8 @@
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
 
+#include "helpers/predator_boards.h"
+
 #define PREDATOR_TEXT_STORE_SIZE 256
 
 typedef enum {
@@ -23,6 +25,47 @@ typedef enum {
     PredatorViewLoading,
     PredatorViewWidget,
 } PredatorView;
+
+typedef enum {
+    PredatorSceneStart,
+    PredatorSceneMainMenu,
+    PredatorSceneBoardSelection,
+    PredatorSceneWifiMenu,
+    PredatorSceneWifiScan,
+    PredatorSceneWifiAttacks,
+    PredatorSceneWifiDeauth,
+    PredatorSceneWifiSniff,
+    PredatorSceneWifiEvilTwin,
+    PredatorSceneWifiHandshakeCapture,
+    PredatorSceneWifiPwnagotchi,
+    PredatorSceneBLEMenu,
+    PredatorSceneBLEScan,
+    PredatorSceneBLESpam,
+    PredatorSceneBluetoothAttacks,
+    PredatorSceneSubGhzMenu,
+    PredatorSceneSubGhzAttacks,
+    PredatorSceneSubGhzJamming,
+    PredatorSceneSubGhzScanner,
+    PredatorSceneRfidMenu,
+    PredatorSceneRfidAttacks,
+    PredatorSceneRfidBruteforce,
+    PredatorSceneRfidClone,
+    PredatorSceneCarMenu,
+    PredatorSceneCarAttacks,
+    PredatorSceneCarModels,
+    PredatorSceneCarKey,
+    PredatorSceneCarJamming,
+    PredatorSceneCarPassiveOpener,
+    PredatorSceneCarTesla,
+    PredatorSceneModuleStatus,
+    PredatorSceneSettings,
+    PredatorSceneAbout,
+    PredatorSceneWardriving,
+    PredatorSceneGPSTracker,
+    PredatorSceneGPSDebug,
+    PredatorSceneExternalTools,
+    PredatorSceneCount
+} PredatorScene;
 
 typedef enum {
     PredatorEventTypeKey,
@@ -39,6 +82,8 @@ typedef enum {
     PredatorCustomEventError,         // Generic error event
     PredatorCustomEventHardwareError, // Hardware-specific error
     PredatorCustomEventRecovery,      // System recovered from error
+    PredatorCustomEventTimerExpired,  // Timer callback expired event
+    PredatorCustomEventBack,          // Custom back button event
 } PredatorCustomEvent;
 
 // Error types for user-friendly notifications
@@ -59,9 +104,11 @@ typedef struct PredatorApp {
     NotificationApp* notifications;
     DialogsApp* dialogs;
     Storage* storage;
+    FuriTimer* timer;         // Timer for non-blocking delays
     
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
+    PredatorBoardType board_type;  // Type of expansion board attached
     
     // UI components
     ViewDispatcher* view_dispatcher;

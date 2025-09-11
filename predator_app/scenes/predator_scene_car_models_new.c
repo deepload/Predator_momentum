@@ -1,0 +1,465 @@
+#include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
+#include "../helpers/predator_subghz.h"
+#include "../helpers/predator_models.h"
+#include "../helpers/predator_models_seed.h"
+#include "../helpers/predator_ui_elements.h"
+
+typedef struct {
+    View* view;
+    uint8_t current_page;
+    uint8_t selected_car;
+    uint8_t animation_frame;
+    bool command_sent;
+    bool import_menu;
+    uint8_t import_selection; // 0: Load default, 1: Clear
+} CarModelsView;
+
+// Car models data
+typedef struct {
+    const char* make;
+    const char* model;
+    uint32_t frequency;
+    const char* remote_type;
+} CarModelInfo;
+
+// List of supported car models
+static const CarModelInfo car_models[] = {
+    // Standard models from predator_subghz.c
+    {"Toyota", "Camry 2018-2022", 433920000, "Rolling Code"},
+    {"Honda", "Civic 2016-2022", 433420000, "Rolling Code"},
+    {"Ford", "F-150 2018+", 315000000, "Fixed Code"},
+    {"Chevrolet", "Silverado 2019+", 315000000, "Fixed Code"},
+    {"BMW", "5-Series 2018+", 433920000, "Rolling Code"},
+    {"Mercedes", "C-Class 2020+", 433920000, "Rolling Code"},
+    {"Audi", "Q5 2018-2022", 868350000, "Rolling Code"},
+    {"Volkswagen", "Golf 2019+", 433920000, "Rolling Code"},
+    {"Nissan", "Rogue 2020+", 433920000, "Fixed Code"},
+    {"Hyundai", "Tucson 2019+", 433920000, "Rolling Code"},
+    {"Kia", "Sportage 2020+", 433920000, "Rolling Code"},
+    {"Tesla", "Model 3", 315000000, "Smart Key"},
+    {"Subaru", "Forester 2019+", 433920000, "Rolling Code"},
+    {"Jeep", "Grand Cherokee 2018+", 315000000, "Fixed Code"},
+    {"Chrysler", "300 2019+", 315000000, "Fixed Code"},
+    {"Dodge", "Charger 2020+", 315000000, "Fixed Code"},
+    {"Cadillac", "Escalade 2021+", 315000000, "Smart Key"},
+    {"Lexus", "RX 350 2019+", 433920000, "Rolling Code"},
+    {"Infiniti", "QX60 2020+", 315000000, "Smart Key"},
+    {"Acura", "MDX 2020+", 433420000, "Rolling Code"},
+    {"Mazda", "CX-5 2019+", 433920000, "Rolling Code"},
+    {"Mitsubishi", "Outlander 2020+", 433920000, "Fixed Code"},
+    {"Porsche", "Cayenne 2018+", 433920000, "Rolling Code"},
+    {"Range Rover", "Evoque 2020+", 433920000, "Smart Key"},
+    {"Jaguar", "F-Pace 2021+", 433920000, "Smart Key"},
+    {"Volvo", "XC60 2019+", 433920000, "Rolling Code"},
+    {"Fiat", "500X 2020+", 433920000, "Fixed Code"},
+    {"Peugeot", "3008 2020+", 433920000, "Rolling Code"},
+    {"Renault", "Koleos 2020+", 433920000, "Fixed Code"},
+    {"Skoda", "Kodiaq 2020+", 433920000, "Rolling Code"},
+    
+    // Additional luxury models
+    {"Lamborghini", "Urus 2021+", 433920000, "Smart Key"},
+    {"Ferrari", "Roma 2021+", 433920000, "Smart Key"},
+    {"Maserati", "Levante 2020+", 433920000, "Smart Key"},
+    {"Bentley", "Bentayga 2021+", 433920000, "Smart Key"},
+    {"Rolls Royce", "Ghost 2021+", 433920000, "Smart Key"},
+    {"Aston Martin", "Vantage 2020+", 433920000, "Smart Key"},
+    {"McLaren", "GT 2021+", 433920000, "Smart Key"},
+    {"Bugatti", "Chiron 2020+", 433920000, "Smart Key"},
+    {"Genesis", "G80 2021+", 433920000, "Smart Key"},
+    {"Land Rover", "Defender 2020+", 433920000, "Smart Key"},
+};
+
+#define CAR_MODELS_COUNT (sizeof(car_models) / sizeof(car_models[0]))
+#define ITEMS_PER_PAGE 3
+
+static void car_models_view_draw_callback(Canvas* canvas, void* context) {
+    PredatorApp* app = context;
+    
+    if(!app) return;
+    
+    // Get view state
+    CarModelsView* state = PREDATOR_GET_MODEL(app->view_dispatcher, CarModelsView);
+    if(!state) return;
+    
+    // Update animation frame
+    uint8_t animation_frame = (furi_get_tick() / 200) % 4;
+    state->animation_frame = animation_frame;
+    
+    canvas_clear(canvas);
+    
+    // Determine data source (external CSV or built-in)
+    size_t external_count = predator_models_count();
+    bool use_external = (external_count > 0);
+    uint16_t total_count = use_external ? (uint16_t)external_count : (uint16_t)CAR_MODELS_COUNT;
+    
+    // Clamp selection to valid range regardless of source
+    if(total_count == 0) {
+        // Safety: if both sources empty (shouldn't happen), do nothing further
+        return;
+    }
+    if(state->selected_car >= total_count) {
+        state->selected_car = (uint8_t)(total_count - 1);
+    }
+    // Also clamp current page to valid range
+    uint8_t max_page = (uint8_t)((total_count - 1) / ITEMS_PER_PAGE);
+    if(state->current_page > max_page) {
+        state->current_page = max_page;
+    }
+    
+    // Draw title
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(canvas, 64, 8, AlignCenter, AlignCenter, "Car Models");
+    
+    // Draw separator
+    canvas_draw_line(canvas, 0, 16, 128, 16);
+    
+    // Show data source tag (CSV count or Built-in) on header
+    canvas_set_font(canvas, FontSecondary);
+    char source_tag[20];
+    if(use_external) {
+        snprintf(source_tag, sizeof(source_tag), "CSV %u", (unsigned)external_count);
+    } else {
+        snprintf(source_tag, sizeof(source_tag), "Built-in");
+    }
+    canvas_draw_str_aligned(canvas, 124, 8, AlignRight, AlignCenter, source_tag);
+
+    // Calculate page details
+    uint8_t start_idx = (uint8_t)(state->current_page * ITEMS_PER_PAGE);
+    uint8_t end_idx = MIN((uint8_t)(start_idx + ITEMS_PER_PAGE), (uint8_t)total_count);
+    uint8_t total_pages = (uint8_t)((total_count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+    
+    // Draw cars list
+    canvas_set_font(canvas, FontSecondary);
+    
+    for(uint8_t i = start_idx; i < end_idx; i++) {
+        uint8_t y_pos = 25 + (i - start_idx) * 12;
+        
+        // Highlight selected car
+        if(i == state->selected_car) {
+            canvas_draw_box(canvas, 2, y_pos - 1, 124, 11);
+            canvas_set_color(canvas, ColorWhite);
+        }
+        
+        // Draw car make and model
+        char model_text[64];
+        if(use_external) {
+            const PredatorCarModel* m = predator_models_get(i);
+            const char* mk = (m && m->make[0]) ? m->make : "?";
+            const char* mdl = (m && m->model[0]) ? m->model : "?";
+            // Limit brand/model to 30 chars each to fit buffer safely
+            snprintf(model_text, sizeof(model_text), "%.*s %.*s", 30, mk, 30, mdl);
+        } else {
+            // Limit built-in strings as well
+            snprintf(model_text, sizeof(model_text), "%.*s %.*s", 30, car_models[i].make, 30, car_models[i].model);
+        }
+        canvas_draw_str(canvas, 4, y_pos + 7, model_text);
+        
+        // Reset color
+        canvas_set_color(canvas, ColorBlack);
+    }
+    
+    // Draw slim scrollbar for list
+    {
+        uint8_t visible_items = (uint8_t)(end_idx - start_idx);
+        predator_ui_draw_scrollbar(canvas, 125, 22, 36, (uint8_t)total_count, start_idx, visible_items);
+    }
+    
+    // Draw car details box for selected car
+    predator_ui_draw_status_box(canvas, "Car Details", 5, 62, 118, 16);
+    
+    const CarModelInfo* selected = use_external ? NULL : &car_models[state->selected_car];
+    
+    // Format frequency without floating point to avoid double-promotion warnings
+    char freq_text[20];
+    if(use_external) {
+        const PredatorCarModel* m = predator_models_get(state->selected_car);
+        if(m) {
+            if(m->frequency >= 1000000U) {
+                unsigned long mhz_int = (unsigned long)(m->frequency / 1000000U);
+                unsigned long mhz_frac = (unsigned long)(((m->frequency % 1000000U) + 5000U) / 10000U); // 2 decimals rounded
+                snprintf(freq_text, sizeof(freq_text), "%lu.%02luMHz", mhz_int, mhz_frac);
+            } else {
+                unsigned long khz = (unsigned long)(m->frequency / 1000U);
+                snprintf(freq_text, sizeof(freq_text), "%luKHz", khz);
+            }
+        } else {
+            snprintf(freq_text, sizeof(freq_text), "--");
+        }
+    } else {
+        if(selected->frequency >= 1000000U) {
+            unsigned long mhz_int = (unsigned long)(selected->frequency / 1000000U);
+            unsigned long mhz_frac = (unsigned long)(((selected->frequency % 1000000U) + 5000U) / 10000U);
+            snprintf(freq_text, sizeof(freq_text), "%lu.%02luMHz", mhz_int, mhz_frac);
+        } else {
+            unsigned long khz = (unsigned long)(selected->frequency / 1000U);
+            snprintf(freq_text, sizeof(freq_text), "%luKHz", khz);
+        }
+    }
+    
+    // Draw car details
+    char detail_text[96];
+    if(use_external) {
+        const PredatorCarModel* m = predator_models_get(state->selected_car);
+        snprintf(detail_text, sizeof(detail_text), "%s: %s  Freq: %s",
+                 m ? m->make : "?", m ? m->remote_type : "?", freq_text);
+    } else {
+        snprintf(detail_text, sizeof(detail_text), "%s: %s  Freq: %s", 
+                 selected->make, selected->remote_type, freq_text);
+    }
+    canvas_draw_str_aligned(canvas, 64, 70, AlignCenter, AlignCenter, detail_text);
+    
+    // Draw compact chips for frequency and type
+    {
+        const char* type_str = NULL;
+        if(use_external) {
+            const PredatorCarModel* m = predator_models_get(state->selected_car);
+            type_str = m ? m->remote_type : "?";
+        } else {
+            type_str = selected->remote_type;
+        }
+        canvas_set_font(canvas, FontSecondary);
+        int16_t w1 = canvas_string_width(canvas, freq_text);
+        int16_t w2 = canvas_string_width(canvas, type_str);
+        uint8_t chip_y = 78;
+        uint8_t x1 = 10;
+        uint8_t x2 = (uint8_t)(x1 + w1 + 12);
+        // Chip for frequency
+        canvas_draw_frame(canvas, x1, chip_y - 9, (uint8_t)(w1 + 10), 12);
+        canvas_draw_str(canvas, (uint8_t)(x1 + 5), chip_y, freq_text);
+        // Chip for type
+        canvas_draw_frame(canvas, x2, chip_y - 9, (uint8_t)(w2 + 10), 12);
+        canvas_draw_str(canvas, (uint8_t)(x2 + 5), chip_y, type_str);
+    }
+    
+    // Draw command sent indicator when button is pressed
+    if(state->command_sent) {
+        // Draw signal animation
+        uint8_t car_x = 90;
+        uint8_t car_y = 40;
+        
+        for(uint8_t i = 0; i < animation_frame + 1; i++) {
+            uint8_t radius = 3 + (i * 3);
+            canvas_draw_circle(canvas, car_x, car_y, radius);
+        }
+    }
+    
+    // Draw page indicator
+    char page_text[16];
+    snprintf(page_text, sizeof(page_text), "Page %d/%d", state->current_page + 1, total_pages);
+    canvas_draw_str_aligned(canvas, 64, 50, AlignCenter, AlignCenter, page_text);
+    
+    // If import menu is open, draw it as an overlay
+    if(state->import_menu) {
+        predator_ui_draw_status_box(canvas, "Import", 20, 20, 88, 28);
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 26, 34, state->import_selection == 0 ? "> Load default" : "  Load default");
+        canvas_draw_str(canvas, 26, 44, state->import_selection == 1 ? "> Clear models" : "  Clear models");
+        return;
+    }
+
+    // Draw navigation controls
+    if(state->current_page > 0) {
+        elements_button_left(canvas, "Prev");
+    } else {
+        elements_button_left(canvas, "Back");
+    }
+    
+    elements_button_center(canvas, "Send");
+    
+    if(state->current_page < total_pages - 1) {
+        elements_button_right(canvas, "Load");
+    } else {
+        elements_button_right(canvas, "Load");
+    }
+}
+
+static bool car_models_view_input_callback(InputEvent* event, void* context) {
+    PredatorApp* app = context;
+    bool consumed = false;
+    
+    // Get view state
+    CarModelsView* state = PREDATOR_GET_MODEL(app->view_dispatcher, CarModelsView);
+    if(!state) return consumed;
+    
+    if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
+        if(state->import_menu) {
+            switch(event->key) {
+            case InputKeyUp:
+                if(state->import_selection > 0) state->import_selection--;
+                consumed = true;
+                break;
+            case InputKeyDown:
+                if(state->import_selection < 1) state->import_selection++;
+                consumed = true;
+                break;
+            case InputKeyOk: {
+                if(state->import_selection == 0) {
+                    // Ensure a seeded CSV with at least 2000 rows exists, then load it
+                    predator_models_ensure_seed(app->storage, 2000);
+                    size_t n = predator_models_load_default(app->storage);
+                    // Reset navigation
+                    state->current_page = 0;
+                    state->selected_car = 0;
+                    state->command_sent = false;
+                    (void)n;
+                } else if(state->import_selection == 1) {
+                    predator_models_clear();
+                    state->current_page = 0;
+                    state->selected_car = 0;
+                    state->command_sent = false;
+                }
+                state->import_menu = false;
+                consumed = true;
+                break; }
+            case InputKeyBack:
+            case InputKeyLeft:
+            case InputKeyRight:
+                state->import_menu = false;
+                consumed = true;
+                break;
+            default:
+                break;
+            }
+            return consumed;
+        }
+        switch(event->key) {
+        case InputKeyUp:
+            if(state->selected_car > (uint8_t)(state->current_page * ITEMS_PER_PAGE)) {
+                state->selected_car--;
+                state->command_sent = false;
+                consumed = true;
+            }
+            break;
+        
+        case InputKeyDown:
+            {
+                size_t external_count = predator_models_count();
+                bool use_external = (external_count > 0);
+                uint16_t total_count = use_external ? (uint16_t)external_count : (uint16_t)CAR_MODELS_COUNT;
+                uint8_t page_end = MIN((uint8_t)((state->current_page + 1) * ITEMS_PER_PAGE), (uint8_t)total_count) - 1;
+                if(state->selected_car < page_end) {
+                    state->selected_car++;
+                    state->command_sent = false;
+                    consumed = true;
+                }
+            }
+            break;
+        
+        case InputKeyLeft:
+            if(state->current_page > 0) {
+                state->current_page--;
+                state->selected_car = (uint8_t)(state->current_page * ITEMS_PER_PAGE);
+                state->command_sent = false;
+                consumed = true;
+            } else {
+                // Exit on left from first page
+                scene_manager_previous_scene(app->scene_manager);
+                consumed = true;
+            }
+            break;
+        
+        case InputKeyRight:
+            // Open import menu
+            state->import_menu = true;
+            state->import_selection = 0;
+            consumed = true;
+            break;
+        
+        case InputKeyOk:
+            // Send signal for the selected car
+            if(predator_models_count() == 0) {
+                if(predator_subghz_send_car_command(app, state->selected_car, 0)) {
+                    state->command_sent = true;
+                }
+            } else {
+                // For external models, just show animation; extend to protocol later
+                state->command_sent = true;
+            }
+            consumed = true;
+            break;
+            
+        case InputKeyBack:
+            scene_manager_previous_scene(app->scene_manager);
+            consumed = true;
+            break;
+            
+        default:
+            break;
+        }
+    }
+    
+    return consumed;
+}
+
+static View* car_models_view_alloc(PredatorApp* app) {
+    View* view = view_alloc();
+    view_set_context(view, app);
+    view_set_draw_callback(view, car_models_view_draw_callback);
+    view_set_input_callback(view, car_models_view_input_callback);
+    
+    // Initialize model
+    CarModelsView* state = malloc(sizeof(CarModelsView));
+    state->current_page = 0;
+    state->selected_car = 0;
+    state->animation_frame = 0;
+    state->command_sent = false;
+    
+    predator_view_set_model(view, state);
+    predator_view_set_model_free_callback(view, free);
+    
+    return view;
+}
+
+
+void predator_scene_car_models_new_on_enter(void* context) {
+    PredatorApp* app = context;
+    
+    // Initialize SubGHz
+    predator_subghz_init(app);
+    
+    // Create custom view
+    View* view = car_models_view_alloc(app);
+    
+    // Replace popup view with custom view
+    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, view);
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+}
+
+bool predator_scene_car_models_new_on_event(void* context, SceneManagerEvent event) {
+    PredatorApp* app = context;
+    bool consumed = false;
+    
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == PredatorCustomEventPopupBack) {
+            scene_manager_previous_scene(app->scene_manager);
+            consumed = true;
+        }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        // Force view refresh for animations when command is sent
+        CarModelsView* state = PREDATOR_GET_MODEL(app->view_dispatcher, CarModelsView);
+        if(state && state->command_sent) {
+            view_dispatcher_send_custom_event(app->view_dispatcher, 0xFF);
+            consumed = true;
+        }
+    }
+    
+    return consumed;
+}
+
+void predator_scene_car_models_new_on_exit(void* context) {
+    PredatorApp* app = context;
+    
+    // Clean up
+    predator_subghz_deinit(app);
+    
+    // Remove custom view and restore default popup view
+    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
+}
+
+

@@ -68,7 +68,7 @@ static void predator_uart_on_irq_cb(FuriHalSerialHandle* handle, FuriHalSerialRx
         // Get data safely
         uint8_t data = furi_hal_serial_async_rx(uart->serial_handle);
         
-        // Send to buffer only if stream exists and running flag is set
+        // Momentum SDK does not expose an ISR variant; use zero-timeout send.
         if(uart->running) {
             furi_stream_buffer_send(uart->rx_stream, &data, 1, 0);
         }
@@ -136,18 +136,8 @@ PredatorUart* predator_uart_init(
     // Initialize with error handling
     furi_hal_serial_init(uart->serial_handle, baud_rate);
     
-    // Start RX with exception handling
-    bool rx_started = true;
+    // Start RX
     furi_hal_serial_async_rx_start(uart->serial_handle, predator_uart_on_irq_cb, uart, false);
-    
-    if(!rx_started) {
-        FURI_LOG_E("PredatorUART", "Failed to start async RX");
-        furi_hal_serial_deinit(uart->serial_handle);
-        furi_hal_serial_control_release(uart->serial_handle);
-        furi_stream_buffer_free(uart->rx_stream);
-        free(uart);
-        return NULL;
-    }
     
     // Thread allocation with error checking
     uart->rx_thread = furi_thread_alloc_ex("PredatorUartRx", 1024, predator_uart_rx_thread, uart);
@@ -161,18 +151,8 @@ PredatorUart* predator_uart_init(
         return NULL;
     }
     
-    // Start thread with error handling
-    FuriStatus thread_status = furi_thread_start(uart->rx_thread);
-    if(thread_status != FuriStatusOk) {
-        FURI_LOG_E("PredatorUART", "Failed to start rx thread (status: %d)", thread_status);
-        furi_thread_free(uart->rx_thread);
-        furi_hal_serial_async_rx_stop(uart->serial_handle);
-        furi_hal_serial_deinit(uart->serial_handle);
-        furi_hal_serial_control_release(uart->serial_handle);
-        furi_stream_buffer_free(uart->rx_stream);
-        free(uart);
-        return NULL;
-    }
+    // Start thread (Momentum SDK: furi_thread_start returns void)
+    furi_thread_start(uart->rx_thread);
     
     FURI_LOG_I("PredatorUART", "UART initialized successfully");
     return uart;
