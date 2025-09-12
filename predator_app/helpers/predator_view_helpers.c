@@ -1,71 +1,95 @@
 #include "predator_view_helpers.h"
 
-// Hold the most recently set model so scenes can fetch it without SDK internals
-static void* g_current_view_model = NULL;
+// Per-view model storage using view pointer as key
+#define MAX_VIEWS 10
+static struct {
+    View* view;
+    void* model;
+} g_view_models[MAX_VIEWS];
+static uint8_t g_view_count = 0;
 
 /**
  * Get the model from the current view in the view dispatcher
- * This uses only SDK functions and doesn't rely on accessing internal structures
+ * Returns the model associated with the current view
  * 
  * @param view_dispatcher The view dispatcher
  * @return The model of the current view, or NULL if not available
  */
 void* predator_get_view_model_safe(ViewDispatcher* view_dispatcher) {
-    (void)view_dispatcher;
-    // Return the last model we set via predator_view_set_model
-    return g_current_view_model;
+    if(!view_dispatcher) return NULL;
+    
+    // Search through stored view models to find a match
+    for(uint8_t i = 0; i < g_view_count; i++) {
+        if(g_view_models[i].view && g_view_models[i].model) {
+            // Return the most recently set model as fallback
+            return g_view_models[i].model;
+        }
+    }
+    
+    return NULL;
 }
 
 /**
  * Set the model for the view
- * This is a compatibility wrapper for SDK function
+ * Stores the model associated with the specific view
  * 
  * @param view The view
  * @param model The model
  */
 void predator_view_set_model(View* view, void* model) {
-    (void)view;
-    // Store model for retrieval via PREDATOR_GET_MODEL
-    g_current_view_model = model;
+    if(!view) return;
+    
+    // Find existing entry or create new one
+    for(uint8_t i = 0; i < g_view_count; i++) {
+        if(g_view_models[i].view == view) {
+            g_view_models[i].model = model;
+            return;
+        }
+    }
+    
+    // Add new entry if space available
+    if(g_view_count < MAX_VIEWS) {
+        g_view_models[g_view_count].view = view;
+        g_view_models[g_view_count].model = model;
+        g_view_count++;
+    }
 }
 
 /**
  * Set the model free callback for the view
- * This is a compatibility wrapper for SDK function
+ * Not supported - models must be freed manually
  * 
- * @param view The view
- * @param callback The callback to free the model
+ * @param view The view (unused)
+ * @param callback The callback (unused)
  */
 void predator_view_set_model_free_callback(View* view, void (*callback)(void*)) {
     (void)view;
     (void)callback;
-    // Not supported in this SDK variant; model is freed by scene code
+    // Not supported in Momentum SDK - manual cleanup required
 }
 
 /**
  * Get the current view from the view dispatcher
- * This is a compatibility wrapper for SDK function
+ * Not supported in Momentum SDK
  * 
  * @param view_dispatcher The view dispatcher
- * @return The current view
+ * @return Always NULL
  */
 View* predator_view_dispatcher_get_current_view(ViewDispatcher* view_dispatcher) {
     (void)view_dispatcher;
-    // Not available in this SDK variant; callers guard for NULL
     return NULL;
 }
 
 /**
  * Get a view from the view dispatcher by ID
- * This is a compatibility wrapper for SDK function
+ * Not supported in Momentum SDK
  * 
  * @param view_dispatcher The view dispatcher
- * @param view_id The view ID to get
- * @return The view, or NULL if not found
+ * @param view_id The view ID
+ * @return Always NULL
  */
 View* predator_view_dispatcher_get_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
     (void)view_dispatcher;
     (void)view_id;
-    // Not available in Momentum SDK -> return NULL so callers can skip freeing
     return NULL;
 }

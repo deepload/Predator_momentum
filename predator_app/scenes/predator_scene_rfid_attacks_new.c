@@ -1,33 +1,14 @@
 #include "../predator_i.h"
-#include "../helpers/predator_view_helpers.h"
-#include "../helpers/predator_ui_elements.h"
 #include "predator_scene.h"
+#include "predator_submenu_index.h"
+#include "../helpers/predator_ui_elements.h"
+#include <furi.h>
 
-typedef struct {
-    View* view;
-    uint8_t selected_index;
-    uint8_t scroll_position;
-    uint8_t menu_items_count;
-} RfidAttacksMenuView;
-
-// Menu item definitions
-typedef struct {
-    const char* name;
-    const char* icon;
-    uint8_t submenu_index;
-} RfidMenuItem;
-
-// Menu items array - match the original enum SubmenuIndex order!
-static const RfidMenuItem menu_items[] = {
-    {"RFID Clone", "💳", SubmenuIndexRfidClone},
-    {"RFID Bruteforce", "🔓", SubmenuIndexRfidBruteforce},
-    {"RFID Fuzzing", "🎲", SubmenuIndexRfidFuzzing},
-    {"NFC Clone", "📱", SubmenuIndexNfcClone},
-    {"Mifare Hack", "🔐", SubmenuIndexMifareHack},
-};
-
-#define MENU_ITEMS_COUNT (sizeof(menu_items) / sizeof(menu_items[0]))
-#define ITEMS_ON_SCREEN 4
+// Submenu callback for navigation
+static void rfid_attacks_submenu_callback(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
 
 static void rfid_attacks_menu_draw_callback(Canvas* canvas, void* context) {
     PredatorApp* app = context;
