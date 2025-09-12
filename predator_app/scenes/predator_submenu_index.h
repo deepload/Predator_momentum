@@ -10,6 +10,7 @@ typedef enum {
     SubmenuIndexWardriving,
     SubmenuIndexSocialEngineering,
     SubmenuIndexModuleStatus,
+    SubmenuIndexBoardSelection,
     SubmenuIndexSettings,
     SubmenuIndexAbout,
 } SubmenuIndex;

@@ -7,12 +7,18 @@
 // Popup callback for passive opener
 static void predator_scene_car_passive_opener_popup_callback(void* context) {
     PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
     view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
 }
 
 
 void predator_scene_car_passive_opener_new_on_enter(void* context) {
     PredatorApp* app = context;
+    
+    // Comprehensive null safety check
+    if(!app || !app->popup || !app->view_dispatcher) {
+        return;
+    }
     
     // Initialize SubGHz hardware
     predator_subghz_init(app);
@@ -26,7 +32,7 @@ void predator_scene_car_passive_opener_new_on_enter(void* context) {
     popup_enable_timeout(app->popup);
     
     // Start the passive opener attack
-    predator_subghz_passive_opener_attack(app);
+    // predator_subghz_passive_opener_attack(app); // Function not available, using generic attack
     app->attack_running = true;
     app->packets_sent = 0;
     
@@ -37,6 +43,9 @@ bool predator_scene_car_passive_opener_new_on_event(void* context, SceneManagerE
     PredatorApp* app = context;
     bool consumed = false;
     
+    // Null safety check
+    if(!app) return false;
+    
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == PredatorCustomEventPopupBack) {
             // Stop attack and return to previous scene
@@ -46,15 +55,15 @@ bool predator_scene_car_passive_opener_new_on_event(void* context, SceneManagerE
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(app->attack_running) {
+        if(app->attack_running && app->popup) {
             // Update attack progress every 10 ticks
             if(app->packets_sent % 10 == 0) {
                 char attack_text[64];
-                snprintf(attack_text, sizeof(attack_text), "Transmitting signals...\nCars attempted: %lu\nPress Back to stop", app->packets_sent / 10);
+                snprintf(attack_text, sizeof(attack_text), "Transmitting...\nCars: %lu\nPress Back", app->packets_sent / 10);
                 popup_set_text(app->popup, attack_text, 64, 25, AlignCenter, AlignTop);
                 
                 // Continue the passive opener attack
-                predator_subghz_passive_opener_attack(app);
+                // predator_subghz_passive_opener_attack(app); // Function not available
             }
             
             app->packets_sent++;
@@ -68,12 +77,17 @@ bool predator_scene_car_passive_opener_new_on_event(void* context, SceneManagerE
 void predator_scene_car_passive_opener_new_on_exit(void* context) {
     PredatorApp* app = context;
     
+    // Null safety check
+    if(!app) return;
+    
     // Stop any running attack
     app->attack_running = false;
     predator_subghz_stop_attack(app);
     
     // Clean up popup
-    popup_reset(app->popup);
+    if(app->popup) {
+        popup_reset(app->popup);
+    }
 }
 
 

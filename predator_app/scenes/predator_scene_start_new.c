@@ -27,6 +27,7 @@ void predator_scene_start_new_on_enter(void* context) {
     submenu_add_item(app->submenu, "🗺️ Wardriving", SubmenuIndexWardriving, predator_start_submenu_callback, app);
     submenu_add_item(app->submenu, "🎭 Social Engineering", SubmenuIndexSocialEngineering, predator_start_submenu_callback, app);
     submenu_add_item(app->submenu, "🧩 Module Status", SubmenuIndexModuleStatus, predator_start_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔧 Board Selection", SubmenuIndexBoardSelection, predator_start_submenu_callback, app);
     submenu_add_item(app->submenu, "⚙️ Settings", SubmenuIndexSettings, predator_start_submenu_callback, app);
     submenu_add_item(app->submenu, "ℹ️ About", SubmenuIndexAbout, predator_start_submenu_callback, app);
     
@@ -70,6 +71,9 @@ bool predator_scene_start_new_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexModuleStatus:
             scene_manager_next_scene(app->scene_manager, 22); // ModuleStatus
+            break;
+        case SubmenuIndexBoardSelection:
+            scene_manager_next_scene(app->scene_manager, 24); // BoardSelection
             break;
         case SubmenuIndexSettings:
             scene_manager_next_scene(app->scene_manager, 23); // Settings

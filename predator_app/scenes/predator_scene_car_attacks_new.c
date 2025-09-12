@@ -8,17 +8,24 @@
 // Popup callback for car attacks
 static void predator_scene_car_attacks_popup_callback(void* context) {
     PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
     view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
 }
 
 // Submenu callback for navigation
 static void car_attacks_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
 void predator_scene_car_attacks_new_on_enter(void* context) {
     PredatorApp* app = context;
+    
+    // Comprehensive null safety check
+    if(!app || !app->submenu || !app->view_dispatcher) {
+        return;
+    }
     
     // Use standard submenu to avoid NULL pointer issues
     submenu_reset(app->submenu);
@@ -46,43 +53,58 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
     PredatorApp* app = context;
     bool consumed = false;
     
+    // Null safety check
+    if(!app) return false;
+    
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
         case SubmenuIndexCarModels:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModels);
+            if(app->scene_manager) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarModels);
+            }
             break;
         case SubmenuIndexCarPassiveOpener:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpener);
+            if(app->scene_manager) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpener);
+            }
             break;
         case SubmenuIndexCarKeyBruteforce:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKey);
+            if(app->scene_manager) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKey);
+            }
             break;
         case SubmenuIndexCarJamming:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJamming);
+            if(app->scene_manager) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarJamming);
+            }
             break;
         case SubmenuIndexCarTesla:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
+            if(app->scene_manager) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
+            }
             break;
         case SubmenuIndexCarRollingCode:
             // Handle rolling code attack with popup
-            popup_set_header(app->popup, "Rolling Code Attack", 64, 10, AlignCenter, AlignTop);
-            popup_set_text(app->popup, 
-                "Capturing rolling codes...\n"
-                "Waiting for signal\n"
-                "Press Back to stop", 
-                64, 25, AlignCenter, AlignTop);
-            popup_set_callback(app->popup, predator_scene_car_attacks_popup_callback);
-            popup_set_context(app->popup, app);
-            popup_set_timeout(app->popup, 0);
-            popup_enable_timeout(app->popup);
-            
-            // Initialize SubGHz for attack
-            predator_subghz_init(app);
-            app->attack_running = true;
-            app->packets_sent = 0;
-            
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            if(app->popup && app->view_dispatcher) {
+                popup_set_header(app->popup, "Rolling Code Attack", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, 
+                    "Capturing rolling codes...\n"
+                    "Waiting for signal\n"
+                    "Press Back to stop", 
+                    64, 25, AlignCenter, AlignTop);
+                popup_set_callback(app->popup, predator_scene_car_attacks_popup_callback);
+                popup_set_context(app->popup, app);
+                popup_set_timeout(app->popup, 0);
+                popup_enable_timeout(app->popup);
+                
+                // Initialize SubGHz for attack
+                predator_subghz_init(app);
+                app->attack_running = true;
+                app->packets_sent = 0;
+                
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            }
             break;
         case SubmenuIndexCarTireMonitor:
             // Handle tire monitor spoofing with popup
@@ -161,7 +183,9 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
                 predator_subghz_deinit(app);
                 app->attack_running = false;
             }
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
+            if(app->view_dispatcher) {
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
+            }
             consumed = true;
             break;
         default:
@@ -176,6 +200,9 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
 void predator_scene_car_attacks_new_on_exit(void* context) {
     PredatorApp* app = context;
     
+    // Null safety check
+    if(!app) return;
+    
     // Stop any running attacks
     if(app->attack_running) {
         predator_subghz_deinit(app);
@@ -183,7 +210,9 @@ void predator_scene_car_attacks_new_on_exit(void* context) {
     }
     
     // Clean up submenu
-    submenu_reset(app->submenu);
+    if(app->submenu) {
+        submenu_reset(app->submenu);
+    }
 }
 
 

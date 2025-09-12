@@ -59,7 +59,10 @@ static const uint32_t car_frequencies[CarModelCount] = {
 };
 
 void predator_subghz_init(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_init");
+        return;
+    }
     
     // Get board configuration
     const PredatorBoardConfig* board_config = predator_boards_get_config(app->board_type);
@@ -150,7 +153,10 @@ void predator_subghz_init(PredatorApp* app) {
 }
 
 void predator_subghz_deinit(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_deinit");
+        return;
+    }
     
     // Clean up - using compatible API approach
     // furi_hal_subghz_sleep();
@@ -160,7 +166,10 @@ void predator_subghz_deinit(PredatorApp* app) {
 }
 
 bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_car_bruteforce");
+        return false;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for car key bruteforce");
@@ -210,7 +219,10 @@ bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) 
 }
 
 void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_car_key");
+        return;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for key transmission");
@@ -296,7 +308,10 @@ const char* predator_subghz_get_car_command_name(CarCommand command) {
 }
 
 bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarCommand command) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_car_command");
+        return false;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for car command");
@@ -418,7 +433,10 @@ const char* predator_subghz_get_car_model_name(CarModel model) {
 
 // Start SubGHz jamming (simplified demo implementation)
 bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_jamming");
+        return false;
+    }
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for jamming");
         return false;
@@ -435,7 +453,10 @@ bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
 
 // Stop any ongoing SubGHz attack
 bool predator_subghz_stop_attack(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_attack");
+        return false;
+    }
     if(!app->subghz_txrx) {
         FURI_LOG_W("PredatorSubGHz", "SubGHz not initialized - nothing to stop");
         return false;
@@ -448,7 +469,10 @@ bool predator_subghz_stop_attack(PredatorApp* app) {
 
 // Tesla charge port opener demo
 void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_tesla_charge_port");
+        return;
+    }
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for Tesla charge port");
         return;
@@ -458,7 +482,10 @@ void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
 }
 
 void predator_subghz_start_passive_car_opener(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_passive_car_opener");
+        return;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for passive car opener");
@@ -525,7 +552,10 @@ void predator_subghz_start_passive_car_opener(PredatorApp* app) {
 }
 
 void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_passive_car_opener");
+        return;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized - nothing to stop");
@@ -587,7 +617,10 @@ void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
 }
 
 void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_passive_car_opener_tick");
+        return;
+    }
     
     if(!app->subghz_txrx || !app->attack_running) {
         return;
@@ -628,7 +661,10 @@ void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
 
 // Rolling code attack related functions
 bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_rolling_code_attack");
+        return false;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for rolling code attack");
@@ -687,7 +723,10 @@ bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t freque
 }
 
 void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_rolling_code_attack");
+        return;
+    }
     
     if(!app->subghz_txrx) {
         FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized - nothing to stop");
@@ -728,7 +767,10 @@ void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
 }
 
 void predator_subghz_rolling_code_attack_tick(PredatorApp* app) {
-    furi_assert(app);
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_rolling_code_attack_tick");
+        return;
+    }
     
     if(!app->subghz_txrx || !app->attack_running) {
         return;

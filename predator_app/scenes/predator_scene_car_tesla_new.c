@@ -90,9 +90,14 @@ static bool tesla_charge_port_view_input_callback(InputEvent* event, void* conte
     PredatorApp* app = context;
     bool consumed = false;
     
+    // Null safety check
+    if(!app || !event) return false;
+    
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            scene_manager_previous_scene(app->scene_manager);
+            if(app->scene_manager) {
+                scene_manager_previous_scene(app->scene_manager);
+            }
             consumed = true;
         }
     }
@@ -113,8 +118,16 @@ static View* tesla_charge_port_view_alloc(PredatorApp* app) {
 void predator_scene_car_tesla_new_on_enter(void* context) {
     PredatorApp* app = context;
     
+    // Comprehensive null safety check
+    if(!app || !app->view_dispatcher) {
+        return;
+    }
+    
     // Create custom view
     View* view = tesla_charge_port_view_alloc(app);
+    if(!view) {
+        return;
+    }
     
     // Replace popup view with custom view
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
@@ -140,12 +153,17 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
     PredatorApp* app = context;
     bool consumed = false;
     
+    // Null safety check
+    if(!app) return false;
+    
     if(event.type == SceneManagerEventTypeBack) {
         // Handle back button press
         consumed = true;
         app->attack_running = false;
         predator_subghz_deinit(app);
-        scene_manager_previous_scene(app->scene_manager);
+        if(app->scene_manager) {
+            scene_manager_previous_scene(app->scene_manager);
+        }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             app->packets_sent++;
@@ -156,7 +174,9 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
             }
             
             // Force a redraw for animations
-            view_dispatcher_send_custom_event(app->view_dispatcher, 0xFF);
+            if(app->view_dispatcher) {
+                view_dispatcher_send_custom_event(app->view_dispatcher, 0xFF);
+            }
             consumed = true;
         }
     }
@@ -167,13 +187,18 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
 void predator_scene_car_tesla_new_on_exit(void* context) {
     PredatorApp* app = context;
     
+    // Null safety check
+    if(!app) return;
+    
     // Clean up
     app->attack_running = false;
     predator_subghz_deinit(app);
     
     // Remove custom view and restore default popup view
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
+    if(app->view_dispatcher && app->popup) {
+        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
+    }
 }
 
 

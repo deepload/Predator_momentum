@@ -27,7 +27,7 @@ void predator_scene_subghz_attacks_new_on_enter(void* context) {
 }
 
 bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent event) {
-    PredatorApp* app = context;
+    UNUSED(context);
     bool consumed = false;
     
     if(event.type == SceneManagerEventTypeCustom) {
