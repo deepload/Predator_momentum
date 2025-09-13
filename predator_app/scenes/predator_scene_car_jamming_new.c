@@ -55,7 +55,7 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Car Jamming", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Jamming SubGHz channels...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Starting jamming signal...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -63,7 +63,8 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     // Start simulated jamming signal transmission
     app->attack_running = true;
     app->packets_sent = 0;
-    FURI_LOG_I("CarJamming", "Starting simulated SubGHz jamming signal transmission");
+    app->swiss_station_test = false; // Default to normal mode
+    FURI_LOG_I("CarJamming", "Starting simulated car jamming signal transmission");
 
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
@@ -86,18 +87,33 @@ bool predator_scene_car_jamming_new_on_event(void* context, SceneManagerEvent ev
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
-            app->packets_sent += 20; // Simulate sending jamming signals
-            if(app->packets_sent % 100 == 0) {
-                // Update popup text to show progress
+            app->packets_sent += 20; // Simulate sending jamming signals quickly
+            if(app->packets_sent >= 50 && app->popup) {
+                if(app->swiss_station_test) {
+                    popup_set_text(app->popup, "Swiss Electric Stations JAMMED!\nSecurity Test Successful!\nPress Back", 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("CarJamming", "Simulated successful jamming of Swiss electric car stations");
+                    app->attack_running = false; // Stop further updates for demo effect
+                } else {
+                    popup_set_text(app->popup, "Car Signal JAMMED!\nSuccess! Press Back", 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("CarJamming", "Simulated successful car signal jamming");
+                    app->attack_running = false; // Stop further updates for demo effect
+                }
+            } else if(app->packets_sent % 10 == 0 && app->popup) {
                 char progress_text[64];
                 snprintf(progress_text, sizeof(progress_text), "Jamming signals: %lu\nPress Back to stop", app->packets_sent);
-                if(app->popup) {
-                    popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
-                    FURI_LOG_I("CarJamming", "Updated popup with jamming signals sent: %lu", app->packets_sent);
-                } else {
-                    FURI_LOG_W("CarJamming", "Popup is NULL, cannot update text");
-                }
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                FURI_LOG_I("CarJamming", "Updated popup with jamming signals sent: %lu", app->packets_sent);
             }
+            consumed = true;
+        }
+    } else if(event.type == SceneManagerEventTypeCustom) {
+        // Custom event to toggle Swiss station test mode (could be triggered by a specific input or setting)
+        if(event.event == 998) { // Placeholder for Swiss station test mode toggle
+            app->swiss_station_test = true;
+            FURI_LOG_I("CarJamming", "Swiss Electric Station Test Mode activated");
+            popup_set_text(app->popup, "Swiss Station Test Mode\nJamming All Electric Stations...", 64, 28, AlignCenter, AlignTop);
+            app->packets_sent = 0;
+            app->attack_running = true;
             consumed = true;
         }
     }
@@ -113,6 +129,8 @@ void predator_scene_car_jamming_new_on_exit(void* context) {
         return;
     }
     
+    // Clean up
     app->attack_running = false;
+    app->swiss_station_test = false;
     FURI_LOG_I("CarJamming", "Exited Car Jamming scene");
 }

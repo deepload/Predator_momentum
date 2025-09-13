@@ -1,23 +1,36 @@
 #include "../predator_i.h"
+#include "../helpers/predator_view_helpers.h"
+#include "../helpers/predator_esp32.h"
+#include "../helpers/predator_ui_elements.h"
 
 void predator_scene_wifi_evil_twin_new_on_enter(void* context) {
     PredatorApp* app = context;
     
     if(!app) {
+        FURI_LOG_E("WiFiEvilTwin", "App context is NULL on enter");
         return;
     }
     
     // Validate board type before any hardware initialization
     if(app->board_type == 0) {
+        FURI_LOG_W("WiFiEvilTwin", "Board type is Unknown, defaulting to Original");
         app->board_type = 0; // Keep as Original
     }
     
     // Ensure scene_manager and view_dispatcher are valid to prevent crashes
     if(!app->scene_manager) {
+        FURI_LOG_E("WiFiEvilTwin", "Scene manager is NULL, cannot proceed");
         return;
     }
     
     if(!app->view_dispatcher) {
+        FURI_LOG_E("WiFiEvilTwin", "View dispatcher is NULL, cannot switch view");
+        return;
+    }
+    
+    // Ensure popup is valid
+    if(!app->popup) {
+        FURI_LOG_E("WiFiEvilTwin", "Popup is NULL, cannot initialize UI");
         return;
     }
     
@@ -33,9 +46,11 @@ void predator_scene_wifi_evil_twin_new_on_enter(void* context) {
     app->attack_running = true;
     app->targets_found = 0;
     app->packets_sent = 0;
+    FURI_LOG_I("WiFiEvilTwin", "Starting simulated Evil Twin attack");
     
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    FURI_LOG_I("WiFiEvilTwin", "WiFi Evil Twin scene entered with simulation mode");
 }
 
 bool predator_scene_wifi_evil_twin_new_on_event(void* context, SceneManagerEvent event) {
@@ -43,23 +58,28 @@ bool predator_scene_wifi_evil_twin_new_on_event(void* context, SceneManagerEvent
     bool consumed = false;
     
     if(!app) {
+        FURI_LOG_E("WiFiEvilTwin", "App context is NULL in event handler");
         return false;
     }
     
     if(event.type == SceneManagerEventTypeBack) {
         // Handle back event to stop the attack
         app->attack_running = false;
+        FURI_LOG_I("WiFiEvilTwin", "Back event received, stopping attack and navigating back");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             // Simulate connections to Evil Twin AP using a simple counter
             app->packets_sent += 1;
-            if(app->packets_sent >= 20) {
+            if(app->packets_sent >= 20 && app->popup) {
                 app->packets_sent = 0;
                 app->targets_found += 1;
-                // Avoid snprintf to prevent build issues
-                popup_set_text(app->popup, "Devices connected\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+                // Update popup text to show progress
+                char progress_text[64];
+                snprintf(progress_text, sizeof(progress_text), "Devices connected: %lu\nPress Back to stop", app->targets_found);
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                FURI_LOG_I("WiFiEvilTwin", "Updated devices connected: %lu", app->targets_found);
             }
             consumed = true;
         }
@@ -71,9 +91,12 @@ bool predator_scene_wifi_evil_twin_new_on_event(void* context, SceneManagerEvent
 void predator_scene_wifi_evil_twin_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Null safety check
-    if(!app) return;
+    if(!app) {
+        FURI_LOG_E("WiFiEvilTwin", "App context is NULL on exit");
+        return;
+    }
     
     // Stop any running attack
     app->attack_running = false;
+    FURI_LOG_I("WiFiEvilTwin", "Exited WiFi Evil Twin scene");
 }

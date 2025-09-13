@@ -45,8 +45,8 @@ void predator_scene_car_models_new_on_enter(void* context) {
         return;
     }
     popup_reset(app->popup);
-    popup_set_header(app->popup, "Car Models", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Car models database\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+    popup_set_header(app->popup, "Select Car Model", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Loading car models...\nPress Back to return", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -59,6 +59,10 @@ void predator_scene_car_models_new_on_enter(void* context) {
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     FURI_LOG_I("CarModels", "Car Models scene entered with simulation mode");
+
+    // For demo purposes, after a short delay, show a selection simulation
+    app->packets_sent = 0;
+    app->attack_running = true;
 }
 
 bool predator_scene_car_models_new_on_event(void* context, SceneManagerEvent event) {
@@ -72,8 +76,23 @@ bool predator_scene_car_models_new_on_event(void* context, SceneManagerEvent eve
     
     if(event.type == SceneManagerEventTypeBack) {
         FURI_LOG_I("CarModels", "Back event received, navigating to previous scene");
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 5 && app->popup) {
+                popup_set_text(app->popup, "Model Selected: Tesla Model 3\nStarting Attacks...", 64, 28, AlignCenter, AlignTop);
+                FURI_LOG_I("CarModels", "Simulated car model selection: Tesla Model 3");
+            }
+            if(app->packets_sent >= 10) {
+                FURI_LOG_I("CarModels", "Navigating to Tesla attack scene for demo");
+                app->attack_running = false;
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
+            }
+            consumed = true;
+        }
     }
     
     return consumed;

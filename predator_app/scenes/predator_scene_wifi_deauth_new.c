@@ -186,9 +186,9 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
     }
     
     // Validate board type before any hardware initialization
-    if(app->board_type == 0) { 
+    if(app->board_type == 0) {
         FURI_LOG_W("WiFiDeauth", "Board type is Unknown, defaulting to Original");
-        app->board_type = 0; 
+        app->board_type = 0; // Keep as Original
     }
     
     // Ensure scene_manager and view_dispatcher are valid to prevent crashes
@@ -202,17 +202,11 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
         return;
     }
     
-    // Comment out calls to undefined ESP32 initialization functions
-    // if(!app->esp32_uart) {
-    //     predator_esp32_init(app);
-    // }
-    
-    // Attempt to force ESP32 initialization for multiboards - Comment out if not defined
-    // if(!app->esp32_uart && app->board_type != PredatorBoardTypeOriginal) {
-    //     FURI_LOG_I("WiFiDeauth", "Attempting to force ESP32 init for multiboard");
-    //     predator_esp32_deinit(app); // Clean up any partial state
-    //     predator_esp32_init(app);   // Force init
-    // }
+    // Ensure popup is valid
+    if(!app->popup) {
+        FURI_LOG_E("WiFiDeauth", "Popup is NULL, cannot initialize UI");
+        return;
+    }
     
     // Configure popup content to avoid blank screen
     popup_reset(app->popup);
@@ -228,27 +222,34 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
     FURI_LOG_I("WiFiDeauth", "Starting simulated WiFi deauth attack");
 
     // Switch to popup view
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup); 
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    FURI_LOG_I("WiFiDeauth", "WiFi Deauth scene entered with simulation mode");
 }
 
 bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     bool consumed = false;
     
+    if(!app) {
+        FURI_LOG_E("WiFiDeauth", "App context is NULL in event handler");
+        return false;
+    }
+    
     if(event.type == SceneManagerEventTypeBack) {
         // Stop attack and return to previous scene
         app->attack_running = false;
-        // predator_esp32_stop_attack(app);
+        FURI_LOG_I("WiFiDeauth", "Back event received, stopping attack and navigating back");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             app->packets_sent += 30; // Simulate sending deauth packets
-            if(app->packets_sent % 150 == 0) {
+            if(app->packets_sent % 150 == 0 && app->popup) {
                 // Update popup text to show progress
                 char progress_text[64];
                 snprintf(progress_text, sizeof(progress_text), "Deauth packets: %lu\nPress Back to stop", app->packets_sent);
                 popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                FURI_LOG_I("WiFiDeauth", "Updated deauth packets sent: %lu", app->packets_sent);
             }
             consumed = true;
         }
@@ -265,14 +266,7 @@ void predator_scene_wifi_deauth_new_on_exit(void* context) {
         return;
     }
     
-    // Comment out call to undefined function
-    // if(app->attack_running) {
-    //     predator_esp32_stop_attack(app);
-    // }
+    // Stop any running attack
     app->attack_running = false;
-    
-    // Comment out call to undefined deinit function
-    // predator_esp32_deinit(app);
-    
-    FURI_LOG_I("WiFiDeauth", "Exiting WiFi Deauth scene");
+    FURI_LOG_I("WiFiDeauth", "Exited WiFi Deauth scene");
 }

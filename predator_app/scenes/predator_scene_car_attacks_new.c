@@ -63,6 +63,8 @@ void predator_scene_car_attacks_new_on_enter(void* context) {
     FURI_LOG_I("CarAttacks", "Added Key Bruteforce submenu item");
     submenu_add_item(app->submenu, "Passive Opener", 5, car_attacks_submenu_callback, app);
     FURI_LOG_I("CarAttacks", "Added Passive Opener submenu item");
+    submenu_add_item(app->submenu, "VIP: Tesla Swiss Unlock", 6, car_attacks_submenu_callback, app);
+    FURI_LOG_I("CarAttacks", "Added VIP Tesla Swiss Unlock submenu item");
 
     submenu_set_selected_item(app->submenu, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
@@ -106,6 +108,13 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
             FURI_LOG_I("CarAttacks", "Navigating to Passive Opener scene");
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpener);
             break;
+        case 6: // VIP: Tesla Swiss Unlock
+            FURI_LOG_I("CarAttacks", "Activating VIP Mode for Tesla Swiss Unlock and navigating to Tesla scene");
+            app->vip_mode = true; // Set VIP mode
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
+            // Send custom event to Tesla scene to trigger VIP mode (placeholder)
+            view_dispatcher_send_custom_event(app->view_dispatcher, 999);
+            break;
         default:
             FURI_LOG_W("CarAttacks", "Unknown custom event: %lu", event.event);
             consumed = false;
@@ -127,8 +136,6 @@ void predator_scene_car_attacks_new_on_exit(void* context) {
     // Stop any running attacks
     if(app->attack_running) {
         FURI_LOG_I("CarAttacks", "Stopping running attack on exit");
-        // Comment out the call to avoid build errors
-        // predator_subghz_deinit(app);
         app->attack_running = false;
     }
     

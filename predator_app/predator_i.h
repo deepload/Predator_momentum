@@ -115,6 +115,10 @@ typedef struct PredatorApp {
     // SubGHz data
     void* subghz_txrx;
     
+    // VIP mode for unlocking all Tesla stations in Switzerland
+    bool vip_mode;
+    // Mode for testing security of other electric car stations in Switzerland
+    bool swiss_station_test;
 } PredatorApp;
 
 

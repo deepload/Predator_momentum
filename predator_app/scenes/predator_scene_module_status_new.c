@@ -22,14 +22,22 @@ void predator_scene_module_status_new_on_enter(void* context) {
     PredatorApp* app = context;
     
     if(!app) {
+        FURI_LOG_E("ModuleStatus", "App context is NULL on enter");
         return;
     }
     
     if(!app->scene_manager) {
+        FURI_LOG_E("ModuleStatus", "Scene manager is NULL, cannot proceed");
         return;
     }
     
     if(!app->view_dispatcher) {
+        FURI_LOG_E("ModuleStatus", "View dispatcher is NULL, cannot switch view");
+        return;
+    }
+    
+    if(!app->popup) {
+        FURI_LOG_E("ModuleStatus", "Popup is NULL, cannot initialize UI");
         return;
     }
     
@@ -45,6 +53,7 @@ void predator_scene_module_status_new_on_enter(void* context) {
     app->packets_sent = 0;
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    FURI_LOG_I("ModuleStatus", "Module Status scene entered with simulation mode");
 }
 
 bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent event) {
@@ -52,10 +61,12 @@ bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent 
     bool consumed = false;
     
     if(!app) {
+        FURI_LOG_E("ModuleStatus", "App context is NULL in event handler");
         return false;
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        FURI_LOG_I("ModuleStatus", "Back event received, navigating to previous scene");
         app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
@@ -64,7 +75,12 @@ bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent 
             app->packets_sent += 1;
             if(app->packets_sent >= 10) {
                 app->module_connected = true;
-                popup_set_text(app->popup, "Module Detected\nESP32: Connected\nGPS: Active\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+                if(app->popup) {
+                    popup_set_text(app->popup, "Module Detected\nESP32: Connected\nGPS: Active\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("ModuleStatus", "Module status updated to detected");
+                } else {
+                    FURI_LOG_W("ModuleStatus", "Popup is NULL, cannot update text");
+                }
                 app->attack_running = false;
             }
             consumed = true;
@@ -77,7 +93,11 @@ bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent 
 void predator_scene_module_status_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    if(!app) return;
+    if(!app) {
+        FURI_LOG_E("ModuleStatus", "App context is NULL on exit");
+        return;
+    }
     
     app->attack_running = false;
+    FURI_LOG_I("ModuleStatus", "Exited Module Status scene");
 }

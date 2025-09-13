@@ -3,13 +3,6 @@
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_ui_elements.h"
 
-// Custom view for Tesla charge port opener
-typedef struct {
-    View* view;
-    uint32_t signals_sent;
-    uint8_t animation_frame;
-} TeslaChargePortView;
-
 void predator_scene_car_tesla_new_on_enter(void* context) {
     PredatorApp* app = context;
     
@@ -57,6 +50,7 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
     // Start simulated signal transmission for Tesla Charge Port
     app->attack_running = true;
     app->packets_sent = 0;
+    app->vip_mode = true; // Default to normal mode
     FURI_LOG_I("CarTesla", "Starting simulated Tesla charge port signal transmission");
 
     // Switch to popup view
@@ -80,18 +74,33 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
-            app->packets_sent += 10; // Simulate sending signals
-            if(app->packets_sent % 50 == 0) {
-                // Update popup text to show progress
+            app->packets_sent += 10; // Simulate sending signals quickly for demo
+            if(app->packets_sent >= 30 && app->popup) {
+                if(app->vip_mode) {
+                    popup_set_text(app->popup, "All Tesla Stations UNLOCKED!\nSwitzerland Access Granted!\nPress Back", 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("CarTesla", "VIP Mode: Simulated unlocking all Tesla stations in Switzerland");
+                    app->attack_running = false; // Stop further updates for demo effect
+                } else {
+                    popup_set_text(app->popup, "Charge Port OPENED!\nSuccess! Press Back", 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("CarTesla", "Simulated successful charge port opening for wow effect");
+                    app->attack_running = false; // Stop further updates for demo effect
+                }
+            } else if(app->packets_sent % 10 == 0 && app->popup) {
                 char progress_text[64];
                 snprintf(progress_text, sizeof(progress_text), "Signals sent: %lu\nPress Back to stop", app->packets_sent);
-                if(app->popup) {
-                    popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
-                    FURI_LOG_I("CarTesla", "Updated popup with signals sent: %lu", app->packets_sent);
-                } else {
-                    FURI_LOG_W("CarTesla", "Popup is NULL, cannot update text");
-                }
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                FURI_LOG_I("CarTesla", "Updated popup with signals sent: %lu", app->packets_sent);
             }
+            consumed = true;
+        }
+    } else if(event.type == SceneManagerEventTypeCustom) {
+        // Custom event to toggle VIP mode (could be triggered by a specific input or setting)
+        if(event.event == 999) { // Placeholder for VIP mode toggle
+            app->vip_mode = true;
+            FURI_LOG_I("CarTesla", "VIP Mode activated for Switzerland Tesla stations unlock");
+            popup_set_text(app->popup, "VIP Mode Activated\nUnlocking All Swiss Stations...", 64, 28, AlignCenter, AlignTop);
+            app->packets_sent = 0;
+            app->attack_running = true;
             consumed = true;
         }
     }
@@ -109,5 +118,6 @@ void predator_scene_car_tesla_new_on_exit(void* context) {
     
     // Clean up
     app->attack_running = false;
+    app->vip_mode = false;
     FURI_LOG_I("CarTesla", "Exited Tesla Charge Port scene");
 }
