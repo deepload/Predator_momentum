@@ -2,8 +2,20 @@
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_ui_elements.h"
 #include "predator_scene.h"
+#include "../helpers/predator_boards.h"
 
-// Minimal implementation to avoid any unused function or variable warnings
+// Callback for submenu selection
+static void board_selection_submenu_callback(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    if(app) {
+        app->board_type = (PredatorBoardType)index;
+        FURI_LOG_I("BoardSelection", "Selected board type: %d", app->board_type);
+        // Optionally save the selection to storage
+        // predator_boards_save_selection(app->storage, app->board_type);
+        scene_manager_previous_scene(app->scene_manager);
+    }
+}
+
 void predator_scene_board_selection_new_on_enter(void* context) {
     PredatorApp* app = context;
     
@@ -23,30 +35,30 @@ void predator_scene_board_selection_new_on_enter(void* context) {
         return;
     }
     
-    // Simplified approach: Show a basic popup with minimal functionality
-    if(app->popup) {
-        popup_reset(app->popup);
-        popup_set_header(app->popup, "Board Selection", 64, 10, AlignCenter, AlignCenter);
-        popup_set_text(app->popup, "Board selection unavailable.", 10, 30, AlignLeft, AlignCenter);
-        popup_set_context(app->popup, app);
-        popup_set_callback(app->popup, NULL);
-        popup_set_timeout(app->popup, 0);
-        popup_enable_timeout(app->popup);
-        
-        // Switch to popup view
-        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    } else {
-        FURI_LOG_E("BoardSelection", "Popup is NULL, cannot display selection");
-        return;
-    }
+    // Set up submenu for board selection
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "Select Board Type");
     
-    FURI_LOG_I("BoardSelection", "Board Selection scene entered with minimal popup");
+    // Add board types to submenu
+    submenu_add_item(app->submenu, "Original Predator", PredatorBoardTypeOriginal, board_selection_submenu_callback, app);
+    submenu_add_item(app->submenu, "3in1 AIO Board", PredatorBoardType3in1AIO, board_selection_submenu_callback, app);
+    submenu_add_item(app->submenu, "DrB0rk Multi V2", PredatorBoardTypeDrB0rkMultiV2, board_selection_submenu_callback, app);
+    submenu_add_item(app->submenu, "3in1 NRF+CC+ESP", PredatorBoardType3in1NrfCcEsp, board_selection_submenu_callback, app);
+    submenu_add_item(app->submenu, "Screen 2.8 ESP32", PredatorBoardTypeScreen28, board_selection_submenu_callback, app);
+    
+    // Highlight current board type if set
+    submenu_set_selected_item(app->submenu, app->board_type);
+    
+    // Switch to submenu view
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
+    
+    FURI_LOG_I("BoardSelection", "Board Selection scene entered with submenu");
 }
 
 void predator_scene_board_selection_new_on_exit(void* context) {
     PredatorApp* app = context;
-    if(app && app->popup) {
-        popup_reset(app->popup);
+    if(app) {
+        submenu_reset(app->submenu);
     }
     FURI_LOG_I("BoardSelection", "Board Selection scene exited");
 }
