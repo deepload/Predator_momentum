@@ -222,10 +222,13 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
 
+    // Start simulated WiFi deauth attack
+    app->attack_running = true;
+    app->packets_sent = 0;
+    FURI_LOG_I("WiFiDeauth", "Starting simulated WiFi deauth attack");
+
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup); 
-    
-    FURI_LOG_I("WiFiDeauth", "WiFi Deauth scene entered with simulation mode");
 }
 
 bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent event) {
@@ -233,14 +236,20 @@ bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent ev
     bool consumed = false;
     
     if(event.type == SceneManagerEventTypeBack) {
-        consumed = true;
+        // Stop attack and return to previous scene
         app->attack_running = false;
         // predator_esp32_stop_attack(app);
         scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
-            app->packets_sent += 10; 
-            view_dispatcher_send_custom_event(app->view_dispatcher, 0xFF);
+            app->packets_sent += 30; // Simulate sending deauth packets
+            if(app->packets_sent % 150 == 0) {
+                // Update popup text to show progress
+                char progress_text[64];
+                snprintf(progress_text, sizeof(progress_text), "Deauth packets: %lu\nPress Back to stop", app->packets_sent);
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+            }
             consumed = true;
         }
     }

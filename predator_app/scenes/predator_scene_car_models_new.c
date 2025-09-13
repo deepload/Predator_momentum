@@ -52,6 +52,11 @@ void predator_scene_car_models_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
 
+    // Simulate loading car models database
+    app->attack_running = false;
+    app->targets_found = 500; // Simulate number of car models loaded
+    FURI_LOG_I("CarModels", "Loading car models database with %lu entries", app->targets_found);
+
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     

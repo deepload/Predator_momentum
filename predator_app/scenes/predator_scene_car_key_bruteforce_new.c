@@ -49,10 +49,13 @@ void predator_scene_car_key_bruteforce_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
 
+    // Start simulated rolling code transmission
+    app->attack_running = true;
+    app->packets_sent = 0;
+    FURI_LOG_I("CarKeyBruteforce", "Starting simulated rolling code transmission");
+
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    
-    FURI_LOG_I("CarKeyBruteforce", "Car Key Bruteforce scene entered with simulation mode");
 }
 
 bool predator_scene_car_key_bruteforce_new_on_event(void* context, SceneManagerEvent event) {
@@ -68,6 +71,17 @@ bool predator_scene_car_key_bruteforce_new_on_event(void* context, SceneManagerE
         // Return to previous scene
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 5; // Simulate sending rolling codes
+            if(app->packets_sent % 25 == 0) {
+                // Update popup text to show progress
+                char progress_text[64];
+                snprintf(progress_text, sizeof(progress_text), "Codes attempted: %lu\nPress Back to stop", app->packets_sent);
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+            }
+            consumed = true;
+        }
     }
     
     return consumed;

@@ -55,6 +55,11 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
 
+    // Start simulated signal transmission for Tesla Charge Port
+    app->attack_running = true;
+    app->packets_sent = 0;
+    FURI_LOG_I("CarTesla", "Starting simulated Tesla charge port signal transmission");
+
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
@@ -74,6 +79,17 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
         // Return to previous scene
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 10; // Simulate sending signals
+            if(app->packets_sent % 50 == 0) {
+                // Update popup text to show progress
+                char progress_text[64];
+                snprintf(progress_text, sizeof(progress_text), "Signals sent: %lu\nPress Back to stop", app->packets_sent);
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+            }
+            consumed = true;
+        }
     }
     
     return consumed;

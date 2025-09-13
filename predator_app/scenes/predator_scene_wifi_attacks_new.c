@@ -7,6 +7,7 @@
 // Submenu callback for navigation
 static void wifi_attacks_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
@@ -29,13 +30,21 @@ void predator_scene_wifi_attacks_new_on_enter(void* context) {
         return;
     }
     
+    // Validate board type before any hardware initialization
+    if(app->board_type == PredatorBoardTypeUnknown) {
+        FURI_LOG_W("WifiAttacks", "Board type is Unknown, defaulting to Original");
+        app->board_type = PredatorBoardTypeOriginal;
+    }
+    
     // Set up submenu for WiFi Attacks
     submenu_reset(app->submenu);
-    submenu_add_item(app->submenu, "📡 WiFi Scanner", 0, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "💥 Deauth Attack", 1, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "👥 Evil Twin AP", 2, wifi_attacks_submenu_callback, app);
     submenu_set_header(app->submenu, "WiFi Attacks");
-    
+
+    // Add submenu items for WiFi attack scenes
+    submenu_add_item(app->submenu, "WiFi Scan", 1, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "WiFi Deauth", 2, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Evil Twin", 3, wifi_attacks_submenu_callback, app);
+    submenu_set_selected_item(app->submenu, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
 
@@ -48,25 +57,25 @@ bool predator_scene_wifi_attacks_new_on_event(void* context, SceneManagerEvent e
         return false;
     }
     
-    if(event.type == SceneManagerEventTypeCustom) {
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 0: 
+        case 1: // WiFi Scan
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScan);
             break;
-        case 1: 
+        case 2: // WiFi Deauth
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauth);
             break;
-        case 2: 
+        case 3: // Evil Twin
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
             break;
         default:
             consumed = false;
             break;
         }
-    } else if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
-        consumed = true;
     }
     
     return consumed;

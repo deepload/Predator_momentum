@@ -205,6 +205,12 @@ void predator_scene_wifi_scan_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
 
+    // Start simulated WiFi scanning
+    app->attack_running = true;
+    app->targets_found = 0;
+    app->packets_sent = 0;
+    FURI_LOG_I("WiFiScan", "Starting simulated WiFi scanning");
+
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
@@ -226,6 +232,10 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
             // Every ~15 ticks, "find" a new network
             if(app->packets_sent % 15 == 0) {
                 app->targets_found++;
+                // Update popup text to show progress
+                char progress_text[64];
+                snprintf(progress_text, sizeof(progress_text), "Networks found: %lu\nPress Back to stop", app->targets_found);
+                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
             }
             
             // Increment packet counter
