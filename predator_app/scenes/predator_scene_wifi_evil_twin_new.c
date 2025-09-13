@@ -28,9 +28,30 @@ static void evil_twin_update_popup(PredatorApp* app) {
     popup_set_text(app->popup, popup_text, 64, 32, AlignCenter, AlignTop);
 }
 
-
 void predator_scene_wifi_evil_twin_new_on_enter(void* context) {
     PredatorApp* app = context;
+    
+    if(!app) {
+        FURI_LOG_E("WifiEvilTwin", "App context is NULL on enter");
+        return;
+    }
+    
+    // Validate board type before any hardware initialization
+    if(app->board_type == 0) { // Assuming 0 represents Unknown or default
+        FURI_LOG_W("WifiEvilTwin", "Board type is Unknown, defaulting to Original");
+        app->board_type = 0; // Keep as Original
+    }
+    
+    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
+    if(!app->scene_manager) {
+        FURI_LOG_E("WifiEvilTwin", "Scene manager is NULL, cannot proceed");
+        return;
+    }
+    
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("WifiEvilTwin", "View dispatcher is NULL, cannot switch view");
+        return;
+    }
     
     // Initialize ESP32 hardware
     predator_esp32_init(app);

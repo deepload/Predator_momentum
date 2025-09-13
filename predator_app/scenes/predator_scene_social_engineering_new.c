@@ -21,10 +21,27 @@ static void predator_scene_social_engineering_new_submenu_callback(void* context
 
 void predator_scene_social_engineering_new_on_enter(void* context) {
     PredatorApp* app = context;
+    
+    if(!app) {
+        FURI_LOG_E("SocialEngineering", "App context is NULL on enter");
+        return;
+    }
+    
+    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
+    if(!app->scene_manager) {
+        FURI_LOG_E("SocialEngineering", "Scene manager is NULL, cannot proceed");
+        return;
+    }
+    
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("SocialEngineering", "View dispatcher is NULL, cannot switch view");
+        return;
+    }
+    
+    // Set up submenu for Social Engineering
     Submenu* submenu = app->submenu;
-
-    // Prepare submenu items (use stable built-in view to avoid dispatcher mutations)
     submenu_reset(submenu);
+    submenu_set_header(submenu, "Social Engineering");
     submenu_add_item(submenu, "Captive Portal", SocialItemCaptivePortal, predator_scene_social_engineering_new_submenu_callback, app);
     submenu_add_item(submenu, "Phishing AP", SocialItemPhishingAP, predator_scene_social_engineering_new_submenu_callback, app);
     submenu_add_item(submenu, "Fake Update", SocialItemFakeUpdate, predator_scene_social_engineering_new_submenu_callback, app);

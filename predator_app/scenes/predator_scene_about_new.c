@@ -23,7 +23,7 @@ static const AboutPage about_pages[] = {
             "Pentesting toolkit for",
             "Flipper Zero",
             "Version 1.2",
-            "© 2025 Predator Team"
+            " 2025 Predator Team"
         }
     },
     {
@@ -196,6 +196,27 @@ static View* about_view_alloc(PredatorApp* app) {
 void predator_scene_about_new_on_enter(void* context) {
     PredatorApp* app = context;
     
+    if(!app) {
+        FURI_LOG_E("About", "App context is NULL on enter");
+        return;
+    }
+    
+    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
+    if(!app->scene_manager) {
+        FURI_LOG_E("About", "Scene manager is NULL, cannot proceed");
+        return;
+    }
+    
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("About", "View dispatcher is NULL, cannot switch view");
+        return;
+    }
+    
+    // Switch to a safe view or show a placeholder message
+    view_dispatcher_switch_to_view(app->view_dispatcher, 21); // Assuming 21 is a valid view ID for About
+    
+    FURI_LOG_I("About", "About scene entered");
+    
     // Create custom view
     View* view = about_view_alloc(app);
     
@@ -225,6 +246,3 @@ void predator_scene_about_new_on_exit(void* context) {
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 }
-
-
-
