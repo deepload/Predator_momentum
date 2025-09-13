@@ -42,7 +42,7 @@ void predator_scene_car_key_bruteforce_new_on_enter(void* context) {
     }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 28); // Assuming 28 is a valid view ID for Car Key Bruteforce
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("CarKeyBruteforce", "Car Key Bruteforce scene entered with simulation mode");
 }

@@ -194,7 +194,7 @@ void predator_scene_module_status_new_on_enter(void* context) {
     }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 19); 
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup); 
     
     FURI_LOG_I("ModuleStatus", "Module Status scene entered");
 }

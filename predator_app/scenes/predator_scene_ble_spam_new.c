@@ -34,7 +34,7 @@ void predator_scene_ble_spam_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 24); // Assuming 24 is a valid view ID for BLE Spam
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("BLESpam", "BLE Spam scene entered with simulation mode");
 }

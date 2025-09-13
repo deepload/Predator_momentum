@@ -33,7 +33,7 @@ void predator_scene_gps_tracker_new_on_enter(void* context) {
     
     // Switch to a safe view or show a placeholder message
     if(app->view_dispatcher) {
-        view_dispatcher_switch_to_view(app->view_dispatcher, 16); // Assuming 16 is a valid view ID for GPS Tracker
+        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     } else {
         FURI_LOG_E("GPSTracker", "View dispatcher is NULL, cannot switch view");
     }

@@ -215,7 +215,7 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 21); 
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup); 
     
     FURI_LOG_I("WiFiDeauth", "WiFi Deauth scene entered with simulation mode");
 }

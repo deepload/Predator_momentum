@@ -45,7 +45,7 @@ void predator_scene_car_models_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 11); // Assuming 11 is a valid view ID for Car Models
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("CarModels", "Car Models scene entered with simulation mode");
 }

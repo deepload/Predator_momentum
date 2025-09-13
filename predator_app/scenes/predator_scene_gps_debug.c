@@ -83,7 +83,7 @@ void predator_scene_gps_debug_on_enter(void* context) {
     
     // Switch to a safe view or show a placeholder message
     if(app->view_dispatcher) {
-        view_dispatcher_switch_to_view(app->view_dispatcher, 17); // Assuming 17 is a valid view ID for GPS Debug
+        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);
     } else {
         FURI_LOG_E("GPSDebug", "View dispatcher is NULL, cannot switch view");
     }

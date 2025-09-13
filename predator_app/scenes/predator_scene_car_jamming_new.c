@@ -54,7 +54,7 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 26); // Assuming 26 is a valid view ID for Car Jamming
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("CarJamming", "Car Jamming scene entered with simulation mode");
 }

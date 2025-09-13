@@ -50,7 +50,7 @@ void predator_scene_wardriving_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 16); // Assuming 16 is a valid view ID for Wardriving
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("Wardriving", "Wardriving scene entered with simulation mode");
 }

@@ -48,7 +48,7 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 25); // Assuming 25 is a valid view ID for Tesla Charge Port
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("CarTesla", "Tesla Charge Port scene entered with simulation mode");
 }

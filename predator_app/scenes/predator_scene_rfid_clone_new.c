@@ -154,7 +154,7 @@ void predator_scene_rfid_clone_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 30); // Assuming 30 is a valid view ID for RFID Clone
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("RfidClone", "RFID Clone scene entered with simulation mode");
 }

@@ -25,7 +25,7 @@ void predator_scene_settings_new_on_enter(void* context) {
     
     // Switch to a safe view or show a placeholder message
     if(app->view_dispatcher) {
-        view_dispatcher_switch_to_view(app->view_dispatcher, 18); // Assuming 18 is a valid view ID for Settings
+        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     } else {
         FURI_LOG_E("Settings", "View dispatcher is NULL, cannot switch view");
     }
@@ -53,7 +53,7 @@ bool predator_scene_settings_new_on_event(void* context, SceneManagerEvent event
             // Using a hardcoded value that should match the scene ID for Board Selection
             // Ensure this matches the ID defined in your scene configuration
             if(app->scene_manager) {
-                scene_manager_next_scene(app->scene_manager, 24); // Corrected to match typical scene ID for Board Selection as per memory
+                scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelection);
                 consumed = true;
             } else {
                 FURI_LOG_E("Settings", "Scene manager is NULL, cannot navigate to Board Selection");

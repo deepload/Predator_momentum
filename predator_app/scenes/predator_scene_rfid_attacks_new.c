@@ -62,10 +62,10 @@ bool predator_scene_rfid_attacks_new_on_event(void* context, SceneManagerEvent e
         consumed = true;
         switch(event.event) {
         case 0: 
-            scene_manager_next_scene(app->scene_manager, 30);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidClone);
             break;
         case 1: 
-            scene_manager_next_scene(app->scene_manager, 31);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforce);
             break;
         case 2:
             // RFID Fuzzing attack - use popup
