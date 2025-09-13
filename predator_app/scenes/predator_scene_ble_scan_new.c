@@ -207,7 +207,7 @@ void predator_scene_ble_scan_new_on_enter(void* context) {
     // }
     
     // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 23); // Assuming 23 is a valid view ID for BLE Scan
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("BLEScan", "BLE Scan scene entered with simulation mode");
 }
@@ -245,7 +245,5 @@ void predator_scene_ble_scan_new_on_exit(void* context) {
     app->attack_running = false;
     predator_esp32_stop_attack(app);
     
-    // Remove custom view and restore default popup view
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
+    // Do not remove/add core Popup view here; it is managed in app init
 }

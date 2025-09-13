@@ -48,41 +48,41 @@ bool predator_scene_start_new_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 0: // Assuming SubmenuIndexWifiAttacks is 0 or similar
-            scene_manager_next_scene(app->scene_manager, 10); // Adjust based on likely scene ID for WiFi Attacks
+        case SubmenuIndexWifiAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacks);
             break;
-        case 1: // Assuming SubmenuIndexBluetoothAttacks is 1 or similar
-            scene_manager_next_scene(app->scene_manager, 11); // Adjust based on likely scene ID for Bluetooth Attacks
+        case SubmenuIndexBluetoothAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBluetoothAttacks);
             break;
-        case 2: // Assuming SubmenuIndexSubGhzAttacks is 2 or similar
-            scene_manager_next_scene(app->scene_manager, 12); // Adjust based on likely scene ID for SubGHz Attacks
+        case SubmenuIndexSubGhzAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSubghzAttacks);
             break;
-        case 3: // Assuming SubmenuIndexCarAttacks is 3 or similar
-            scene_manager_next_scene(app->scene_manager, 13); // Adjust based on likely scene ID for Car Attacks
+        case SubmenuIndexCarAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarAttacks);
             break;
-        case 4: // Assuming SubmenuIndexRfidAttacks is 4 or similar
-            scene_manager_next_scene(app->scene_manager, 14); // Adjust based on likely scene ID for RFID Attacks
+        case SubmenuIndexRfidAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidAttacks);
             break;
-        case 5: // Assuming SubmenuIndexSocialEngineering is 5 or similar
-            scene_manager_next_scene(app->scene_manager, 15); // Adjust based on likely scene ID for Social Engineering
+        case SubmenuIndexGpsTracker:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTracker);
             break;
-        case 6: // Assuming SubmenuIndexGPSTracker is 6 or similar
-            scene_manager_next_scene(app->scene_manager, 16); // Adjust based on likely scene ID for GPS Tracker
+        case SubmenuIndexWardriving:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWardriving);
             break;
-        case 7: // Assuming SubmenuIndexWardriving is 7 or similar
-            scene_manager_next_scene(app->scene_manager, 17); // Adjust based on likely scene ID for Wardriving
+        case SubmenuIndexSocialEngineering:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineering);
             break;
-        case 8: // Assuming SubmenuIndexBoardSelection is 8 or similar
-            scene_manager_next_scene(app->scene_manager, 18); // Adjust based on likely scene ID for Board Selection
+        case SubmenuIndexModuleStatus:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatus);
             break;
-        case 9: // Assuming SubmenuIndexModuleStatus is 9 or similar
-            scene_manager_next_scene(app->scene_manager, 19); // Adjust based on likely scene ID for Module Status
+        case SubmenuIndexBoardSelection:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelection);
             break;
-        case 10: // Assuming SubmenuIndexSettings is 10 or similar
-            scene_manager_next_scene(app->scene_manager, 20); // Adjust based on likely scene ID for Settings
+        case SubmenuIndexSettings:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSettings);
             break;
-        case 11: // Assuming SubmenuIndexAbout is 11 or similar
-            scene_manager_next_scene(app->scene_manager, 21); // Adjust based on likely scene ID for About
+        case SubmenuIndexAbout:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAbout);
             break;
         default:
             consumed = false;

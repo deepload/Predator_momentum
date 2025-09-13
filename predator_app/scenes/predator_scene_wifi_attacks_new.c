@@ -52,13 +52,13 @@ bool predator_scene_wifi_attacks_new_on_event(void* context, SceneManagerEvent e
         consumed = true;
         switch(event.event) {
         case 0: 
-            scene_manager_next_scene(app->scene_manager, 20);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScan);
             break;
         case 1: 
-            scene_manager_next_scene(app->scene_manager, 21);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauth);
             break;
         case 2: 
-            scene_manager_next_scene(app->scene_manager, 22);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
             break;
         default:
             consumed = false;

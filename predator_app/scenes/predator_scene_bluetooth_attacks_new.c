@@ -53,10 +53,10 @@ bool predator_scene_bluetooth_attacks_new_on_event(void* context, SceneManagerEv
         consumed = true;
         switch(event.event) {
         case 0: 
-            scene_manager_next_scene(app->scene_manager, 23);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScan);
             break;
         case 1: 
-            scene_manager_next_scene(app->scene_manager, 24);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpam);
             break;
         default:
             consumed = false;

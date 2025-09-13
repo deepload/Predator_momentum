@@ -212,9 +212,7 @@ void predator_scene_about_new_on_enter(void* context) {
         return;
     }
     
-    // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 21); // Assuming 21 is a valid view ID for About
-    
+    // Do not switch to an unregistered numeric view ID. We'll use PredatorViewWidget below.
     FURI_LOG_I("About", "About scene entered");
     
     // Create custom view

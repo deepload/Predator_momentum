@@ -15,6 +15,8 @@
 #include <storage/storage.h>
 
 #include "helpers/predator_boards.h"
+// Use generated scene IDs from config to avoid mismatches
+#include "scenes/predator_scene.h"
 
 #define PREDATOR_TEXT_STORE_SIZE 256
 
@@ -26,46 +28,8 @@ typedef enum {
     PredatorViewWidget,
 } PredatorView;
 
-typedef enum {
-    PredatorSceneStart,
-    PredatorSceneMainMenu,
-    PredatorSceneBoardSelection,
-    PredatorSceneWifiMenu,
-    PredatorSceneWifiScan,
-    PredatorSceneWifiAttacks,
-    PredatorSceneWifiDeauth,
-    PredatorSceneWifiSniff,
-    PredatorSceneWifiEvilTwin,
-    PredatorSceneWifiHandshakeCapture,
-    PredatorSceneWifiPwnagotchi,
-    PredatorSceneBLEMenu,
-    PredatorSceneBLEScan,
-    PredatorSceneBLESpam,
-    PredatorSceneBluetoothAttacks,
-    PredatorSceneSubGhzMenu,
-    PredatorSceneSubGhzAttacks,
-    PredatorSceneSubGhzJamming,
-    PredatorSceneSubGhzScanner,
-    PredatorSceneRfidMenu,
-    PredatorSceneRfidAttacks,
-    PredatorSceneRfidBruteforce,
-    PredatorSceneRfidClone,
-    PredatorSceneCarMenu,
-    PredatorSceneCarAttacks,
-    PredatorSceneCarModels,
-    PredatorSceneCarKey,
-    PredatorSceneCarJamming,
-    PredatorSceneCarPassiveOpener,
-    PredatorSceneCarTesla,
-    PredatorSceneModuleStatus,
-    PredatorSceneSettings,
-    PredatorSceneAbout,
-    PredatorSceneWardriving,
-    PredatorSceneGPSTracker,
-    PredatorSceneGPSDebug,
-    PredatorSceneExternalTools,
-    PredatorSceneCount
-} PredatorScene;
+// Legacy PredatorScene enum disabled to prevent conflicts; use generated enum from scenes/predator_scene.h
+// typedef enum { ... } PredatorScene; 
 
 typedef enum {
     PredatorEventTypeKey,

@@ -193,12 +193,12 @@ void predator_scene_wifi_scan_new_on_enter(void* context) {
     }
     
     // Comment out calls to undefined ESP32 initialization functions
-    // if(!app->esp32_uart) {
-    //     predator_esp32_init(app);
-    // }
+     if(!app->esp32_uart) {
+         predator_esp32_init(app);
+     }
     
-    // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, 20); 
+    // Switch to a safe view or show a placeholder message (use registered Popup view)
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("WiFiScan", "WiFi Scan scene entered with simulation mode");
 }
