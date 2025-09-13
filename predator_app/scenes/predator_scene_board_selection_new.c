@@ -256,38 +256,25 @@ void predator_scene_board_selection_new_on_enter(void* context) {
         return;
     }
     
-    // Ensure submenu is initialized properly
-    if(!app->submenu) {
-        FURI_LOG_E("BoardSelection", "Submenu is NULL, cannot proceed");
+    // Use a popup instead of submenu to avoid potential view dispatcher issues
+    if(app->popup) {
+        popup_reset(app->popup);
+        popup_set_header(app->popup, "Board Selection", 64, 10, AlignCenter, AlignCenter);
+        popup_set_text(app->popup, "Select your board from the list below.", 10, 30, AlignLeft, AlignCenter);
+        popup_set_icon(app->popup, 0, 2, &I_WarningDolphin_45x42);
+        popup_set_context(app->popup, app);
+        popup_set_callback(app->popup, NULL); // No callback to avoid complex handling
+        popup_set_timeout(app->popup, 0);
+        popup_enable_timeout(app->popup);
+        
+        // Switch to popup view instead of submenu
+        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    } else {
+        FURI_LOG_E("BoardSelection", "Popup is NULL, cannot display selection");
         return;
     }
     
-    // Reset submenu to ensure clean state
-    submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "Board Selection");
-    
-    // Add submenu items for board selection - ensure this matches your board types
-    submenu_add_item(app->submenu, "Original Predator", 0, NULL, app);
-    submenu_add_item(app->submenu, "3in1 AIO Board V1.4", 1, NULL, app);
-    submenu_add_item(app->submenu, "DrB0rk Multi Board V2", 2, NULL, app);
-    submenu_add_item(app->submenu, "3-in-1 NRF+CC+ESP", 3, NULL, app);
-    submenu_add_item(app->submenu, "2.8in Predator Screen", 4, NULL, app);
-    
-    submenu_set_selected_item(app->submenu, app->board_type); // Highlight current board
-    
-    // Switch to a safe view or show a placeholder message
-    // Ensure the view ID matches the one used for submenu in other scenes
-    view_dispatcher_switch_to_view(app->view_dispatcher, 18); // Adjusted to match a potentially correct view ID for submenu
-    
-    FURI_LOG_I("BoardSelection", "Board Selection scene entered");
-    
-    // Create custom view
-    View* view = board_selection_view_alloc(app);
-    
-    // Replace widget view with custom view
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWidget);
+    FURI_LOG_I("BoardSelection", "Board Selection scene entered with popup");
 }
 
 bool predator_scene_board_selection_new_on_event(void* context, SceneManagerEvent event) {
@@ -350,3 +337,15 @@ void predator_scene_board_selection_new_on_exit(void* context) {
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 }
+
+// Comment out any unused functions or variables to prevent build warnings
+/*
+static void board_selection_callback(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    if(app) {
+        app->board_type = index;
+        FURI_LOG_I("BoardSelection", "Board type set to %lu", index);
+        scene_manager_previous_scene(app->scene_manager);
+    }
+}
+*/
