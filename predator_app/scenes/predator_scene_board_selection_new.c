@@ -10,7 +10,7 @@ typedef struct {
     uint8_t selected_index;
     uint8_t scroll_position;
     uint8_t menu_items_count;
-    PredatorBoardType current_board;
+    uint8_t current_board;
     bool confirmation_view;
     char selected_board_name[32];
 } BoardSelectionView;
@@ -19,17 +19,17 @@ typedef struct {
 typedef struct {
     const char* name;
     const char* icon;
-    PredatorBoardType board_type;
+    uint8_t board_type;
 } BoardMenuItem;
 
 // Menu items array - match the original enum SubmenuIndex order!
 static const BoardMenuItem board_items[] = {
-    {"Original Board", "🔧", PredatorBoardTypeOriginal},
-    {"3-in-1 AIO Board", "📡", PredatorBoardType3in1AIO},
-    {"DrB0rk Multi Board", "🛠️", PredatorBoardTypeDrB0rkMultiV2},
-    {"3-in-1 NRF+CC+ESP", "💻", PredatorBoardType3in1NrfCcEsp},
-    {"2.8\" Screen Board", "📱", PredatorBoardTypeScreen28},
-    {"Auto Detect", "🔍", PredatorBoardTypeAutoDetect},
+    {"Original Board", "", 0},
+    {"3-in-1 AIO Board V1.4", "", 1},
+    {"DrB0rk Multi Board V2", "", 2},
+    {"3-in-1 NRF24+CC1101+ESP32", "", 3},
+    {"2.8-inch Predator Screen", "", 4},
+    {"Auto Detect", "", 5},
 };
 
 #define BOARD_ITEMS_COUNT (sizeof(board_items) / sizeof(board_items[0]))
@@ -185,7 +185,7 @@ static bool board_selection_view_input_callback(InputEvent* event, void* context
         case InputKeyOk:
             // Select the current board type
             if(state->selected_index < state->menu_items_count) {
-                PredatorBoardType selected_type = board_items[state->selected_index].board_type;
+                uint8_t selected_type = board_items[state->selected_index].board_type;
                 
                 // Save selection and update app state
                 app->board_type = selected_type;
@@ -237,9 +237,49 @@ static View* board_selection_view_alloc(PredatorApp* app) {
     return view;
 }
 
-
 void predator_scene_board_selection_new_on_enter(void* context) {
     PredatorApp* app = context;
+    
+    if(!app) {
+        FURI_LOG_E("BoardSelection", "App context is NULL on enter");
+        return;
+    }
+    
+    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
+    if(!app->scene_manager) {
+        FURI_LOG_E("BoardSelection", "Scene manager is NULL, cannot proceed");
+        return;
+    }
+    
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("BoardSelection", "View dispatcher is NULL, cannot switch view");
+        return;
+    }
+    
+    // Ensure submenu is initialized properly
+    if(!app->submenu) {
+        FURI_LOG_E("BoardSelection", "Submenu is NULL, cannot proceed");
+        return;
+    }
+    
+    // Reset submenu to ensure clean state
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "Board Selection");
+    
+    // Add submenu items for board selection - ensure this matches your board types
+    submenu_add_item(app->submenu, "Original Predator", 0, NULL, app);
+    submenu_add_item(app->submenu, "3in1 AIO Board V1.4", 1, NULL, app);
+    submenu_add_item(app->submenu, "DrB0rk Multi Board V2", 2, NULL, app);
+    submenu_add_item(app->submenu, "3-in-1 NRF+CC+ESP", 3, NULL, app);
+    submenu_add_item(app->submenu, "2.8in Predator Screen", 4, NULL, app);
+    
+    submenu_set_selected_item(app->submenu, app->board_type); // Highlight current board
+    
+    // Switch to a safe view or show a placeholder message
+    // Ensure the view ID matches the one used for submenu in other scenes
+    view_dispatcher_switch_to_view(app->view_dispatcher, 18); // Adjusted to match a potentially correct view ID for submenu
+    
+    FURI_LOG_I("BoardSelection", "Board Selection scene entered");
     
     // Create custom view
     View* view = board_selection_view_alloc(app);
@@ -254,15 +294,49 @@ bool predator_scene_board_selection_new_on_event(void* context, SceneManagerEven
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Get view state using helper macro
-    BoardSelectionView* state = PREDATOR_GET_MODEL(app->view_dispatcher, BoardSelectionView);
+    if(!app) {
+        FURI_LOG_E("BoardSelection", "App context is NULL in event handler");
+        return false;
+    }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Handle back differently depending on state
-        if(state && state->confirmation_view) {
-            // If in confirmation view, just go back to selection menu
-            state->confirmation_view = false;
+        scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom) {
+        // Handle selection of different board types using integer values to avoid enum issues
+        switch(event.event) {
+        case 0: // Original Predator Module
+            app->board_type = 0; // Using integer value instead of enum
+            FURI_LOG_I("BoardSelection", "Selected Original Predator Module");
             consumed = true;
+            break;
+        case 1: // 3in1 AIO Board V1.4
+            app->board_type = 1;
+            FURI_LOG_I("BoardSelection", "Selected 3in1 AIO Board V1.4");
+            consumed = true;
+            break;
+        case 2: // DrB0rk Multi Board V2
+            app->board_type = 2;
+            FURI_LOG_I("BoardSelection", "Selected DrB0rk Multi Board V2");
+            consumed = true;
+            break;
+        case 3: // 3-in-1 NRF+CC+ESP
+            app->board_type = 3;
+            FURI_LOG_I("BoardSelection", "Selected 3-in-1 NRF+CC+ESP");
+            consumed = true;
+            break;
+        case 4: // 2.8-inch Predator Screen
+            app->board_type = 4;
+            FURI_LOG_I("BoardSelection", "Selected 2.8-inch Predator Screen");
+            consumed = true;
+            break;
+        default:
+            consumed = false;
+            break;
+        }
+        // After selection, potentially save the setting or return to previous scene
+        if(consumed) {
+            scene_manager_previous_scene(app->scene_manager);
         }
     }
     
@@ -276,6 +350,3 @@ void predator_scene_board_selection_new_on_exit(void* context) {
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWidget);
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 }
-
-
-

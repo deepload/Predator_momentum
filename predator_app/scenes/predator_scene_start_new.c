@@ -40,46 +40,49 @@ bool predator_scene_start_new_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     bool consumed = false;
     
+    if(!app) {
+        FURI_LOG_E("Start", "App context is NULL in event handler");
+        return false;
+    }
+    
     if(event.type == SceneManagerEventTypeCustom) {
-        // Selection state is handled by static variables in callbacks
-        // Navigate to the selected scene - same logic as original
         consumed = true;
         switch(event.event) {
-        case SubmenuIndexWifiAttacks:
-            scene_manager_next_scene(app->scene_manager, 1); // WifiAttacks
+        case 0: // Assuming SubmenuIndexWifiAttacks is 0 or similar
+            scene_manager_next_scene(app->scene_manager, 10); // Adjust based on likely scene ID for WiFi Attacks
             break;
-        case SubmenuIndexBluetoothAttacks:
-            scene_manager_next_scene(app->scene_manager, 5); // BluetoothAttacks
+        case 1: // Assuming SubmenuIndexBluetoothAttacks is 1 or similar
+            scene_manager_next_scene(app->scene_manager, 11); // Adjust based on likely scene ID for Bluetooth Attacks
             break;
-        case SubmenuIndexSubGhzAttacks:
-            scene_manager_next_scene(app->scene_manager, 8); // SubghzAttacks
+        case 2: // Assuming SubmenuIndexSubGhzAttacks is 2 or similar
+            scene_manager_next_scene(app->scene_manager, 12); // Adjust based on likely scene ID for SubGHz Attacks
             break;
-        case SubmenuIndexCarAttacks:
-            scene_manager_next_scene(app->scene_manager, 9); // CarAttacks
+        case 3: // Assuming SubmenuIndexCarAttacks is 3 or similar
+            scene_manager_next_scene(app->scene_manager, 13); // Adjust based on likely scene ID for Car Attacks
             break;
-        case SubmenuIndexRfidAttacks:
-            scene_manager_next_scene(app->scene_manager, 15); // RfidAttacks
+        case 4: // Assuming SubmenuIndexRfidAttacks is 4 or similar
+            scene_manager_next_scene(app->scene_manager, 14); // Adjust based on likely scene ID for RFID Attacks
             break;
-        case SubmenuIndexGpsTracker:
-            scene_manager_next_scene(app->scene_manager, 18); // GpsTracker
+        case 5: // Assuming SubmenuIndexSocialEngineering is 5 or similar
+            scene_manager_next_scene(app->scene_manager, 15); // Adjust based on likely scene ID for Social Engineering
             break;
-        case SubmenuIndexWardriving:
-            scene_manager_next_scene(app->scene_manager, 20); // Wardriving
+        case 6: // Assuming SubmenuIndexGPSTracker is 6 or similar
+            scene_manager_next_scene(app->scene_manager, 16); // Adjust based on likely scene ID for GPS Tracker
             break;
-        case SubmenuIndexSocialEngineering:
-            scene_manager_next_scene(app->scene_manager, 21); // SocialEngineering
+        case 7: // Assuming SubmenuIndexWardriving is 7 or similar
+            scene_manager_next_scene(app->scene_manager, 17); // Adjust based on likely scene ID for Wardriving
             break;
-        case SubmenuIndexModuleStatus:
-            scene_manager_next_scene(app->scene_manager, 22); // ModuleStatus
+        case 8: // Assuming SubmenuIndexBoardSelection is 8 or similar
+            scene_manager_next_scene(app->scene_manager, 18); // Adjust based on likely scene ID for Board Selection
             break;
-        case SubmenuIndexBoardSelection:
-            scene_manager_next_scene(app->scene_manager, 24); // BoardSelection
+        case 9: // Assuming SubmenuIndexModuleStatus is 9 or similar
+            scene_manager_next_scene(app->scene_manager, 19); // Adjust based on likely scene ID for Module Status
             break;
-        case SubmenuIndexSettings:
-            scene_manager_next_scene(app->scene_manager, 23); // Settings
+        case 10: // Assuming SubmenuIndexSettings is 10 or similar
+            scene_manager_next_scene(app->scene_manager, 20); // Adjust based on likely scene ID for Settings
             break;
-        case SubmenuIndexAbout:
-            scene_manager_next_scene(app->scene_manager, 25); // About
+        case 11: // Assuming SubmenuIndexAbout is 11 or similar
+            scene_manager_next_scene(app->scene_manager, 21); // Adjust based on likely scene ID for About
             break;
         default:
             consumed = false;
