@@ -153,7 +153,15 @@ void predator_scene_rfid_clone_new_on_enter(void* context) {
     //     FURI_LOG_E("RfidClone", "Failed to allocate view for RFID Clone");
     // }
     
-    // Switch to a safe view or show a placeholder message
+    // Configure popup content to avoid blank screen
+    popup_reset(app->popup);
+    popup_set_header(app->popup, "RFID Clone", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Place RFID card on Flipper\nPress Back to cancel", 64, 28, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+
+    // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("RfidClone", "RFID Clone scene entered with simulation mode");
@@ -184,7 +192,5 @@ void predator_scene_rfid_clone_new_on_exit(void* context) {
     PredatorApp* app = context;
     app->attack_running = false;
     
-    // Remove custom view and restore default popup view
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
+    // Do not remove/add core Popup view; it's managed at app init
 }

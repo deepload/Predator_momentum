@@ -219,7 +219,8 @@ PredatorApp* predator_app_alloc() {
         predator_app_free(app);
         return NULL;
     }
-    // Do NOT add PredatorViewWidget here. Scenes manage this slot with their custom views.
+    // Add a default widget view so scenes can safely switch to PredatorViewWidget
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWidget, widget_get_view(app->widget));
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 

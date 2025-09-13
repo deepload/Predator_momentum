@@ -33,7 +33,15 @@ void predator_scene_ble_spam_new_on_enter(void* context) {
     //     predator_esp32_init(app);
     // }
     
-    // Switch to a safe view or show a placeholder message
+    // Configure popup content to avoid blank screen
+    popup_reset(app->popup);
+    popup_set_header(app->popup, "BLE Spam", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Starting BLE advertising...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+
+    // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("BLESpam", "BLE Spam scene entered with simulation mode");

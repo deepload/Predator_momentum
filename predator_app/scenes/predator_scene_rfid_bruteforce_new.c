@@ -55,7 +55,15 @@ void predator_scene_rfid_bruteforce_new_on_enter(void* context) {
         return;
     }
     
-    // Switch to a safe view or show a placeholder message
+    // Configure popup content to avoid blank screen
+    popup_reset(app->popup);
+    popup_set_header(app->popup, "RFID Bruteforce", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Bruteforcing RFID keys...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+
+    // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("RfidBruteforce", "RFID Bruteforce scene entered with simulation mode");

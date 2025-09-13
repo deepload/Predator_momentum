@@ -23,11 +23,17 @@ void predator_scene_settings_new_on_enter(void* context) {
     //     predator_init_default_settings(app);
     // }
     
-    // Switch to a safe view or show a placeholder message
-    if(app->view_dispatcher) {
+    // Configure popup content to avoid blank screen
+    if(app->view_dispatcher && app->popup) {
+        popup_reset(app->popup);
+        popup_set_header(app->popup, "Settings", 64, 10, AlignCenter, AlignTop);
+        popup_set_text(app->popup, "Configure options\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+        popup_set_context(app->popup, app);
+        popup_set_timeout(app->popup, 0);
+        popup_enable_timeout(app->popup);
         view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     } else {
-        FURI_LOG_E("Settings", "View dispatcher is NULL, cannot switch view");
+        FURI_LOG_E("Settings", "View dispatcher or popup is NULL, cannot switch view");
     }
     
     FURI_LOG_I("Settings", "Settings scene entered with simulation mode");

@@ -193,8 +193,43 @@ void predator_scene_module_status_new_on_enter(void* context) {
         return;
     }
     
-    // Switch to a safe view or show a placeholder message
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup); 
+    // Try to safely probe ESP32 to update connection flags (non-fatal if unavailable)
+    if(!app->esp32_uart) {
+        predator_esp32_init(app);
+    }
+    if(app->esp32_uart) {
+        predator_esp32_get_status(app);
+        // small delay to allow a response to update flags
+        furi_delay_ms(50);
+    }
+    // Derive overall module_connected flag from any active link/state
+    app->module_connected = (app->esp32_uart != NULL) || (app->gps_uart != NULL) ||
+                            app->esp32_connected || app->gps_connected;
+
+    // Build a status summary for display
+    const char* board_name = predator_boards_get_name(app->board_type);
+    char text[160];
+    snprintf(
+        text,
+        sizeof(text),
+        "Board: %s\nESP32: %s (%s)\nGPS: %s (%s)\nModule: %s\n\nPress Back",
+        board_name ? board_name : "Unknown",
+        app->esp32_connected ? "Connected" : "Not",
+        app->esp32_uart ? "UART" : "No UART",
+        app->gps_connected ? "Active" : "Not",
+        app->gps_uart ? "UART" : "No UART",
+        app->module_connected ? "Detected" : "Not Detected");
+
+    // Configure popup with status text
+    popup_reset(app->popup);
+    popup_set_header(app->popup, "Module Status", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, text, 64, 25, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+
+    // Switch to the Popup view (already registered at init)
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("ModuleStatus", "Module Status scene entered");
 }
