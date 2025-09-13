@@ -58,9 +58,8 @@ bool predator_scene_wifi_evil_twin_new_on_event(void* context, SceneManagerEvent
             if(app->packets_sent >= 20) {
                 app->packets_sent = 0;
                 app->targets_found += 1;
-                char update_text[64];
-                snprintf(update_text, sizeof(update_text), "Devices connected: %lu\nPress Back to stop", app->targets_found);
-                popup_set_text(app->popup, update_text, 64, 28, AlignCenter, AlignTop);
+                // Avoid snprintf to prevent build issues
+                popup_set_text(app->popup, "Devices connected\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
             }
             consumed = true;
         }

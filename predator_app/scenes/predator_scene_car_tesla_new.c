@@ -19,7 +19,7 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
     }
     
     // Validate board type before any hardware initialization
-    if(app->board_type == 0) { // Assuming 0 represents Unknown or default
+    if(app->board_type == 0) {
         FURI_LOG_W("CarTesla", "Board type is Unknown, defaulting to Original");
         app->board_type = 0; // Keep as Original
     }
@@ -42,12 +42,11 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
         return;
     }
     
-    // Initialize SubGHz safely - Comment out if predator_subghz_init is not defined or returns void
-    // if(!predator_subghz_init(app)) {
-    //     FURI_LOG_E("CarTesla", "Failed to initialize SubGHz");
-    // }
-    
     // Configure popup content to avoid blank screen
+    if(!app->popup) {
+        FURI_LOG_E("CarTesla", "Popup is NULL, cannot initialize UI");
+        return;
+    }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Tesla Charge Port", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, "Sending charge port signal...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
@@ -62,7 +61,6 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
 
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    
     FURI_LOG_I("CarTesla", "Tesla Charge Port scene entered with simulation mode");
 }
 
@@ -76,7 +74,8 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
     }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Return to previous scene
+        FURI_LOG_I("CarTesla", "Back event received, navigating to previous scene");
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -86,7 +85,12 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
                 // Update popup text to show progress
                 char progress_text[64];
                 snprintf(progress_text, sizeof(progress_text), "Signals sent: %lu\nPress Back to stop", app->packets_sent);
-                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                if(app->popup) {
+                    popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("CarTesla", "Updated popup with signals sent: %lu", app->packets_sent);
+                } else {
+                    FURI_LOG_W("CarTesla", "Popup is NULL, cannot update text");
+                }
             }
             consumed = true;
         }
@@ -98,16 +102,12 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
 void predator_scene_car_tesla_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Null safety check
-    if(!app) return;
+    if(!app) {
+        FURI_LOG_E("CarTesla", "App context is NULL on exit");
+        return;
+    }
     
     // Clean up
     app->attack_running = false;
-    //predator_subghz_deinit(app);
-    
-    // Remove custom view and restore default popup view
-    if(app->view_dispatcher && app->popup) {
-        //view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-        //view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, popup_get_view(app->popup));
-    }
+    FURI_LOG_I("CarTesla", "Exited Tesla Charge Port scene");
 }

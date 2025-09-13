@@ -10,6 +10,16 @@ void predator_scene_settings_new_on_enter(void* context) {
         return;
     }
     
+    if(!app->scene_manager) {
+        FURI_LOG_E("Settings", "Scene manager is NULL on enter");
+        return;
+    }
+    
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("Settings", "View dispatcher is NULL on enter");
+        return;
+    }
+    
     // Validate board type before any hardware initialization
     if(app->board_type == PredatorBoardTypeUnknown) {
         FURI_LOG_W("Settings", "Board type is Unknown, defaulting to Original");
@@ -23,18 +33,14 @@ void predator_scene_settings_new_on_enter(void* context) {
     //     predator_init_default_settings(app);
     // }
     
-    // Configure popup content to avoid blank screen
-    if(app->view_dispatcher && app->popup) {
-        popup_reset(app->popup);
-        popup_set_header(app->popup, "Settings", 64, 10, AlignCenter, AlignTop);
-        popup_set_text(app->popup, "Configure options\nPress Back to return", 64, 28, AlignCenter, AlignTop);
-        popup_set_context(app->popup, app);
-        popup_set_timeout(app->popup, 0);
-        popup_enable_timeout(app->popup);
-        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    } else {
-        FURI_LOG_E("Settings", "View dispatcher or popup is NULL, cannot switch view");
-    }
+    popup_reset(app->popup);
+    popup_set_header(app->popup, "Settings", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Configure options\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("Settings", "Settings scene entered with simulation mode");
 }

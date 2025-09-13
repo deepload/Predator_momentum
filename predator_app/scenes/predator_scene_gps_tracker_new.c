@@ -21,30 +21,29 @@ void predator_scene_gps_tracker_new_on_enter(void* context) {
     PredatorApp* app = context;
     
     if(!app) {
-        FURI_LOG_E("GPSTracker", "App context is NULL on enter");
         return;
     }
     
-    // Validate board type before any hardware initialization
-    if(app->board_type == PredatorBoardTypeUnknown) {
-        FURI_LOG_W("GPSTracker", "Board type is Unknown, defaulting to Original");
-        app->board_type = PredatorBoardTypeOriginal;
+    if(!app->scene_manager) {
+        return;
     }
     
-    // Configure popup content to avoid blank screen
-    if(app->view_dispatcher && app->popup) {
-        popup_reset(app->popup);
-        popup_set_header(app->popup, "GPS Tracker", 64, 10, AlignCenter, AlignTop);
-        popup_set_text(app->popup, "Initializing GPS...\nPress Back to return", 64, 28, AlignCenter, AlignTop);
-        popup_set_context(app->popup, app);
-        popup_set_timeout(app->popup, 0);
-        popup_enable_timeout(app->popup);
-        view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    } else {
-        FURI_LOG_E("GPSTracker", "View dispatcher or popup is NULL, cannot switch view");
+    if(!app->view_dispatcher) {
+        return;
     }
     
-    FURI_LOG_I("GPSTracker", "GPS Tracker scene entered with simulation mode");
+    popup_reset(app->popup);
+    popup_set_header(app->popup, "GPS Tracker", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Initializing GPS...\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+    
+    app->attack_running = true;
+    app->packets_sent = 0;
+    app->targets_found = 0;
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
 }
 
 bool predator_scene_gps_tracker_new_on_event(void* context, SceneManagerEvent event) {
@@ -52,13 +51,26 @@ bool predator_scene_gps_tracker_new_on_event(void* context, SceneManagerEvent ev
     bool consumed = false;
     
     if(!app) {
-        FURI_LOG_E("GPSTracker", "App context is NULL in event handler");
         return false;
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 20) {
+                popup_set_text(app->popup, "GPS Signal Acquired\nTracking location...", 64, 28, AlignCenter, AlignTop);
+            }
+            if(app->packets_sent >= 40) {
+                app->packets_sent = 0;
+                app->targets_found += 1;
+                popup_set_text(app->popup, "Location updated\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+            }
+            consumed = true;
+        }
     }
     
     return consumed;
@@ -67,10 +79,7 @@ bool predator_scene_gps_tracker_new_on_event(void* context, SceneManagerEvent ev
 void predator_scene_gps_tracker_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    if(!app) {
-        FURI_LOG_E("GPSTracker", "App context is NULL on exit");
-        return;
-    }
+    if(!app) return;
     
-    FURI_LOG_I("GPSTracker", "Exiting GPS Tracker scene");
+    app->attack_running = false;
 }

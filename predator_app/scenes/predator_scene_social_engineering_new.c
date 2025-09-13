@@ -23,22 +23,17 @@ void predator_scene_social_engineering_new_on_enter(void* context) {
     PredatorApp* app = context;
     
     if(!app) {
-        FURI_LOG_E("SocialEngineering", "App context is NULL on enter");
         return;
     }
     
-    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
     if(!app->scene_manager) {
-        FURI_LOG_E("SocialEngineering", "Scene manager is NULL, cannot proceed");
         return;
     }
     
     if(!app->view_dispatcher) {
-        FURI_LOG_E("SocialEngineering", "View dispatcher is NULL, cannot switch view");
         return;
     }
     
-    // Set up submenu for Social Engineering
     Submenu* submenu = app->submenu;
     submenu_reset(submenu);
     submenu_set_header(submenu, "Social Engineering");
@@ -57,7 +52,6 @@ bool predator_scene_social_engineering_new_on_event(void* context, SceneManagerE
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        // Handle menu selection by showing a popup with action info
         const char* title = NULL;
         switch(event.event) {
         case SocialItemCaptivePortal: title = "Captive Portal"; break;
@@ -77,14 +71,26 @@ bool predator_scene_social_engineering_new_on_event(void* context, SceneManagerE
         view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeBack) {
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 20) {
+                popup_set_text(app->popup, "Operation active\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                app->packets_sent = 0;
+            }
+            consumed = true;
+        }
     }
     return consumed;
 }
 
 void predator_scene_social_engineering_new_on_exit(void* context) {
     PredatorApp* app = context;
-    // Simply reset submenu; do not remove/replace views to avoid dispatcher crashes
-    submenu_reset(app->submenu);
+    if(app) {
+        submenu_reset(app->submenu);
+        app->attack_running = false;
+    }
 }

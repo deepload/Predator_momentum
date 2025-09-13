@@ -16,7 +16,7 @@ void predator_scene_car_models_new_on_enter(void* context) {
     }
     
     // Validate board type before any hardware initialization
-    if(app->board_type == 0) { // Assuming 0 represents Unknown or default
+    if(app->board_type == 0) {
         FURI_LOG_W("CarModels", "Board type is Unknown, defaulting to Original");
         app->board_type = 0; // Keep as Original
     }
@@ -39,12 +39,11 @@ void predator_scene_car_models_new_on_enter(void* context) {
         return;
     }
     
-    // Initialize SubGHz safely - Comment out if predator_subghz_init is not defined or returns void
-    // if(!predator_subghz_init(app)) {
-    //     FURI_LOG_E("CarModels", "Failed to initialize SubGHz");
-    // }
-    
     // Configure popup content to avoid blank screen
+    if(!app->popup) {
+        FURI_LOG_E("CarModels", "Popup is NULL, cannot initialize UI");
+        return;
+    }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Car Models", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, "Car models database\nPress Back to return", 64, 28, AlignCenter, AlignTop);
@@ -59,7 +58,6 @@ void predator_scene_car_models_new_on_enter(void* context) {
 
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    
     FURI_LOG_I("CarModels", "Car Models scene entered with simulation mode");
 }
 
@@ -73,7 +71,7 @@ bool predator_scene_car_models_new_on_event(void* context, SceneManagerEvent eve
     }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Return to previous scene
+        FURI_LOG_I("CarModels", "Back event received, navigating to previous scene");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     }
@@ -89,16 +87,16 @@ void predator_scene_car_models_new_on_exit(void* context) {
         return;
     }
     
-    // Cleanup SubGHz resources to prevent reboots - Comment out if predator_subghz_deinit is not defined
-    // predator_subghz_deinit(app);
-    
     // Stop any running attack
     app->attack_running = false;
     
     // Clean up submenu with null check
     if(app->submenu) {
         submenu_reset(app->submenu);
+        FURI_LOG_I("CarModels", "Submenu reset on exit");
+    } else {
+        FURI_LOG_W("CarModels", "Submenu is NULL on exit, skipping reset");
     }
     
-    FURI_LOG_I("CarModels", "Exiting Car Models scene");
+    FURI_LOG_I("CarModels", "Exited Car Models scene");
 }

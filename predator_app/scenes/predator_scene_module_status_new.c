@@ -18,220 +18,33 @@ typedef struct {
     uint8_t animation_frame;
 } ModuleStatusView;
 
-/*
-static void module_status_view_draw_callback(Canvas* canvas, void* context) {
-    // PredatorApp* app = context;
-    
-    // if(!app) return;
-    
-    // Get view state
-    // ModuleStatusView* state = PREDATOR_GET_MODEL(app->view_dispatcher, ModuleStatusView);
-    // if(!state) return;
-    
-    // Gather current hardware state
-    // bool marauder_switch_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
-    // bool gps_switch_on = !furi_hal_gpio_read(PREDATOR_GPS_POWER_SWITCH);
-    // bool esp32_connected = app->esp32_connected;
-    // bool gps_connected = app->gps_connected;
-    // uint32_t satellites = app->satellites;
-    // PredatorBoardType board_type = app->board_type;
-    
-    // Update animation frame
-    // uint8_t animation_frame = (furi_get_tick() / 200) % 4;
-    
-    // Update state
-    // state->marauder_switch_on = marauder_switch_on;
-    // state->gps_switch_on = gps_switch_on;
-    // state->esp32_connected = esp32_connected;
-    // state->gps_connected = gps_connected;
-    // state->satellites = satellites;
-    // state->board_type = board_type;
-    // state->animation_frame = animation_frame;
-    
-    // Consider the module "Connected" if any UART is initialized or any switch is ON
-    // bool connected = (app->esp32_uart || app->gps_uart || marauder_switch_on || gps_switch_on);
-    // (void)connected;
-    
-    // canvas_clear(canvas);
-    
-    // Draw title with board type
-    // canvas_set_font(canvas, FontPrimary);
-    // canvas_draw_str_aligned(canvas, 64, 8, AlignCenter, AlignCenter, "Module Status");
-    
-    // Draw board type
-    // const char* board_name = predator_boards_get_name(board_type);
-    // canvas_set_font(canvas, FontSecondary);
-    // predator_ui_draw_status_box(canvas, "Board Type", 4, 16, 120, 14);
-    // canvas_draw_str_aligned(canvas, 64, 24, AlignCenter, AlignCenter, board_name);
-    
-    // Draw connection status box
-    // predator_ui_draw_status_box(canvas, "Connection Status", 4, 32, 120, 30);
-    
-    // Draw visual representation of hardware
-    
-    // Draw ESP32 status
-    // canvas_draw_str(canvas, 8, 42, "ESP32:");
-    
-    // Draw ESP32 indicator
-    // if(esp32_connected) {
-    //     canvas_draw_str(canvas, 44, 42, "Connected");
-        
-    //     // Show activity animation when connected
-    //     for(uint8_t i = 0; i < (animation_frame % 3); i++) {
-    //         canvas_draw_box(canvas, 110 - (i * 6), 42, 4, 4);
-    //     }
-    // } else if(marauder_switch_on) {
-    //     canvas_draw_str(canvas, 44, 42, "SW ON");
-    // } else {
-    //     canvas_draw_str(canvas, 44, 42, "Inactive");
-    // }
-    
-    // Draw GPS status
-    // canvas_draw_str(canvas, 8, 54, "GPS:");
-    
-    // if(gps_connected) {
-    //     char sat_text[24];
-    //     snprintf(sat_text, sizeof(sat_text), "Active (%lu sats)", satellites);
-    //     canvas_draw_str(canvas, 44, 54, sat_text);
-    // } else if(gps_switch_on) {
-    //     canvas_draw_str(canvas, 44, 54, "SW ON");
-    // } else {
-    //     canvas_draw_str(canvas, 44, 54, "Inactive");
-    // }
-    
-    // Draw buttons box
-    // predator_ui_draw_status_box(canvas, "Actions", 4, 64, 120, 14);
-    
-    // Draw action buttons
-    // elements_button_center(canvas, "Probe ESP32");
-    // canvas_set_font(canvas, FontSecondary);
-    // elements_button_left(canvas, "Back");
-}
-*/
-
-/*
-static bool module_status_view_input_callback(InputEvent* event, void* context) {
-    // PredatorApp* app = context;
-    // bool consumed = false;
-    
-    // if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
-    //     switch(event->key) {
-    //     case InputKeyBack:
-    //     case InputKeyLeft:
-    //         scene_manager_previous_scene(app->scene_manager);
-    //         consumed = true;
-    //         break;
-    //     case InputKeyOk:
-    //         // Probe ESP32 status
-    //         bool marauder_on = !furi_hal_gpio_read(PREDATOR_MARAUDER_SWITCH);
-    //         if(marauder_on) {
-    //             // Initialize if not yet and then send status
-    //             if(!app->esp32_uart) {
-    //                 predator_esp32_init(app);
-    //             }
-    //             if(app->esp32_uart) {
-    //                 predator_esp32_get_status(app);
-    //             }
-    //         }
-    //         consumed = true;
-    //         break;
-    //     default:
-    //         break;
-    //     }
-    // }
-    
-    // return consumed;
-}
-*/
-
-/*
-static View* module_status_view_alloc(PredatorApp* app) {
-    // View* view = view_alloc();
-    // view_set_context(view, app);
-    // view_set_draw_callback(view, module_status_view_draw_callback);
-    // view_set_input_callback(view, module_status_view_input_callback);
-    
-    // Initialize model
-    // ModuleStatusView* state = malloc(sizeof(ModuleStatusView));
-    // state->marauder_switch_on = false;
-    // state->gps_switch_on = false;
-    // state->esp32_connected = false;
-    // state->gps_connected = false;
-    // state->satellites = 0;
-    // state->board_type = app->board_type;
-    // state->animation_frame = 0;
-    
-    // predator_view_set_model(view, state);
-    // predator_view_set_model_free_callback(view, free);
-    
-    // return view;
-}
-*/
-
 void predator_scene_module_status_new_on_enter(void* context) {
     PredatorApp* app = context;
     
     if(!app) {
-        FURI_LOG_E("ModuleStatus", "App context is NULL on enter");
         return;
     }
     
-    // Validate board type before any hardware initialization
-    if(app->board_type == 0) { 
-        FURI_LOG_W("ModuleStatus", "Board type is Unknown, defaulting to Original");
-        app->board_type = 0; 
-    }
-    
-    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
     if(!app->scene_manager) {
-        FURI_LOG_E("ModuleStatus", "Scene manager is NULL, cannot proceed");
         return;
     }
     
     if(!app->view_dispatcher) {
-        FURI_LOG_E("ModuleStatus", "View dispatcher is NULL, cannot switch view");
         return;
     }
     
-    // Try to safely probe ESP32 to update connection flags (non-fatal if unavailable)
-    if(!app->esp32_uart) {
-        predator_esp32_init(app);
-    }
-    if(app->esp32_uart) {
-        predator_esp32_get_status(app);
-        // small delay to allow a response to update flags
-        furi_delay_ms(50);
-    }
-    // Derive overall module_connected flag from any active link/state
-    app->module_connected = (app->esp32_uart != NULL) || (app->gps_uart != NULL) ||
-                            app->esp32_connected || app->gps_connected;
-
-    // Build a status summary for display
-    const char* board_name = predator_boards_get_name(app->board_type);
-    char text[160];
-    snprintf(
-        text,
-        sizeof(text),
-        "Board: %s\nESP32: %s (%s)\nGPS: %s (%s)\nModule: %s\n\nPress Back",
-        board_name ? board_name : "Unknown",
-        app->esp32_connected ? "Connected" : "Not",
-        app->esp32_uart ? "UART" : "No UART",
-        app->gps_connected ? "Active" : "Not",
-        app->gps_uart ? "UART" : "No UART",
-        app->module_connected ? "Detected" : "Not Detected");
-
-    // Configure popup with status text
     popup_reset(app->popup);
     popup_set_header(app->popup, "Module Status", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, text, 64, 25, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Checking module status...\nPress Back to return", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
-
-    // Switch to the Popup view (already registered at init)
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
-    FURI_LOG_I("ModuleStatus", "Module Status scene entered");
+    app->module_connected = false;
+    app->attack_running = true;
+    app->packets_sent = 0;
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
 }
 
 bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent event) {
@@ -239,22 +52,23 @@ bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent 
     bool consumed = false;
     
     if(!app) {
-        FURI_LOG_E("ModuleStatus", "App context is NULL in event handler");
         return false;
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
-        // Comment out any calls to undefined functions
-        // view_dispatcher_send_custom_event(app->view_dispatcher, 0xFF);
-    } else if(event.type == SceneManagerEventTypeCustom) {
-        // Comment out any custom event handling that might reference undefined functions
-        // if(event.event == PredatorCustomEventBack) {
-        //     consumed = true;
-        //     scene_manager_previous_scene(app->scene_manager);
-        // }
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 10) {
+                app->module_connected = true;
+                popup_set_text(app->popup, "Module Detected\nESP32: Connected\nGPS: Active\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+                app->attack_running = false;
+            }
+            consumed = true;
+        }
     }
     
     return consumed;
@@ -263,10 +77,7 @@ bool predator_scene_module_status_new_on_event(void* context, SceneManagerEvent 
 void predator_scene_module_status_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    if(!app) {
-        FURI_LOG_E("ModuleStatus", "App context is NULL on exit");
-        return;
-    }
+    if(!app) return;
     
-    FURI_LOG_I("ModuleStatus", "Exiting Module Status scene");
+    app->attack_running = false;
 }

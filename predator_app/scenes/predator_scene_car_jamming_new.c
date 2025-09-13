@@ -25,7 +25,7 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     }
     
     // Validate board type before any hardware initialization
-    if(app->board_type == 0) { // Assuming 0 represents Unknown or default
+    if(app->board_type == 0) {
         FURI_LOG_W("CarJamming", "Board type is Unknown, defaulting to Original");
         app->board_type = 0; // Keep as Original
     }
@@ -48,12 +48,11 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
         return;
     }
     
-    // Initialize SubGHz safely - Comment out if predator_subghz_init is not defined or returns void
-    // if(!predator_subghz_init(app)) {
-    //     FURI_LOG_E("CarJamming", "Failed to initialize SubGHz");
-    // }
-    
     // Configure popup content to avoid blank screen
+    if(!app->popup) {
+        FURI_LOG_E("CarJamming", "Popup is NULL, cannot initialize UI");
+        return;
+    }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Car Jamming", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, "Jamming SubGHz channels...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
@@ -68,7 +67,6 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
 
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    
     FURI_LOG_I("CarJamming", "Car Jamming scene entered with simulation mode");
 }
 
@@ -82,7 +80,8 @@ bool predator_scene_car_jamming_new_on_event(void* context, SceneManagerEvent ev
     }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Return to previous scene
+        FURI_LOG_I("CarJamming", "Back event received, navigating to previous scene");
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -92,7 +91,12 @@ bool predator_scene_car_jamming_new_on_event(void* context, SceneManagerEvent ev
                 // Update popup text to show progress
                 char progress_text[64];
                 snprintf(progress_text, sizeof(progress_text), "Jamming signals: %lu\nPress Back to stop", app->packets_sent);
-                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                if(app->popup) {
+                    popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
+                    FURI_LOG_I("CarJamming", "Updated popup with jamming signals sent: %lu", app->packets_sent);
+                } else {
+                    FURI_LOG_W("CarJamming", "Popup is NULL, cannot update text");
+                }
             }
             consumed = true;
         }
@@ -104,11 +108,11 @@ bool predator_scene_car_jamming_new_on_event(void* context, SceneManagerEvent ev
 void predator_scene_car_jamming_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Null safety check
-    if(!app) return;
+    if(!app) {
+        FURI_LOG_E("CarJamming", "App context is NULL on exit");
+        return;
+    }
     
     app->attack_running = false;
-    
-    // Clean up
-    //predator_subghz_deinit(app);
+    FURI_LOG_I("CarJamming", "Exited Car Jamming scene");
 }

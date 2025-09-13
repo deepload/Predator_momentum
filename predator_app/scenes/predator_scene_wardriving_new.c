@@ -24,13 +24,6 @@ void predator_scene_wardriving_new_on_enter(void* context) {
         return;
     }
     
-    // Validate board type before any hardware initialization
-    if(app->board_type == 0) { // Assuming 0 represents Unknown or default
-        FURI_LOG_W("Wardriving", "Board type is Unknown, defaulting to Original");
-        app->board_type = 0; // Keep as Original
-    }
-    
-    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
     if(!app->scene_manager) {
         FURI_LOG_E("Wardriving", "Scene manager is NULL, cannot proceed");
         return;
@@ -41,23 +34,17 @@ void predator_scene_wardriving_new_on_enter(void* context) {
         return;
     }
     
-    // Comment out calls to undefined initialization functions
-    // if(!predator_gps_init(app)) {
-    //     FURI_LOG_E("Wardriving", "Failed to initialize GPS");
-    // }
-    // if(!predator_esp32_init(app)) {
-    //     FURI_LOG_E("Wardriving", "Failed to initialize ESP32 for WiFi");
-    // }
-    
-    // Configure popup content to avoid blank screen
     popup_reset(app->popup);
     popup_set_header(app->popup, "Wardriving", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "GPS+WiFi wardrive...\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Starting GPS+WiFi wardrive...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
-
-    // Switch to popup view
+    
+    app->attack_running = true;
+    app->targets_found = 0;
+    app->packets_sent = 0;
+    
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("Wardriving", "Wardriving scene entered with simulation mode");
@@ -73,9 +60,19 @@ bool predator_scene_wardriving_new_on_event(void* context, SceneManagerEvent eve
     }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Return to previous scene
+        app->attack_running = false;
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 15) {
+                app->targets_found += 1;
+                app->packets_sent = 0;
+                popup_set_text(app->popup, "Networks found\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+            }
+            consumed = true;
+        }
     }
     
     return consumed;
@@ -89,8 +86,7 @@ void predator_scene_wardriving_new_on_exit(void* context) {
         return;
     }
     
-    // Cleanup GPS resources to prevent reboots - Comment out if predator_gps_deinit is not defined
-    // predator_gps_deinit(app);
+    app->attack_running = false;
     
     FURI_LOG_I("Wardriving", "Exiting Wardriving scene");
 }

@@ -115,82 +115,64 @@ void predator_scene_rfid_clone_new_on_enter(void* context) {
     PredatorApp* app = context;
     
     if(!app) {
-        FURI_LOG_E("RfidClone", "App context is NULL on enter");
         return;
     }
     
-    // Validate board type before any hardware initialization
-    if(app->board_type == 0) { // Assuming 0 represents Unknown or default
-        FURI_LOG_W("RfidClone", "Board type is Unknown, defaulting to Original");
-        app->board_type = 0; // Keep as Original
-    }
-    
-    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
     if(!app->scene_manager) {
-        FURI_LOG_E("RfidClone", "Scene manager is NULL, cannot proceed");
         return;
     }
     
     if(!app->view_dispatcher) {
-        FURI_LOG_E("RfidClone", "View dispatcher is NULL, cannot switch view");
         return;
     }
     
-    // Initialize RFID cloning - Comment out if functions are not defined
-    // predator_rfid_init(app);
-    
-    // Set up the view for RFID cloning - Comment out to avoid warnings about unused functions
-    // View* view = rfid_clone_view_alloc(app);
-    // if(view) {
-    //     // Replace popup view with custom view
-    //     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewPopup);
-    //     view_dispatcher_add_view(app->view_dispatcher, PredatorViewPopup, view);
-    //     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    //     
-    //     // Initialize state
-    //     app->attack_running = true;
-    // } else {
-    //     FURI_LOG_E("RfidClone", "Failed to allocate view for RFID Clone");
-    // }
-    
-    // Configure popup content to avoid blank screen
     popup_reset(app->popup);
     popup_set_header(app->popup, "RFID Clone", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, "Place RFID card on Flipper\nPress Back to cancel", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
-
-    // Switch to popup view
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
-    FURI_LOG_I("RfidClone", "RFID Clone scene entered with simulation mode");
+    app->attack_running = true;
+    app->targets_found = 0;
+    app->packets_sent = 0;
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
 }
 
 bool predator_scene_rfid_clone_new_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     bool consumed = false;
-
-    if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == PredatorCustomEventPopupBack) {
-            consumed = true;
-            scene_manager_previous_scene(app->scene_manager);
-        }
+    
+    if(!app) {
+        return false;
+    }
+    
+    if(event.type == SceneManagerEventTypeBack) {
+        app->attack_running = false;
+        scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
-            app->packets_sent++;
-            // Force a redraw on every tick since we have animations
-            view_dispatcher_send_custom_event(app->view_dispatcher, 0xFF);
+            app->packets_sent += 1;
+            if(app->packets_sent >= 30) {
+                popup_set_text(app->popup, "Card detected\nCloning in progress...", 64, 28, AlignCenter, AlignTop);
+            }
+            if(app->packets_sent >= 50) {
+                app->attack_running = false;
+                popup_set_text(app->popup, "Clone successful!\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+            }
             consumed = true;
         }
     }
-
+    
     return consumed;
 }
 
 void predator_scene_rfid_clone_new_on_exit(void* context) {
     PredatorApp* app = context;
-    app->attack_running = false;
     
-    // Do not remove/add core Popup view; it's managed at app init
+    if(!app) return;
+    
+    app->attack_running = false;
 }

@@ -55,15 +55,16 @@ void predator_scene_rfid_bruteforce_new_on_enter(void* context) {
         return;
     }
     
-    // Configure popup content to avoid blank screen
     popup_reset(app->popup);
     popup_set_header(app->popup, "RFID Bruteforce", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, "Bruteforcing RFID keys...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
-
-    // Switch to popup view
+    
+    app->attack_running = true;
+    app->packets_sent = 0;
+    
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
     FURI_LOG_I("RfidBruteforce", "RFID Bruteforce scene entered with simulation mode");
@@ -79,14 +80,19 @@ bool predator_scene_rfid_bruteforce_new_on_event(void* context, SceneManagerEven
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        app->attack_running = false;
+        scene_manager_previous_scene(app->scene_manager);
         consumed = true;
-        // app->attack_running = false;
-        // scene_manager_previous_scene(app->scene_manager);
     } else if(event.type == SceneManagerEventTypeTick) {
-        // Comment out any tick event handling that might reference undefined functions
-        // if(app->attack_running) {
-        //     app->packets_sent++;
-        // }
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 40) {
+                app->packets_sent = 0;
+                popup_set_text(app->popup, "Key found!\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+                app->attack_running = false;
+            }
+            consumed = true;
+        }
     }
     
     return consumed;
@@ -99,6 +105,8 @@ void predator_scene_rfid_bruteforce_new_on_exit(void* context) {
         // FURI_LOG_E("RfidBruteforce", "App context is NULL on exit");
         return;
     }
+    
+    app->attack_running = false;
     
     // FURI_LOG_I("RfidBruteforce", "Exiting RFID Bruteforce scene");
 }

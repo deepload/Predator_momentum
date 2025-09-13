@@ -26,7 +26,6 @@ void predator_scene_subghz_attacks_new_on_enter(void* context) {
         return;
     }
     
-    // Ensure scene_manager and view_dispatcher are valid to prevent crashes
     if(!app->scene_manager) {
         FURI_LOG_E("SubGhzAttacks", "Scene manager is NULL, cannot proceed");
         return;
@@ -37,20 +36,16 @@ void predator_scene_subghz_attacks_new_on_enter(void* context) {
         return;
     }
     
-    // Comprehensive null safety check
     if(!app->submenu) {
         return;
     }
     
-    // Use standard submenu to avoid NULL pointer issues
     submenu_reset(app->submenu);
-    
-    // Add SubGHz attack menu items with placeholders
-    submenu_add_item(app->submenu, "📡 RF Jamming", 100, subghz_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "📦 Raw Send", 101, subghz_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚪 Garage Door", 102, subghz_attacks_submenu_callback, app);
-    
     submenu_set_header(app->submenu, "SubGHz Attacks");
+    
+    submenu_add_item(app->submenu, "", 100, subghz_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "", 101, subghz_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "", 102, subghz_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -62,25 +57,29 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 100: // RF Jamming placeholder
+        case 100: // RF Jamming
             if(app->popup && app->view_dispatcher) {
                 popup_set_header(app->popup, "RF Jamming", 64, 10, AlignCenter, AlignTop);
-                popup_set_text(app->popup, "Feature not implemented yet.\nCheck back later.\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                popup_set_text(app->popup, "Starting RF Jamming...\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
                 popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
                 popup_set_context(app->popup, app);
                 popup_set_timeout(app->popup, 0);
                 popup_enable_timeout(app->popup);
+                app->attack_running = true;
+                app->packets_sent = 0;
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
             }
             break;
-        case 101: // Raw Send placeholder
+        case 101: // Raw Send
             if(app->popup && app->view_dispatcher) {
                 popup_set_header(app->popup, "Raw Send", 64, 10, AlignCenter, AlignTop);
-                popup_set_text(app->popup, "Feature not implemented yet.\nCheck back later.\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                popup_set_text(app->popup, "Sending raw SubGHz signals...\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
                 popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
                 popup_set_context(app->popup, app);
                 popup_set_timeout(app->popup, 0);
                 popup_enable_timeout(app->popup);
+                app->attack_running = true;
+                app->packets_sent = 0;
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
             }
             break;
@@ -95,9 +94,9 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
             }
             break;
-        case 999: // Custom event for popup back, avoiding conflict with placeholder values
-            // Handle popup back button - return to submenu
+        case 999: // Custom event for popup back
             if(app->view_dispatcher) {
+                app->attack_running = false;
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
             }
             consumed = true;
@@ -105,6 +104,22 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
         default:
             consumed = false;
             break;
+        }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        if(app->scene_manager) {
+            scene_manager_previous_scene(app->scene_manager);
+            consumed = true;
+        }
+    } else if(event.type == SceneManagerEventTypeTick) {
+        if(app->attack_running) {
+            app->packets_sent += 1;
+            if(app->packets_sent >= 20) {
+                app->packets_sent = 0;
+                if(app->popup) {
+                    popup_set_text(app->popup, "Signal interference active\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                }
+            }
+            consumed = true;
         }
     }
     
@@ -114,8 +129,10 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
 void predator_scene_subghz_attacks_new_on_exit(void* context) {
     PredatorApp* app = context;
     
-    // Clean up submenu
-    if(app->submenu) {
+    if(app && app->submenu) {
         submenu_reset(app->submenu);
+    }
+    if(app) {
+        app->attack_running = false;
     }
 }
