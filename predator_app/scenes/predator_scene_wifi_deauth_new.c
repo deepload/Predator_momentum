@@ -2,6 +2,7 @@
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_compliance.h"
 
 typedef struct {
     View* view;
@@ -211,7 +212,22 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
     // Configure popup content to avoid blank screen
     popup_reset(app->popup);
     popup_set_header(app->popup, "WiFi Deauth", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Preparing deauth attack...\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+
+    bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized);
+    if(!live_allowed) {
+        popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+    } else {
+        // Live path: initialize ESP32 and start deauth
+        predator_esp32_init(app);
+        bool started = predator_esp32_wifi_deauth(app, 6); // default channel 6
+        if(started) {
+            popup_set_text(app->popup, "Live — Deauth running\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+            FURI_LOG_I("WiFiDeauth", "Live deauth started (channel 6)");
+        } else {
+            popup_set_text(app->popup, "ESP32 not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+            FURI_LOG_W("WiFiDeauth", "ESP32 start failed; falling back to Demo text");
+        }
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -238,6 +254,10 @@ bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent ev
     if(event.type == SceneManagerEventTypeBack) {
         // Stop attack and return to previous scene
         app->attack_running = false;
+        // If authorized/live, send stop to ESP32
+        if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized)) {
+            predator_esp32_stop_attack(app);
+        }
         FURI_LOG_I("WiFiDeauth", "Back event received, stopping attack and navigating back");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
@@ -268,5 +288,8 @@ void predator_scene_wifi_deauth_new_on_exit(void* context) {
     
     // Stop any running attack
     app->attack_running = false;
+    if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized)) {
+        predator_esp32_stop_attack(app);
+    }
     FURI_LOG_I("WiFiDeauth", "Exited WiFi Deauth scene");
 }

@@ -2,6 +2,7 @@
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_compliance.h"
 
 // Remove or comment out unused functions to avoid build errors
 /*
@@ -55,7 +56,28 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Car Jamming", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Starting jamming signal...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureCarJamming, app->authorized);
+    if(!live_allowed) {
+        popup_set_text(app->popup, "Demo Mode — Authorization required\nSimulated jamming only\nPress Back", 64, 28, AlignCenter, AlignTop);
+    } else {
+        // Live: SubGHz jamming with region-appropriate frequency
+        predator_subghz_init(app);
+        uint32_t freq = 433920000; // default EU/CH
+        PredatorRegion r = app->region;
+        if(r == PredatorRegionUS) freq = 315000000;
+        else if(r == PredatorRegionJP) freq = 315000000;
+        else if(r == PredatorRegionCN) freq = 433920000;
+        bool started = predator_subghz_start_jamming(app, freq);
+        if(started) {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "Live — Jamming %lu Hz\nPress Back to stop", freq);
+            popup_set_text(app->popup, buf, 64, 28, AlignCenter, AlignTop);
+            FURI_LOG_I("CarJamming", "Live jamming started at %lu Hz", freq);
+        } else {
+            popup_set_text(app->popup, "RF not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+            FURI_LOG_W("CarJamming", "SubGHz start_jamming failed; falling back to Demo text");
+        }
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -83,6 +105,9 @@ bool predator_scene_car_jamming_new_on_event(void* context, SceneManagerEvent ev
     if(event.type == SceneManagerEventTypeBack) {
         FURI_LOG_I("CarJamming", "Back event received, navigating to previous scene");
         app->attack_running = false;
+        if(predator_compliance_is_feature_allowed(app, PredatorFeatureCarJamming, app->authorized)) {
+            predator_subghz_stop_attack(app);
+        }
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -132,5 +157,8 @@ void predator_scene_car_jamming_new_on_exit(void* context) {
     // Clean up
     app->attack_running = false;
     app->swiss_station_test = false;
+    if(predator_compliance_is_feature_allowed(app, PredatorFeatureCarJamming, app->authorized)) {
+        predator_subghz_stop_attack(app);
+    }
     FURI_LOG_I("CarJamming", "Exited Car Jamming scene");
 }

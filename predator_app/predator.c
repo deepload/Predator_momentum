@@ -318,6 +318,11 @@ PredatorApp* predator_app_alloc() {
         app->satellites = 0;
     }
 
+    // Initialize region & compliance engine and authorization gate
+    if(app) {
+        predator_compliance_init(app);
+    }
+
     // Only proceed to first scene if app and scene manager are valid
     if(app && app->scene_manager) {
         scene_manager_next_scene(app->scene_manager, PredatorSceneStart);

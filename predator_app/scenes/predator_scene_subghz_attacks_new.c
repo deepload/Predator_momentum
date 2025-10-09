@@ -2,6 +2,8 @@
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_compliance.h"
+#include "../helpers/predator_subghz.h"
 #include <furi.h>
 
 // Popup callback for SubGHz attacks
@@ -43,9 +45,9 @@ void predator_scene_subghz_attacks_new_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "SubGHz Attacks");
     
-    submenu_add_item(app->submenu, "", 100, subghz_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "", 101, subghz_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "", 102, subghz_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "RF Jamming", 100, subghz_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Raw Send", 101, subghz_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Garage Door (TBD)", 102, subghz_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -57,10 +59,27 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 100: // RF Jamming
+        case 100: { // RF Jamming
             if(app->popup && app->view_dispatcher) {
                 popup_set_header(app->popup, "RF Jamming", 64, 10, AlignCenter, AlignTop);
-                popup_set_text(app->popup, "Starting RF Jamming...\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                // Choose region-aware frequency and feature for compliance
+                uint32_t freq = 433920000; PredatorFeature feat = PredatorFeatureSubGhz433Tx;
+                PredatorRegion r = app->region;
+                if(r == PredatorRegionUS || r == PredatorRegionJP) { freq = 315000000; feat = PredatorFeatureSubGhz315Tx; }
+                else if(r == PredatorRegionEU || r == PredatorRegionCH) { freq = 433920000; feat = PredatorFeatureSubGhz433Tx; }
+                else if(r == PredatorRegionCN) { freq = 433920000; feat = PredatorFeatureSubGhz433Tx; }
+                bool live_allowed = predator_compliance_is_feature_allowed(app, feat, app->authorized);
+                if(live_allowed) {
+                    predator_subghz_init(app);
+                    if(predator_subghz_start_jamming(app, freq)) {
+                        char buf[64]; snprintf(buf, sizeof(buf), "Live — Jamming %lu Hz\nPress Back to stop", freq);
+                        popup_set_text(app->popup, buf, 64, 25, AlignCenter, AlignTop);
+                    } else {
+                        popup_set_text(app->popup, "RF not ready — Falling back to Demo\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                    }
+                } else {
+                    popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                }
                 popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
                 popup_set_context(app->popup, app);
                 popup_set_timeout(app->popup, 0);
@@ -70,19 +89,31 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
             }
             break;
-        case 101: // Raw Send
+        }
+        case 101: { // Raw Send
             if(app->popup && app->view_dispatcher) {
                 popup_set_header(app->popup, "Raw Send", 64, 10, AlignCenter, AlignTop);
-                popup_set_text(app->popup, "Sending raw SubGHz signals...\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
+                // Use simple car key frame as a raw-send sample and region-aware feature gate
+                PredatorRegion r = app->region; PredatorFeature feat = PredatorFeatureSubGhz433Tx;
+                if(r == PredatorRegionUS || r == PredatorRegionJP) feat = PredatorFeatureSubGhz315Tx;
+                bool live_allowed = predator_compliance_is_feature_allowed(app, feat, app->authorized);
+                if(live_allowed) {
+                    predator_subghz_init(app);
+                    predator_subghz_send_car_key(app, 0xA5B6C7D8);
+                    popup_set_text(app->popup, "Live — Raw frame sent\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                } else {
+                    popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                }
                 popup_set_callback(app->popup, predator_scene_subghz_attacks_popup_callback);
                 popup_set_context(app->popup, app);
                 popup_set_timeout(app->popup, 0);
                 popup_enable_timeout(app->popup);
-                app->attack_running = true;
+                app->attack_running = false; // one-shot send
                 app->packets_sent = 0;
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
             }
             break;
+        }
         case 102: // Garage Door placeholder
             if(app->popup && app->view_dispatcher) {
                 popup_set_header(app->popup, "Garage Door", 64, 10, AlignCenter, AlignTop);
@@ -97,6 +128,8 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
         case 999: // Custom event for popup back
             if(app->view_dispatcher) {
                 app->attack_running = false;
+                // Stop any live RF activity if running
+                predator_subghz_stop_attack(app);
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
             }
             consumed = true;

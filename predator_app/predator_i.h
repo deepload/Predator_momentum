@@ -15,6 +15,8 @@
 #include <storage/storage.h>
 
 #include "helpers/predator_boards.h"
+// Compliance and regional gating
+#include "helpers/predator_compliance.h"
 // Use generated scene IDs from config to avoid mismatches
 #include "scenes/predator_scene.h"
 
@@ -73,6 +75,9 @@ typedef struct PredatorApp {
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
     PredatorBoardType board_type;  // Type of expansion board attached
+    // Regional compliance and authorization
+    PredatorRegion region;     // Active compliance region
+    bool authorized;           // Authorization status for high-impact ops
     
     // UI components
     ViewDispatcher* view_dispatcher;

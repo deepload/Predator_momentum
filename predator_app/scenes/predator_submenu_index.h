@@ -9,6 +9,7 @@ typedef enum {
     SubmenuIndexGpsTracker,
     SubmenuIndexWardriving,
     SubmenuIndexSocialEngineering,
+    SubmenuIndexQuickPoc,
     SubmenuIndexModuleStatus,
     SubmenuIndexBoardSelection,
     SubmenuIndexSettings,

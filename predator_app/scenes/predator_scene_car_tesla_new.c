@@ -2,6 +2,7 @@
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_compliance.h"
 
 void predator_scene_car_tesla_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -42,7 +43,16 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
     }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Tesla Charge Port", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Sending charge port signal...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureCarTeslaCharge, app->authorized);
+    if(!live_allowed) {
+        popup_set_text(app->popup, "Demo Mode — Authorization required\nCharge Port demo only\nPress Back", 64, 28, AlignCenter, AlignTop);
+    } else {
+        // Live: initialize SubGHz and send Tesla charge open signal
+        predator_subghz_init(app);
+        predator_subghz_send_tesla_charge_port(app);
+        popup_set_text(app->popup, "Live — Charge signal sent\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+        FURI_LOG_I("CarTesla", "Live Tesla charge signal sent");
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -70,6 +80,9 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
     if(event.type == SceneManagerEventTypeBack) {
         FURI_LOG_I("CarTesla", "Back event received, navigating to previous scene");
         app->attack_running = false;
+        if(predator_compliance_is_feature_allowed(app, PredatorFeatureCarTeslaCharge, app->authorized)) {
+            predator_subghz_stop_attack(app);
+        }
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -119,5 +132,8 @@ void predator_scene_car_tesla_new_on_exit(void* context) {
     // Clean up
     app->attack_running = false;
     app->vip_mode = false;
+    if(predator_compliance_is_feature_allowed(app, PredatorFeatureCarTeslaCharge, app->authorized)) {
+        predator_subghz_stop_attack(app);
+    }
     FURI_LOG_I("CarTesla", "Exited Tesla Charge Port scene");
 }

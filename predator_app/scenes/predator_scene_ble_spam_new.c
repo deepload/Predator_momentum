@@ -1,4 +1,7 @@
 #include "../predator_i.h"
+// Live integration
+#include "../helpers/predator_esp32.h"
+#include "../helpers/predator_compliance.h"
 
 void predator_scene_ble_spam_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -17,7 +20,18 @@ void predator_scene_ble_spam_new_on_enter(void* context) {
     
     popup_reset(app->popup);
     popup_set_header(app->popup, "BLE Spam", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Starting BLE spam...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureBleSpam, app->authorized);
+    if(live_allowed) {
+        predator_esp32_init(app);
+        bool started = predator_esp32_ble_spam(app, 0);
+        if(started) {
+            popup_set_text(app->popup, "Live — BLE spam active\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+        } else {
+            popup_set_text(app->popup, "ESP32 not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+        }
+    } else {
+        popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -38,6 +52,9 @@ bool predator_scene_ble_spam_new_on_event(void* context, SceneManagerEvent event
     
     if(event.type == SceneManagerEventTypeBack) {
         app->attack_running = false;
+        if(predator_compliance_is_feature_allowed(app, PredatorFeatureBleSpam, app->authorized)) {
+            predator_esp32_stop_attack(app);
+        }
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -56,4 +73,7 @@ void predator_scene_ble_spam_new_on_exit(void* context) {
     if(!app) return;
     
     app->attack_running = false;
+    if(predator_compliance_is_feature_allowed(app, PredatorFeatureBleSpam, app->authorized)) {
+        predator_esp32_stop_attack(app);
+    }
 }

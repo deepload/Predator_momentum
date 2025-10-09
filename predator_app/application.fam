@@ -23,6 +23,7 @@ App(
         "helpers/predator_error.c",
         "helpers/predator_esp32.c",
         "helpers/predator_gps.c",
+        "helpers/predator_compliance.c",
         "helpers/predator_models.c",
         "helpers/predator_models_seed.c",
         "helpers/predator_scene_utils.c",
@@ -65,5 +66,6 @@ App(
         "scenes/predator_scene_settings_new.c",
         "scenes/predator_scene_board_selection_new.c",
         "scenes/predator_scene_about_new.c",
+        "scenes/predator_scene_quick_poc.c",
     ],
 )
