@@ -45,6 +45,7 @@ void predator_scene_rfid_attacks_new_on_enter(void* context) {
     submenu_add_item(app->submenu, "🎲 RFID Fuzzing", 2, rfid_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 NFC Clone", 3, rfid_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🔐 Mifare Hack", 4, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Live Monitor (logs)", 99, rfid_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -114,6 +115,9 @@ bool predator_scene_rfid_attacks_new_on_event(void* context, SceneManagerEvent e
             app->attack_running = false;
             view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
             consumed = true;
+            break;
+        case 99:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
             break;
         default:
             consumed = false;

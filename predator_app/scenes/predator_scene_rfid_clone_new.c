@@ -1,6 +1,8 @@
 #include "../predator_i.h"
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
 #include <gui/canvas.h>
 
 // Custom view for RFID clone
@@ -128,7 +130,10 @@ void predator_scene_rfid_clone_new_on_enter(void* context) {
     
     popup_reset(app->popup);
     popup_set_header(app->popup, "RFID Clone", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Place RFID card on Flipper\nPress Back to cancel", 64, 28, AlignCenter, AlignTop);
+    {
+        char status[64]; predator_ui_build_status(app, "Place card on Flipper", status, sizeof(status));
+        popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -136,6 +141,7 @@ void predator_scene_rfid_clone_new_on_enter(void* context) {
     app->attack_running = true;
     app->targets_found = 0;
     app->packets_sent = 0;
+    predator_log_append(app, "RfidClone START");
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
 }
@@ -155,12 +161,15 @@ bool predator_scene_rfid_clone_new_on_event(void* context, SceneManagerEvent eve
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             app->packets_sent += 1;
-            if(app->packets_sent >= 30) {
-                popup_set_text(app->popup, "Card detected\nCloning in progress...", 64, 28, AlignCenter, AlignTop);
+            if(app->packets_sent == 30 && app->popup) {
+                char status[64]; predator_ui_build_status(app, "Card: detected", status, sizeof(status));
+                popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
             }
-            if(app->packets_sent >= 50) {
+            if(app->packets_sent >= 50 && app->popup) {
                 app->attack_running = false;
-                popup_set_text(app->popup, "Clone successful!\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+                char status[64]; predator_ui_build_status(app, "Clone: successful", status, sizeof(status));
+                popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+                predator_log_append(app, "RfidClone SUCCESS");
             }
             consumed = true;
         }
@@ -175,4 +184,5 @@ void predator_scene_rfid_clone_new_on_exit(void* context) {
     if(!app) return;
     
     app->attack_running = false;
+    predator_log_append(app, "RfidClone STOP");
 }

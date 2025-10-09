@@ -1,6 +1,8 @@
 #include "../predator_i.h"
 #include "../helpers/predator_view_helpers.h"
 #include "../helpers/predator_ui_elements.h"
+#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
 
 typedef struct {
     View* view;
@@ -57,13 +59,17 @@ void predator_scene_rfid_bruteforce_new_on_enter(void* context) {
     
     popup_reset(app->popup);
     popup_set_header(app->popup, "RFID Bruteforce", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Bruteforcing RFID keys...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    {
+        char status[64]; predator_ui_build_status(app, "Bruteforce: starting", status, sizeof(status));
+        popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
     
     app->attack_running = true;
     app->packets_sent = 0;
+    predator_log_append(app, "RfidBruteforce START");
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
@@ -86,9 +92,15 @@ bool predator_scene_rfid_bruteforce_new_on_event(void* context, SceneManagerEven
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             app->packets_sent += 1;
-            if(app->packets_sent >= 40) {
-                app->packets_sent = 0;
+            if(app->packets_sent % 8 == 0 && app->popup) {
+                char detail[48];
+                snprintf(detail, sizeof(detail), "Keys tried: %lu", app->packets_sent);
+                char status[64]; predator_ui_build_status(app, detail, status, sizeof(status));
+                popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+            }
+            if(app->packets_sent >= 40 && app->popup) {
                 popup_set_text(app->popup, "Key found!\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+                predator_log_append(app, "RfidBruteforce SUCCESS");
                 app->attack_running = false;
             }
             consumed = true;

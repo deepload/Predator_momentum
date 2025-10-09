@@ -124,6 +124,12 @@ typedef struct PredatorApp {
     bool vip_mode;
     // Mode for testing security of other electric car stations in Switzerland
     bool swiss_station_test;
+
+    // Selected car model context
+    size_t selected_model_index;
+    uint32_t selected_model_freq;
+    char selected_model_make[16];
+    char selected_model_name[40];
 } PredatorApp;
 
 

@@ -14,6 +14,7 @@ static PredatorRegion parse_region_code(const char* code) {
     if(strncmp(code, "JP", 2) == 0) return PredatorRegionJP;
     if(strncmp(code, "CN", 2) == 0) return PredatorRegionCN;
     if(strncmp(code, "AUTO", 4) == 0) return PredatorRegionAuto;
+    if(strncmp(code, "UNBLOCK", 7) == 0) return PredatorRegionUnblock;
     return PredatorRegionEU;
 }
 
@@ -24,6 +25,7 @@ const char* predator_compliance_region_str(PredatorRegion region) {
         case PredatorRegionCH: return "CH";
         case PredatorRegionJP: return "JP";
         case PredatorRegionCN: return "CN";
+        case PredatorRegionUnblock: return "UNBLOCK";
         case PredatorRegionAuto: default: return "AUTO";
     }
 }
@@ -98,7 +100,6 @@ void predator_compliance_init(struct PredatorApp* app) {
 }
 
 static bool region_supports_freq(PredatorRegion region, PredatorFeature feature) {
-    return true;
     switch(feature) {
         case PredatorFeatureSubGhz315Tx: return (region == PredatorRegionUS);
         case PredatorFeatureSubGhz433Tx: return (region == PredatorRegionEU || region == PredatorRegionCH);
@@ -113,6 +114,8 @@ bool predator_compliance_is_feature_allowed(struct PredatorApp* app, PredatorFea
     PredatorRegion region = app ? app->region : s_region;
     // Treat AUTO as EU for compliance gating unless explicitly overridden
     if(region == PredatorRegionAuto) region = PredatorRegionEU;
+    // Testing-only region: bypass all gating
+    if(region == PredatorRegionUnblock) return true;
 
     // Features that are informational only
     if(feature == PredatorFeatureGpsTracker || feature == PredatorFeatureWardriving || feature == PredatorFeatureBleScan || feature == PredatorFeatureWifiScan) {

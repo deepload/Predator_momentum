@@ -19,6 +19,7 @@ typedef enum {
     SettingsRegionCH,
     SettingsRegionJP,
     SettingsRegionCN,
+    SettingsRegionUnblock,
 } SettingsItemId;
 
 static void settings_persist_region(PredatorApp* app, PredatorRegion region) {
@@ -80,6 +81,7 @@ void predator_scene_settings_new_on_enter(void* context) {
     submenu_add_item(app->submenu, "Region: CH", SettingsRegionCH, settings_submenu_callback, app);
     submenu_add_item(app->submenu, "Region: JP", SettingsRegionJP, settings_submenu_callback, app);
     submenu_add_item(app->submenu, "Region: CN", SettingsRegionCN, settings_submenu_callback, app);
+    submenu_add_item(app->submenu, "Region: UNBLOCK (test)", SettingsRegionUnblock, settings_submenu_callback, app);
 
     // Highlight current region if set
     SettingsItemId selected = SettingsRegionEU;
@@ -90,6 +92,7 @@ void predator_scene_settings_new_on_enter(void* context) {
         case PredatorRegionCH: selected = SettingsRegionCH; break;
         case PredatorRegionJP: selected = SettingsRegionJP; break;
         case PredatorRegionCN: selected = SettingsRegionCN; break;
+        case PredatorRegionUnblock: selected = SettingsRegionUnblock; break;
         default: selected = SettingsRegionEU; break;
     }
     submenu_set_selected_item(app->submenu, selected);
@@ -134,6 +137,10 @@ bool predator_scene_settings_new_on_event(void* context, SceneManagerEvent event
             break;
         case SettingsRegionCN:
             settings_persist_region(app, PredatorRegionCN);
+            consumed = true;
+            break;
+        case SettingsRegionUnblock:
+            settings_persist_region(app, PredatorRegionUnblock);
             consumed = true;
             break;
         default:

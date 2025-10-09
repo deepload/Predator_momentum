@@ -2,6 +2,8 @@
 // Live integration
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_compliance.h"
+#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
 
 void predator_scene_ble_spam_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -25,7 +27,9 @@ void predator_scene_ble_spam_new_on_enter(void* context) {
         predator_esp32_init(app);
         bool started = predator_esp32_ble_spam(app, 0);
         if(started) {
-            popup_set_text(app->popup, "Live — BLE spam active\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+            char status[64]; predator_ui_build_status(app, "Mode: BLE Spam", status, sizeof(status));
+            popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+            predator_log_append(app, "BleSpam START");
         } else {
             popup_set_text(app->popup, "ESP32 not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);
         }
@@ -55,6 +59,7 @@ bool predator_scene_ble_spam_new_on_event(void* context, SceneManagerEvent event
         if(predator_compliance_is_feature_allowed(app, PredatorFeatureBleSpam, app->authorized)) {
             predator_esp32_stop_attack(app);
         }
+        predator_log_append(app, "BleSpam STOP");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {

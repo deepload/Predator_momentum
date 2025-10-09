@@ -24,6 +24,7 @@ typedef enum {
     QuickPocBoardSelection,
     QuickPocSettings,
     QuickPocAbout,
+    QuickPocLiveMonitor,
 } QuickPocIndex;
 
 static void quick_poc_submenu_callback(void* context, uint32_t index) {
@@ -72,6 +73,7 @@ void predator_scene_quick_poc_on_enter(void* context) {
     submenu_add_item(app->submenu, "Board Selection", QuickPocBoardSelection, quick_poc_submenu_callback, app);
     submenu_add_item(app->submenu, "Settings", QuickPocSettings, quick_poc_submenu_callback, app);
     submenu_add_item(app->submenu, "About", QuickPocAbout, quick_poc_submenu_callback, app);
+    submenu_add_item(app->submenu, "Live Monitor (logs)", QuickPocLiveMonitor, quick_poc_submenu_callback, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -141,6 +143,9 @@ bool predator_scene_quick_poc_on_event(void* context, SceneManagerEvent event) {
             return true;
         case QuickPocAbout:
             scene_manager_next_scene(app->scene_manager, PredatorSceneAbout);
+            return true;
+        case QuickPocLiveMonitor:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
             return true;
         default:
             return false;

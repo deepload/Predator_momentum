@@ -3,6 +3,8 @@
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_ui_elements.h"
 #include "../helpers/predator_compliance.h"
+#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
 
 // Remove or comment out unused functions to avoid build errors
 /*
@@ -60,18 +62,21 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
     if(!live_allowed) {
         popup_set_text(app->popup, "Demo Mode — Authorization required\nSimulated jamming only\nPress Back", 64, 28, AlignCenter, AlignTop);
     } else {
-        // Live: SubGHz jamming with region-appropriate frequency
+        // Live: SubGHz jamming using selected model frequency if present, else region default
         predator_subghz_init(app);
-        uint32_t freq = 433920000; // default EU/CH
+        uint32_t freq = app->selected_model_freq ? app->selected_model_freq : 433920000; // default EU/CH
         PredatorRegion r = app->region;
-        if(r == PredatorRegionUS) freq = 315000000;
-        else if(r == PredatorRegionJP) freq = 315000000;
-        else if(r == PredatorRegionCN) freq = 433920000;
+        if(!app->selected_model_freq) {
+            if(r == PredatorRegionUS || r == PredatorRegionJP) freq = 315000000;
+            else if(r == PredatorRegionCN) freq = 433920000;
+        }
         bool started = predator_subghz_start_jamming(app, freq);
         if(started) {
-            char buf[64];
-            snprintf(buf, sizeof(buf), "Live — Jamming %lu Hz\nPress Back to stop", freq);
-            popup_set_text(app->popup, buf, 64, 28, AlignCenter, AlignTop);
+            char detail[48]; snprintf(detail, sizeof(detail), "Freq: %lu Hz", freq);
+            char status[64]; predator_ui_build_status(app, detail, status, sizeof(status));
+            popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+            char logline[80]; snprintf(logline, sizeof(logline), "CarJamming START freq=%lu", freq);
+            predator_log_append(app, logline);
             FURI_LOG_I("CarJamming", "Live jamming started at %lu Hz", freq);
         } else {
             popup_set_text(app->popup, "RF not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);

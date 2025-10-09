@@ -3,6 +3,8 @@
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_ui_elements.h"
 #include "../helpers/predator_compliance.h"
+#include "../helpers/predator_settings.h"
+#include "../helpers/predator_logging.h"
 
 typedef struct {
     View* view;
@@ -218,13 +220,39 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
         popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 28, AlignCenter, AlignTop);
     } else {
         // Live path: initialize ESP32 and start deauth
+        // Read preferred channel from settings (0 = All, else 1..13)
+        int32_t channel = 6;
+        predator_settings_get_int(app, "WIFI_CHANNEL", 6, &channel);
+        if(channel < 0 || channel > 13) channel = 6;
+
         predator_esp32_init(app);
-        bool started = predator_esp32_wifi_deauth(app, 6); // default channel 6
+        bool started = predator_esp32_wifi_deauth(app, (uint8_t)channel);
+        if(!started) {
+            // Retry once after short delay with re-init
+            FURI_LOG_W("WiFiDeauth", "First start failed, retrying once after reinit");
+            predator_esp32_stop_attack(app);
+            predator_esp32_init(app);
+            started = predator_esp32_wifi_deauth(app, (uint8_t)channel);
+        }
         if(started) {
-            popup_set_text(app->popup, "Live — Deauth running\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
-            FURI_LOG_I("WiFiDeauth", "Live deauth started (channel 6)");
+            char msg[128];
+            snprintf(
+                msg,
+                sizeof(msg),
+                "Deauth running (ch %ld)\nSteps: Start EvilTwin, then short bursts here\nBack=Stop | See Live Monitor",
+                (long)channel);
+            popup_set_text(app->popup, msg, 64, 28, AlignCenter, AlignTop);
+            char logline[80]; snprintf(logline, sizeof(logline), "WiFiDeauth START ch=%ld", (long)channel);
+            predator_log_append(app, logline);
+            FURI_LOG_I("WiFiDeauth", "Live deauth started (channel %ld)", (long)channel);
         } else {
-            popup_set_text(app->popup, "ESP32 not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+            popup_set_text(
+                app->popup,
+                "ESP32 not ready — Demo Mode\nTip: Set WIFI_CHANNEL to target AP\nBack=Return | See Live Monitor",
+                64,
+                28,
+                AlignCenter,
+                AlignTop);
             FURI_LOG_W("WiFiDeauth", "ESP32 start failed; falling back to Demo text");
         }
     }
@@ -258,6 +286,7 @@ bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent ev
         if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized)) {
             predator_esp32_stop_attack(app);
         }
+        predator_log_append(app, "WiFiDeauth STOP");
         FURI_LOG_I("WiFiDeauth", "Back event received, stopping attack and navigating back");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;

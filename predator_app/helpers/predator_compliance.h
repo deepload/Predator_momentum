@@ -13,6 +13,7 @@ typedef enum {
     PredatorRegionCH,  // Switzerland
     PredatorRegionJP,
     PredatorRegionCN,
+    PredatorRegionUnblock, // Testing-only: bypass compliance checks
 } PredatorRegion;
 
 typedef enum {

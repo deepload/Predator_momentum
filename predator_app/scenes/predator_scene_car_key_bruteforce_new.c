@@ -3,6 +3,8 @@
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_ui_elements.h"
 #include "../helpers/predator_compliance.h"
+#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
 
 // Remove or comment out unused functions to avoid build errors
 /*
@@ -49,20 +51,33 @@ void predator_scene_car_key_bruteforce_new_on_enter(void* context) {
     }
     popup_reset(app->popup);
     popup_set_header(app->popup, "Car Key Bruteforce", 64, 10, AlignCenter, AlignTop);
-    // Region-aware gating using SubGHz TX features
+    // Prefer selected model frequency, else region-aware default
     PredatorRegion r = app->region; PredatorFeature feat = PredatorFeatureSubGhz433Tx; uint32_t freq = 433920000;
-    if(r == PredatorRegionUS || r == PredatorRegionJP) { feat = PredatorFeatureSubGhz315Tx; freq = 315000000; }
+    if(app->selected_model_freq) {
+        freq = app->selected_model_freq;
+        // Choose feature based on freq
+        feat = (freq < 400000000) ? PredatorFeatureSubGhz315Tx : PredatorFeatureSubGhz433Tx;
+    } else if(r == PredatorRegionUS || r == PredatorRegionJP) {
+        feat = PredatorFeatureSubGhz315Tx; freq = 315000000;
+    }
     bool live_allowed = predator_compliance_is_feature_allowed(app, feat, app->authorized);
+    // Always show initial status including frequency
+    {
+        char detail[48]; snprintf(detail, sizeof(detail), "Rolling @ %lu Hz", freq);
+        char status[64]; predator_ui_build_status(app, detail, status, sizeof(status));
+        popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+    }
     if(live_allowed) {
         predator_subghz_init(app);
         if(predator_subghz_start_rolling_code_attack(app, freq)) {
-            char buf[64]; snprintf(buf, sizeof(buf), "Live — Rolling @ %lu Hz\nPress Back to stop", freq);
-            popup_set_text(app->popup, buf, 64, 28, AlignCenter, AlignTop);
+            char logline[80]; snprintf(logline, sizeof(logline), "CarRolling START freq=%lu", freq);
+            predator_log_append(app, logline);
         } else {
-            popup_set_text(app->popup, "RF not ready — Falling back to Demo\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+            predator_log_append(app, "CarRolling FALLBACK_SIM");
+            FURI_LOG_W("CarKeyBruteforce", "RF start failed; continuing with simulated progress");
         }
     } else {
-        popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 28, AlignCenter, AlignTop);
+        predator_log_append(app, "CarRolling DEMO_SIM");
     }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
@@ -99,8 +114,8 @@ bool predator_scene_car_key_bruteforce_new_on_event(void* context, SceneManagerE
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
-            app->packets_sent += 5; // Simulate sending rolling codes
-            if(app->packets_sent % 25 == 0) {
+            app->packets_sent += 10; // Faster visible progress
+            if(app->packets_sent % 10 == 0) {
                 // Update popup text to show progress
                 char progress_text[64];
                 snprintf(progress_text, sizeof(progress_text), "Codes attempted: %lu\nPress Back to stop", app->packets_sent);

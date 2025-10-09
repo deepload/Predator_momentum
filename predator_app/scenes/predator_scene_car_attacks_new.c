@@ -64,6 +64,7 @@ void predator_scene_car_attacks_new_on_enter(void* context) {
     submenu_add_item(app->submenu, "Passive Opener", 5, car_attacks_submenu_callback, app);
     FURI_LOG_I("CarAttacks", "Added Passive Opener submenu item");
     submenu_add_item(app->submenu, "VIP: Tesla Swiss Unlock", 6, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Live Monitor (logs)", 99, car_attacks_submenu_callback, app);
     FURI_LOG_I("CarAttacks", "Added VIP Tesla Swiss Unlock submenu item");
 
     submenu_set_selected_item(app->submenu, 0);
@@ -114,6 +115,10 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
             // Send custom event to Tesla scene to trigger VIP mode (placeholder)
             view_dispatcher_send_custom_event(app->view_dispatcher, 999);
+            break;
+        case 99: // Live Monitor
+            FURI_LOG_I("CarAttacks", "Navigating to Live Monitor scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
             break;
         default:
             FURI_LOG_W("CarAttacks", "Unknown custom event: %lu", event.event);

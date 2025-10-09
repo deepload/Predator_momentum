@@ -1,4 +1,5 @@
 #include "../predator_i.h"
+#include "../helpers/predator_ui_status.h"
 
 void predator_scene_ble_scan_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -17,7 +18,10 @@ void predator_scene_ble_scan_new_on_enter(void* context) {
     
     popup_reset(app->popup);
     popup_set_header(app->popup, "BLE Scanner", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Starting BLE scan...\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+    {
+        char status[64]; predator_ui_build_status(app, "Mode: BLE Scan", status, sizeof(status));
+        popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
+    }
     popup_set_context(app->popup, app);
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
@@ -47,7 +51,10 @@ bool predator_scene_ble_scan_new_on_event(void* context, SceneManagerEvent event
             if(app->packets_sent >= 20) {
                 app->packets_sent = 0;
                 app->targets_found += 1;
-                popup_set_text(app->popup, "Devices found\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+                char detail[48];
+                snprintf(detail, sizeof(detail), "Devices: %lu", app->targets_found);
+                char status[64]; predator_ui_build_status(app, detail, status, sizeof(status));
+                popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
             }
             consumed = true;
         }

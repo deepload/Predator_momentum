@@ -3,6 +3,7 @@
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_ui_elements.h"
 #include "../helpers/predator_compliance.h"
+#include "../helpers/predator_ui_status.h"
 
 void predator_scene_car_tesla_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -50,7 +51,8 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
         // Live: initialize SubGHz and send Tesla charge open signal
         predator_subghz_init(app);
         predator_subghz_send_tesla_charge_port(app);
-        popup_set_text(app->popup, "Live — Charge signal sent\nPress Back to stop", 64, 28, AlignCenter, AlignTop);
+        char status[64]; predator_ui_build_status(app, "Action: ChargePort", status, sizeof(status));
+        popup_set_text(app->popup, status, 64, 28, AlignCenter, AlignTop);
         FURI_LOG_I("CarTesla", "Live Tesla charge signal sent");
     }
     popup_set_context(app->popup, app);

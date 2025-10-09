@@ -4,6 +4,8 @@
 #include "../helpers/predator_ui_elements.h"
 #include "../helpers/predator_compliance.h"
 #include "../helpers/predator_subghz.h"
+#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
 #include <furi.h>
 
 // Popup callback for SubGHz attacks
@@ -48,6 +50,7 @@ void predator_scene_subghz_attacks_new_on_enter(void* context) {
     submenu_add_item(app->submenu, "RF Jamming", 100, subghz_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Raw Send", 101, subghz_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Garage Door (TBD)", 102, subghz_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Live Monitor (logs)", 199, subghz_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -72,8 +75,11 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
                 if(live_allowed) {
                     predator_subghz_init(app);
                     if(predator_subghz_start_jamming(app, freq)) {
-                        char buf[64]; snprintf(buf, sizeof(buf), "Live — Jamming %lu Hz\nPress Back to stop", freq);
-                        popup_set_text(app->popup, buf, 64, 25, AlignCenter, AlignTop);
+                        char detail[48]; snprintf(detail, sizeof(detail), "Freq: %lu Hz", freq);
+                        char status[64]; predator_ui_build_status(app, detail, status, sizeof(status));
+                        popup_set_text(app->popup, status, 64, 25, AlignCenter, AlignTop);
+                        char logline[80]; snprintf(logline, sizeof(logline), "SubGHzJamming START freq=%lu", freq);
+                        predator_log_append(app, logline);
                     } else {
                         popup_set_text(app->popup, "RF not ready — Falling back to Demo\nPress Back to return", 64, 25, AlignCenter, AlignTop);
                     }
@@ -100,7 +106,9 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
                 if(live_allowed) {
                     predator_subghz_init(app);
                     predator_subghz_send_car_key(app, 0xA5B6C7D8);
-                    popup_set_text(app->popup, "Live — Raw frame sent\nPress Back to return", 64, 25, AlignCenter, AlignTop);
+                    char status[64]; predator_ui_build_status(app, "Raw frame sent", status, sizeof(status));
+                    popup_set_text(app->popup, status, 64, 25, AlignCenter, AlignTop);
+                    predator_log_append(app, "SubGHz RawSend SENT");
                 } else {
                     popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 25, AlignCenter, AlignTop);
                 }
@@ -133,6 +141,9 @@ bool predator_scene_subghz_attacks_new_on_event(void* context, SceneManagerEvent
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
             }
             consumed = true;
+            break;
+        case 199: // Live Monitor
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
             break;
         default:
             consumed = false;
