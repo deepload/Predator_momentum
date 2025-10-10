@@ -1,29 +1,8 @@
 // Clean UI architecture - memory optimized (no duplicates)
 ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 
-// ELON'S TESLA SECURITY SUITE - PRIORITY
-ADD_SCENE(predator, tesla_security_suite, TeslaSecuritySuite)
-
-// ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY DEMONSTRATION
-ADD_SCENE(predator, car_brand_security_suite, CarBrandSecuritySuite)
-
-// ELON'S USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
-ADD_SCENE(predator, user_friendly_ui, UserFriendlyUI)
-
-// UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
-ADD_SCENE(predator, universal_car_hacker, UniversalCarHacker)
-
-// AI ATTACK COORDINATOR - MOST POWERFUL TOOL AVAILABLE
-ADD_SCENE(predator, ai_attack_coordinator, AIAttackCoordinator)
-
-// MAXIMUM POWER MODE - ULTIMATE CAPABILITIES
-ADD_SCENE(predator, maximum_power, MaximumPower)
-
-// COMPREHENSIVE AUDIT ENGINE - SYSTEM ASSESSMENT
-ADD_SCENE(predator, comprehensive_audit, ComprehensiveAudit)
-ADD_SCENE(predator, system_audit, SystemAudit)
-ADD_SCENE(predator, enhanced_audit, EnhancedAudit)
-ADD_SCENE(predator, ai_powered_audit, AIPoweredAudit)
+// Core Tesla functionality
+ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
 
 // Attack category menus
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
@@ -40,7 +19,6 @@ ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)
 ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)
 ADD_SCENE(predator, ble_scan_ui, BleScanUI)
 ADD_SCENE(predator, ble_spam_ui, BleSpamUI)
-ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
 ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)

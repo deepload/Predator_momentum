@@ -48,9 +48,6 @@ App(
         "helpers/predator_enhanced_attack_vectors.c",
         "helpers/predator_hardware_optimizer.c",
         "helpers/predator_attack_optimizer.c",
-        "helpers/predator_ai_engine.c",
-        "helpers/predator_advanced_monitoring.c",
-        "helpers/predator_advanced_sigint.c",
         "predator_uart.c",
 
         # Scene router
@@ -59,29 +56,8 @@ App(
         # Professional UI scenes only (clean architecture - memory optimized)
         "scenes/predator_scene_main_menu_ui.c",
         
-        # ELON'S TESLA SECURITY SUITE - TOP PRIORITY
-        "scenes/predator_scene_tesla_security_suite.c",
-        
-        # ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
-        "scenes/predator_scene_car_brand_security_suite.c",
-        
-        # ELON'S USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
-        "scenes/predator_scene_user_friendly_ui.c",
-        
-        # UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
-        "scenes/predator_scene_universal_car_hacker.c",
-        
-        # AI ATTACK COORDINATOR - MOST POWERFUL TOOL AVAILABLE
-        "scenes/predator_scene_ai_attack_coordinator.c",
-        
-        # MAXIMUM POWER MODE - ULTIMATE CAPABILITIES
-        "scenes/predator_scene_maximum_power.c",
-        
-        # COMPREHENSIVE AUDIT SYSTEM - TESLA DEMONSTRATION READINESS
-        "scenes/predator_scene_comprehensive_audit.c",
-        "scenes/predator_scene_system_audit.c",
-        "scenes/predator_scene_enhanced_audit.c",
-        "scenes/predator_scene_ai_powered_audit.c",
+        # Core Tesla functionality only
+        "scenes/predator_scene_car_tesla_ui.c",
         
         # Attack category menus (UI versions)
         "scenes/predator_scene_wifi_attacks_ui.c",

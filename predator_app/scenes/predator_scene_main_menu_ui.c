@@ -18,16 +18,8 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🔧 PREDATOR Security Testing");
     
-    // Professional workflow-oriented menus
-    submenu_add_item(app->submenu, "🚗 Tesla Security Testing", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚙 Multi-Brand Car Testing", SubmenuIndexCarBrandSecuritySuite, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚡ Quick Car Assessment", SubmenuIndexUserFriendlyUI, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔍 Comprehensive Car Audit", SubmenuIndexUniversalCarHacker, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🤖 AI Attack Coordinator", SubmenuIndexAIAttackCoordinator, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚡ Maximum Power Mode", SubmenuIndexMaximumPower, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔍 System Audit", SubmenuIndexSystemAudit, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔧 Enhanced Audit", SubmenuIndexEnhancedAudit, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🤖 AI-Powered Audit", SubmenuIndexAIPoweredAudit, main_menu_submenu_callback, app);
+    // Core Tesla functionality
+    submenu_add_item(app->submenu, "🚗 Tesla Security", SubmenuIndexCarTesla, main_menu_submenu_callback, app);
     
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
@@ -53,32 +45,8 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case SubmenuIndexTeslaSecuritySuite:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneTeslaSecuritySuite);
-            break;
-        case SubmenuIndexCarBrandSecuritySuite:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarBrandSecuritySuite);
-            break;
-        case SubmenuIndexUserFriendlyUI:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneUserFriendlyUI);
-            break;
-        case SubmenuIndexUniversalCarHacker:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneUniversalCarHacker);
-            break;
-        case SubmenuIndexAIAttackCoordinator:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneAIAttackCoordinator);
-            break;
-        case SubmenuIndexMaximumPower:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneMaximumPower);
-            break;
-        case SubmenuIndexSystemAudit:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSystemAudit);
-            break;
-        case SubmenuIndexEnhancedAudit:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneEnhancedAudit);
-            break;
-        case SubmenuIndexAIPoweredAudit:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneAIPoweredAudit);
+        case SubmenuIndexCarTesla:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);

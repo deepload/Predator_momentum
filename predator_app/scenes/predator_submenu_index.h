@@ -1,23 +1,8 @@
 #pragma once
 
 typedef enum {
-    // ELON'S TESLA SECURITY SUITE - TOP PRIORITY
-    SubmenuIndexTeslaSecuritySuite,
-    
-    // ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
-    SubmenuIndexCarBrandSecuritySuite,
-    
-    // ELON'S USER-FRIENDLY FLIPPER ZERO UI
-    SubmenuIndexUserFriendlyUI,
-    
-    // UNIVERSAL CAR HACKER - STANDALONE APP
-    SubmenuIndexUniversalCarHacker,
-    SubmenuIndexAIAttackCoordinator,
-    SubmenuIndexMaximumPower,
-    SubmenuIndexSystemAudit,
-    SubmenuIndexComprehensiveAudit,
-    SubmenuIndexEnhancedAudit,
-    SubmenuIndexAIPoweredAudit,
+    // Core Tesla functionality
+    SubmenuIndexCarTesla,
     
     // Main menu categories
     SubmenuIndexWifiAttacks,
@@ -48,7 +33,6 @@ typedef enum {
     // Car attack specific indexes
     SubmenuIndexCarTestResults,
     SubmenuIndexWalkingOpen,
-    SubmenuIndexCarTesla,
     SubmenuIndexCarModels,
     SubmenuIndexCarKeyBruteforce,
     SubmenuIndexCarJamming,
