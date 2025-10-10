@@ -856,3 +856,64 @@ __attribute__((used)) void predator_subghz_rolling_code_attack_tick(PredatorApp*
     // Update counters for UI reporting
     app->packets_sent = codes_captured;
 }
+
+// Additional attack functions for crypto engine compatibility
+void predator_subghz_send_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_rolling_code_attack");
+        return;
+    }
+    
+    FURI_LOG_I("PredatorSubGHz", "REAL TRANSMISSION: Rolling code attack on %lu Hz", frequency);
+    
+    // Start rolling code attack and send immediately
+    if(predator_subghz_start_rolling_code_attack(app, frequency)) {
+        // Generate and send rolling code
+        uint32_t rolling_code = 0xA1B2C3D4 + (furi_get_tick() & 0xFFFF);
+        predator_subghz_send_car_key(app, rolling_code);
+        
+        app->packets_sent++;
+        notification_message(app->notifications, &sequence_blink_blue_10);
+    }
+}
+
+void predator_subghz_send_car_bruteforce(PredatorApp* app, uint32_t frequency) {
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_car_bruteforce");
+        return;
+    }
+    
+    FURI_LOG_I("PredatorSubGHz", "REAL TRANSMISSION: Car bruteforce attack on %lu Hz", frequency);
+    
+    // Start bruteforce attack and send immediately
+    if(predator_subghz_start_car_bruteforce(app, frequency)) {
+        // Generate and send bruteforce key
+        uint32_t bruteforce_key = 0x12345678 + (furi_get_tick() & 0xFF);
+        predator_subghz_send_car_key(app, bruteforce_key);
+        
+        app->packets_sent++;
+        notification_message(app->notifications, &sequence_blink_green_10);
+    }
+}
+
+void predator_subghz_send_jamming_attack(PredatorApp* app, uint32_t frequency) {
+    if(!app) {
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_jamming_attack");
+        return;
+    }
+    
+    FURI_LOG_I("PredatorSubGHz", "REAL TRANSMISSION: Jamming attack on %lu Hz", frequency);
+    
+    // Start jamming attack
+    if(predator_subghz_start_jamming(app, frequency)) {
+        // Send jamming signal
+        FURI_LOG_I("PredatorSubGHz", "Jamming signal transmitted on %lu Hz", frequency);
+        
+        app->packets_sent++;
+        notification_message(app->notifications, &sequence_blink_red_10);
+        
+        // Brief jamming burst
+        furi_delay_ms(100);
+        predator_subghz_stop_attack(app);
+    }
+}

@@ -39,6 +39,10 @@ App(
         "helpers/predator_settings.c",
         "helpers/predator_logging.c",
         "helpers/predator_ui_status.c",
+        "helpers/predator_crypto_engine.c",
+        "helpers/predator_signal_intelligence.c",
+        "helpers/predator_real_attack_engine.c",
+        "helpers/predator_performance_optimizer.c",
         "predator_uart.c",
 
         # Scene router
@@ -58,6 +62,12 @@ App(
         
         # UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
         "scenes/predator_scene_universal_car_hacker.c",
+        
+        # AI ATTACK COORDINATOR - MOST POWERFUL TOOL AVAILABLE
+        "scenes/predator_scene_ai_attack_coordinator.c",
+        
+        # MAXIMUM POWER MODE - ULTIMATE CAPABILITIES
+        "scenes/predator_scene_maximum_power.c",
         
         # Attack category menus (UI versions)
         "scenes/predator_scene_wifi_attacks_ui.c",

@@ -74,3 +74,8 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
 void predator_subghz_start_passive_car_opener(PredatorApp* app);
 void predator_subghz_stop_passive_car_opener(PredatorApp* app);
 void predator_subghz_passive_car_opener_tick(PredatorApp* app);
+
+// Additional attack functions for crypto engine
+void predator_subghz_send_rolling_code_attack(PredatorApp* app, uint32_t frequency);
+void predator_subghz_send_car_bruteforce(PredatorApp* app, uint32_t frequency);
+void predator_subghz_send_jamming_attack(PredatorApp* app, uint32_t frequency);

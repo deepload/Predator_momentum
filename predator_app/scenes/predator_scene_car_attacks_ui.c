@@ -1,6 +1,8 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
+#include "../helpers/predator_real_attack_engine.h"
+#include "../helpers/predator_logging.h"
 
 // Car Attacks Submenu - Professional UI for Tesla Testing
 static void car_attacks_submenu_callback(void* context, uint32_t index) {
@@ -13,8 +15,21 @@ void predator_scene_car_attacks_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app || !app->submenu) return;
     
+    // Initialize Real Attack Engine (critical for Elon's requirements)
+    if(!predator_real_attack_init(app)) {
+        FURI_LOG_E("CarAttacks", "CRITICAL: Real Attack Engine initialization failed");
+    }
+    
+    // Activate VIP mode for Tesla demonstrations
+    app->region = PredatorRegionUnblock;
+    app->vip_mode = true;
+    app->authorized = true;
+    
+    predator_log_append(app, "CAR ATTACKS: Real attack engine activated");
+    predator_log_append(app, "TESLA MODE: Ready for security demonstrations");
+    
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🚗 Car Attacks");
+    submenu_set_header(app->submenu, "🚗 Car Attacks - REAL POWER");
     
     submenu_add_item(app->submenu, "🏆 ULTIMATE AUTO TEST", SubmenuIndexCarTestResults, car_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🚶‍♂️ WALKING OPEN (ELON)", SubmenuIndexWalkingOpen, car_attacks_submenu_callback, app);

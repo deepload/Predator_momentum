@@ -13,6 +13,12 @@ ADD_SCENE(predator, user_friendly_ui, UserFriendlyUI)
 // UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
 ADD_SCENE(predator, universal_car_hacker, UniversalCarHacker)
 
+// AI ATTACK COORDINATOR - MOST POWERFUL TOOL AVAILABLE
+ADD_SCENE(predator, ai_attack_coordinator, AIAttackCoordinator)
+
+// MAXIMUM POWER MODE - ULTIMATE CAPABILITIES
+ADD_SCENE(predator, maximum_power, MaximumPower)
+
 // Attack category menus
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, car_attacks_ui, CarAttacksUI)

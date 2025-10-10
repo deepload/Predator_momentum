@@ -12,6 +12,8 @@ typedef enum {
     
     // UNIVERSAL CAR HACKER - STANDALONE APP
     SubmenuIndexUniversalCarHacker,
+    SubmenuIndexAIAttackCoordinator,
+    SubmenuIndexMaximumPower,
     
     // Main menu categories
     SubmenuIndexWifiAttacks,
