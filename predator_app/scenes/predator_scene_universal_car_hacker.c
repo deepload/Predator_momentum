@@ -75,28 +75,29 @@ static void execute_car_attack(PredatorApp* app, const PredatorCarModel* model) 
     // Update current target
     snprintf(hacker_state.current_target, sizeof(hacker_state.current_target), 
              "%s %s", model->make, model->model);
-    
     // Execute specific attack based on remote type
     if(strcmp(model->remote_type, "Rolling Code") == 0) {
         hacker_state.rolling_code_attacks++;
         snprintf(hacker_state.attack_status, sizeof(hacker_state.attack_status), 
                 "Rolling Code Attack: Capturing and reversing sequence...");
-        predator_log_append(app, "ROLLING CODE: Single-capture reverse engineering");
+        predator_log_append(app, "ROLLING CODE: Real SubGHz transmission starting");
+        predator_subghz_start_rolling_code_attack(app, model->frequency);
         
-        // Set rolling code specific parameters
         // Rolling code exploit mode activated
         
     } else if(strcmp(model->remote_type, "Fixed Code") == 0) {
         hacker_state.fixed_code_attacks++;
         snprintf(hacker_state.attack_status, sizeof(hacker_state.attack_status), 
                 "Fixed Code Attack: Brute forcing static key...");
-        predator_log_append(app, "FIXED CODE: Brute force static key attack");
+        predator_log_append(app, "FIXED CODE: Real brute force transmission starting");
+        predator_subghz_start_car_bruteforce(app, model->frequency);
         
     } else if(strcmp(model->remote_type, "Smart Key") == 0) {
         hacker_state.smart_key_attacks++;
         snprintf(hacker_state.attack_status, sizeof(hacker_state.attack_status), 
                 "Smart Key Attack: Exploiting proximity protocols...");
-        predator_log_append(app, "SMART KEY: Proximity protocol exploitation");
+        predator_log_append(app, "SMART KEY: Real proximity attack transmission");
+        predator_subghz_send_tesla_charge_port(app);
         
         // Set smart key specific parameters
         // Tesla VCSEC exploit mode activated

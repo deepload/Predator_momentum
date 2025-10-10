@@ -242,6 +242,15 @@ static void walking_open_ui_timer_callback(void* context) {
                             model->make, model->model, (double)walking_state.current_frequency);
                     predator_log_append(app, open_msg);
                     
+                    // REAL SubGHz transmission for walking mode
+                    if(strcmp(model->remote_type, "Rolling Code") == 0) {
+                        predator_subghz_start_rolling_code_attack(app, model->frequency);
+                    } else if(strcmp(model->remote_type, "Fixed Code") == 0) {
+                        predator_subghz_start_car_bruteforce(app, model->frequency);
+                    } else if(strcmp(model->remote_type, "Smart Key") == 0) {
+                        predator_subghz_send_tesla_charge_port(app);
+                    }
+                    
                     snprintf(walking_state.last_opened, sizeof(walking_state.last_opened), 
                             "Opened: %s %s +$50K", model->make, model->model);
                     
