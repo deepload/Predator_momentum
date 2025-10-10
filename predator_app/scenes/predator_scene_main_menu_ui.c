@@ -26,6 +26,8 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🤖 AI Attack Coordinator", SubmenuIndexAIAttackCoordinator, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "⚡ Maximum Power Mode", SubmenuIndexMaximumPower, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🔍 System Audit", SubmenuIndexSystemAudit, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔧 Enhanced Audit", SubmenuIndexEnhancedAudit, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🤖 AI-Powered Audit", SubmenuIndexAIPoweredAudit, main_menu_submenu_callback, app);
     
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
@@ -71,6 +73,12 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             break;
         case SubmenuIndexSystemAudit:
             scene_manager_next_scene(app->scene_manager, PredatorSceneSystemAudit);
+            break;
+        case SubmenuIndexEnhancedAudit:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneEnhancedAudit);
+            break;
+        case SubmenuIndexAIPoweredAudit:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAIPoweredAudit);
             break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);

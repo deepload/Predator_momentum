@@ -16,6 +16,8 @@ typedef enum {
     SubmenuIndexMaximumPower,
     SubmenuIndexSystemAudit,
     SubmenuIndexComprehensiveAudit,
+    SubmenuIndexEnhancedAudit,
+    SubmenuIndexAIPoweredAudit,
     
     // Main menu categories
     SubmenuIndexWifiAttacks,

@@ -22,6 +22,8 @@ ADD_SCENE(predator, maximum_power, MaximumPower)
 // COMPREHENSIVE AUDIT ENGINE - SYSTEM ASSESSMENT
 ADD_SCENE(predator, comprehensive_audit, ComprehensiveAudit)
 ADD_SCENE(predator, system_audit, SystemAudit)
+ADD_SCENE(predator, enhanced_audit, EnhancedAudit)
+ADD_SCENE(predator, ai_powered_audit, AIPoweredAudit)
 
 // Attack category menus
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)

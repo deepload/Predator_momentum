@@ -46,6 +46,11 @@ App(
         "helpers/predator_audit_engine.c",
         "helpers/predator_maximum_power_engine.c",
         "helpers/predator_enhanced_attack_vectors.c",
+        "helpers/predator_hardware_optimizer.c",
+        "helpers/predator_attack_optimizer.c",
+        "helpers/predator_ai_engine.c",
+        "helpers/predator_advanced_monitoring.c",
+        "helpers/predator_advanced_sigint.c",
         "predator_uart.c",
 
         # Scene router
@@ -75,6 +80,8 @@ App(
         # COMPREHENSIVE AUDIT SYSTEM - TESLA DEMONSTRATION READINESS
         "scenes/predator_scene_comprehensive_audit.c",
         "scenes/predator_scene_system_audit.c",
+        "scenes/predator_scene_enhanced_audit.c",
+        "scenes/predator_scene_ai_powered_audit.c",
         
         # Attack category menus (UI versions)
         "scenes/predator_scene_wifi_attacks_ui.c",
