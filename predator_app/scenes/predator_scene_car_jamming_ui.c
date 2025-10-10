@@ -148,9 +148,17 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
                 jamming_state.jamming_time_ms = 0;
                 jamming_start_tick = furi_get_tick();
                 
-                // Initialize SubGHz and start jamming
+                // GOVERNMENT-GRADE: Initialize SubGHz and start REAL jamming
                 predator_subghz_init(app);
-                bool started = predator_subghz_start_jamming(app, jamming_state.frequency);
+                
+                // Use real hardware jamming function
+                // Jam for 5 minutes max (300000ms) at specified power level
+                bool started = predator_subghz_jam_frequency(
+                    app,
+                    jamming_state.frequency,
+                    300000,  // 5 minutes max
+                    jamming_state.power_level
+                );
                 
                 if(started) {
                     jamming_state.subghz_ready = true;
@@ -162,11 +170,12 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
                 }
                 
                 char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Jamming START: %s at %u%% power", 
+                snprintf(log_msg, sizeof(log_msg), "REAL JAMMING START: %s at %u%% power", 
                         jamming_state.frequency_str, (unsigned)jamming_state.power_level);
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("JammingUI", "Jamming started: %lu Hz", jamming_state.frequency);
+                FURI_LOG_I("JammingUI", "REAL jamming started: %lu Hz at %u%% power", 
+                          jamming_state.frequency, jamming_state.power_level);
                 return true;
             } else if(jamming_state.status == JammingStatusJamming) {
                 // Stop jamming

@@ -54,17 +54,15 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
+        // Disabled scenes - show popup instead
         case SubmenuIndexTeslaSecuritySuite:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneTeslaSecuritySuite);
-            break;
         case SubmenuIndexCarBrandSecuritySuite:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarBrandSecuritySuite);
-            break;
         case SubmenuIndexUserFriendlyUI:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneUserFriendlyUI);
-            break;
         case SubmenuIndexUniversalCarHacker:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneUniversalCarHacker);
+        case SubmenuIndexGpsTracker:
+        case SubmenuIndexWardriving:
+        case SubmenuIndexSocialEngineering:
+            // Memory optimized - scene disabled
             break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
@@ -80,15 +78,6 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             break;
         case SubmenuIndexRfidAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidAttacksUI);
-            break;
-        case SubmenuIndexGpsTracker:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
-            break;
-        case SubmenuIndexWardriving:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
-            break;
-        case SubmenuIndexSocialEngineering:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineeringUI);
             break;
         case SubmenuIndexModuleStatus:
             scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);

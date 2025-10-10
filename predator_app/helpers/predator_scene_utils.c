@@ -107,12 +107,12 @@ bool predator_scene_transition_safe(PredatorApp* app, uint32_t next_scene) {
         // Check SubGHz initialization for car attack scenes
         can_transition = (app->subghz_txrx != NULL);
     }
-    // GPS scenes
-    else if(next_scene == PredatorSceneGpsTrackerUI ||
-            next_scene == PredatorSceneWardrivingUI) {
-        // Check GPS initialization for GPS scenes
-        can_transition = (app->gps_uart != NULL);
-    }
+    // GPS scenes - disabled for memory optimization
+    // else if(next_scene == PredatorSceneGpsTrackerUI ||
+    //         next_scene == PredatorSceneWardrivingUI) {
+    //     // Check GPS initialization for GPS scenes
+    //     can_transition = (app->gps_uart != NULL);
+    // }
     else {
         // No specific hardware requirements for other scenes
         can_transition = true;

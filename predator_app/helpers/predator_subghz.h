@@ -60,6 +60,30 @@ bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency);
 bool predator_subghz_stop_attack(PredatorApp* app);
 void predator_subghz_send_tesla_charge_port(PredatorApp* app);
 
+// GOVERNMENT-GRADE: Real hardware transmission functions
+bool predator_subghz_transmit_signal(
+    PredatorApp* app,
+    uint32_t frequency,
+    const char* protocol,
+    uint64_t key,
+    uint8_t repeat_count
+);
+
+bool predator_subghz_transmit_raw(
+    PredatorApp* app,
+    uint32_t frequency,
+    const uint32_t* timings,
+    size_t timings_count,
+    uint8_t repeat_count
+);
+
+bool predator_subghz_jam_frequency(
+    PredatorApp* app,
+    uint32_t frequency,
+    uint32_t duration_ms,
+    uint8_t power_level
+);
+
 // Rolling code attack functions
 bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency);
 void predator_subghz_stop_rolling_code_attack(PredatorApp* app);

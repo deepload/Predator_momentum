@@ -39,13 +39,9 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
             break;
         case SubmenuIndexWifiEvilTwin:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
-            break;
         case SubmenuIndexWifiHandshake:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
-            break;
         case SubmenuIndexWifiPmkid:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+            // Memory optimized - scene disabled
             break;
         default:
             consumed = false;

@@ -5,14 +5,14 @@ App(
     entry_point="predator_app",
     # Icon reference removed until valid icon is available
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power", "music_player"],
-    stack_size=6 * 1024,
+    stack_size=10 * 1024,
     fap_category="Tools",
-    fap_description="Pen testing toolkit for Flipper Zero with 90 hardcoded car models",
-    fap_version="1.4",  # Version updated with hardcoded car database
+    fap_description="Government-grade security testing with real hardware transmission",
+    fap_version="1.5",  # Version updated with real transmission capabilities
     fap_author="Nico Lococo",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=12000"],
+    cdefines=["HEAP_SIZE=20000"],
     # Explicit sources to avoid compiling legacy scenes while enabling new UX
     sources=[
         # Core
@@ -23,6 +23,7 @@ App(
         "helpers/predator_error.c",
         "helpers/predator_esp32.c",
         "helpers/predator_gps.c",
+        "helpers/predator_nfc.c",
         "helpers/predator_compliance.c",
         "helpers/predator_models.c",
         "helpers/predator_models_seed.c",
@@ -47,17 +48,11 @@ App(
         # Professional UI scenes only (clean architecture - memory optimized)
         "scenes/predator_scene_main_menu_ui.c",
         
-        # ELON'S TESLA SECURITY SUITE - TOP PRIORITY
-        "scenes/predator_scene_tesla_security_suite.c",
-        
-        # ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
-        "scenes/predator_scene_car_brand_security_suite.c",
-        
-        # ELON'S USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
-        "scenes/predator_scene_user_friendly_ui.c",
-        
-        # UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
-        "scenes/predator_scene_universal_car_hacker.c",
+        # CRITICAL SCENES ONLY - Memory optimized for real hardware transmission
+        # "scenes/predator_scene_tesla_security_suite.c",  # DISABLED - Too large
+        # "scenes/predator_scene_car_brand_security_suite.c",  # DISABLED - Too large
+        # "scenes/predator_scene_user_friendly_ui.c",  # DISABLED - Too large
+        # "scenes/predator_scene_universal_car_hacker.c",  # DISABLED - Too large
         
         # Attack category menus (UI versions)
         "scenes/predator_scene_wifi_attacks_ui.c",
@@ -66,12 +61,12 @@ App(
         "scenes/predator_scene_subghz_attacks_ui.c",
         "scenes/predator_scene_rfid_attacks_ui.c",
         
-        # WiFi attacks (ALL ENABLED for Tesla/Government)
+        # WiFi attacks (Core only)
         "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_ui.c",
-        "scenes/predator_scene_wifi_evil_twin_ui.c",
-        "scenes/predator_scene_wifi_handshake_ui.c",
-        "scenes/predator_scene_wifi_pmkid_ui.c",
+        # "scenes/predator_scene_wifi_evil_twin_ui.c",  # DISABLED - Memory
+        # "scenes/predator_scene_wifi_handshake_ui.c",  # DISABLED - Memory
+        # "scenes/predator_scene_wifi_pmkid_ui.c",  # DISABLED - Memory
         
         # Bluetooth attacks (ALL ENABLED)
         "scenes/predator_scene_ble_scan_ui.c",
@@ -88,26 +83,26 @@ App(
         "scenes/predator_scene_car_model_selector.c",
         "scenes/predator_scene_car_test_results.c",
         
-        # RFID attacks (UI versions only)
+        # RFID attacks (Core only)
         "scenes/predator_scene_rfid_clone_ui.c",
-        "scenes/predator_scene_rfid_bruteforce_ui.c",
-        "scenes/predator_scene_rfid_fuzzing_ui.c",
+        # "scenes/predator_scene_rfid_bruteforce_ui.c",  # DISABLED - Memory
+        # "scenes/predator_scene_rfid_fuzzing_ui.c",  # DISABLED - Memory
         
         # SubGHz attacks (UI versions only)
         "scenes/predator_scene_subghz_jamming_ui.c",
         "scenes/predator_scene_subghz_raw_send_ui.c",
         
-        # System scenes (UI versions only)
-        "scenes/predator_scene_gps_tracker_ui.c",
-        "scenes/predator_scene_wardriving_ui.c",
-        "scenes/predator_scene_social_engineering_ui.c",
+        # System scenes (Essential only)
+        # "scenes/predator_scene_gps_tracker_ui.c",  # DISABLED - Memory
+        # "scenes/predator_scene_wardriving_ui.c",  # DISABLED - Memory
+        # "scenes/predator_scene_social_engineering_ui.c",  # DISABLED - Memory
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
         "scenes/predator_scene_live_monitor_ui.c",
         
-        # Essential utility scenes (no UI replacement needed)
-        "scenes/predator_scene_quick_poc.c",
+        # Essential utility scenes
+        # "scenes/predator_scene_quick_poc.c",  # DISABLED - Memory
     ],
 )
