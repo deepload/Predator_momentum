@@ -7,8 +7,8 @@ App(
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power", "music_player"],
     stack_size=6 * 1024,
     fap_category="Tools",
-    fap_description="Pen testing toolkit for Flipper Zero",
-    fap_version="1.3",  # Version updated with UI fixes
+    fap_description="Pen testing toolkit for Flipper Zero with 90 hardcoded car models",
+    fap_version="1.4",  # Version updated with hardcoded car database
     fap_author="Nico Lococo",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
@@ -26,6 +26,8 @@ App(
         "helpers/predator_compliance.c",
         "helpers/predator_models.c",
         "helpers/predator_models_seed.c",
+        "helpers/predator_models_hardcoded.c",
+        "helpers/predator_car_attacks.c",
         "helpers/predator_scene_utils.c",
         "helpers/predator_string.c",
         "helpers/predator_subghz.c",
