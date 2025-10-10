@@ -17,6 +17,7 @@ void predator_scene_car_attacks_ui_on_enter(void* context) {
     submenu_set_header(app->submenu, "🚗 Car Attacks");
     
     submenu_add_item(app->submenu, "🏆 ULTIMATE AUTO TEST", SubmenuIndexCarTestResults, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚶‍♂️ WALKING OPEN (ELON)", SubmenuIndexWalkingOpen, car_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Tesla Charge Port", SubmenuIndexCarTesla, car_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🚙 Car Models", SubmenuIndexCarModels, car_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🔑 Key Bruteforce", SubmenuIndexCarKeyBruteforce, car_attacks_submenu_callback, app);
@@ -35,6 +36,9 @@ bool predator_scene_car_attacks_ui_on_event(void* context, SceneManagerEvent eve
         switch(event.event) {
         case SubmenuIndexCarTestResults:
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTestResults);
+            break;
+        case SubmenuIndexWalkingOpen:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
             break;
         case SubmenuIndexCarTesla:
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);

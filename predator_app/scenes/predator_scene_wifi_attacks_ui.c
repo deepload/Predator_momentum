@@ -33,19 +33,24 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
         consumed = true;
         switch(event.event) {
         case SubmenuIndexWifiScan:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
+            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
+            // Temporarily disabled for Elon's demo
             break;
         case SubmenuIndexWifiDeauth:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
+            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
+            // Temporarily disabled for Elon's demo
             break;
         case SubmenuIndexWifiEvilTwin:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+            // Temporarily disabled for Elon's demo
             break;
         case SubmenuIndexWifiHandshake:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
+            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
+            // Temporarily disabled for Elon's demo
             break;
         case SubmenuIndexWifiPmkid:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+            // Temporarily disabled for Elon's demo
             break;
         default:
             consumed = false;

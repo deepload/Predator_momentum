@@ -48,25 +48,17 @@ App(
         "scenes/predator_scene_main_menu_ui.c",
         
         # Attack category menus (UI versions)
-        "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_car_attacks_ui.c",
         "scenes/predator_scene_bluetooth_attacks_ui.c",
         "scenes/predator_scene_subghz_attacks_ui.c",
         "scenes/predator_scene_rfid_attacks_ui.c",
         
-        # WiFi attacks (UI versions only)
-        "scenes/predator_scene_wifi_scan_ui.c",
-        "scenes/predator_scene_wifi_deauth_ui.c",
-        "scenes/predator_scene_wifi_evil_twin_ui.c",
-        "scenes/predator_scene_wifi_handshake_ui.c",
-        "scenes/predator_scene_wifi_pmkid_ui.c",
-        
-        # Bluetooth attacks (UI versions only)
-        "scenes/predator_scene_ble_scan_ui.c",
+        # Car attacks (UI versions only)
         "scenes/predator_scene_ble_spam_ui.c",
         
         # Car attacks (UI versions + essential Tesla testing)
         "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_walking_open_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",

@@ -29,6 +29,7 @@ typedef enum {
     
     // Car attack specific indexes
     SubmenuIndexCarTestResults,
+    SubmenuIndexWalkingOpen,
     SubmenuIndexCarTesla,
     SubmenuIndexCarModels,
     SubmenuIndexCarKeyBruteforce,
