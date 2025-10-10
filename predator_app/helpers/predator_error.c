@@ -86,3 +86,46 @@ const char* predator_error_get_message(PredatorApp* app) {
     if(!app || !app->has_error) return "No error";
     return app->error_message;
 }
+
+void predator_log_error(PredatorApp* app, const char* tag, const char* message) {
+    if(!app || !tag || !message) {
+        FURI_LOG_E("PredatorError", "Invalid parameters for logging error");
+        return;
+    }
+    
+    FURI_LOG_E(tag, "%s", message);
+    
+    // Store the error in a log buffer if implemented - Comment out to avoid build errors
+    // if(app->error_log) {
+    //     // Assuming a simple circular buffer or similar structure for error logging
+    //     // This is a placeholder for actual implementation
+    //     // predator_add_to_log(app->error_log, tag, message);
+    // }
+}
+
+void predator_log_warning(PredatorApp* app, const char* tag, const char* message) {
+    if(!app || !tag || !message) {
+        FURI_LOG_W("PredatorWarning", "Invalid parameters for logging warning");
+        return;
+    }
+    
+    FURI_LOG_W(tag, "%s", message);
+}
+
+void predator_log_info(PredatorApp* app, const char* tag, const char* message) {
+    if(!app || !tag || !message) {
+        FURI_LOG_I("PredatorInfo", "Invalid parameters for logging info");
+        return;
+    }
+    
+    FURI_LOG_I(tag, "%s", message);
+}
+
+bool predator_handle_error(PredatorApp* app, bool condition, const char* tag, const char* error_message) {
+    if(!condition) {
+        predator_log_error(app, tag, error_message);
+        // Additional error handling logic can be added here
+        return false;
+    }
+    return true;
+}

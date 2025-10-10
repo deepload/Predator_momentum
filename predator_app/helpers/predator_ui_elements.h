@@ -102,9 +102,6 @@ void predator_ui_draw_scrollbar(
     uint8_t first_visible,
     uint8_t visible_items);
 
-// Car attacks and RFID attacks popup callbacks
-void predator_scene_car_attacks_popup_callback(void* context);
-void predator_scene_rfid_attacks_popup_callback(void* context);
 
 // Helper for sin/cos calculations in animations
 extern const uint8_t sin_array[256];

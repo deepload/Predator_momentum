@@ -15,6 +15,10 @@
 #include <storage/storage.h>
 
 #include "helpers/predator_boards.h"
+// Compliance and regional gating
+#include "helpers/predator_compliance.h"
+// Use generated scene IDs from config to avoid mismatches
+#include "scenes/predator_scene.h"
 
 #define PREDATOR_TEXT_STORE_SIZE 256
 
@@ -24,48 +28,36 @@ typedef enum {
     PredatorViewPopup,
     PredatorViewLoading,
     PredatorViewWidget,
+    PredatorViewCarTestResults,
+    PredatorViewWifiScanUI,
+    PredatorViewWifiDeauthUI,
+    PredatorViewWifiEvilTwinUI,
+    PredatorViewWifiHandshakeUI,
+    PredatorViewWifiPmkidUI,
+    PredatorViewBleScanUI,
+    PredatorViewBleSpamUI,
+    PredatorViewCarTeslaUI,
+    PredatorViewWalkingOpenUI,
+    PredatorViewCarJammingUI,
+    PredatorViewCarKeyBruteforceUI,
+    PredatorViewCarPassiveOpenerUI,
+    PredatorViewRfidCloneUI,
+    PredatorViewRfidBruteforceUI,
+    PredatorViewRfidFuzzingUI,
+    PredatorViewSubGhzJammingUI,
+    PredatorViewSubGhzRawSendUI,
+    PredatorViewGpsTrackerUI,
+    PredatorViewWardrivingUI,
+    PredatorViewSocialEngineeringUI,
+    PredatorViewModuleStatusUI,
+    PredatorViewBoardSelectionUI,
+    PredatorViewSettingsUI,
+    PredatorViewAboutUI,
+    PredatorViewLiveMonitorUI,
 } PredatorView;
 
-typedef enum {
-    PredatorSceneStart,
-    PredatorSceneMainMenu,
-    PredatorSceneBoardSelection,
-    PredatorSceneWifiMenu,
-    PredatorSceneWifiScan,
-    PredatorSceneWifiAttacks,
-    PredatorSceneWifiDeauth,
-    PredatorSceneWifiSniff,
-    PredatorSceneWifiEvilTwin,
-    PredatorSceneWifiHandshakeCapture,
-    PredatorSceneWifiPwnagotchi,
-    PredatorSceneBLEMenu,
-    PredatorSceneBLEScan,
-    PredatorSceneBLESpam,
-    PredatorSceneBluetoothAttacks,
-    PredatorSceneSubGhzMenu,
-    PredatorSceneSubGhzAttacks,
-    PredatorSceneSubGhzJamming,
-    PredatorSceneSubGhzScanner,
-    PredatorSceneRfidMenu,
-    PredatorSceneRfidAttacks,
-    PredatorSceneRfidBruteforce,
-    PredatorSceneRfidClone,
-    PredatorSceneCarMenu,
-    PredatorSceneCarAttacks,
-    PredatorSceneCarModels,
-    PredatorSceneCarKey,
-    PredatorSceneCarJamming,
-    PredatorSceneCarPassiveOpener,
-    PredatorSceneCarTesla,
-    PredatorSceneModuleStatus,
-    PredatorSceneSettings,
-    PredatorSceneAbout,
-    PredatorSceneWardriving,
-    PredatorSceneGPSTracker,
-    PredatorSceneGPSDebug,
-    PredatorSceneExternalTools,
-    PredatorSceneCount
-} PredatorScene;
+// Legacy PredatorScene enum disabled to prevent conflicts; use generated enum from scenes/predator_scene.h
+// typedef enum { ... } PredatorScene; 
 
 typedef enum {
     PredatorEventTypeKey,
@@ -109,6 +101,9 @@ typedef struct PredatorApp {
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
     PredatorBoardType board_type;  // Type of expansion board attached
+    // Regional compliance and authorization
+    PredatorRegion region;     // Active compliance region
+    bool authorized;           // Authorization status for high-impact ops
     
     // UI components
     ViewDispatcher* view_dispatcher;
@@ -151,6 +146,29 @@ typedef struct PredatorApp {
     // SubGHz data
     void* subghz_txrx;
     
+    // VIP mode for unlocking all Tesla stations in Switzerland
+    bool vip_mode;
+    // Mode for testing security of other electric car stations in Switzerland
+    bool swiss_station_test;
+
+    // WiFi scan results (simple ring buffer for UI) - Memory optimized
+    #define PREDATOR_WIFI_MAX_APS 16  // Reduced from 32 to optimize memory
+    char wifi_ssids[PREDATOR_WIFI_MAX_APS][20];  // Reduced from 24 to 20 chars
+    uint8_t wifi_ap_count;    // number of SSIDs stored (capped at max)
+    int8_t wifi_rssi[PREDATOR_WIFI_MAX_APS];
+    uint8_t wifi_ch[PREDATOR_WIFI_MAX_APS];
+    
+    // Selected WiFi target for attacks
+    char selected_wifi_ssid[20];  // Reduced from 24 to 20 chars
+    int8_t selected_wifi_rssi;
+    uint8_t selected_wifi_ch;
+    bool wifi_target_selected;
+
+    // Selected car model context
+    size_t selected_model_index;
+    uint32_t selected_model_freq;
+    char selected_model_make[16];
+    char selected_model_name[40];
 } PredatorApp;
 
 

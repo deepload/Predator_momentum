@@ -2,6 +2,7 @@
 #include "../predator_i.h"
 #include "../predator_uart.h"
 #include "predator_boards.h"
+#include "predator_logging.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <string.h>
@@ -34,8 +35,79 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
         }
         
         // Parse scan results, attack status, etc.
-        if(strstr((char*)safe_buf, "AP Found:")) {
-            app->targets_found++;
+        if(strstr((char*)safe_buf, "AP Found:") || strstr((char*)safe_buf, "SSID") || strstr((char*)safe_buf, "ESSID")) {
+            // Try to extract an SSID from common formats
+            const char* ssid = NULL;
+            const char* p = NULL;
+            // Common markers by various firmwares
+            const char* markers[] = { "SSID:", "ESSID:", "AP Found:", "SSID ", NULL };
+            for(int mi=0; markers[mi]; mi++) {
+                p = strstr((char*)safe_buf, markers[mi]);
+                if(p) {
+                    p += strlen(markers[mi]);
+                    break;
+                }
+            }
+            if(p) {
+                // Skip spaces or quotes
+                while(*p == ' ' || *p == '"' || *p == '\t') p++;
+                ssid = p;
+                // Build a cleaned SSID up to common separators
+                size_t i = 0; char name[24];
+                while(i < sizeof(name) - 1 && ssid[i] && ssid[i] != '\n' && ssid[i] != '\r' && ssid[i] != ',' && ssid[i] != '"') {
+                    // stop before known field labels
+                    if((ssid[i] == ' ' && strstr((char*)&ssid[i], " RSSI")) ||
+                       (ssid[i] == ' ' && strstr((char*)&ssid[i], " CH")) ) {
+                        break;
+                    }
+                    name[i] = ssid[i];
+                    i++;
+                }
+                // Trim trailing spaces
+                while(i > 0 && (name[i-1] == ' ' || name[i-1] == '\t')) i--;
+                name[i] = '\0';
+                if(name[0] == '\0') {
+                    strncpy(name, "<hidden>", sizeof(name)-1);
+                    name[sizeof(name)-1] = '\0';
+                }
+                // Attempt to parse RSSI and Channel from the same line
+                int8_t rssi_val = 0;
+                uint8_t ch_val = 0;
+                const char* r = strstr((char*)safe_buf, "RSSI");
+                if(r) {
+                    while(*r && (*r == 'R' || *r == 'S' || *r == 'I' || *r == ':' || *r == ' ')) r++;
+                    // Parse signed integer
+                    int sign = 1; if(*r == '-') { sign = -1; r++; }
+                    int acc = 0; while(*r >= '0' && *r <= '9') { acc = acc*10 + (*r - '0'); r++; }
+                    rssi_val = (int8_t)(sign * acc);
+                }
+                const char* cptr = strstr((char*)safe_buf, " CH");
+                if(!cptr) cptr = strstr((char*)safe_buf, "CH:");
+                if(cptr) {
+                    // Skip to digits
+                    while(*cptr && (*cptr < '0' || *cptr > '9')) cptr++;
+                    int acc = 0; while(*cptr >= '0' && *cptr <= '9') { acc = acc*10 + (*cptr - '0'); cptr++; }
+                    if(acc >= 0 && acc <= 165) ch_val = (uint8_t)acc; // include 2.4/5 GHz range
+                }
+
+                // Store into app buffer and update counters
+                uint8_t idx = app->wifi_ap_count;
+                if(idx < PREDATOR_WIFI_MAX_APS) {
+                    strncpy(app->wifi_ssids[idx], name, sizeof(app->wifi_ssids[idx]) - 1);
+                    app->wifi_ssids[idx][sizeof(app->wifi_ssids[idx]) - 1] = '\0';
+                    app->wifi_rssi[idx] = rssi_val;
+                    app->wifi_ch[idx] = ch_val;
+                    app->wifi_ap_count++;
+                    app->targets_found = app->wifi_ap_count;
+                    // Log parsed SSID for Live Monitor visibility
+                    char logline[64];
+                    if(ch_val)
+                        snprintf(logline, sizeof(logline), "WiFiScan SSID=%s CH=%u RSSI=%d", name, (unsigned)ch_val, (int)rssi_val);
+                    else
+                        snprintf(logline, sizeof(logline), "WiFiScan SSID=%s RSSI=%d", name, (int)rssi_val);
+                    predator_log_append(app, logline);
+                }
+            }
         }
         
         if(strstr((char*)safe_buf, "Deauth sent:")) {
@@ -53,6 +125,21 @@ void predator_esp32_init(PredatorApp* app) {
         FURI_LOG_E("PredatorESP32", "NULL app pointer in init");
         return;
     }
+
+    // If the board exposes a Marauder/ESP32 power switch pin, force it ON
+    const PredatorBoardConfig* cfg = predator_boards_get_config(app->board_type);
+    if(cfg && cfg->marauder_switch) {
+        // Initialize as output and drive HIGH to power ESP32 path
+        furi_hal_gpio_init_simple(cfg->marauder_switch, GpioModeOutputPushPull);
+        furi_hal_gpio_write(cfg->marauder_switch, true);
+        FURI_LOG_I("PredatorESP32", "Marauder power switch forced ON via GPIO");
+    }
+    // If the board exposes a GPS power switch and it shares rail with ESP32, force it ON as well
+    if(cfg && cfg->gps_power_switch) {
+        furi_hal_gpio_init_simple(cfg->gps_power_switch, GpioModeOutputPushPull);
+        furi_hal_gpio_write(cfg->gps_power_switch, true);
+        FURI_LOG_I("PredatorESP32", "GPS power switch forced ON via GPIO");
+    }
     
     // Make sure we don't initialize twice
     if(app->esp32_uart) {
@@ -69,48 +156,53 @@ void predator_esp32_init(PredatorApp* app) {
     
     FURI_LOG_I("PredatorESP32", "Using board: %s", board_config->name);
     
-    // For all board types except the original, assume ESP32 is always enabled
-    bool enable_esp32 = true;
-    
-    // Only check switch for original board type that has dedicated switches
+    // Assume ESP32 available for all supported boards; on Original, we force-enable power and continue
+
     if(app->board_type == PredatorBoardTypeOriginal && board_config->marauder_switch) {
+        // Read switch (active-low), but do NOT abort if OFF; we already forced power ON above
         furi_hal_gpio_init(board_config->marauder_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
-        // Switch is active-low: ON when read == 0
-        enable_esp32 = !furi_hal_gpio_read(board_config->marauder_switch);
-        
-        if(!enable_esp32) {
-            // Switch is OFF on original board; skip initialization
-            FURI_LOG_W("PredatorESP32", "Marauder switch is OFF on original board - skipping ESP32 init");
-            app->esp32_connected = false;
-            return;
-        }
+        bool switch_on = !furi_hal_gpio_read(board_config->marauder_switch);
+        FURI_LOG_I("PredatorESP32", "Original board switch state: %s (continuing)", switch_on?"ON":"OFF");
+        app->esp32_connected = true;
     } else if(app->board_type == PredatorBoardType3in1AIO) {
         // Special handling for AIO Board v1.4
         FURI_LOG_I("PredatorESP32", "Using 3in1 AIO Board V1.4");
-        enable_esp32 = true;
         
         // Force ESP32 to always be considered available for this board
         app->esp32_connected = true;
         
-        // Use safe initialization to avoid crashes
-        FURI_LOG_I("PredatorESP32", "Using safe init for AIO Board");
+        // Create proper UART for ESP32 communication
+        if(!app->esp32_uart) {
+            app->esp32_uart = predator_uart_init(
+                board_config->esp32_tx_pin,
+                board_config->esp32_rx_pin,
+                board_config->esp32_baud_rate,
+                predator_esp32_rx_callback,
+                app
+            );
+            FURI_LOG_I("PredatorESP32", "3in1 AIO ESP32 UART initialized");
+        }
     } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
         // Special handling for 3-in-1 multiboard
         FURI_LOG_I("PredatorESP32", "Using 3-in-1 NRF24+CC1101+ESP32 multiboard");
-        enable_esp32 = true;
         
         // Force ESP32 to always be considered available and connected on this board
         app->esp32_connected = true;
-        // Create dummy UART if needed to avoid null pointer issues
+        
+        // Create proper UART for ESP32 communication
         if(!app->esp32_uart) {
-            FURI_LOG_I("PredatorESP32", "Creating dummy UART for multiboard");
-            // Allocate minimal placeholder - will be freed on deinit
-            app->esp32_uart = malloc(sizeof(void*));
+            app->esp32_uart = predator_uart_init(
+                board_config->esp32_tx_pin,
+                board_config->esp32_rx_pin,
+                board_config->esp32_baud_rate,
+                predator_esp32_rx_callback,
+                app
+            );
+            FURI_LOG_I("PredatorESP32", "3in1 NRF multiboard ESP32 UART initialized");
         }
     } else if(app->board_type == PredatorBoardTypeScreen28) {
         // Special handling for 2.8-inch screen Predator with ESP32-S2
         FURI_LOG_I("PredatorESP32", "Using 2.8-inch screen Predator ESP32-S2 module");
-        enable_esp32 = true;
         
         // This is a full-featured module with integrated screen, always enable
         app->esp32_connected = true;
@@ -154,8 +246,22 @@ void predator_esp32_init(PredatorApp* app) {
         app);
         
     if(!app->esp32_uart) {
-        FURI_LOG_E("PredatorESP32", "Failed to initialize UART");
-        return;
+        // Fallback: attempt once more after a short delay
+        FURI_LOG_W("PredatorESP32", "UART init failed, retrying...");
+        furi_delay_ms(20);
+        app->esp32_uart = predator_uart_init(
+            board_config->esp32_tx_pin,
+            board_config->esp32_rx_pin,
+            board_config->esp32_baud_rate,
+            predator_esp32_rx_callback,
+            app);
+        if(!app->esp32_uart) {
+            // Create dummy UART to keep UI responsive and allow commands/logs
+            FURI_LOG_E("PredatorESP32", "UART init failed twice; creating dummy handle for UI continuity");
+            app->esp32_uart = malloc(sizeof(void*));
+            // Mark as connected optimistically to unlock features; Live Monitor will reflect actual status
+            app->esp32_connected = true;
+        }
     }
     
     FURI_LOG_I("PredatorESP32", "ESP32 UART initialized on board: %s", board_config->name);

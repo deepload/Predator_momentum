@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Forward declaration for GPS debug tracking function
-extern void predator_gps_debug_track_nmea(const char* nmea);
+// GPS debug tracking removed for clean architecture
 
 #define GPS_UART_BAUD PREDATOR_GPS_UART_BAUD
 #define GPS_BUFFER_SIZE 512
@@ -40,9 +39,6 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
                     strncmp(line_start, "$GN", 3) == 0) {
                     
                     app->gps_connected = true;
-                    
-                    // Track NMEA sentence in debug system
-                    predator_gps_debug_track_nmea(line_start);
                     
                     // Parse the complete NMEA sentence using our robust parser
                     predator_gps_parse_nmea(app, line_start);
@@ -84,14 +80,25 @@ void predator_gps_init(PredatorApp* app) {
             FURI_LOG_I("PredatorGPS", "GPS power switch is ON");
         }
     } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // Special handling for AIO Board v1.4 to prevent crashes
-        FURI_LOG_I("PredatorGPS", "Using 3in1 AIO Board V1.4 with safe GPS handling");
+        // Special handling for AIO Board v1.4 - PROPER UART INIT
+        FURI_LOG_I("PredatorGPS", "Using 3in1 AIO Board V1.4 with GPS UART");
         
-        // Force GPS to be considered connected on this board
-        app->gps_connected = true;
-        
-        // This is safer than attempting GPIO operations that might cause crashes
-        FURI_LOG_I("PredatorGPS", "GPS enabled for AIO Board");
+        // Create proper GPS UART connection
+        if(!app->gps_uart) {
+            app->gps_uart = predator_uart_init(
+                board_config->gps_tx_pin,
+                board_config->gps_rx_pin,
+                board_config->gps_baud_rate,
+                predator_gps_rx_callback,
+                app
+            );
+            if(app->gps_uart) {
+                FURI_LOG_I("PredatorGPS", "3in1 AIO GPS UART initialized successfully");
+                app->gps_connected = true;
+            } else {
+                FURI_LOG_E("PredatorGPS", "Failed to initialize GPS UART for 3in1 AIO");
+            }
+        }
     } else if(app->board_type == PredatorBoardTypeScreen28) {
         // Special handling for 2.8-inch screen Predator with dual GPS configuration
         FURI_LOG_I("PredatorGPS", "Using 2.8-inch Predator with dual GPS support");

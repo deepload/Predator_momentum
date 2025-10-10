@@ -27,5 +27,5 @@ const SceneManagerHandlers predator_scene_handlers = {
     .on_enter_handlers = predator_on_enter_handlers,
     .on_event_handlers = predator_on_event_handlers,
     .on_exit_handlers = predator_on_exit_handlers,
-    .scene_num = PredatorSceneCount,
+    .scene_num = sizeof(predator_on_enter_handlers) / sizeof(predator_on_enter_handlers[0]),
 };

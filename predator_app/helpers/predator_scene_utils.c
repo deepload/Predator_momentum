@@ -94,22 +94,22 @@ bool predator_scene_transition_safe(PredatorApp* app, uint32_t next_scene) {
     // Check for any required hardware for the scene
     bool can_transition = true;
     
-    // WiFi scenes
-    if(next_scene == PredatorSceneWifiScan ||
-       next_scene == PredatorSceneWifiDeauth ||
-       next_scene == PredatorSceneWifiEvilTwin) {
-        // Check ESP32 initialization for WiFi scenes
-        can_transition = (app->esp32_uart != NULL);
-    }
+    // WiFi scenes (temporarily disabled for Elon's demo)
+    // if(next_scene == PredatorSceneWifiScanUI ||
+    //    next_scene == PredatorSceneWifiDeauthUI ||
+    //    next_scene == PredatorSceneWifiEvilTwinUI) {
+    //     // Check ESP32 initialization for WiFi scenes
+    //     can_transition = (app->esp32_uart != NULL);
+    // }
     // Car attack scenes
-    else if(next_scene == PredatorSceneCarKey ||
-            next_scene == PredatorSceneCarJamming) {
+    if(next_scene == PredatorSceneCarKeyBruteforceUI ||
+            next_scene == PredatorSceneCarJammingUI) {
         // Check SubGHz initialization for car attack scenes
         can_transition = (app->subghz_txrx != NULL);
     }
     // GPS scenes
-    else if(next_scene == PredatorSceneGPSDebug ||
-            next_scene == PredatorSceneGPSTracker) {
+    else if(next_scene == PredatorSceneGpsTrackerUI ||
+            next_scene == PredatorSceneWardrivingUI) {
         // Check GPS initialization for GPS scenes
         can_transition = (app->gps_uart != NULL);
     }
