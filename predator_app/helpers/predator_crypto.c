@@ -51,11 +51,69 @@ void predator_crypto_frequency_analysis(const uint8_t* data, size_t data_len, ui
     }
 }
 
+// Real XOR key detection using statistical analysis
 bool predator_crypto_detect_xor_key(const uint8_t* data, size_t data_len, uint8_t* key, size_t* key_len) {
-    if(!data || !key || !key_len) return false;
-    UNUSED(data_len);
-    FURI_LOG_I("Crypto", "XOR key detection");
-    return false; // Stub: Complex algorithm
+    if(!data || !key || !key_len || data_len < 32) return false;
+    
+    // Try key lengths from 1 to 16
+    float best_score = 0.0f;
+    uint8_t best_key_len = 0;
+    uint8_t best_key[16] = {0};
+    
+    for(uint8_t klen = 1; klen <= 16 && klen < data_len; klen++) {
+        uint8_t candidate_key[16] = {0};
+        
+        // Statistical XOR key recovery
+        for(uint8_t i = 0; i < klen; i++) {
+            uint32_t freq[256] = {0};
+            
+            // Count byte frequencies at this position
+            for(size_t j = i; j < data_len; j += klen) {
+                freq[data[j]]++;
+            }
+            
+            // Find most common byte (likely XOR'd with space 0x20)
+            uint8_t max_byte = 0;
+            uint32_t max_count = 0;
+            for(int b = 0; b < 256; b++) {
+                if(freq[b] > max_count) {
+                    max_count = freq[b];
+                    max_byte = b;
+                }
+            }
+            
+            // Assume most common byte is space (0x20)
+            candidate_key[i] = max_byte ^ 0x20;
+        }
+        
+        // Score this key by checking if result looks like ASCII text
+        float score = 0.0f;
+        for(size_t i = 0; i < data_len && i < 100; i++) {
+            uint8_t decoded = data[i] ^ candidate_key[i % klen];
+            // Score based on printable ASCII range
+            if(decoded >= 0x20 && decoded <= 0x7E) score += 1.0f;
+            if(decoded >= 'a' && decoded <= 'z') score += 0.5f;
+            if(decoded >= 'A' && decoded <= 'Z') score += 0.5f;
+            if(decoded == ' ') score += 0.3f;
+        }
+        
+        if(score > best_score) {
+            best_score = score;
+            best_key_len = klen;
+            memcpy(best_key, candidate_key, klen);
+        }
+    }
+    
+    if(best_score > 50.0f) {
+        *key_len = best_key_len;
+        memcpy(key, best_key, best_key_len);
+        
+        FURI_LOG_I("Crypto", "XOR key detected: length=%u, score=%.1f", best_key_len, (double)best_score);
+        return true;
+    }
+    
+    FURI_LOG_W("Crypto", "XOR key not detected (best score: %.1f)", (double)best_score);
+    return false;
 }
 
 bool predator_crypto_brute_force(PredatorApp* app, size_t key_len, const char* charset, CryptoTestCallback callback, void* context) {
