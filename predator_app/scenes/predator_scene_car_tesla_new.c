@@ -4,6 +4,9 @@
 #include "../helpers/predator_ui_elements.h"
 #include "../helpers/predator_compliance.h"
 #include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_logging.h"
+
+static uint32_t g_tesla_enter_tick = 0;
 
 void predator_scene_car_tesla_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -67,6 +70,8 @@ void predator_scene_car_tesla_new_on_enter(void* context) {
 
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    g_tesla_enter_tick = furi_get_tick();
+    predator_log_append(app, "Tesla ChargePort START");
     FURI_LOG_I("CarTesla", "Tesla Charge Port scene entered with simulation mode");
 }
 
@@ -80,11 +85,17 @@ bool predator_scene_car_tesla_new_on_event(void* context, SceneManagerEvent even
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        uint32_t elapsed = furi_get_tick() - g_tesla_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("CarTesla", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
+        }
         FURI_LOG_I("CarTesla", "Back event received, navigating to previous scene");
         app->attack_running = false;
         if(predator_compliance_is_feature_allowed(app, PredatorFeatureCarTeslaCharge, app->authorized)) {
             predator_subghz_stop_attack(app);
         }
+        predator_log_append(app, "Tesla ChargePort STOP");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {

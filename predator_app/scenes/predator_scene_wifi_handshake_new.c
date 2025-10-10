@@ -17,6 +17,7 @@ static void wifi_hs_popup_back(void* context) {
 static char g_hs_results[HS_MAX_RESULTS][32];
 static size_t g_hs_count = 0;
 static bool g_hs_in_results = false;
+static uint32_t g_hs_enter_tick = 0;
 
 static void hs_results_reset(void) {
     g_hs_count = 0; g_hs_in_results = false;
@@ -52,6 +53,7 @@ void predator_scene_wifi_handshake_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    g_hs_enter_tick = furi_get_tick();
 
     // Attempt to start capture on current channel (setting)
     predator_esp32_init(app);
@@ -69,12 +71,19 @@ bool predator_scene_wifi_handshake_new_on_event(void* context, SceneManagerEvent
     if(!app) return false;
 
     if(event.type == SceneManagerEventTypeBack) {
+        uint32_t elapsed = furi_get_tick() - g_hs_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("WiFiHandshake", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
+        }
         app->attack_running = false;
+        predator_esp32_stop_attack(app);
         predator_log_append(app, "WiFiHandshake STOP");
         scene_manager_previous_scene(app->scene_manager);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
         app->attack_running = false;
+        predator_esp32_stop_attack(app);
         predator_log_append(app, "WiFiHandshake STOP");
         scene_manager_previous_scene(app->scene_manager);
         return true;

@@ -10,6 +10,7 @@
 static char g_wifi_results[WIFI_SCAN_MAX_RESULTS][24];
 static size_t g_wifi_count = 0;
 static bool g_in_results = false;
+static uint32_t g_enter_tick = 0;
 
 static void wifi_scan_results_reset(void) {
     g_wifi_count = 0; g_in_results = false;
@@ -30,6 +31,23 @@ static void wifi_scan_results_cb(void* context, uint32_t index) {
     if(app && app->view_dispatcher) {
         view_dispatcher_send_custom_event(app->view_dispatcher, index);
     }
+}
+
+static void wifi_scan_select_target(PredatorApp* app, size_t index) {
+    if(!app || index >= g_wifi_count || index >= PREDATOR_WIFI_MAX_APS) return;
+    
+    // Store selected target
+    strncpy(app->selected_wifi_ssid, g_wifi_results[index], sizeof(app->selected_wifi_ssid) - 1);
+    app->selected_wifi_ssid[sizeof(app->selected_wifi_ssid) - 1] = '\0';
+    app->selected_wifi_rssi = app->wifi_rssi[index];
+    app->selected_wifi_ch = app->wifi_ch[index];
+    app->wifi_target_selected = true;
+    
+    char logline[64];
+    snprintf(logline, sizeof(logline), "Target: %s (ch%u, %ddBm)", 
+        app->selected_wifi_ssid, (unsigned)app->selected_wifi_ch, (int)app->selected_wifi_rssi);
+    predator_log_append(app, logline);
+    FURI_LOG_I("WiFiScan", "Selected target: %s", app->selected_wifi_ssid);
 }
 
 static void wifi_scan_build_results_menu(PredatorApp* app) {
@@ -95,8 +113,10 @@ void predator_scene_wifi_scan_new_on_enter(void* context) {
 
     // Switch to popup view first
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    // Record entry time for back-debounce
+    g_enter_tick = furi_get_tick();
     // Show immediate scanning status so operators see feedback instantly
-    popup_set_text(app->popup, "Scanning |\nNo results yet...\nEnsure ESP32 is ON and channel is busy", 64, 28, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Scanning |\nTransport: Initializing...\nNo results yet", 64, 28, AlignCenter, AlignTop);
 
     // Initialize ESP32 and start scan (live path if available)
     predator_esp32_init(app);
@@ -142,6 +162,12 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        // Back-debounce: ignore Back for first 500ms to prevent instant exit
+        uint32_t elapsed = furi_get_tick() - g_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("WiFiScan", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
+        }
         if(g_in_results) {
             // Return to scanning popup instead of exiting scene
             g_in_results = false;
@@ -155,6 +181,7 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
         app->attack_running = false;
         FURI_LOG_I("WiFiScan", "Back event received, stopping scan and navigating back");
         predator_esp32_stop_attack(app);
+        predator_log_append(app, "WiFiScan STOP");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
@@ -178,6 +205,34 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
             view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
             g_in_results = true;
             consumed = true;
+        } else if(event.event >= 1000 && event.event < 1000 + WIFI_SCAN_MAX_RESULTS) {
+            // User selected an AP from results list
+            size_t index = event.event - 1000;
+            wifi_scan_select_target(app, index);
+            // Show attack options submenu
+            submenu_reset(app->submenu);
+            submenu_set_header(app->submenu, "Attack Target");
+            char target_label[48];
+            snprintf(target_label, sizeof(target_label), "Target: %.20s", app->selected_wifi_ssid);
+            submenu_add_item(app->submenu, target_label, 2000, wifi_scan_results_cb, app);
+            submenu_add_item(app->submenu, "Deauth Attack", 2001, wifi_scan_results_cb, app);
+            submenu_add_item(app->submenu, "Evil Twin", 2002, wifi_scan_results_cb, app);
+            submenu_add_item(app->submenu, "Capture Handshake", 2003, wifi_scan_results_cb, app);
+            submenu_add_item(app->submenu, "< Back to Results", 900, wifi_scan_results_cb, app);
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
+            consumed = true;
+        } else if(event.event == 2001) {
+            // Launch Deauth on selected target
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauth);
+            consumed = true;
+        } else if(event.event == 2002) {
+            // Launch Evil Twin on selected target
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
+            consumed = true;
+        } else if(event.event == 2003) {
+            // Launch Handshake capture on selected target
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshake);
+            consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
@@ -193,10 +248,11 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
                 static const char spin_chars[] = "|/-\\";
                 char spinner = spin_chars[(app->packets_sent) % 4];
                 char progress_text[96];
+                const char* transport = app->esp32_uart ? "UART OK" : "Fallback";
                 if(app->wifi_ap_count == 0) {
-                    snprintf(progress_text, sizeof(progress_text), "Scanning %c\nNo results yet...\nEnsure ESP32 is ON and channel is busy", spinner);
+                    snprintf(progress_text, sizeof(progress_text), "Scanning %c | %s\nNo results yet\nBack=Stop", spinner, transport);
                 } else {
-                    snprintf(progress_text, sizeof(progress_text), "Scanning %c\nNetworks found: %lu\nBack=Stop | See Live Monitor", spinner, (unsigned long)app->wifi_ap_count);
+                    snprintf(progress_text, sizeof(progress_text), "Scanning %c | %s\nNetworks: %lu\nBack=Stop", spinner, transport, (unsigned long)app->wifi_ap_count);
                 }
                 popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
             }

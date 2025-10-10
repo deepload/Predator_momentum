@@ -131,6 +131,12 @@ typedef struct PredatorApp {
     uint8_t wifi_ap_count;    // number of SSIDs stored (capped at max)
     int8_t wifi_rssi[PREDATOR_WIFI_MAX_APS];
     uint8_t wifi_ch[PREDATOR_WIFI_MAX_APS];
+    
+    // Selected WiFi target for attacks
+    char selected_wifi_ssid[24];
+    int8_t selected_wifi_rssi;
+    uint8_t selected_wifi_ch;
+    bool wifi_target_selected;
 
     // Selected car model context
     size_t selected_model_index;

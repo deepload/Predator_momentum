@@ -5,6 +5,8 @@
 #include "../helpers/predator_ui_status.h"
 #include "../helpers/predator_logging.h"
 
+static uint32_t g_ble_spam_enter_tick = 0;
+
 void predator_scene_ble_spam_new_on_enter(void* context) {
     PredatorApp* app = context;
     
@@ -44,6 +46,7 @@ void predator_scene_ble_spam_new_on_enter(void* context) {
     app->packets_sent = 0;
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    g_ble_spam_enter_tick = furi_get_tick();
 }
 
 bool predator_scene_ble_spam_new_on_event(void* context, SceneManagerEvent event) {
@@ -55,6 +58,10 @@ bool predator_scene_ble_spam_new_on_event(void* context, SceneManagerEvent event
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        uint32_t elapsed = furi_get_tick() - g_ble_spam_enter_tick;
+        if(elapsed < 500) {
+            return true;
+        }
         app->attack_running = false;
         if(predator_compliance_is_feature_allowed(app, PredatorFeatureBleSpam, app->authorized)) {
             predator_esp32_stop_attack(app);

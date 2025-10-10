@@ -6,6 +6,8 @@
 #include "../helpers/predator_ui_status.h"
 #include "../helpers/predator_logging.h"
 
+static uint32_t g_jamming_enter_tick = 0;
+
 // Remove or comment out unused functions to avoid build errors
 /*
 static void predator_scene_car_jamming_popup_callback(void* context) {
@@ -95,6 +97,7 @@ void predator_scene_car_jamming_new_on_enter(void* context) {
 
     // Switch to popup view
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    g_jamming_enter_tick = furi_get_tick();
     FURI_LOG_I("CarJamming", "Car Jamming scene entered with simulation mode");
 }
 
@@ -108,11 +111,17 @@ bool predator_scene_car_jamming_new_on_event(void* context, SceneManagerEvent ev
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        uint32_t elapsed = furi_get_tick() - g_jamming_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("CarJamming", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
+        }
         FURI_LOG_I("CarJamming", "Back event received, navigating to previous scene");
         app->attack_running = false;
         if(predator_compliance_is_feature_allowed(app, PredatorFeatureCarJamming, app->authorized)) {
             predator_subghz_stop_attack(app);
         }
+        predator_log_append(app, "CarJamming STOP");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {

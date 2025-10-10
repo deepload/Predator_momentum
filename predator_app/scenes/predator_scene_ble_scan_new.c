@@ -1,5 +1,9 @@
 #include "../predator_i.h"
 #include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_esp32.h"
+#include "../helpers/predator_logging.h"
+
+static uint32_t g_ble_enter_tick = 0;
 
 void predator_scene_ble_scan_new_on_enter(void* context) {
     PredatorApp* app = context;
@@ -31,6 +35,11 @@ void predator_scene_ble_scan_new_on_enter(void* context) {
     app->packets_sent = 0;
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    g_ble_enter_tick = furi_get_tick();
+    
+    predator_esp32_init(app);
+    predator_esp32_ble_scan(app);
+    predator_log_append(app, "BLEScan START");
 }
 
 bool predator_scene_ble_scan_new_on_event(void* context, SceneManagerEvent event) {
@@ -42,7 +51,13 @@ bool predator_scene_ble_scan_new_on_event(void* context, SceneManagerEvent event
     }
     
     if(event.type == SceneManagerEventTypeBack) {
+        uint32_t elapsed = furi_get_tick() - g_ble_enter_tick;
+        if(elapsed < 500) {
+            return true;
+        }
         app->attack_running = false;
+        predator_esp32_stop_attack(app);
+        predator_log_append(app, "BLEScan STOP");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -69,4 +84,5 @@ void predator_scene_ble_scan_new_on_exit(void* context) {
     if(!app) return;
     
     app->attack_running = false;
+    predator_esp32_stop_attack(app);
 }

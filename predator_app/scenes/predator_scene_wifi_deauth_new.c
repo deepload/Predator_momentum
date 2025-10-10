@@ -17,6 +17,7 @@ static void wifi_deauth_popup_back(void* context) {
 static uint32_t s_burst_counter = 0;
 static bool s_burst_on = true;
 static bool s_live_started = false;
+static uint32_t s_enter_tick = 0;
 
 typedef struct {
     View* view;
@@ -200,6 +201,9 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
         return;
     }
     
+    // Record entry time for back-debounce
+    s_enter_tick = furi_get_tick();
+    
     // Validate board type before any hardware initialization
     if(app->board_type == 0) {
         FURI_LOG_W("WiFiDeauth", "Board type is Unknown, defaulting to Original");
@@ -223,10 +227,10 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
         return;
     }
     
-    // Configure popup content to avoid blank screen; render and switch view first
+    // Pre-render popup content to avoid blank screen
     popup_reset(app->popup);
     popup_set_header(app->popup, "WiFi Deauth", 64, 10, AlignCenter, AlignTop);
-    popup_set_text(app->popup, "Starting Deauth...\nBack=Stop | See Live Monitor", 64, 28, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Initializing | Transport: ...", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
     popup_set_callback(app->popup, wifi_deauth_popup_back);
     popup_set_timeout(app->popup, 0);
@@ -296,22 +300,24 @@ bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent ev
     }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Stop attack and return to previous scene
-        app->attack_running = false;
-        // If authorized/live, send stop to ESP32
-        if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized)) {
-            predator_esp32_stop_attack(app);
+        // Back-debounce: ignore Back for first 500ms
+        uint32_t elapsed = furi_get_tick() - s_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("WiFiDeauth", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
         }
+        app->attack_running = false;
+        s_live_started = false;
+        FURI_LOG_I("WiFiDeauth", "Back event received, stopping deauth and navigating back");
+        predator_esp32_stop_attack(app);
         predator_log_append(app, "WiFiDeauth STOP");
-        FURI_LOG_I("WiFiDeauth", "Back event received, stopping attack and navigating back");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
-        // Popup back path
         app->attack_running = false;
-        if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized)) {
-            predator_esp32_stop_attack(app);
-        }
+        s_live_started = false;
+        FURI_LOG_I("WiFiDeauth", "Popup Back pressed, stopping deauth and navigating back");
+        predator_esp32_stop_attack(app);
         predator_log_append(app, "WiFiDeauth STOP");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;

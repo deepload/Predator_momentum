@@ -8,9 +8,10 @@
 #include "../helpers/predator_settings.h"
 #include "../helpers/predator_logging.h"
 
-// File-scope flags for stability
+// File-scope state for Evil Twin
 static bool s_et_live_started = false;
 static uint32_t s_et_ticks_since_enter = 0;
+static uint32_t s_et_enter_tick = 0;
 
 // Ensure Back works via popup callback
 static void wifi_evil_twin_popup_back(void* context) {
@@ -61,6 +62,8 @@ void predator_scene_wifi_evil_twin_new_on_enter(void* context) {
     popup_enable_timeout(app->popup);
     // Switch to popup view immediately to avoid white screen
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    // Record entry time for back-debounce
+    s_et_enter_tick = furi_get_tick();
 
     bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureWifiEvilTwin, app->authorized);
     s_et_live_started = false;
@@ -122,23 +125,27 @@ bool predator_scene_wifi_evil_twin_new_on_event(void* context, SceneManagerEvent
     }
     
     if(event.type == SceneManagerEventTypeBack) {
-        // Handle back event to stop the attack
-        app->attack_running = false;
-        FURI_LOG_I("WiFiEvilTwin", "Back event received, stopping attack and navigating back");
-        if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiEvilTwin, app->authorized)) {
-            predator_esp32_stop_attack(app);
+        // Back-debounce: ignore Back for first 500ms
+        uint32_t elapsed = furi_get_tick() - s_et_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("WiFiEvilTwin", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
         }
+        app->attack_running = false;
+        s_et_live_started = false;
+        FURI_LOG_I("WiFiEvilTwin", "Back event received, stopping Evil Twin and navigating back");
+        predator_esp32_stop_attack(app);
+        predator_log_append(app, "WiFiEvilTwin STOP");
         scene_manager_previous_scene(app->scene_manager);
-        consumed = true;
+        return true;
     } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
-        // Popup back callback path
         app->attack_running = false;
-        FURI_LOG_I("WiFiEvilTwin", "Popup Back pressed, stopping attack and navigating back");
-        if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiEvilTwin, app->authorized)) {
-            predator_esp32_stop_attack(app);
-        }
+        s_et_live_started = false;
+        FURI_LOG_I("WiFiEvilTwin", "Popup Back pressed, stopping Evil Twin and navigating back");
+        predator_esp32_stop_attack(app);
+        predator_log_append(app, "WiFiEvilTwin STOP");
         scene_manager_previous_scene(app->scene_manager);
-        consumed = true;
+        return true;
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             // Startup watchdog: if live didn't start within ~2s, stay in demo text to keep UI responsive

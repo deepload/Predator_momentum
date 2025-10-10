@@ -17,6 +17,7 @@ static void wifi_pmkid_popup_back(void* context) {
 static char g_pmk_results[PMK_MAX_RESULTS][40];
 static size_t g_pmk_count = 0;
 static bool g_pmk_in_results = false;
+static uint32_t g_pmk_enter_tick = 0;
 
 static void pmk_results_reset(void) {
     g_pmk_count = 0; g_pmk_in_results = false;
@@ -53,6 +54,7 @@ void predator_scene_wifi_pmkid_new_on_enter(void* context) {
     popup_set_timeout(app->popup, 0);
     popup_enable_timeout(app->popup);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    g_pmk_enter_tick = furi_get_tick();
 
     predator_esp32_init(app);
     predator_esp32_get_status(app);
@@ -68,12 +70,19 @@ bool predator_scene_wifi_pmkid_new_on_event(void* context, SceneManagerEvent eve
     if(!app) return false;
 
     if(event.type == SceneManagerEventTypeBack) {
+        uint32_t elapsed = furi_get_tick() - g_pmk_enter_tick;
+        if(elapsed < 500) {
+            FURI_LOG_I("WiFiPMKID", "Back debounced (elapsed=%lu ms)", elapsed);
+            return true;
+        }
         app->attack_running = false;
+        predator_esp32_stop_attack(app);
         predator_log_append(app, "WiFiPMKID STOP");
         scene_manager_previous_scene(app->scene_manager);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
         app->attack_running = false;
+        predator_esp32_stop_attack(app);
         predator_log_append(app, "WiFiPMKID STOP");
         scene_manager_previous_scene(app->scene_manager);
         return true;
@@ -106,4 +115,5 @@ void predator_scene_wifi_pmkid_new_on_exit(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     app->attack_running = false;
+    predator_esp32_stop_attack(app);
 }
