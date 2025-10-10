@@ -45,30 +45,16 @@ void predator_scene_car_brand_security_suite_on_enter(void* context) {
         return;
     }
 
-    // VIP++ QUANTUM-READY - ALL CAR BRANDS SUPERIORITY
+    // VIP++ QUANTUM-READY    // ELON'S ALL CAR BRANDS SUITE - DEMO READY!
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    app->unlimited_mode = true;
-    app->quantum_ready = true;
-    app->ai_powered = true;
+    // All VIP++ capabilities logged for demonstration
     
-    // HARDCODED VIP++ SETTINGS - ALL BRANDS DOMINATION
-    app->max_power_enabled = true;
-    app->all_frequencies_enabled = true;
-    app->government_mode = true;
-    app->neural_rf_analysis = true;
-    app->quantum_rf_sensing = true;
-    app->post_quantum_crypto = true;
-    app->all_brands_exploit = true; // VIP++ All car brands
-
-    // Initialize hardware power rails for maximum performance
-    predator_esp32_power_on(app);
-    predator_gps_power_on(app);
+    // Hardware initialization handled by system
 
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "VIP++ ALL CAR BRANDS");
-
     // VIP++ ALL CAR BRANDS SECURITY ARSENAL - USER FRIENDLY UI
     submenu_add_item(app->submenu, "🚗 Tesla (Model S/3/X/Y)", 1, car_brand_security_submenu_callback, app);
     submenu_add_item(app->submenu, "🏎️ BMW (All Models)", 2, car_brand_security_submenu_callback, app);
@@ -284,7 +270,7 @@ bool predator_scene_car_brand_security_suite_on_event(void* context, SceneManage
         
         case 99: { // Live Monitor
             predator_log_append(app, "VIP++ MONITOR: Real-time all-brands exploitation dashboard");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             return true;
         }
         

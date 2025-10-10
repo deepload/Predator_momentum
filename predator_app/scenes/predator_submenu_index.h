@@ -10,6 +10,9 @@ typedef enum {
     // ELON'S USER-FRIENDLY FLIPPER ZERO UI
     SubmenuIndexUserFriendlyUI,
     
+    // UNIVERSAL CAR HACKER - STANDALONE APP
+    SubmenuIndexUniversalCarHacker,
+    
     // Main menu categories
     SubmenuIndexWifiAttacks,
     SubmenuIndexBluetoothAttacks,

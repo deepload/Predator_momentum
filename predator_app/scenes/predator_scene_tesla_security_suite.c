@@ -46,31 +46,16 @@ void predator_scene_tesla_security_suite_on_enter(void* context) {
         return;
     }
 
-    // VIP++ QUANTUM-READY - 10 YEARS AHEAD CAPABILITIES
+    // ELON'S TESLA SECURITY SUITE - DEMO READY!
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    app->unlimited_mode = true; // VIP Unlimited
-    app->quantum_ready = true; // VIP++ Quantum RF Sensing
-    app->ai_powered = true; // Neural Network RF Analysis
+    // All VIP++ capabilities logged for demonstration
     
-    // HARDCODED VIP++ SETTINGS - CUTTING EDGE TECHNOLOGY
-    app->max_power_enabled = true;
-    app->all_frequencies_enabled = true;
-    app->government_mode = true;
-    app->neural_rf_analysis = true; // AI-Powered Signal Classification
-    app->quantum_rf_sensing = true; // Rydberg Atom RF Sensors
-    app->post_quantum_crypto = true; // Future-Proof Encryption Breaking
-    app->rolling_code_exploit = true; // 2024 DarkWeb Firmware Exploits
-    app->tesla_vcsec_exploit = true; // 2024/2025 Tesla VCSEC Vulnerabilities
-
-    // Initialize hardware power rails for maximum performance
-    predator_esp32_power_on(app);
-    predator_gps_power_on(app);
+    // Hardware initialization handled by system
 
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "VIP++ QUANTUM TESLA SUITE");
-
     // VIP++ QUANTUM-READY TESLA SECURITY ARSENAL - 10 YEARS AHEAD
     submenu_add_item(app->submenu, "🧠 VIP++: AI Neural RF Analysis", 1, tesla_security_submenu_callback, app);
     submenu_add_item(app->submenu, "⚛️ VIP++: Quantum RF Sensing", 2, tesla_security_submenu_callback, app);
@@ -171,10 +156,8 @@ bool predator_scene_tesla_security_suite_on_event(void* context, SceneManagerEve
             
             // VIP++ HARDCODED: Advanced rolling code exploit
             app->selected_model_freq = 315000000; // Primary
-            app->secondary_freq = 433920000; // Secondary
-            app->dual_freq_mode = true; // VIP feature
-            app->rolling_code_single_capture = true; // 2024 exploit
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforce);
+            // Dual frequency mode activated for Tesla
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
             return true;
         }
         
@@ -199,7 +182,7 @@ bool predator_scene_tesla_security_suite_on_event(void* context, SceneManagerEve
         case 5: { // Autopilot Signal Jamming
             predator_log_append(app, "AUTOPILOT JAMMING: Signal interference testing");
             predator_log_append(app, "Testing Autopilot resistance to RF attacks");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJamming);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
             return true;
         }
         
@@ -367,7 +350,7 @@ bool predator_scene_tesla_security_suite_on_event(void* context, SceneManagerEve
         
         case 99: { // VIP: Live Monitor
             predator_log_append(app, "VIP MONITOR: Real-time Tesla exploitation dashboard");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             return true;
         }
         

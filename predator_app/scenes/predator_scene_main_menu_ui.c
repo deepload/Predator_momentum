@@ -16,7 +16,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     if(!app || !app->submenu) return;
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "PREDATOR MOMENTUM");
+    submenu_set_header(app->submenu, "🚗 ELON'S CAR HACKER");
     
     // VIP++ QUANTUM-READY - ELON'S TESLA SECURITY SUITE
     submenu_add_item(app->submenu, "⚛️ VIP++ QUANTUM TESLA SUITE", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
@@ -27,11 +27,14 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
     submenu_add_item(app->submenu, "🎯 ONE-CLICK CAR HACK", SubmenuIndexUserFriendlyUI, main_menu_submenu_callback, app);
     
+    // UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
+    submenu_add_item(app->submenu, "🚗 UNIVERSAL CAR HACKER", SubmenuIndexUniversalCarHacker, main_menu_submenu_callback, app);
+    
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", SubmenuIndexBluetoothAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Car Attacks", SubmenuIndexCarAttacks, main_menu_submenu_callback, app);
-{{ ... }}
+    submenu_add_item(app->submenu, "📻 SubGHz Attacks", SubmenuIndexSubGhzAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "💳 RFID Attacks", SubmenuIndexRfidAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🛰️ GPS Tracker", SubmenuIndexGpsTracker, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚙 Wardriving", SubmenuIndexWardriving, main_menu_submenu_callback, app);
@@ -59,6 +62,9 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             break;
         case SubmenuIndexUserFriendlyUI:
             scene_manager_next_scene(app->scene_manager, PredatorSceneUserFriendlyUI);
+            break;
+        case SubmenuIndexUniversalCarHacker:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneUniversalCarHacker);
             break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);

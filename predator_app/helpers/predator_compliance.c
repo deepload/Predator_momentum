@@ -100,7 +100,7 @@ void predator_compliance_init(struct PredatorApp* app) {
     if(close_storage) furi_record_close(RECORD_STORAGE);
 }
 
-static bool region_supports_freq(PredatorRegion region, PredatorFeature feature) {
+__attribute__((unused)) static bool region_supports_freq(PredatorRegion region, PredatorFeature feature) {
     switch(feature) {
         case PredatorFeatureSubGhz315Tx: return (region == PredatorRegionUS);
         case PredatorFeatureSubGhz433Tx: return (region == PredatorRegionEU || region == PredatorRegionCH);

@@ -32,7 +32,6 @@ size_t predator_models_load_csv(Storage* storage, const char* path);
 // Load models from default path: /ext/apps_data/predator/car_models.csv
 size_t predator_models_load_default(Storage* storage);
 
-
 #ifdef __cplusplus
 }
 #endif

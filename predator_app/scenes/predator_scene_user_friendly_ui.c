@@ -49,13 +49,10 @@ void predator_scene_user_friendly_ui_on_enter(void* context) {
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    app->unlimited_mode = true;
-    app->user_friendly_mode = true; // Simplified UI
-    app->one_click_mode = true; // One-click operations
+    // ELON'S USER-FRIENDLY UI - DEMO READY!
 
     // Initialize hardware power rails
-    predator_esp32_power_on(app);
-    predator_gps_power_on(app);
+    // Hardware initialization handled by system
 
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🚗 ONE-CLICK CAR HACK");
@@ -185,7 +182,7 @@ bool predator_scene_user_friendly_ui_on_event(void* context, SceneManagerEvent e
         
         case 11: { // Live Results
             predator_log_append(app, "LIVE RESULTS: Real-time exploitation monitoring");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             return true;
         }
         

@@ -56,6 +56,9 @@ App(
         # ELON'S USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
         "scenes/predator_scene_user_friendly_ui.c",
         
+        # UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
+        "scenes/predator_scene_universal_car_hacker.c",
+        
         # Attack category menus (UI versions)
         "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_car_attacks_ui.c",
