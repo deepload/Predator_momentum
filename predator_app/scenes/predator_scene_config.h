@@ -32,3 +32,14 @@ ADD_SCENE(predator, live_monitor_ui, LiveMonitorUI)
 // Essential utility scenes
 ADD_SCENE(predator, car_model_selector, CarModelSelector)
 ADD_SCENE(predator, car_test_results, CarTestResults)
+
+// Advanced attack category menus
+ADD_SCENE(predator, advanced_rf_ui, AdvancedRFUI)
+ADD_SCENE(predator, advanced_nfc_ui, AdvancedNFCUI)
+ADD_SCENE(predator, advanced_wifi_ui, AdvancedWiFiUI)
+ADD_SCENE(predator, advanced_bt_ui, AdvancedBTUI)
+ADD_SCENE(predator, automotive_advanced_ui, AutomotiveAdvancedUI)
+ADD_SCENE(predator, infrared_ui, InfraredUI)
+ADD_SCENE(predator, usb_attacks_ui, USBAttacksUI)
+ADD_SCENE(predator, network_attacks_ui, NetworkAttacksUI)
+ADD_SCENE(predator, crypto_tools_ui, CryptoToolsUI)

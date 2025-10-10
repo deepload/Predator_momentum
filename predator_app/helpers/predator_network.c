@@ -32,6 +32,7 @@ bool predator_network_get_packet(PredatorApp* app, EthernetFrame* frame) {
 
 bool predator_network_arp_scan(PredatorApp* app, uint32_t network, uint8_t prefix_len, uint32_t* hosts, size_t* host_count) {
     if(!app || !hosts || !host_count) return false;
+    UNUSED(network);
     FURI_LOG_I("Network", "ARP scan (prefix=%u)", prefix_len);
     *host_count = 0;
     return true;
@@ -39,12 +40,15 @@ bool predator_network_arp_scan(PredatorApp* app, uint32_t network, uint8_t prefi
 
 bool predator_network_arp_spoof(PredatorApp* app, uint32_t target_ip, uint32_t gateway_ip, const uint8_t* attacker_mac) {
     if(!app || !attacker_mac) return false;
+    UNUSED(target_ip);
+    UNUSED(gateway_ip);
     FURI_LOG_I("Network", "ARP spoofing");
     return predator_esp32_send_command(app, "attack -t arp_spoof");
 }
 
 bool predator_network_port_scan(PredatorApp* app, uint32_t target_ip, uint16_t* open_ports, size_t* port_count) {
     if(!app || !open_ports || !port_count) return false;
+    UNUSED(target_ip);
     FURI_LOG_I("Network", "Port scanning");
     *port_count = 0;
     return false; // Stub
@@ -60,6 +64,7 @@ bool predator_network_service_detect(PredatorApp* app, uint32_t target_ip, uint1
 
 bool predator_network_dns_spoof(PredatorApp* app, const char* domain, uint32_t spoofed_ip) {
     if(!app || !domain) return false;
+    UNUSED(spoofed_ip);
     FURI_LOG_I("Network", "DNS spoofing: %s", domain);
     return predator_esp32_send_command(app, "attack -t dns_spoof");
 }

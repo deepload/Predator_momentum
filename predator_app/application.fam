@@ -41,6 +41,24 @@ App(
         "helpers/predator_logging.c",
         "helpers/predator_ui_status.c",
         "predator_uart.c",
+        
+        # Advanced helper modules (stub implementations)
+        "helpers/predator_spectrum.c",
+        "helpers/predator_protocol_analyzer.c",
+        "helpers/predator_can.c",
+        "helpers/predator_obd.c",
+        "helpers/predator_infrared.c",
+        "helpers/predator_mifare.c",
+        "helpers/predator_wifi_advanced.c",
+        "helpers/predator_bluetooth_advanced.c",
+        "helpers/predator_tpms.c",
+        "helpers/predator_lora.c",
+        "helpers/predator_zigbee.c",
+        "helpers/predator_zwave.c",
+        "helpers/predator_usb.c",
+        "helpers/predator_crypto.c",
+        "helpers/predator_network.c",
+        "helpers/predator_reporting.c",
 
         # Scene router
         "scenes/predator_scene.c",
@@ -104,5 +122,16 @@ App(
         
         # Essential utility scenes
         # "scenes/predator_scene_quick_poc.c",  # DISABLED - Memory
+        
+        # Advanced attack category menus
+        "scenes/predator_scene_advanced_rf_ui.c",
+        "scenes/predator_scene_advanced_nfc_ui.c",
+        "scenes/predator_scene_advanced_wifi_ui.c",
+        "scenes/predator_scene_advanced_bt_ui.c",
+        "scenes/predator_scene_automotive_advanced_ui.c",
+        "scenes/predator_scene_infrared_ui.c",
+        "scenes/predator_scene_usb_attacks_ui.c",
+        "scenes/predator_scene_network_attacks_ui.c",
+        "scenes/predator_scene_crypto_tools_ui.c",
     ],
 )

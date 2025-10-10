@@ -36,6 +36,18 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🚗 Car Attacks", SubmenuIndexCarAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📻 SubGHz Attacks", SubmenuIndexSubGhzAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "💳 RFID Attacks", SubmenuIndexRfidAttacks, main_menu_submenu_callback, app);
+    
+    // Advanced attack categories
+    submenu_add_item(app->submenu, "🔬 Advanced RF/SubGHz", SubmenuIndexAdvancedRF, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "💎 Advanced NFC/RFID", SubmenuIndexAdvancedNFC, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🌐 Advanced WiFi", SubmenuIndexAdvancedWiFi, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📲 Advanced Bluetooth", SubmenuIndexAdvancedBT, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚙 Automotive Advanced", SubmenuIndexAutomotiveAdvanced, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 Infrared Remote", SubmenuIndexInfrared, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔌 USB Attacks", SubmenuIndexUSBAttacks, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🌍 Network Attacks", SubmenuIndexNetworkAttacks, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔐 Crypto Tools", SubmenuIndexCryptoTools, main_menu_submenu_callback, app);
+    
     submenu_add_item(app->submenu, "🛰️ GPS Tracker", SubmenuIndexGpsTracker, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚙 Wardriving", SubmenuIndexWardriving, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🎭 Social Engineering", SubmenuIndexSocialEngineering, main_menu_submenu_callback, app);
@@ -63,6 +75,34 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case SubmenuIndexWardriving:
         case SubmenuIndexSocialEngineering:
             // Memory optimized - scene disabled
+            break;
+        // Advanced attack categories
+        case SubmenuIndexAdvancedRF:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedRFUI);
+            break;
+        case SubmenuIndexAdvancedNFC:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedNFCUI);
+            break;
+        case SubmenuIndexAdvancedWiFi:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedWiFiUI);
+            break;
+        case SubmenuIndexAdvancedBT:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedBTUI);
+            break;
+        case SubmenuIndexAutomotiveAdvanced:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAutomotiveAdvancedUI);
+            break;
+        case SubmenuIndexInfrared:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneInfraredUI);
+            break;
+        case SubmenuIndexUSBAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneUSBAttacksUI);
+            break;
+        case SubmenuIndexNetworkAttacks:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneNetworkAttacksUI);
+            break;
+        case SubmenuIndexCryptoTools:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCryptoToolsUI);
             break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);

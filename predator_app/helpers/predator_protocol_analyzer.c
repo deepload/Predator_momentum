@@ -40,6 +40,7 @@ bool predator_protocol_fuzz_signal(PredatorApp* app, ProtocolSignature* signatur
 
 bool predator_protocol_build_custom(PredatorApp* app, const uint8_t* data, size_t data_len, EncodingType encoding, uint32_t** timings, size_t* timing_count) {
     if(!app || !data || !timings || !timing_count) return false;
+    UNUSED(encoding);
     FURI_LOG_I("Protocol", "Building custom protocol");
     *timing_count = data_len * 16; // Stub
     *timings = malloc(*timing_count * sizeof(uint32_t));

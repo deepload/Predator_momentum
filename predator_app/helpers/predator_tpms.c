@@ -37,18 +37,21 @@ bool predator_tpms_spoof_sensor(PredatorApp* app, const TPMSSensor* sensor, TPMS
 
 bool predator_tpms_spoof_low_pressure(PredatorApp* app, uint32_t sensor_id, TPMSProtocol protocol) {
     if(!app) return false;
+    UNUSED(protocol);
     FURI_LOG_I("TPMS", "Spoofing low pressure (ID=0x%lX)", sensor_id);
     return true;
 }
 
 bool predator_tpms_spoof_high_pressure(PredatorApp* app, uint32_t sensor_id, TPMSProtocol protocol) {
     if(!app) return false;
+    UNUSED(protocol);
     FURI_LOG_I("TPMS", "Spoofing high pressure (ID=0x%lX)", sensor_id);
     return true;
 }
 
 bool predator_tpms_activate_sensor(PredatorApp* app, uint32_t sensor_id, TPMSProtocol protocol) {
     if(!app) return false;
+    UNUSED(protocol);
     FURI_LOG_I("TPMS", "Activating sensor ID=0x%lX", sensor_id);
     return true;
 }

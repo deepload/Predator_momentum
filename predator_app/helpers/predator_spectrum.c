@@ -20,17 +20,20 @@ bool predator_spectrum_scan_range(PredatorApp* app, uint32_t freq_start, uint32_
 
 bool predator_spectrum_get_rssi(PredatorApp* app, uint32_t frequency, int8_t* rssi) {
     if(!app || !rssi) return false;
+    UNUSED(frequency);
     *rssi = -80; // Stub value
     return true;
 }
 
 ModulationType predator_spectrum_detect_modulation(PredatorApp* app, uint32_t frequency) {
     if(!app) return ModulationUnknown;
+    UNUSED(frequency);
     return ModulationASK; // Stub
 }
 
 bool predator_spectrum_measure_bandwidth(PredatorApp* app, uint32_t frequency, uint32_t* bandwidth) {
     if(!app || !bandwidth) return false;
+    UNUSED(frequency);
     *bandwidth = 25000; // Stub: 25kHz
     return true;
 }

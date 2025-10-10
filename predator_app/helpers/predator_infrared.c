@@ -55,6 +55,7 @@ bool predator_ir_transmit_sony(PredatorApp* app, uint32_t address, uint32_t comm
 
 bool predator_ir_load_device_profile(PredatorApp* app, const char* brand, IRDeviceType type, IRDeviceProfile* profile) {
     if(!app || !brand || !profile) return false;
+    UNUSED(type);
     FURI_LOG_I("IR", "Loading profile: %s", brand);
     return false; // Stub
 }

@@ -53,18 +53,21 @@ void predator_crypto_frequency_analysis(const uint8_t* data, size_t data_len, ui
 
 bool predator_crypto_detect_xor_key(const uint8_t* data, size_t data_len, uint8_t* key, size_t* key_len) {
     if(!data || !key || !key_len) return false;
+    UNUSED(data_len);
     FURI_LOG_I("Crypto", "XOR key detection");
     return false; // Stub: Complex algorithm
 }
 
 bool predator_crypto_brute_force(PredatorApp* app, size_t key_len, const char* charset, CryptoTestCallback callback, void* context) {
     if(!app || !charset || !callback) return false;
+    UNUSED(context);
     FURI_LOG_I("Crypto", "Brute force (key_len=%zu)", key_len);
     return false; // Stub: Time-intensive
 }
 
 bool predator_crypto_dictionary_attack(PredatorApp* app, const char* dict_path, CryptoTestCallback callback, void* context) {
     if(!app || !dict_path || !callback) return false;
+    UNUSED(context);
     FURI_LOG_I("Crypto", "Dictionary attack: %s", dict_path);
     return false; // Stub
 }
