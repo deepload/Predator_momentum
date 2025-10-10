@@ -12,6 +12,15 @@ typedef struct {
 
 static AboutState about_state;
 
+static void draw_predator_logo(Canvas* canvas) {
+    // Professional PREDATOR logo
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 25, 10, "PREDATOR");
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 10, 20, "🔧 Security Testing Platform 🔧");
+    canvas_draw_line(canvas, 0, 22, 128, 22);
+}
+
 static void draw_about_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "ABOUT");
@@ -22,18 +31,20 @@ static void draw_about_page(Canvas* canvas, AboutState* state) {
     canvas_set_font(canvas, FontSecondary);
     
     switch(state->current_page) {
-        case 0: // Main info
-            canvas_draw_str(canvas, 2, 24, "Predator Momentum");
-            canvas_draw_str(canvas, 2, 34, "Version: 1.2");
-            canvas_draw_str(canvas, 2, 44, "Build: 2025-01-10");
-            canvas_draw_str(canvas, 2, 54, "API: 86.0");
+        case 0: // Main info with logo
+            draw_predator_logo(canvas);
+            canvas_draw_str(canvas, 2, 32, "🔍 Comprehensive Security Testing");
+            canvas_draw_str(canvas, 2, 42, "🏛️ Government-Grade Platform");
+            canvas_draw_str(canvas, 2, 52, "⚡ Version: 1.4 - API: 86.0");
+            canvas_draw_str(canvas, 2, 62, "🔧 Professional Toolkit");
             break;
             
-        case 1: // Features
-            canvas_draw_str(canvas, 2, 24, "Features:");
-            canvas_draw_str(canvas, 2, 34, "- WiFi & BLE attacks");
-            canvas_draw_str(canvas, 2, 44, "- Car hacking tools");
-            canvas_draw_str(canvas, 2, 54, "- RFID & SubGHz");
+        case 1: // Professional Features
+            canvas_draw_str(canvas, 2, 24, "🔧 TESTING CAPABILITIES:");
+            canvas_draw_str(canvas, 2, 34, "🚗 Tesla Security Analysis");
+            canvas_draw_str(canvas, 2, 44, "🚙 90+ Car Models Database");
+            canvas_draw_str(canvas, 2, 54, "🚶 Mobile Testing Workflows");
+            canvas_draw_str(canvas, 2, 64, "🏛️ Government Compliance");
             break;
             
         case 2: // Hardware
@@ -43,11 +54,12 @@ static void draw_about_page(Canvas* canvas, AboutState* state) {
             canvas_draw_str(canvas, 2, 54, "- SubGHz Radio");
             break;
             
-        case 3: // Credits
-            canvas_draw_str(canvas, 2, 24, "Credits:");
-            canvas_draw_str(canvas, 2, 34, "- Momentum Firmware");
-            canvas_draw_str(canvas, 2, 44, "- ESP32 Marauder");
-            canvas_draw_str(canvas, 2, 54, "- Predator Team");
+        case 3: // Professional Partnerships
+            canvas_draw_str(canvas, 2, 24, "🏛️ PARTNERSHIPS:");
+            canvas_draw_str(canvas, 2, 34, "🇺🇸 California State Contract");
+            canvas_draw_str(canvas, 2, 44, "🇨🇭 Switzerland Partnership");
+            canvas_draw_str(canvas, 2, 54, "🔧 Advanced Testing Platform");
+            canvas_draw_str(canvas, 2, 64, "🚗 Automotive Security Focus");
             break;
             
         case 4: // Legal

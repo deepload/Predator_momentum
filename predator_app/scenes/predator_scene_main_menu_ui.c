@@ -16,19 +16,13 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     if(!app || !app->submenu) return;
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🚗 ELON'S CAR HACKER");
+    submenu_set_header(app->submenu, "🔧 PREDATOR Security Testing");
     
-    // VIP++ QUANTUM-READY - ELON'S TESLA SECURITY SUITE
-    submenu_add_item(app->submenu, "⚛️ VIP++ QUANTUM TESLA SUITE", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
-    
-    // VIP++ ALL CAR BRANDS - DEMONSTRATE SUPERIORITY
-    submenu_add_item(app->submenu, "🚗 VIP++ ALL CAR BRANDS", SubmenuIndexCarBrandSecuritySuite, main_menu_submenu_callback, app);
-    
-    // USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
-    submenu_add_item(app->submenu, "🎯 ONE-CLICK CAR HACK", SubmenuIndexUserFriendlyUI, main_menu_submenu_callback, app);
-    
-    // UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
-    submenu_add_item(app->submenu, "🚗 UNIVERSAL CAR HACKER", SubmenuIndexUniversalCarHacker, main_menu_submenu_callback, app);
+    // Professional workflow-oriented menus
+    submenu_add_item(app->submenu, "🚗 Tesla Security Testing", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚙 Multi-Brand Car Testing", SubmenuIndexCarBrandSecuritySuite, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Quick Car Assessment", SubmenuIndexUserFriendlyUI, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔍 Comprehensive Car Audit", SubmenuIndexUniversalCarHacker, main_menu_submenu_callback, app);
     
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);

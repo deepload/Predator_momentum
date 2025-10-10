@@ -155,34 +155,34 @@ void predator_scene_universal_car_hacker_on_enter(void* context) {
     hacker_state.total_models = predator_models_get_hardcoded_count();
 
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🇺🇸 TRUMP & ELON HACKER");
+    submenu_set_header(app->submenu, "🔍 Comprehensive Car Security Audit");
 
-    // TRUMP & ELON PERFECT GLOBAL MENU - WORKS EVERYWHERE
-    submenu_add_item(app->submenu, "🚀 ELON'S SUPERIORITY", 1, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🌍 ALL CONTINENTS", 2, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🇺🇸 TRUMP & ELON POWER", 3, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔄 CYCLE ALL MODELS", 4, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 ROLLING CODE HACK", 5, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔒 FIXED CODE HACK", 6, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔐 SMART KEY HACK", 7, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚶 ELON'S WALKING POWER", 8, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🌎 REGIONAL SELECT", 9, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 DATABASE INFO", 10, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "📈 ATTACK STATS", 11, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔧 FREQUENCY SETUP", 12, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚡ POWER SETTINGS", 13, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 LIVE MONITOR", 99, universal_hacker_submenu_callback, app);
+    // Professional workflow-oriented testing menu
+    submenu_add_item(app->submenu, "🎯 Auto-Detect & Test All", 1, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🌍 Global Frequency Scan", 2, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Maximum Range Test", 3, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔄 Database Model Cycle", 4, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔑 Rolling Code Analysis", 5, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔒 Fixed Code Testing", 6, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔐 Smart Key Assessment", 7, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚶 Mobile Testing Mode", 8, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🌎 Regional Configuration", 9, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Database Information", 10, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "📈 Testing Statistics", 11, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔧 Frequency Configuration", 12, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Power Configuration", 13, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Live Monitoring", 99, universal_hacker_submenu_callback, app);
 
-    // Log initialization - ELON'S REQUIREMENTS MET
-    predator_log_append(app, "ELON'S SUPERIORITY: Ready to dominate automotive industry");
+    // Log initialization - Professional status
+    predator_log_append(app, "COMPREHENSIVE AUDIT: Security testing platform initialized");
     char db_info[100];
     snprintf(db_info, sizeof(db_info), "DATABASE: %u car models loaded (ALL FREQUENCIES)", 
              (unsigned)hacker_state.total_models);
     predator_log_append(app, db_info);
-    predator_log_append(app, "ALL CONTINENTS: North America, South America, Europe, Asia, Africa, Australia");
-    predator_log_append(app, "FREQUENCIES: 315+433+433.42+868+915MHz - ALL ACTIVE");
-    predator_log_append(app, "TRUMP & ELON: ABSOLUTELY NO LIMITATIONS");
-    predator_log_append(app, "STATUS: ELON'S SUPERIORITY READY - CARS BOW TO TESLA!");
+    predator_log_append(app, "GLOBAL COVERAGE: North America, South America, Europe, Asia, Africa, Australia");
+    predator_log_append(app, "FREQUENCIES: 315+433+433.42+868+915MHz - FULL SPECTRUM");
+    predator_log_append(app, "COMPLIANCE: Government-grade security testing capabilities");
+    predator_log_append(app, "STATUS: COMPREHENSIVE AUDIT READY - PROFESSIONAL TESTING MODE");
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     FURI_LOG_I("UniversalHacker", "Universal Car Hacker initialized");

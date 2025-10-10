@@ -3,7 +3,7 @@ App(
     name="Predator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
-    # Icon reference removed until valid icon is available
+    fap_icon="predator_icon.png",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power", "music_player"],
     stack_size=6 * 1024,
     fap_category="Tools",
