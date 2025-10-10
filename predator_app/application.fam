@@ -72,5 +72,7 @@ App(
         "scenes/predator_scene_quick_poc.c",
         "scenes/predator_scene_live_monitor.c",
         "scenes/predator_scene_car_model_tests.c",
+        "scenes/predator_scene_wifi_handshake_new.c",
+        "scenes/predator_scene_wifi_pmkid_new.c",
     ],
 )

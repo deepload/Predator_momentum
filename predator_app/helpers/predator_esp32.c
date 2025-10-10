@@ -2,6 +2,7 @@
 #include "../predator_i.h"
 #include "../predator_uart.h"
 #include "predator_boards.h"
+#include "predator_logging.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <string.h>
@@ -34,8 +35,79 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
         }
         
         // Parse scan results, attack status, etc.
-        if(strstr((char*)safe_buf, "AP Found:")) {
-            app->targets_found++;
+        if(strstr((char*)safe_buf, "AP Found:") || strstr((char*)safe_buf, "SSID") || strstr((char*)safe_buf, "ESSID")) {
+            // Try to extract an SSID from common formats
+            const char* ssid = NULL;
+            const char* p = NULL;
+            // Common markers by various firmwares
+            const char* markers[] = { "SSID:", "ESSID:", "AP Found:", "SSID ", NULL };
+            for(int mi=0; markers[mi]; mi++) {
+                p = strstr((char*)safe_buf, markers[mi]);
+                if(p) {
+                    p += strlen(markers[mi]);
+                    break;
+                }
+            }
+            if(p) {
+                // Skip spaces or quotes
+                while(*p == ' ' || *p == '"' || *p == '\t') p++;
+                ssid = p;
+                // Build a cleaned SSID up to common separators
+                size_t i = 0; char name[24];
+                while(i < sizeof(name) - 1 && ssid[i] && ssid[i] != '\n' && ssid[i] != '\r' && ssid[i] != ',' && ssid[i] != '"') {
+                    // stop before known field labels
+                    if((ssid[i] == ' ' && strstr((char*)&ssid[i], " RSSI")) ||
+                       (ssid[i] == ' ' && strstr((char*)&ssid[i], " CH")) ) {
+                        break;
+                    }
+                    name[i] = ssid[i];
+                    i++;
+                }
+                // Trim trailing spaces
+                while(i > 0 && (name[i-1] == ' ' || name[i-1] == '\t')) i--;
+                name[i] = '\0';
+                if(name[0] == '\0') {
+                    strncpy(name, "<hidden>", sizeof(name)-1);
+                    name[sizeof(name)-1] = '\0';
+                }
+                // Attempt to parse RSSI and Channel from the same line
+                int8_t rssi_val = 0;
+                uint8_t ch_val = 0;
+                const char* r = strstr((char*)safe_buf, "RSSI");
+                if(r) {
+                    while(*r && (*r == 'R' || *r == 'S' || *r == 'I' || *r == ':' || *r == ' ')) r++;
+                    // Parse signed integer
+                    int sign = 1; if(*r == '-') { sign = -1; r++; }
+                    int acc = 0; while(*r >= '0' && *r <= '9') { acc = acc*10 + (*r - '0'); r++; }
+                    rssi_val = (int8_t)(sign * acc);
+                }
+                const char* cptr = strstr((char*)safe_buf, " CH");
+                if(!cptr) cptr = strstr((char*)safe_buf, "CH:");
+                if(cptr) {
+                    // Skip to digits
+                    while(*cptr && (*cptr < '0' || *cptr > '9')) cptr++;
+                    int acc = 0; while(*cptr >= '0' && *cptr <= '9') { acc = acc*10 + (*cptr - '0'); cptr++; }
+                    if(acc >= 0 && acc <= 165) ch_val = (uint8_t)acc; // include 2.4/5 GHz range
+                }
+
+                // Store into app buffer and update counters
+                uint8_t idx = app->wifi_ap_count;
+                if(idx < PREDATOR_WIFI_MAX_APS) {
+                    strncpy(app->wifi_ssids[idx], name, sizeof(app->wifi_ssids[idx]) - 1);
+                    app->wifi_ssids[idx][sizeof(app->wifi_ssids[idx]) - 1] = '\0';
+                    app->wifi_rssi[idx] = rssi_val;
+                    app->wifi_ch[idx] = ch_val;
+                    app->wifi_ap_count++;
+                    app->targets_found = app->wifi_ap_count;
+                    // Log parsed SSID for Live Monitor visibility
+                    char logline[64];
+                    if(ch_val)
+                        snprintf(logline, sizeof(logline), "WiFiScan SSID=%s CH=%u RSSI=%d", name, (unsigned)ch_val, (int)rssi_val);
+                    else
+                        snprintf(logline, sizeof(logline), "WiFiScan SSID=%s RSSI=%d", name, (int)rssi_val);
+                    predator_log_append(app, logline);
+                }
+            }
         }
         
         if(strstr((char*)safe_buf, "Deauth sent:")) {

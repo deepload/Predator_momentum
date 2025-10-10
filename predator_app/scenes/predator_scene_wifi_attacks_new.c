@@ -52,6 +52,8 @@ void predator_scene_wifi_attacks_new_on_enter(void* context) {
     submenu_add_item(app->submenu, "Scan", 1, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Deauth", 2, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Evil Twin", 3, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Handshake Capture (PSK)", 4, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "PMKID Capture", 5, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Live Monitor (logs)", 99, wifi_attacks_submenu_callback, app);
     
     submenu_set_selected_item(app->submenu, 0);
@@ -84,6 +86,12 @@ bool predator_scene_wifi_attacks_new_on_event(void* context, SceneManagerEvent e
             break;
         case 3: // Evil Twin
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
+            break;
+        case 4: // Handshake Capture (PSK)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshake);
+            break;
+        case 5: // PMKID Capture
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkid);
             break;
         case 99: // Live Monitor
             scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);

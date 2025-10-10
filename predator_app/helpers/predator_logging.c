@@ -18,6 +18,10 @@ bool predator_log_append(struct PredatorApp* app, const char* line) {
     storage_common_mkdir(storage, LOG_DIR);
     if(storage_file_open(file, LOG_PATH, FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
         storage_file_seek(file, 0, true); // seek to end
+        // Prepend a simple tick-based timestamp for readability
+        char ts[24];
+        snprintf(ts, sizeof(ts), "[%lu] ", (unsigned long)furi_get_tick());
+        storage_file_write(file, ts, strlen(ts));
         storage_file_write(file, line, strlen(line));
         storage_file_write(file, "\n", 1);
         storage_file_close(file);

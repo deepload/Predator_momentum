@@ -11,6 +11,7 @@
 // Paged submenu for car models
 #define CAR_MODELS_PER_PAGE 8
 static size_t g_car_models_page = 0;
+static bool g_filter_tesla = false;
 
 static void car_models_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
@@ -34,19 +35,23 @@ static void car_models_build_page(PredatorApp* app) {
     for(size_t i = start; i < end; ++i) {
         const PredatorCarModel* m = predator_models_get(i);
         if(!m) continue;
+        if(g_filter_tesla && strncmp(m->make, "Tesla", 5) != 0) continue;
         char label[40];
-        // Show Make Model with safe truncation to avoid warnings and overflow
-        // 15 for make, 23 for model leaves 1 for space and 1 for NUL in 40-byte buffer
-        snprintf(label, sizeof(label), "%.15s %.23s", m->make, m->model);
+        // Show Make Model and approx frequency in MHz using integer (rounded) to stay compact
+        uint32_t mhz = (m->frequency + 500000U) / 1000000U;
+        // Compose "<make> <model> <mhz>MHz" within 40 chars (8+1+12+1+max4+3 < 40)
+        snprintf(label, sizeof(label), "%.8s %.12s %uMHz", m->make, m->model, (unsigned)mhz);
         // Use index offset 1000 to distinguish from control items
         submenu_add_item(app->submenu, label, (uint32_t)(1000 + i), car_models_submenu_callback, app);
     }
 
-    // Pager controls
+    // Pager and filter controls
     if(total > CAR_MODELS_PER_PAGE) {
         submenu_add_item(app->submenu, "Prev Page", 900, car_models_submenu_callback, app);
         submenu_add_item(app->submenu, "Next Page", 901, car_models_submenu_callback, app);
     }
+    char filter_label[24]; snprintf(filter_label, sizeof(filter_label), "Filter: Tesla %s", g_filter_tesla?"On":"Off");
+    submenu_add_item(app->submenu, filter_label, 800, car_models_submenu_callback, app);
 }
 
 void predator_scene_car_models_new_on_enter(void* context) {
@@ -113,6 +118,10 @@ bool predator_scene_car_models_new_on_event(void* context, SceneManagerEvent eve
             size_t total = predator_models_count();
             size_t max_page = (total == 0) ? 0 : (total - 1) / CAR_MODELS_PER_PAGE;
             if(g_car_models_page < max_page) g_car_models_page++;
+            car_models_build_page(app);
+            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
+        } else if(event.event == 800) { // Toggle Tesla filter
+            g_filter_tesla = !g_filter_tesla;
             car_models_build_page(app);
             view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
         } else if(event.event >= 1000) {

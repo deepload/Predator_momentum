@@ -6,6 +6,18 @@
 #include "../helpers/predator_settings.h"
 #include "../helpers/predator_logging.h"
 
+static void wifi_deauth_popup_back(void* context) {
+    PredatorApp* app = context;
+    if(app && app->view_dispatcher) {
+        view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
+    }
+}
+
+// File-scope burst state to persist across ticks within a session
+static uint32_t s_burst_counter = 0;
+static bool s_burst_on = true;
+static bool s_live_started = false;
+
 typedef struct {
     View* view;
     uint32_t packets_sent;
@@ -211,11 +223,18 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
         return;
     }
     
-    // Configure popup content to avoid blank screen
+    // Configure popup content to avoid blank screen; render and switch view first
     popup_reset(app->popup);
     popup_set_header(app->popup, "WiFi Deauth", 64, 10, AlignCenter, AlignTop);
+    popup_set_text(app->popup, "Starting Deauth...\nBack=Stop | See Live Monitor", 64, 28, AlignCenter, AlignTop);
+    popup_set_context(app->popup, app);
+    popup_set_callback(app->popup, wifi_deauth_popup_back);
+    popup_set_timeout(app->popup, 0);
+    popup_enable_timeout(app->popup);
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
 
     bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized);
+    s_live_started = false;
     if(!live_allowed) {
         popup_set_text(app->popup, "Demo Mode — Authorization required\nPress Back to return", 64, 28, AlignCenter, AlignTop);
     } else {
@@ -245,6 +264,7 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
             char logline[80]; snprintf(logline, sizeof(logline), "WiFiDeauth START ch=%ld", (long)channel);
             predator_log_append(app, logline);
             FURI_LOG_I("WiFiDeauth", "Live deauth started (channel %ld)", (long)channel);
+            s_live_started = true;
         } else {
             popup_set_text(
                 app->popup,
@@ -256,18 +276,14 @@ void predator_scene_wifi_deauth_new_on_enter(void* context) {
             FURI_LOG_W("WiFiDeauth", "ESP32 start failed; falling back to Demo text");
         }
     }
-    popup_set_context(app->popup, app);
-    popup_set_timeout(app->popup, 0);
-    popup_enable_timeout(app->popup);
 
-    // Start simulated WiFi deauth attack
+    // Start simulated WiFi deauth attack state/progress
     app->attack_running = true;
     app->packets_sent = 0;
-    FURI_LOG_I("WiFiDeauth", "Starting simulated WiFi deauth attack");
-
-    // Switch to popup view
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-    FURI_LOG_I("WiFiDeauth", "WiFi Deauth scene entered with simulation mode");
+    // Reset burst state for this session
+    s_burst_counter = 0;
+    s_burst_on = true;
+    FURI_LOG_I("WiFiDeauth", "WiFi Deauth scene entered");
 }
 
 bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent event) {
@@ -290,13 +306,54 @@ bool predator_scene_wifi_deauth_new_on_event(void* context, SceneManagerEvent ev
         FURI_LOG_I("WiFiDeauth", "Back event received, stopping attack and navigating back");
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom && event.event == PredatorCustomEventPopupBack) {
+        // Popup back path
+        app->attack_running = false;
+        if(predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized)) {
+            predator_esp32_stop_attack(app);
+        }
+        predator_log_append(app, "WiFiDeauth STOP");
+        scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
+        // Deauth burst mode: 15s ON / 45s OFF cycle (tick duration is SDK-defined; use counters proportionally)
+        static uint32_t burst_counter = 0;
+        static bool burst_on = true;
+        burst_counter++;
+
+        bool live_allowed = predator_compliance_is_feature_allowed(app, PredatorFeatureWifiDeauth, app->authorized);
+        if(live_allowed) {
+            // Rough timing using counters; adjust thresholds as needed per tick rate
+            uint32_t on_ticks = 150;   // approx 15s
+            uint32_t off_ticks = 450;  // approx 45s
+            if(burst_on && burst_counter >= on_ticks) {
+                predator_esp32_stop_attack(app);
+                predator_log_append(app, "WiFiDeauth BURST_OFF");
+                burst_on = false; burst_counter = 0;
+                if(app->popup) {
+                    char msg[96]; snprintf(msg, sizeof(msg), "Burst OFF — cooling\nBack=Stop | See Live Monitor");
+                    popup_set_text(app->popup, msg, 64, 28, AlignCenter, AlignTop);
+                }
+            } else if(!burst_on && burst_counter >= off_ticks) {
+                // Resume attack on configured channel
+                int32_t channel = 6; predator_settings_get_int(app, "WIFI_CHANNEL", 6, &channel);
+                if(channel < 0 || channel > 13) channel = 6;
+                predator_esp32_wifi_deauth(app, (uint8_t)channel);
+                predator_log_append(app, "WiFiDeauth BURST_ON");
+                burst_on = true; burst_counter = 0;
+                if(app->popup) {
+                    char msg[96]; snprintf(msg, sizeof(msg), "Burst ON (ch %ld)\nBack=Stop | See Live Monitor", (long)channel);
+                    popup_set_text(app->popup, msg, 64, 28, AlignCenter, AlignTop);
+                }
+            }
+        }
+
         if(app->attack_running) {
             app->packets_sent += 30; // Simulate sending deauth packets
             if(app->packets_sent % 150 == 0 && app->popup) {
-                // Update popup text to show progress
-                char progress_text[64];
-                snprintf(progress_text, sizeof(progress_text), "Deauth packets: %lu\nPress Back to stop", app->packets_sent);
+                // Update popup text to show progress with footer
+                char progress_text[96];
+                snprintf(progress_text, sizeof(progress_text), "Deauth packets: %lu\nBack=Stop | See Live Monitor", app->packets_sent);
                 popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
                 FURI_LOG_I("WiFiDeauth", "Updated deauth packets sent: %lu", app->packets_sent);
             }

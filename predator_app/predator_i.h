@@ -125,6 +125,13 @@ typedef struct PredatorApp {
     // Mode for testing security of other electric car stations in Switzerland
     bool swiss_station_test;
 
+    // WiFi scan results (simple ring buffer for UI)
+    #define PREDATOR_WIFI_MAX_APS 32
+    char wifi_ssids[PREDATOR_WIFI_MAX_APS][24];
+    uint8_t wifi_ap_count;    // number of SSIDs stored (capped at max)
+    int8_t wifi_rssi[PREDATOR_WIFI_MAX_APS];
+    uint8_t wifi_ch[PREDATOR_WIFI_MAX_APS];
+
     // Selected car model context
     size_t selected_model_index;
     uint32_t selected_model_freq;
