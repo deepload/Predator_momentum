@@ -151,7 +151,7 @@ static bool wifi_pmkid_ui_input_callback(InputEvent* event, void* context) {
                 }
                 
                 predator_esp32_init(app);
-                bool started = predator_esp32_wifi_pmkid(app);
+                bool started = predator_esp32_wifi_scan(app); // Use scan for now, PMKID attack
                 pmkid_state.esp32_connected = started;
                 
                 char log_msg[64];

@@ -138,7 +138,7 @@ void predator_scene_module_status_ui_on_enter(void* context) {
         case PredatorBoardType3in1AIO:
             snprintf(status_state.board_name, sizeof(status_state.board_name), "3in1 AIO");
             break;
-        case PredatorBoardTypeDrB0rkMulti:
+        case PredatorBoardTypeDrB0rkMultiV2:
             snprintf(status_state.board_name, sizeof(status_state.board_name), "DrB0rk");
             break;
         case PredatorBoardTypeScreen28:

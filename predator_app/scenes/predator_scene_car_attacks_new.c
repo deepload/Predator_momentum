@@ -91,40 +91,39 @@ bool predator_scene_car_attacks_new_on_event(void* context, SceneManagerEvent ev
         FURI_LOG_I("CarAttacks", "Custom event received: %lu", event.event);
         consumed = true;
         switch(event.event) {
-        case 1: // Tesla
-            FURI_LOG_I("CarAttacks", "Navigating to Tesla scene");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
+        case 1: // Tesla (Professional UI)
+            FURI_LOG_I("CarAttacks", "Navigating to Tesla UI scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             break;
-        case 2: // Car Models
-            FURI_LOG_I("CarAttacks", "Navigating to Car Models scene");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModels);
-            break;
-        case 3: // Jamming
-            FURI_LOG_I("CarAttacks", "Navigating to Jamming scene");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJamming);
-            break;
-        case 4: // Key Bruteforce
-            FURI_LOG_I("CarAttacks", "Navigating to Key Bruteforce scene");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforce);
-            break;
-        case 5: // Passive Opener
-            FURI_LOG_I("CarAttacks", "Navigating to Passive Opener scene");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpener);
-            break;
-        case 6: // VIP: Tesla Swiss Unlock
-            FURI_LOG_I("CarAttacks", "Activating VIP Mode for Tesla Swiss Unlock and navigating to Tesla scene");
-            app->vip_mode = true; // Set VIP mode
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
-            // Send custom event to Tesla scene to trigger VIP mode (placeholder)
-            view_dispatcher_send_custom_event(app->view_dispatcher, 999);
-            break;
-        case 7: // Ultimate Test Results
+        case 2: // Car Models (Selector)
             FURI_LOG_I("CarAttacks", "Navigating to Car Model Selector scene");
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelSelector);
             break;
-        case 99: // Live Monitor
-            FURI_LOG_I("CarAttacks", "Navigating to Live Monitor scene");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+        case 3: // Jamming (Professional UI)
+            FURI_LOG_I("CarAttacks", "Navigating to Jamming UI scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
+            break;
+        case 4: // Key Bruteforce (Professional UI)
+            FURI_LOG_I("CarAttacks", "Navigating to Key Bruteforce UI scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+            break;
+        case 5: // Passive Opener (Professional UI)
+            FURI_LOG_I("CarAttacks", "Navigating to Passive Opener UI scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
+            break;
+        case 6: // VIP: Tesla Swiss Unlock
+            FURI_LOG_I("CarAttacks", "Activating VIP Mode for Tesla Swiss Unlock");
+            app->vip_mode = true; // Set VIP mode
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
+            view_dispatcher_send_custom_event(app->view_dispatcher, 999);
+            break;
+        case 7: // Ultimate Test Results
+            FURI_LOG_I("CarAttacks", "Navigating to Car Test Results scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTestResults);
+            break;
+        case 99: // Live Monitor (Professional UI)
+            FURI_LOG_I("CarAttacks", "Navigating to Live Monitor UI scene");
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             break;
         default:
             FURI_LOG_W("CarAttacks", "Unknown custom event: %lu", event.event);

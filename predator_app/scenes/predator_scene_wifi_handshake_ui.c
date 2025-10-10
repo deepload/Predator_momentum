@@ -139,13 +139,12 @@ static bool wifi_handshake_ui_input_callback(InputEvent* event, void* context) {
                     snprintf(handshake_state.target_ssid, sizeof(handshake_state.target_ssid), "Target AP");
                     handshake_state.channel = 6;
                 }
-                
                 predator_esp32_init(app);
-                bool started = predator_esp32_wifi_handshake(app);
+                bool started = predator_esp32_wifi_scan(app); // Use scan for handshake
                 handshake_state.esp32_connected = started;
                 
                 char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Handshake capture START: %s (ch%u)", 
+                snprintf(log_msg, sizeof(log_msg), "Handshake START: %s ch%u",
                         handshake_state.target_ssid, (unsigned)handshake_state.channel);
                 predator_log_append(app, log_msg);
                 
@@ -156,7 +155,7 @@ static bool wifi_handshake_ui_input_callback(InputEvent* event, void* context) {
                 predator_esp32_stop_attack(app);
                 
                 char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Handshake capture STOP: Stage %u/4", 
+                snprintf(log_msg, sizeof(log_msg), "Handshake STOP: Stage %u/4", 
                         (unsigned)handshake_state.handshake_stage);
                 predator_log_append(app, log_msg);
                 

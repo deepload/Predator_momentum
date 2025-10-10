@@ -4,12 +4,6 @@
 #include "../helpers/predator_ui_elements.h"
 #include <furi.h>
 
-// Popup callback for RFID attacks
-static void predator_scene_rfid_attacks_popup_callback(void* context) {
-    PredatorApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, PredatorCustomEventPopupBack);
-}
-
 // Submenu callback for navigation
 static void rfid_attacks_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
@@ -39,13 +33,11 @@ void predator_scene_rfid_attacks_new_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "RFID/NFC Attacks");
     
-    // Add RFID/NFC attack menu items
+    // Add RFID/NFC attack menu items (Professional UI)
     submenu_add_item(app->submenu, "💳 RFID Clone", 0, rfid_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🔓 RFID Bruteforce", 1, rfid_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🎲 RFID Fuzzing", 2, rfid_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "📱 NFC Clone", 3, rfid_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔐 Mifare Hack", 4, rfid_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Live Monitor (logs)", 99, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Live Monitor", 99, rfid_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -62,62 +54,17 @@ bool predator_scene_rfid_attacks_new_on_event(void* context, SceneManagerEvent e
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 0: 
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidClone);
+        case 0: // RFID Clone (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
             break;
-        case 1: 
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforce);
+        case 1: // RFID Bruteforce (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
             break;
-        case 2:
-            // RFID Fuzzing attack - use popup
-            popup_set_header(app->popup, "RFID Fuzzing", 64, 10, AlignCenter, AlignTop);
-            popup_set_text(app->popup, "Fuzzing RFID protocols...\nTesting variations: 127\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
-            popup_set_context(app->popup, app);
-            popup_set_callback(app->popup, predator_scene_rfid_attacks_popup_callback);
-            popup_set_timeout(app->popup, 0);
-            popup_enable_timeout(app->popup);
-            
-            app->attack_running = true;
-            app->packets_sent = 0;
-            
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+        case 2: // RFID Fuzzing (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidFuzzingUI);
             break;
-        case 3:
-            // NFC Clone - use popup
-            popup_set_header(app->popup, "NFC Clone", 64, 10, AlignCenter, AlignTop);
-            popup_set_text(app->popup, "Place NFC card on Flipper...\nReading NFC data\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
-            popup_set_context(app->popup, app);
-            popup_set_callback(app->popup, predator_scene_rfid_attacks_popup_callback);
-            popup_set_timeout(app->popup, 0);
-            popup_enable_timeout(app->popup);
-            
-            app->attack_running = true;
-            app->packets_sent = 0;
-            
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-            break;
-        case 4:
-            // Mifare Attack - use popup
-            popup_set_header(app->popup, "Mifare Attack", 64, 10, AlignCenter, AlignTop);
-            popup_set_text(app->popup, "Attacking Mifare Classic...\nUsing known keys\nPress Back to stop", 64, 25, AlignCenter, AlignTop);
-            popup_set_context(app->popup, app);
-            popup_set_callback(app->popup, predator_scene_rfid_attacks_popup_callback);
-            popup_set_timeout(app->popup, 0);
-            popup_enable_timeout(app->popup);
-            
-            app->attack_running = true;
-            app->packets_sent = 0;
-            
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
-            break;
-        case PredatorCustomEventPopupBack:
-            // Handle popup back button - stop attack and return to menu
-            app->attack_running = false;
-            view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
-            consumed = true;
-            break;
-        case 99:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+        case 99: // Live Monitor (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             break;
         default:
             consumed = false;

@@ -52,7 +52,8 @@ static void draw_car_key_status(Canvas* canvas, CarKeyBruteforceState* state) {
     
     // Frequency
     char freq_str[32];
-    snprintf(freq_str, sizeof(freq_str), "%.2f MHz", (double)state->frequency / 1000000.0);
+    snprintf(freq_str, sizeof(freq_str), "%lu.%02lu MHz", 
+            state->frequency / 1000000, (state->frequency % 1000000) / 10000);
     canvas_draw_str(canvas, 2, 32, freq_str);
     
     // Progress bar
@@ -146,12 +147,12 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 carkey_state.total_codes = 65536; // 16-bit key space
                 
                 predator_subghz_init(app);
-                bool started = predator_subghz_start_car_key_bruteforce(app, carkey_state.frequency);
+                bool started = predator_subghz_start_car_bruteforce(app, carkey_state.frequency);
                 carkey_state.subghz_ready = started;
                 
                 char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce START: %.2f MHz", 
-                        (double)carkey_state.frequency / 1000000.0);
+                snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce START: %lu.%02lu MHz", 
+                        carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
                 predator_log_append(app, log_msg);
                 
                 FURI_LOG_I("CarKeyBruteforceUI", "Attack started");

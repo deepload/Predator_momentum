@@ -83,28 +83,28 @@ bool predator_scene_start_new_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidAttacks);
             break;
         case SubmenuIndexGpsTracker:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTracker);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
             break;
         case SubmenuIndexWardriving:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWardriving);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
             break;
         case SubmenuIndexSocialEngineering:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineering);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineeringUI);
             break;
         case SubmenuIndexQuickPoc:
             scene_manager_next_scene(app->scene_manager, PredatorSceneQuickPoc);
             break;
         case SubmenuIndexModuleStatus:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatus);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);
             break;
         case SubmenuIndexBoardSelection:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelection);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelectionUI);
             break;
         case SubmenuIndexSettings:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSettings);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSettingsUI);
             break;
         case SubmenuIndexAbout:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneAbout);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAboutUI);
             break;
         default:
             FURI_LOG_W("StartMenu", "Unknown menu index: %lu", event.event);

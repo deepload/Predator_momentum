@@ -33,9 +33,10 @@ void predator_scene_bluetooth_attacks_new_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "Bluetooth Attacks");
     
-    // Add Bluetooth attack menu items
+    // Add Bluetooth attack menu items (Professional UI)
     submenu_add_item(app->submenu, "📱 BLE Scanner", 0, bluetooth_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "📶 BLE Spam", 1, bluetooth_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Live Monitor", 99, bluetooth_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -52,11 +53,14 @@ bool predator_scene_bluetooth_attacks_new_on_event(void* context, SceneManagerEv
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 0: 
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScan);
+        case 0: // BLE Scanner (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
             break;
-        case 1: 
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpam);
+        case 1: // BLE Spam (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);
+            break;
+        case 99: // Live Monitor (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             break;
         default:
             consumed = false;

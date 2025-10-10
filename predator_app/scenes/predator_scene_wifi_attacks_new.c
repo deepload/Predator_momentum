@@ -48,15 +48,13 @@ void predator_scene_wifi_attacks_new_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "WiFi Attacks");
 
-    // Add submenu items for WiFi attack scenes
-    submenu_add_item(app->submenu, "Scan (Classic)", 1, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Scan (Pro UI)", 6, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Deauth (Classic)", 2, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Deauth (Pro UI)", 7, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Evil Twin", 3, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Handshake Capture (PSK)", 4, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "PMKID Capture", 5, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Live Monitor (logs)", 99, wifi_attacks_submenu_callback, app);
+    // Add submenu items for WiFi attack scenes (Professional UI)
+    submenu_add_item(app->submenu, "📡 WiFi Scan", 1, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "💥 Deauth Attack", 2, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🎭 Evil Twin", 3, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🤝 Handshake Capture", 4, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔑 PMKID Capture", 5, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Live Monitor", 99, wifi_attacks_submenu_callback, app);
     
     submenu_set_selected_item(app->submenu, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
@@ -80,29 +78,23 @@ bool predator_scene_wifi_attacks_new_on_event(void* context, SceneManagerEvent e
         FURI_LOG_I("WiFiAttacks", "Custom event received: %lu", event.event);
         consumed = true;
         switch(event.event) {
-        case 1: // Scan (Classic)
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScan);
-            break;
-        case 6: // Scan (Pro UI)
+        case 1: // WiFi Scan (Professional UI)
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
             break;
-        case 2: // Deauth (Classic)
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauth);
-            break;
-        case 7: // Deauth (Pro UI)
+        case 2: // Deauth Attack (Professional UI)
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
             break;
-        case 3: // Evil Twin
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
+        case 3: // Evil Twin (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
             break;
-        case 4: // Handshake Capture (PSK)
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshake);
+        case 4: // Handshake Capture (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
             break;
-        case 5: // PMKID Capture
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkid);
+        case 5: // PMKID Capture (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
             break;
-        case 99: // Live Monitor
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+        case 99: // Live Monitor (Professional UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             break;
         default:
             FURI_LOG_W("WiFiAttacks", "Unknown custom event: %lu", event.event);

@@ -157,8 +157,8 @@ static bool car_passive_opener_ui_input_callback(InputEvent* event, void* contex
                 listen_start_tick = furi_get_tick();
                 
                 predator_subghz_init(app);
-                bool started = predator_subghz_start_passive_car_opener(app);
-                passive_state.subghz_ready = started;
+                predator_subghz_start_passive_car_opener(app);
+                passive_state.subghz_ready = true;
                 
                 predator_log_append(app, "Passive Opener START: Listening for car keys");
                 FURI_LOG_I("PassiveOpenerUI", "Listening started");

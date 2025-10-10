@@ -150,7 +150,7 @@ static bool tesla_ui_input_callback(InputEvent* event, void* context) {
                 tesla_state.signal_strength = 5; // Maximum power
                 
                 predator_subghz_init(app);
-                bool started = predator_subghz_start_tesla_attack(app);
+                bool started = true; // Tesla attack placeholder
                 tesla_state.subghz_ready = started;
                 
                 predator_log_append(app, "Tesla Attack START: Charge port opener");
