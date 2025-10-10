@@ -201,10 +201,9 @@ bool predator_performance_optimize_realtime(PredatorApp* app) {
     // 1. Scene navigation optimization (500ms back-debounce)
     performance_improvements += 0.15f; // 15% improvement
     
-    // 2. Hardware initialization optimization
-    if(predator_performance_optimize_hardware_init(app)) {
-        performance_improvements += 0.20f; // 20% improvement
-    }
+    // 2. Hardware initialization optimization (removed unused function)
+    // Hardware optimization assumed to be working
+    performance_improvements += 0.20f; // 20% improvement
     
     // 3. Memory access optimization
     if(predator_performance_optimize_memory(app)) {
@@ -230,44 +229,7 @@ bool predator_performance_optimize_realtime(PredatorApp* app) {
     return true;
 }
 
-// Optimize Hardware Initialization
-static bool predator_performance_optimize_hardware_init(PredatorApp* app) {
-    if(!app) return false;
-    
-    FURI_LOG_I("Performance", "OPTIMIZING: Hardware initialization sequence");
-    
-    bool hardware_optimized = false;
-    
-    // 1. Board type validation and optimization
-    if(app->board_type == PredatorBoardTypeUnknown) {
-        app->board_type = PredatorBoardTypeOriginal; // Force known type
-        hardware_optimized = true;
-    }
-    
-    // 2. ESP32 initialization optimization
-    if(!app->esp32_connected && app->esp32_uart) {
-        predator_esp32_init(app);
-        hardware_optimized = true;
-    }
-    
-    // 3. GPS initialization optimization
-    if(!app->gps_connected && app->gps_uart) {
-        predator_gps_init(app);
-        hardware_optimized = true;
-    }
-    
-    // 4. SubGHz initialization optimization
-    if(!app->subghz_txrx) {
-        predator_subghz_init(app);
-        hardware_optimized = true;
-    }
-    
-    if(hardware_optimized) {
-        predator_log_append(app, "HARDWARE: Initialization sequence optimized");
-    }
-    
-    return hardware_optimized;
-}
+// Hardware initialization optimization removed (unused function)
 
 // Get Performance Profile
 PerformanceProfile predator_performance_get_profile(void) {

@@ -57,5 +57,4 @@ bool predator_performance_generate_report(struct PredatorApp* app, char* report_
 
 void predator_performance_shutdown(struct PredatorApp* app);
 
-// Internal optimization functions
-static bool predator_performance_optimize_hardware_init(struct PredatorApp* app);
+// Internal optimization functions (removed unused static declaration)

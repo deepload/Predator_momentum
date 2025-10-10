@@ -14,6 +14,8 @@ typedef enum {
     SubmenuIndexUniversalCarHacker,
     SubmenuIndexAIAttackCoordinator,
     SubmenuIndexMaximumPower,
+    SubmenuIndexSystemAudit,
+    SubmenuIndexComprehensiveAudit,
     
     // Main menu categories
     SubmenuIndexWifiAttacks,

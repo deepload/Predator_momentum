@@ -19,6 +19,10 @@ ADD_SCENE(predator, ai_attack_coordinator, AIAttackCoordinator)
 // MAXIMUM POWER MODE - ULTIMATE CAPABILITIES
 ADD_SCENE(predator, maximum_power, MaximumPower)
 
+// COMPREHENSIVE AUDIT ENGINE - SYSTEM ASSESSMENT
+ADD_SCENE(predator, comprehensive_audit, ComprehensiveAudit)
+ADD_SCENE(predator, system_audit, SystemAudit)
+
 // Attack category menus
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, car_attacks_ui, CarAttacksUI)
