@@ -44,59 +44,46 @@ App(
         # Scene router
         "scenes/predator_scene.c",
 
-        # New UX scenes only
-        "scenes/predator_scene_start_new.c",
-        "scenes/predator_scene_wifi_attacks_new.c",
-        "scenes/predator_scene_wifi_scan_new.c",
-        "scenes/predator_scene_wifi_scan_ui.c",
-        "scenes/predator_scene_wifi_deauth_new.c",
-        "scenes/predator_scene_wifi_deauth_ui.c",
-        "scenes/predator_scene_wifi_evil_twin_new.c",
-        "scenes/predator_scene_bluetooth_attacks_new.c",
-        "scenes/predator_scene_ble_scan_new.c",
-        "scenes/predator_scene_ble_spam_new.c",
-        "scenes/predator_scene_ble_spam_ui.c",
-        "scenes/predator_scene_subghz_attacks_new.c",
-        "scenes/predator_scene_car_attacks_new.c",
-        "scenes/predator_scene_car_key_bruteforce_new.c",
-        "scenes/predator_scene_car_jamming_new.c",
-        "scenes/predator_scene_car_jamming_ui.c",
-        "scenes/predator_scene_car_tesla_new.c",
-        "scenes/predator_scene_car_models_new.c",
-        "scenes/predator_scene_car_passive_opener_new.c",
-        "scenes/predator_scene_car_model_selector.c",
-        "scenes/predator_scene_car_test_results.c",
-        "scenes/predator_scene_rfid_attacks_new.c",
-        "scenes/predator_scene_rfid_clone_new.c",
-        "scenes/predator_scene_rfid_clone_ui.c",
-        "scenes/predator_scene_rfid_bruteforce_new.c",
-        "scenes/predator_scene_gps_tracker_new.c",
-        "scenes/predator_scene_gps_tracker_ui.c",
-        "scenes/predator_scene_gps_debug.c",
-        "scenes/predator_scene_social_engineering_new.c",
-        "scenes/predator_scene_wardriving_new.c",
-        "scenes/predator_scene_module_status_new.c",
-        "scenes/predator_scene_settings_new.c",
-        "scenes/predator_scene_board_selection_new.c",
-        "scenes/predator_scene_about_new.c",
-        "scenes/predator_scene_quick_poc.c",
-        "scenes/predator_scene_live_monitor.c",
-        "scenes/predator_scene_car_model_tests.c",
-        "scenes/predator_scene_wifi_handshake_new.c",
-        "scenes/predator_scene_wifi_pmkid_new.c",
+        # Professional UI scenes only (clean architecture - memory optimized)
+        "scenes/predator_scene_main_menu_ui.c",
         
-        # Professional UI scenes (all 26)
+        # Attack category menus (UI versions)
+        "scenes/predator_scene_wifi_attacks_ui.c",
+        "scenes/predator_scene_car_attacks_ui.c",
+        "scenes/predator_scene_bluetooth_attacks_ui.c",
+        "scenes/predator_scene_subghz_attacks_ui.c",
+        "scenes/predator_scene_rfid_attacks_ui.c",
+        
+        # WiFi attacks (UI versions only)
+        "scenes/predator_scene_wifi_scan_ui.c",
+        "scenes/predator_scene_wifi_deauth_ui.c",
         "scenes/predator_scene_wifi_evil_twin_ui.c",
         "scenes/predator_scene_wifi_handshake_ui.c",
         "scenes/predator_scene_wifi_pmkid_ui.c",
+        
+        # Bluetooth attacks (UI versions only)
         "scenes/predator_scene_ble_scan_ui.c",
+        "scenes/predator_scene_ble_spam_ui.c",
+        
+        # Car attacks (UI versions + essential Tesla testing)
         "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",
+        "scenes/predator_scene_car_model_selector.c",
+        "scenes/predator_scene_car_test_results.c",
+        
+        # RFID attacks (UI versions only)
+        "scenes/predator_scene_rfid_clone_ui.c",
         "scenes/predator_scene_rfid_bruteforce_ui.c",
         "scenes/predator_scene_rfid_fuzzing_ui.c",
+        
+        # SubGHz attacks (UI versions only)
         "scenes/predator_scene_subghz_jamming_ui.c",
         "scenes/predator_scene_subghz_raw_send_ui.c",
+        
+        # System scenes (UI versions only)
+        "scenes/predator_scene_gps_tracker_ui.c",
         "scenes/predator_scene_wardriving_ui.c",
         "scenes/predator_scene_social_engineering_ui.c",
         "scenes/predator_scene_module_status_ui.c",
@@ -104,5 +91,8 @@ App(
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
         "scenes/predator_scene_live_monitor_ui.c",
+        
+        # Essential utility scenes (no UI replacement needed)
+        "scenes/predator_scene_quick_poc.c",
     ],
 )

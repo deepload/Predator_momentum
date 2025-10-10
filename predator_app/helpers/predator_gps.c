@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Forward declaration for GPS debug tracking function
-extern void predator_gps_debug_track_nmea(const char* nmea);
+// GPS debug tracking removed for clean architecture
 
 #define GPS_UART_BAUD PREDATOR_GPS_UART_BAUD
 #define GPS_BUFFER_SIZE 512
@@ -40,9 +39,6 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
                     strncmp(line_start, "$GN", 3) == 0) {
                     
                     app->gps_connected = true;
-                    
-                    // Track NMEA sentence in debug system
-                    predator_gps_debug_track_nmea(line_start);
                     
                     // Parse the complete NMEA sentence using our robust parser
                     predator_gps_parse_nmea(app, line_start);

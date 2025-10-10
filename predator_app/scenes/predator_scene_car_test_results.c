@@ -9,6 +9,7 @@
 // Shows real-time test status, progress, and results for Elon's demo
 
 typedef enum {
+    TestStatusSelectModel,
     TestStatusIdle,
     TestStatusRunning,
     TestStatusSuccess,
@@ -196,10 +197,20 @@ void predator_scene_car_test_results_on_enter(void* context) {
     
     // Initialize test result
     memset(&current_test, 0, sizeof(CarTestResult));
-    current_test.status = TestStatusIdle;
     
-    // Get selected model index from scene state (passed from selector)
-    current_test.model_index = scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarTestResults);
+    // Check if we have a model selected (coming from Car Model Selector)
+    uint32_t model_index = scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarTestResults);
+    
+    if(model_index == 0) {
+        // No model selected yet - redirect to Car Model Selector first
+        FURI_LOG_I("CarTestResults", "No model selected, redirecting to selector");
+        scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelSelector);
+        return;
+    }
+    
+    // We have a model selected - proceed with test
+    current_test.model_index = model_index;
+    current_test.status = TestStatusIdle;
     FURI_LOG_I("CarTestResults", "Using selected model index: %u", current_test.model_index);
     
     // Get model name

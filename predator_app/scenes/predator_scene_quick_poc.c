@@ -88,64 +88,64 @@ bool predator_scene_quick_poc_on_event(void* context, SceneManagerEvent event) {
     } else if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case QuickPocTesla:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTesla);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             return true;
         case QuickPocCarModels:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModels);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelSelector);
             return true;
         case QuickPocCarJamming:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJamming);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
             return true;
         case QuickPocCarKeyBruteforce:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforce);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
             return true;
         case QuickPocCarPassiveOpener:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpener);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
             return true;
         case QuickPocWifiScan:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScan);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
             return true;
         case QuickPocWifiDeauth:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauth);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
             return true;
         case QuickPocWifiEvilTwin:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
             return true;
         case QuickPocBleScan:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScan);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
             return true;
         case QuickPocBleSpam:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpam);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);
             return true;
         case QuickPocSubGhzAttacks:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSubghzAttacks);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
             return true;
         case QuickPocRfidClone:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidClone);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
             return true;
         case QuickPocRfidBruteforce:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforce);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
             return true;
         case QuickPocGpsTracker:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTracker);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
             return true;
         case QuickPocWardriving:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWardriving);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
             return true;
         case QuickPocModuleStatus:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatus);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);
             return true;
         case QuickPocBoardSelection:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelection);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelectionUI);
             return true;
         case QuickPocSettings:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSettings);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSettingsUI);
             return true;
         case QuickPocAbout:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneAbout);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAboutUI);
             return true;
         case QuickPocLiveMonitor:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitor);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             return true;
         default:
             return false;

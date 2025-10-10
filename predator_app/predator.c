@@ -247,6 +247,15 @@ PredatorApp* predator_app_alloc() {
     
     // Try to load board type from storage or auto-detect
     app->board_type = predator_boards_load_selection(app->storage);
+    
+    // Auto-optimize for detected board type
+    if(app->board_type != PredatorBoardTypeUnknown) {
+        FURI_LOG_I("Predator", "Auto-optimizing for board: %s", 
+                  predator_boards_get_name(app->board_type));
+        predator_boards_optimize_for_board(app->board_type);
+    } else {
+        FURI_LOG_W("Predator", "Unknown board type, using safe defaults");
+    }
     if (app->board_type == PredatorBoardTypeUnknown) {
         // Try to auto-detect board
         app->board_type = predator_boards_detect();
@@ -325,7 +334,7 @@ PredatorApp* predator_app_alloc() {
 
     // Only proceed to first scene if app and scene manager are valid
     if(app && app->scene_manager) {
-        scene_manager_next_scene(app->scene_manager, PredatorSceneStart);
+        scene_manager_next_scene(app->scene_manager, PredatorSceneMainMenuUI);
     } else {
         FURI_LOG_E("Predator", "Cannot start initial scene - app or scene manager is NULL");
     }

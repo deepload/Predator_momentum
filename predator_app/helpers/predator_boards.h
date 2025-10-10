@@ -82,3 +82,16 @@ bool predator_boards_save_selection(Storage* storage, PredatorBoardType type);
  * @return Loaded board type or PredatorBoardTypeUnknown if not found
  */
 PredatorBoardType predator_boards_load_selection(Storage* storage);
+
+/**
+ * @brief Detect connected board type at runtime using hardware probing
+ * @return Detected board type or PredatorBoardTypeUnknown if detection fails
+ */
+PredatorBoardType predator_boards_detect_runtime(void);
+
+/**
+ * @brief Auto-optimize system configuration for detected board type
+ * @param board_type Board type to optimize for
+ * @return true if optimization successful
+ */
+bool predator_boards_optimize_for_board(PredatorBoardType board_type);
