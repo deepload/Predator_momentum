@@ -24,6 +24,9 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // VIP++ ALL CAR BRANDS - DEMONSTRATE SUPERIORITY
     submenu_add_item(app->submenu, "🚗 VIP++ ALL CAR BRANDS", SubmenuIndexCarBrandSecuritySuite, main_menu_submenu_callback, app);
     
+    // USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
+    submenu_add_item(app->submenu, "🎯 ONE-CLICK CAR HACK", SubmenuIndexUserFriendlyUI, main_menu_submenu_callback, app);
+    
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", SubmenuIndexBluetoothAttacks, main_menu_submenu_callback, app);
@@ -50,6 +53,12 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         switch(event.event) {
         case SubmenuIndexTeslaSecuritySuite:
             scene_manager_next_scene(app->scene_manager, PredatorSceneTeslaSecuritySuite);
+            break;
+        case SubmenuIndexCarBrandSecuritySuite:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarBrandSecuritySuite);
+            break;
+        case SubmenuIndexUserFriendlyUI:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneUserFriendlyUI);
             break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);

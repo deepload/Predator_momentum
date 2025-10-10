@@ -7,6 +7,9 @@ typedef enum {
     // ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
     SubmenuIndexCarBrandSecuritySuite,
     
+    // ELON'S USER-FRIENDLY FLIPPER ZERO UI
+    SubmenuIndexUserFriendlyUI,
+    
     // Main menu categories
     SubmenuIndexWifiAttacks,
     SubmenuIndexBluetoothAttacks,

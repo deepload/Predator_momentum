@@ -7,6 +7,9 @@ ADD_SCENE(predator, tesla_security_suite, TeslaSecuritySuite)
 // ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY DEMONSTRATION
 ADD_SCENE(predator, car_brand_security_suite, CarBrandSecuritySuite)
 
+// ELON'S USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
+ADD_SCENE(predator, user_friendly_ui, UserFriendlyUI)
+
 // Attack category menus
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, car_attacks_ui, CarAttacksUI)

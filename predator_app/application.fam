@@ -50,6 +50,12 @@ App(
         # ELON'S TESLA SECURITY SUITE - TOP PRIORITY
         "scenes/predator_scene_tesla_security_suite.c",
         
+        # ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
+        "scenes/predator_scene_car_brand_security_suite.c",
+        
+        # ELON'S USER-FRIENDLY FLIPPER ZERO UI - READY FOR YESTERDAY
+        "scenes/predator_scene_user_friendly_ui.c",
+        
         # Attack category menus (UI versions)
         "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_car_attacks_ui.c",
