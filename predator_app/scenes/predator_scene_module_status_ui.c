@@ -128,9 +128,9 @@ static void module_status_ui_timer_callback(void* context) {
     // Update uptime
     status_state.uptime_ms = furi_get_tick() - start_tick;
     
-    // Update real-time hardware status
-    status_state.esp32_connected = (app->esp32_uart != NULL);
-    status_state.gps_connected = (app->satellites > 0);
+    // Update real-time hardware status - PROPER DETECTION
+    status_state.esp32_connected = (app->esp32_uart != NULL) || app->esp32_connected;
+    status_state.gps_connected = (app->gps_uart != NULL) || (app->satellites > 0);
     status_state.satellites = app->satellites;
     status_state.subghz_ready = (app->subghz_txrx != NULL);
     status_state.bluetooth_ready = true; // Flipper has built-in BLE

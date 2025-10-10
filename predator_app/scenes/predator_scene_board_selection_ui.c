@@ -1,6 +1,9 @@
 #include "../predator_i.h"
 #include "../helpers/predator_boards.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_esp32.h"
+#include "../helpers/predator_gps.h"
+#include "../predator_uart.h"
 #include <gui/view.h>
 #include <string.h>
 
@@ -54,8 +57,12 @@ static void draw_board_list(Canvas* canvas, BoardSelectionState* state) {
             canvas_draw_str(canvas, 2, y, ">");
         }
         
-        // Board name
-        canvas_draw_str(canvas, 12, y, board_names[idx]);
+        // Board name (with bounds check)
+        if(idx < board_count) {
+            canvas_draw_str(canvas, 12, y, board_names[idx]);
+        } else {
+            canvas_draw_str(canvas, 12, y, "Invalid Board");
+        }
         
         // Current board indicator
         if(idx == (uint8_t)state->current_board) {
@@ -112,26 +119,40 @@ static bool board_selection_ui_input_callback(InputEvent* event, void* context) 
                 board_state.current_board = board_state.selected_board;
                 board_state.selection_changed = false;
                 
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Board changed to: %s", 
-                        board_names[board_state.selection_index]);
-                predator_log_append(app, log_msg);
+                // SAFE board change - just update type, no hardware reinit during selection
+                FURI_LOG_I("BoardSelectionUI", "Board type changed - hardware will reinit on next app start");
                 
-                FURI_LOG_I("BoardSelectionUI", "Board set to: %s", board_names[board_state.selection_index]);
+                char log_msg[64];
+                if(board_state.selection_index < board_count) {
+                    snprintf(log_msg, sizeof(log_msg), "Board changed to: %s", 
+                            board_names[board_state.selection_index]);
+                    predator_log_append(app, log_msg);
+                    FURI_LOG_I("BoardSelectionUI", "Board set to: %s", board_names[board_state.selection_index]);
+                } else {
+                    snprintf(log_msg, sizeof(log_msg), "Board changed to index: %d", board_state.selection_index);
+                    predator_log_append(app, log_msg);
+                    FURI_LOG_W("BoardSelectionUI", "Invalid board index: %d", board_state.selection_index);
+                }
                 return true;
             }
         } else if(event->key == InputKeyUp) {
             if(board_state.selection_index > 0) {
                 board_state.selection_index--;
-                board_state.selected_board = (PredatorBoardType)board_state.selection_index;
-                board_state.selection_changed = (board_state.selected_board != board_state.current_board);
+                // Ensure we don't go below valid board types
+                if(board_state.selection_index < board_count) {
+                    board_state.selected_board = (PredatorBoardType)board_state.selection_index;
+                    board_state.selection_changed = (board_state.selected_board != board_state.current_board);
+                }
                 return true;
             }
         } else if(event->key == InputKeyDown) {
             if(board_state.selection_index < (board_count - 1)) {
                 board_state.selection_index++;
-                board_state.selected_board = (PredatorBoardType)board_state.selection_index;
-                board_state.selection_changed = (board_state.selected_board != board_state.current_board);
+                // Ensure we don't exceed valid board types
+                if(board_state.selection_index < board_count) {
+                    board_state.selected_board = (PredatorBoardType)board_state.selection_index;
+                    board_state.selection_changed = (board_state.selected_board != board_state.current_board);
+                }
                 return true;
             }
         }
@@ -145,9 +166,17 @@ void predator_scene_board_selection_ui_on_enter(void* context) {
     if(!app) return;
     
     memset(&board_state, 0, sizeof(BoardSelectionState));
-    board_state.current_board = app->board_type;
-    board_state.selected_board = app->board_type;
-    board_state.selection_index = (uint8_t)app->board_type;
+    
+    // Validate board type to prevent crashes
+    PredatorBoardType safe_board_type = app->board_type;
+    if(safe_board_type >= board_count) {
+        safe_board_type = PredatorBoardTypeOriginal; // Default to safe value
+        FURI_LOG_W("BoardSelectionUI", "Invalid board type %d, defaulting to Original", app->board_type);
+    }
+    
+    board_state.current_board = safe_board_type;
+    board_state.selected_board = safe_board_type;
+    board_state.selection_index = (uint8_t)safe_board_type;
     board_state.selection_changed = false;
     
     if(!app->view_dispatcher) {

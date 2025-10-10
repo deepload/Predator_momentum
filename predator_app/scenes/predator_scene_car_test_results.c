@@ -48,6 +48,7 @@ static void draw_test_status(Canvas* canvas, CarTestResult* result) {
     canvas_draw_str(canvas, 2, 32, "Status:");
     const char* status_text = "Unknown";
     switch(result->status) {
+        case TestStatusSelectModel: status_text = "Select Model"; break;
         case TestStatusIdle: status_text = "Ready"; break;
         case TestStatusRunning: status_text = "Testing..."; break;
         case TestStatusSuccess: status_text = "SUCCESS!"; break;
@@ -201,7 +202,8 @@ void predator_scene_car_test_results_on_enter(void* context) {
     // Check if we have a model selected (coming from Car Model Selector)
     uint32_t model_index = scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarTestResults);
     
-    if(model_index == 0) {
+    // If model_index is 0xFFFFFFFF (unset), redirect to selector
+    if(model_index == UINT32_MAX) {
         // No model selected yet - redirect to Car Model Selector first
         FURI_LOG_I("CarTestResults", "No model selected, redirecting to selector");
         scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelSelector);

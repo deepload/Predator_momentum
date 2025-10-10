@@ -171,19 +171,34 @@ void predator_esp32_init(PredatorApp* app) {
         // Force ESP32 to always be considered available for this board
         app->esp32_connected = true;
         
-        // Use safe initialization to avoid crashes
-        FURI_LOG_I("PredatorESP32", "Using safe init for AIO Board");
+        // Create proper UART for ESP32 communication
+        if(!app->esp32_uart) {
+            app->esp32_uart = predator_uart_init(
+                board_config->esp32_tx_pin,
+                board_config->esp32_rx_pin,
+                board_config->esp32_baud_rate,
+                predator_esp32_rx_callback,
+                app
+            );
+            FURI_LOG_I("PredatorESP32", "3in1 AIO ESP32 UART initialized");
+        }
     } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
         // Special handling for 3-in-1 multiboard
         FURI_LOG_I("PredatorESP32", "Using 3-in-1 NRF24+CC1101+ESP32 multiboard");
         
         // Force ESP32 to always be considered available and connected on this board
         app->esp32_connected = true;
-        // Create dummy UART if needed to avoid null pointer issues
+        
+        // Create proper UART for ESP32 communication
         if(!app->esp32_uart) {
-            FURI_LOG_I("PredatorESP32", "Creating dummy UART for multiboard");
-            // Allocate minimal placeholder - will be freed on deinit
-            app->esp32_uart = malloc(sizeof(void*));
+            app->esp32_uart = predator_uart_init(
+                board_config->esp32_tx_pin,
+                board_config->esp32_rx_pin,
+                board_config->esp32_baud_rate,
+                predator_esp32_rx_callback,
+                app
+            );
+            FURI_LOG_I("PredatorESP32", "3in1 NRF multiboard ESP32 UART initialized");
         }
     } else if(app->board_type == PredatorBoardTypeScreen28) {
         // Special handling for 2.8-inch screen Predator with ESP32-S2
