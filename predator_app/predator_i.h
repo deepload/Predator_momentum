@@ -30,6 +30,11 @@ typedef enum {
     PredatorViewWidget,
     PredatorViewCarTestResults,
     PredatorViewWifiScanUI,
+    PredatorViewWifiDeauthUI,
+    PredatorViewBleSpamUI,
+    PredatorViewGpsTrackerUI,
+    PredatorViewCarJammingUI,
+    PredatorViewRfidCloneUI,
 } PredatorView;
 
 // Legacy PredatorScene enum disabled to prevent conflicts; use generated enum from scenes/predator_scene.h

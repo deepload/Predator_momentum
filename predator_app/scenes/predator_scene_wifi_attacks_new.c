@@ -51,7 +51,8 @@ void predator_scene_wifi_attacks_new_on_enter(void* context) {
     // Add submenu items for WiFi attack scenes
     submenu_add_item(app->submenu, "Scan (Classic)", 1, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Scan (Pro UI)", 6, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "Deauth", 2, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Deauth (Classic)", 2, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Deauth (Pro UI)", 7, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Evil Twin", 3, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "Handshake Capture (PSK)", 4, wifi_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "PMKID Capture", 5, wifi_attacks_submenu_callback, app);
@@ -85,8 +86,11 @@ bool predator_scene_wifi_attacks_new_on_event(void* context, SceneManagerEvent e
         case 6: // Scan (Pro UI)
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
             break;
-        case 2: // Deauth
+        case 2: // Deauth (Classic)
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauth);
+            break;
+        case 7: // Deauth (Pro UI)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
             break;
         case 3: // Evil Twin
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwin);
