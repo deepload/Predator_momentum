@@ -23,13 +23,7 @@ static void wifi_scan_results_add(const char* label) {
     }
 }
 
-// Periodic popup timer callback to drive UI updates (spinner, counts)
-static void wifi_scan_popup_timer(void* context) {
-    PredatorApp* app = context;
-    if(app && app->view_dispatcher) {
-        view_dispatcher_send_custom_event(app->view_dispatcher, 950);
-    }
-}
+
 
 static void wifi_scan_results_cb(void* context, uint32_t index) {
     PredatorApp* app = context;
@@ -97,13 +91,12 @@ void predator_scene_wifi_scan_new_on_enter(void* context) {
     popup_set_header(app->popup, "WiFi Scanner", 64, 10, AlignCenter, AlignTop);
     popup_set_text(app->popup, "Preparing WiFi scan...\nBack=Stop | See Live Monitor", 64, 28, AlignCenter, AlignTop);
     popup_set_context(app->popup, app);
-    // Enable periodic timeout to drive UI updates
-    popup_set_timeout(app->popup, 250); // ~4 updates per second
-    popup_enable_timeout(app->popup);
-    popup_set_callback(app->popup, wifi_scan_popup_timer);
+    // Keep popup persistent; spinner/progress will be driven by scene ticks
 
     // Switch to popup view first
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+    // Show immediate scanning status so operators see feedback instantly
+    popup_set_text(app->popup, "Scanning |\nNo results yet...\nEnsure ESP32 is ON and channel is busy", 64, 28, AlignCenter, AlignTop);
 
     // Initialize ESP32 and start scan (live path if available)
     predator_esp32_init(app);
@@ -131,6 +124,10 @@ void predator_scene_wifi_scan_new_on_enter(void* context) {
     app->wifi_ap_count = 0;
     for(size_t i=0;i<PREDATOR_WIFI_MAX_APS;i++) app->wifi_ssids[i][0] = '\0';
     // Note: no demo fallback entries; UI will show guidance until data arrives
+    // Fire an immediate UI update so operators see movement instantly
+    if(app->view_dispatcher) {
+        view_dispatcher_send_custom_event(app->view_dispatcher, 950);
+    }
     FURI_LOG_I("WiFiScan", "WiFi Scan scene entered");
     wifi_scan_results_reset();
 }
@@ -182,34 +179,6 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
             g_in_results = true;
             consumed = true;
         }
-    } else if(event.type == SceneManagerEventTypeCustom && event.event == 950) {
-        // Periodic popup timer tick: mirror results, update spinner and results view
-        if(app->attack_running) {
-            if(app->wifi_ap_count > g_wifi_count) {
-                for(size_t i = g_wifi_count; i < app->wifi_ap_count && i < WIFI_SCAN_MAX_RESULTS; i++) {
-                    wifi_scan_results_add(app->wifi_ssids[i]);
-                }
-                app->targets_found = app->wifi_ap_count;
-            }
-            app->packets_sent++;
-            if(app->popup) {
-                static const char spin_chars[] = "|/-\\";
-                char spinner = spin_chars[(app->packets_sent/1) % 4];
-                char progress_text[96];
-                if(app->wifi_ap_count == 0) {
-                    snprintf(progress_text, sizeof(progress_text), "Scanning %c\nNo results yet...\nEnsure ESP32 is ON and channel is busy", spinner);
-                } else {
-                    snprintf(progress_text, sizeof(progress_text), "Scanning %c\nNetworks found: %lu\nBack=Stop | See Live Monitor", spinner, (unsigned long)app->wifi_ap_count);
-                }
-                popup_set_text(app->popup, progress_text, 64, 28, AlignCenter, AlignTop);
-            }
-            if(app->packets_sent >= 60 && (app->packets_sent % 45 == 0) && g_wifi_count > 0 && app->submenu && !g_in_results) {
-                wifi_scan_build_results_menu(app);
-                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
-                g_in_results = true;
-            }
-            consumed = true;
-        }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(app->attack_running) {
             // Mirror any new SSIDs parsed by ESP32 RX callback into local results list
@@ -219,10 +188,10 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
                 }
                 app->targets_found = app->wifi_ap_count;
             }
-            // Update popup text to show progress periodically with spinner
-            if(app->packets_sent % 10 == 0 && app->popup) {
+            // Update popup text to show progress with spinner every tick
+            if(app->popup) {
                 static const char spin_chars[] = "|/-\\";
-                char spinner = spin_chars[(app->packets_sent/10) % 4];
+                char spinner = spin_chars[(app->packets_sent) % 4];
                 char progress_text[96];
                 if(app->wifi_ap_count == 0) {
                     snprintf(progress_text, sizeof(progress_text), "Scanning %c\nNo results yet...\nEnsure ESP32 is ON and channel is busy", spinner);
@@ -233,11 +202,10 @@ bool predator_scene_wifi_scan_new_on_event(void* context, SceneManagerEvent even
             }
             // Increment packet counter
             app->packets_sent++;
-            // Periodically show results submenu, but only after initial delay
-            if(app->packets_sent >= 60 && (app->packets_sent % 45 == 0) && g_wifi_count > 0 && app->submenu) {
-                wifi_scan_build_results_menu(app);
-                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
-                g_in_results = true;
+            // Keep popup persistent (no auto-switch). Operator can use Refresh in Results when manually opened.
+            // Log a lightweight heartbeat occasionally to Live Monitor to verify UI updates
+            if((app->packets_sent % 20) == 0) {
+                predator_log_append(app, "WiFiScan UI tick");
             }
             consumed = true;
         }

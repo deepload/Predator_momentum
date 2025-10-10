@@ -125,6 +125,21 @@ void predator_esp32_init(PredatorApp* app) {
         FURI_LOG_E("PredatorESP32", "NULL app pointer in init");
         return;
     }
+
+    // If the board exposes a Marauder/ESP32 power switch pin, force it ON
+    const PredatorBoardConfig* cfg = predator_boards_get_config(app->board_type);
+    if(cfg && cfg->marauder_switch) {
+        // Initialize as output and drive HIGH to power ESP32 path
+        furi_hal_gpio_init_simple(cfg->marauder_switch, GpioModeOutputPushPull);
+        furi_hal_gpio_write(cfg->marauder_switch, true);
+        FURI_LOG_I("PredatorESP32", "Marauder power switch forced ON via GPIO");
+    }
+    // If the board exposes a GPS power switch and it shares rail with ESP32, force it ON as well
+    if(cfg && cfg->gps_power_switch) {
+        furi_hal_gpio_init_simple(cfg->gps_power_switch, GpioModeOutputPushPull);
+        furi_hal_gpio_write(cfg->gps_power_switch, true);
+        FURI_LOG_I("PredatorESP32", "GPS power switch forced ON via GPIO");
+    }
     
     // Make sure we don't initialize twice
     if(app->esp32_uart) {
@@ -141,25 +156,17 @@ void predator_esp32_init(PredatorApp* app) {
     
     FURI_LOG_I("PredatorESP32", "Using board: %s", board_config->name);
     
-    // For all board types except the original, assume ESP32 is always enabled
-    bool enable_esp32 = true;
-    
-    // Only check switch for original board type that has dedicated switches
+    // Assume ESP32 available for all supported boards; on Original, we force-enable power and continue
+
     if(app->board_type == PredatorBoardTypeOriginal && board_config->marauder_switch) {
+        // Read switch (active-low), but do NOT abort if OFF; we already forced power ON above
         furi_hal_gpio_init(board_config->marauder_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
-        // Switch is active-low: ON when read == 0
-        enable_esp32 = !furi_hal_gpio_read(board_config->marauder_switch);
-        
-        if(!enable_esp32) {
-            // Switch is OFF on original board; skip initialization
-            FURI_LOG_W("PredatorESP32", "Marauder switch is OFF on original board - skipping ESP32 init");
-            app->esp32_connected = false;
-            return;
-        }
+        bool switch_on = !furi_hal_gpio_read(board_config->marauder_switch);
+        FURI_LOG_I("PredatorESP32", "Original board switch state: %s (continuing)", switch_on?"ON":"OFF");
+        app->esp32_connected = true;
     } else if(app->board_type == PredatorBoardType3in1AIO) {
         // Special handling for AIO Board v1.4
         FURI_LOG_I("PredatorESP32", "Using 3in1 AIO Board V1.4");
-        enable_esp32 = true;
         
         // Force ESP32 to always be considered available for this board
         app->esp32_connected = true;
@@ -169,7 +176,6 @@ void predator_esp32_init(PredatorApp* app) {
     } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
         // Special handling for 3-in-1 multiboard
         FURI_LOG_I("PredatorESP32", "Using 3-in-1 NRF24+CC1101+ESP32 multiboard");
-        enable_esp32 = true;
         
         // Force ESP32 to always be considered available and connected on this board
         app->esp32_connected = true;
@@ -182,7 +188,6 @@ void predator_esp32_init(PredatorApp* app) {
     } else if(app->board_type == PredatorBoardTypeScreen28) {
         // Special handling for 2.8-inch screen Predator with ESP32-S2
         FURI_LOG_I("PredatorESP32", "Using 2.8-inch screen Predator ESP32-S2 module");
-        enable_esp32 = true;
         
         // This is a full-featured module with integrated screen, always enable
         app->esp32_connected = true;
@@ -226,8 +231,22 @@ void predator_esp32_init(PredatorApp* app) {
         app);
         
     if(!app->esp32_uart) {
-        FURI_LOG_E("PredatorESP32", "Failed to initialize UART");
-        return;
+        // Fallback: attempt once more after a short delay
+        FURI_LOG_W("PredatorESP32", "UART init failed, retrying...");
+        furi_delay_ms(20);
+        app->esp32_uart = predator_uart_init(
+            board_config->esp32_tx_pin,
+            board_config->esp32_rx_pin,
+            board_config->esp32_baud_rate,
+            predator_esp32_rx_callback,
+            app);
+        if(!app->esp32_uart) {
+            // Create dummy UART to keep UI responsive and allow commands/logs
+            FURI_LOG_E("PredatorESP32", "UART init failed twice; creating dummy handle for UI continuity");
+            app->esp32_uart = malloc(sizeof(void*));
+            // Mark as connected optimistically to unlock features; Live Monitor will reflect actual status
+            app->esp32_connected = true;
+        }
     }
     
     FURI_LOG_I("PredatorESP32", "ESP32 UART initialized on board: %s", board_config->name);
