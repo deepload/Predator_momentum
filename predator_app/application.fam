@@ -60,6 +60,8 @@ App(
         "scenes/predator_scene_car_tesla_new.c",
         "scenes/predator_scene_car_models_new.c",
         "scenes/predator_scene_car_passive_opener_new.c",
+        "scenes/predator_scene_car_model_selector.c",
+        "scenes/predator_scene_car_test_results.c",
         "scenes/predator_scene_rfid_attacks_new.c",
         "scenes/predator_scene_rfid_clone_new.c",
         "scenes/predator_scene_rfid_bruteforce_new.c",

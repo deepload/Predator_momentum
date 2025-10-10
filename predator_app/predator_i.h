@@ -28,6 +28,7 @@ typedef enum {
     PredatorViewPopup,
     PredatorViewLoading,
     PredatorViewWidget,
+    PredatorViewCarTestResults,
 } PredatorView;
 
 // Legacy PredatorScene enum disabled to prevent conflicts; use generated enum from scenes/predator_scene.h

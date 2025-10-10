@@ -2,6 +2,8 @@
 #include "../helpers/predator_car_attacks.h"
 #include "../helpers/predator_models_hardcoded.h"
 #include "../helpers/predator_logging.h"
+#include <gui/view.h>
+#include <string.h>
 
 // Ultimate Car Testing Results Screen
 // Shows real-time test status, progress, and results for Elon's demo
@@ -90,10 +92,13 @@ static void draw_security_analysis(Canvas* canvas, CarTestResult* result) {
 }
 
 static void car_test_results_draw_callback(Canvas* canvas, void* context) {
-    PredatorApp* app = context;
-    if(!app) return;
+    furi_assert(canvas);
+    furi_assert(context);
+    
+    UNUSED(context);
     
     canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
     
     // Draw header
     draw_test_header(canvas);
@@ -145,8 +150,8 @@ static bool car_test_results_input_callback(InputEvent* event, void* context) {
 }
 
 static void car_test_results_timer_callback(void* context) {
+    furi_assert(context);
     PredatorApp* app = context;
-    if(!app) return;
     
     if(current_test.status == TestStatusRunning) {
         // Update time elapsed
@@ -178,8 +183,10 @@ static void car_test_results_timer_callback(void* context) {
             predator_log_append(app, log_msg);
         }
         
-        // Trigger view update
-        view_dispatcher_send_custom_event(app->view_dispatcher, 0);
+        // Trigger view redraw
+        if(app->view_dispatcher) {
+            view_dispatcher_send_custom_event(app->view_dispatcher, 0);
+        }
     }
 }
 
@@ -190,7 +197,10 @@ void predator_scene_car_test_results_on_enter(void* context) {
     // Initialize test result
     memset(&current_test, 0, sizeof(CarTestResult));
     current_test.status = TestStatusIdle;
-    current_test.model_index = 0; // Default to first model
+    
+    // Get selected model index from scene state (passed from selector)
+    current_test.model_index = scene_manager_get_scene_state(app->scene_manager, PredatorSceneCarTestResults);
+    FURI_LOG_I("CarTestResults", "Using selected model index: %u", current_test.model_index);
     
     // Get model name
     const PredatorCarModel* model = predator_models_get_hardcoded(current_test.model_index);
@@ -202,10 +212,18 @@ void predator_scene_car_test_results_on_enter(void* context) {
     }
     
     // Setup custom view
-    if(!app->view_dispatcher) return;
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("CarTestResults", "View dispatcher is NULL");
+        return;
+    }
     
     // Create view with callbacks
     View* view = view_alloc();
+    if(!view) {
+        FURI_LOG_E("CarTestResults", "Failed to allocate view");
+        return;
+    }
+    
     view_set_context(view, app);
     view_set_draw_callback(view, car_test_results_draw_callback);
     view_set_input_callback(view, car_test_results_input_callback);
@@ -213,6 +231,8 @@ void predator_scene_car_test_results_on_enter(void* context) {
     // Add view to dispatcher
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarTestResults, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarTestResults);
+    
+    FURI_LOG_I("CarTestResults", "View initialized and switched");
     
     // Start timer for updates
     app->timer = furi_timer_alloc(car_test_results_timer_callback, FuriTimerTypePeriodic, app);
@@ -224,13 +244,7 @@ bool predator_scene_car_test_results_on_event(void* context, SceneManagerEvent e
     if(!app) return false;
     
     if(event.type == SceneManagerEventTypeCustom) {
-        // Trigger view update
-        if(app->view_dispatcher) {
-            View* view = view_dispatcher_get_current_view(app->view_dispatcher);
-            if(view) {
-                view_commit_model(view, false);
-            }
-        }
+        // Custom event received - view will redraw automatically
         return true;
     }
     
@@ -253,10 +267,6 @@ void predator_scene_car_test_results_on_exit(void* context) {
     
     // Remove view
     if(app->view_dispatcher) {
-        View* view = view_dispatcher_get_view(app->view_dispatcher, PredatorViewCarTestResults);
-        if(view) {
-            view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarTestResults);
-            view_free(view);
-        }
+        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarTestResults);
     }
 }
