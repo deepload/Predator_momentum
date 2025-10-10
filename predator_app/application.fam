@@ -48,6 +48,7 @@ App(
         "scenes/predator_scene_start_new.c",
         "scenes/predator_scene_wifi_attacks_new.c",
         "scenes/predator_scene_wifi_scan_new.c",
+        "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_new.c",
         "scenes/predator_scene_wifi_evil_twin_new.c",
         "scenes/predator_scene_bluetooth_attacks_new.c",

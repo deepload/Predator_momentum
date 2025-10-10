@@ -1,6 +1,7 @@
 ADD_SCENE(predator, start_new, Start)
 ADD_SCENE(predator, wifi_attacks_new, WifiAttacks)
 ADD_SCENE(predator, wifi_scan_new, WifiScan)
+ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_new, WifiDeauth)
 ADD_SCENE(predator, wifi_evil_twin_new, WifiEvilTwin)
 ADD_SCENE(predator, bluetooth_attacks_new, BluetoothAttacks)
