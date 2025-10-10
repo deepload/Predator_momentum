@@ -1,6 +1,9 @@
 #pragma once
 
 typedef enum {
+    // ELON'S TESLA SECURITY SUITE - TOP PRIORITY
+    SubmenuIndexTeslaSecuritySuite,
+    
     // Main menu categories
     SubmenuIndexWifiAttacks,
     SubmenuIndexBluetoothAttacks,

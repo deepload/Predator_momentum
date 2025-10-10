@@ -30,8 +30,7 @@ bool predator_scene_bluetooth_attacks_ui_on_event(void* context, SceneManagerEve
         consumed = true;
         switch(event.event) {
         case SubmenuIndexBleScan:
-            // scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
-            // Temporarily disabled for Elon's demo
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
             break;
         case SubmenuIndexBleSpam:
             scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);

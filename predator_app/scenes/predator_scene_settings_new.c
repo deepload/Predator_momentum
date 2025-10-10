@@ -106,8 +106,8 @@ void predator_scene_settings_new_on_enter(void* context) {
     submenu_add_item(app->submenu, line, SettingsEvilTwinChannelSource, settings_submenu_callback, app);
     submenu_add_item(app->submenu, "Clear Logs", SettingsClearLogs, settings_submenu_callback, app);
 
-    // Highlight current region if set
-    SettingsItemId selected = SettingsRegionEU;
+    // Highlight current region if set - Default to UNBLOCK for Tesla
+    SettingsItemId selected = SettingsRegionUnblock;
     switch(app->region) {
         case PredatorRegionAuto: selected = SettingsRegionAuto; break;
         case PredatorRegionUS: selected = SettingsRegionUS; break;
@@ -116,7 +116,7 @@ void predator_scene_settings_new_on_enter(void* context) {
         case PredatorRegionJP: selected = SettingsRegionJP; break;
         case PredatorRegionCN: selected = SettingsRegionCN; break;
         case PredatorRegionUnblock: selected = SettingsRegionUnblock; break;
-        default: selected = SettingsRegionEU; break;
+        default: selected = SettingsRegionUnblock; break; // Tesla default
     }
     submenu_set_selected_item(app->submenu, selected);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);

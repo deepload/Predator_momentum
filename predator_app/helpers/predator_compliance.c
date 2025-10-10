@@ -4,10 +4,10 @@
 #include <storage/storage.h>
 #include <string.h>
 
-static PredatorRegion s_region = PredatorRegionEU;
+static PredatorRegion s_region = PredatorRegionUnblock;
 
 static PredatorRegion parse_region_code(const char* code) {
-    if(!code) return PredatorRegionEU;
+    if(!code) return PredatorRegionUnblock;
     if(strncmp(code, "US", 2) == 0) return PredatorRegionUS;
     if(strncmp(code, "EU", 2) == 0) return PredatorRegionEU;
     if(strncmp(code, "CH", 2) == 0) return PredatorRegionCH;
@@ -15,7 +15,7 @@ static PredatorRegion parse_region_code(const char* code) {
     if(strncmp(code, "CN", 2) == 0) return PredatorRegionCN;
     if(strncmp(code, "AUTO", 4) == 0) return PredatorRegionAuto;
     if(strncmp(code, "UNBLOCK", 7) == 0) return PredatorRegionUnblock;
-    return PredatorRegionEU;
+    return PredatorRegionUnblock; // Default to unrestricted
 }
 
 const char* predator_compliance_region_str(PredatorRegion region) {
@@ -62,23 +62,24 @@ static bool file_exists_and_read_first_line(Storage* storage, const char* path, 
 
 void predator_compliance_init(struct PredatorApp* app) {
     if(!app) return;
-    // Default values
-    app->region = PredatorRegionEU;
+    // TESLA/ELON/GOVERNMENT: Default to unrestricted for maximum capabilities
+    app->region = PredatorRegionUnblock;
     app->authorized = true;
 
     // Load from files under /ext
     Storage* storage = app->storage ? app->storage : furi_record_open(RECORD_STORAGE);
     bool close_storage = (storage != app->storage);
 
-    // Region
+    // Region - Force UNBLOCK for Tesla/Government testing
     char buf[32] = {0};
     if(file_exists_and_read_first_line(storage, "/ext/predator_region.cfg", buf, sizeof(buf))) {
         PredatorRegion r = parse_region_code(buf);
-        predator_compliance_set_region(app, r == PredatorRegionAuto ? PredatorRegionEU : r);
-        FURI_LOG_I("Compliance", "Region set to %s from config", predator_compliance_region_str(app->region));
+        // Override any region to UNBLOCK for Tesla requirements
+        predator_compliance_set_region(app, PredatorRegionUnblock);
+        FURI_LOG_I("Compliance", "TESLA MODE: Region forced to UNBLOCK (was %s)", predator_compliance_region_str(r));
     } else {
-        predator_compliance_set_region(app, PredatorRegionEU);
-        FURI_LOG_I("Compliance", "Region defaulted to %s", predator_compliance_region_str(app->region));
+        predator_compliance_set_region(app, PredatorRegionUnblock);
+        FURI_LOG_I("Compliance", "TESLA MODE: Region defaulted to UNBLOCK (unrestricted)");
     }
     // Authorization
     // A simple internal gate: if /ext/predator_auth.cfg contains 'AUTHORIZED=1' on first line
@@ -110,44 +111,15 @@ static bool region_supports_freq(PredatorRegion region, PredatorFeature feature)
 }
 
 bool predator_compliance_is_feature_allowed(struct PredatorApp* app, PredatorFeature feature, bool authorized) {
-    return true;
-    PredatorRegion region = app ? app->region : s_region;
-    // Treat AUTO as EU for compliance gating unless explicitly overridden
-    if(region == PredatorRegionAuto) region = PredatorRegionEU;
-    // Testing-only region: bypass all gating
-    if(region == PredatorRegionUnblock) return true;
-
-    // Features that are informational only
-    if(feature == PredatorFeatureGpsTracker || feature == PredatorFeatureWardriving || feature == PredatorFeatureBleScan || feature == PredatorFeatureWifiScan) {
-        return true; // always allowed live
-    }
-
-    // RF frequency-specific checks
-    if(feature == PredatorFeatureSubGhz315Tx || feature == PredatorFeatureSubGhz433Tx || feature == PredatorFeatureSubGhz868Tx || feature == PredatorFeatureSubGhz915Tx) {
-        if(!region_supports_freq(region, feature)) return false;
-        return authorized; // require authorization for any TX
-    }
-
-    // WiFi/BLE offensive features require authorization everywhere
-    if(feature == PredatorFeatureWifiDeauth || feature == PredatorFeatureWifiEvilTwin || feature == PredatorFeatureBleSpam) {
-        return authorized;
-    }
-
-    // Car jamming and Tesla charge operations require authorization and region must allow 433/315 depending
-    if(feature == PredatorFeatureCarTeslaCharge) {
-        // Typically 315/433 depending on market; enforce authorization
-        return authorized;
-    }
-
-    if(feature == PredatorFeatureCarJamming) {
-        return authorized;
-    }
-
-    // RFID offensive features require authorization
-    if(feature == PredatorFeatureRfidClone || feature == PredatorFeatureRfidBruteforce) {
-        return authorized;
-    }
-
-    // Default: allow
-    return true;
+    // TESLA/ELON/GOVERNMENT MODE: ALL FEATURES UNRESTRICTED
+    // No compliance limitations for Tesla security testing
+    // No EU restrictions for government contracts
+    // Maximum capabilities for Elon's demonstrations
+    
+    UNUSED(app);
+    UNUSED(feature);
+    UNUSED(authorized);
+    
+    FURI_LOG_I("Compliance", "TESLA MODE: All features unrestricted (feature=%d)", feature);
+    return true; // Always allow everything for Tesla/Government testing
 }

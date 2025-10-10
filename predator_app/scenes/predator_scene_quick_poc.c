@@ -103,20 +103,16 @@ bool predator_scene_quick_poc_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
             return true;
         case QuickPocWifiScan:
-            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
-            // Temporarily disabled for Elon's demo
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
             return true;
         case QuickPocWifiDeauth:
-            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
-            // Temporarily disabled for Elon's demo
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
             return true;
         case QuickPocWifiEvilTwin:
-            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
-            // Temporarily disabled for Elon's demo
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
             return true;
         case QuickPocBleScan:
-            // scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
-            // Temporarily disabled for Elon's demo
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
             return true;
         case QuickPocBleSpam:
             scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);

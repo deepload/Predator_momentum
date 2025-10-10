@@ -47,11 +47,25 @@ App(
         # Professional UI scenes only (clean architecture - memory optimized)
         "scenes/predator_scene_main_menu_ui.c",
         
+        # ELON'S TESLA SECURITY SUITE - TOP PRIORITY
+        "scenes/predator_scene_tesla_security_suite.c",
+        
         # Attack category menus (UI versions)
+        "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_car_attacks_ui.c",
         "scenes/predator_scene_bluetooth_attacks_ui.c",
         "scenes/predator_scene_subghz_attacks_ui.c",
         "scenes/predator_scene_rfid_attacks_ui.c",
+        
+        # WiFi attacks (ALL ENABLED for Tesla/Government)
+        "scenes/predator_scene_wifi_scan_ui.c",
+        "scenes/predator_scene_wifi_deauth_ui.c",
+        "scenes/predator_scene_wifi_evil_twin_ui.c",
+        "scenes/predator_scene_wifi_handshake_ui.c",
+        "scenes/predator_scene_wifi_pmkid_ui.c",
+        
+        # Bluetooth attacks (ALL ENABLED)
+        "scenes/predator_scene_ble_scan_ui.c",
         
         # Car attacks (UI versions only)
         "scenes/predator_scene_ble_spam_ui.c",

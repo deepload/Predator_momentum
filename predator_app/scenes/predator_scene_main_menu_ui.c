@@ -18,11 +18,14 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "PREDATOR MOMENTUM");
     
+    // WORLD VIP UNLIMITED - ELON'S TESLA SECURITY SUITE
+    submenu_add_item(app->submenu, "💎 VIP TESLA SECURITY SUITE", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
+    
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", SubmenuIndexBluetoothAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Car Attacks", SubmenuIndexCarAttacks, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📻 SubGHz Attacks", SubmenuIndexSubGhzAttacks, main_menu_submenu_callback, app);
+{{ ... }}
     submenu_add_item(app->submenu, "💳 RFID Attacks", SubmenuIndexRfidAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🛰️ GPS Tracker", SubmenuIndexGpsTracker, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚙 Wardriving", SubmenuIndexWardriving, main_menu_submenu_callback, app);
@@ -42,6 +45,9 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
+        case SubmenuIndexTeslaSecuritySuite:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneTeslaSecuritySuite);
+            break;
         case SubmenuIndexWifiAttacks:
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
             break;
