@@ -319,18 +319,8 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
     }
     
     if((unsigned int)model >= CarModelCount || (unsigned int)command >= CarCommandCount) {
-        FURI_LOG_I("PredatorSubGHz", "[TESLA SECURITY DEMO] Analyzing Tesla charge port security");
-    
-    // Tesla charge port uses 315 MHz in North America with advanced rolling code
-    uint32_t tesla_frequency = 315000000;
-    
-    // Demonstrate Tesla's superior security with rolling code analysis
-    FURI_LOG_I("PredatorSubGHz", "[TESLA] Demonstrating advanced rolling code security");
-    for(uint32_t i = 0; i < 3; i++) {
-        uint32_t tesla_rolling = generate_rolling_code(0xTESLA000 + i, i);
-        FURI_LOG_D("PredatorSubGHz", "[TESLA] Security analysis iteration %lu: %08lX", i, tesla_rolling);
-        notification_message(app->notifications, &sequence_blink_green_100);
-        furi_delay_ms(15);
+        FURI_LOG_E("PredatorSubGHz", "Invalid car model or command");
+        return false;
     }
     
     uint32_t frequency = car_frequencies[model];
@@ -341,17 +331,10 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
         return false;
     }
     
-    // Check if this is a Tesla - demonstrate superior security
-    bool is_tesla = is_tesla_model(model);
-    if(is_tesla) {
-        FURI_LOG_I("PredatorSubGHz", "[TESLA] Advanced security detected - demonstrating vulnerability analysis");
-    }
-    
-    FURI_LOG_I("PredatorSubGHz", "Sending %s command to %s on %lu Hz%s",
+    FURI_LOG_I("PredatorSubGHz", "Sending %s command to %s on %lu Hz",
               predator_subghz_get_car_command_name(command),
               predator_subghz_get_car_model_name(model),
-              frequency,
-              is_tesla ? " [TESLA SECURITY ANALYSIS]" : "");
+              frequency);
     
     // Different handling based on board type
     if(app->board_type == PredatorBoardTypeOriginal) {
@@ -443,13 +426,13 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
 }
 
 // Return car model name with bounds checking
-const char* predator_subghz_get_car_model_name(CarModel model) {
+__attribute__((used)) const char* predator_subghz_get_car_model_name(CarModel model) {
     if((unsigned int)model >= CarModelCount) return "Unknown";
     return car_model_names[model];
 }
 
 // Start SubGHz jamming (simplified demo implementation)
-bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
+__attribute__((used)) bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_jamming");
         return false;
@@ -469,7 +452,7 @@ bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency) {
 }
 
 // Stop any ongoing SubGHz attack
-bool predator_subghz_stop_attack(PredatorApp* app) {
+__attribute__((used)) bool predator_subghz_stop_attack(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_attack");
         return false;
@@ -485,7 +468,7 @@ bool predator_subghz_stop_attack(PredatorApp* app) {
 }
 
 // Tesla charge port opener demo
-void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
+__attribute__((used)) void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_send_tesla_charge_port");
         return;
@@ -498,7 +481,7 @@ void predator_subghz_send_tesla_charge_port(PredatorApp* app) {
     notification_message(app->notifications, &sequence_blink_cyan_10);
 }
 
-void predator_subghz_start_passive_car_opener(PredatorApp* app) {
+__attribute__((used)) void predator_subghz_start_passive_car_opener(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_passive_car_opener");
         return;
@@ -568,7 +551,7 @@ void predator_subghz_start_passive_car_opener(PredatorApp* app) {
     notification_message(app->notifications, &sequence_set_blue_255);
 }
 
-void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
+__attribute__((used)) void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_passive_car_opener");
         return;
@@ -633,7 +616,7 @@ void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
     notification_message(app->notifications, &sequence_reset_blue);
 }
 
-void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
+__attribute__((used)) void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_passive_car_opener_tick");
         return;
@@ -677,7 +660,7 @@ void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
 }
 
 // Rolling code attack related functions
-bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
+__attribute__((used)) bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_rolling_code_attack");
         return false;
@@ -739,7 +722,7 @@ bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t freque
     return true;
 }
 
-void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
+__attribute__((used)) void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_rolling_code_attack");
         return;
@@ -783,7 +766,7 @@ void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
     notification_message(app->notifications, &sequence_reset_blue);
 }
 
-void predator_subghz_rolling_code_attack_tick(PredatorApp* app) {
+__attribute__((used)) void predator_subghz_rolling_code_attack_tick(PredatorApp* app) {
     if(!app) {
         FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_rolling_code_attack_tick");
         return;
