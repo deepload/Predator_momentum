@@ -4,6 +4,9 @@ ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 // ELON'S TESLA SECURITY SUITE - PRIORITY
 ADD_SCENE(predator, tesla_security_suite, TeslaSecuritySuite)
 
+// ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY DEMONSTRATION
+ADD_SCENE(predator, car_brand_security_suite, CarBrandSecuritySuite)
+
 // Attack category menus
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, car_attacks_ui, CarAttacksUI)

@@ -18,8 +18,11 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "PREDATOR MOMENTUM");
     
-    // WORLD VIP UNLIMITED - ELON'S TESLA SECURITY SUITE
-    submenu_add_item(app->submenu, "💎 VIP TESLA SECURITY SUITE", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
+    // VIP++ QUANTUM-READY - ELON'S TESLA SECURITY SUITE
+    submenu_add_item(app->submenu, "⚛️ VIP++ QUANTUM TESLA SUITE", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
+    
+    // VIP++ ALL CAR BRANDS - DEMONSTRATE SUPERIORITY
+    submenu_add_item(app->submenu, "🚗 VIP++ ALL CAR BRANDS", SubmenuIndexCarBrandSecuritySuite, main_menu_submenu_callback, app);
     
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);

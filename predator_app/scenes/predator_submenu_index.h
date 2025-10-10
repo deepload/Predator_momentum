@@ -4,6 +4,9 @@ typedef enum {
     // ELON'S TESLA SECURITY SUITE - TOP PRIORITY
     SubmenuIndexTeslaSecuritySuite,
     
+    // ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
+    SubmenuIndexCarBrandSecuritySuite,
+    
     // Main menu categories
     SubmenuIndexWifiAttacks,
     SubmenuIndexBluetoothAttacks,
