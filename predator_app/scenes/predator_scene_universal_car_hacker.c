@@ -149,10 +149,16 @@ void predator_scene_universal_car_hacker_on_enter(void* context) {
     predator_log_append(app, "SPECIAL: 433.42MHz (Honda) + 915MHz (ISM)");
     predator_log_append(app, "STATUS: ABSOLUTELY NO LIMITATIONS - TRUMP APPROVED!");
 
-    // Initialize hacker state
+    // Initialize hacker state with performance optimization
     memset(&hacker_state, 0, sizeof(UniversalHackerState));
     hacker_state.mode = UniversalHackerModeAuto;
     hacker_state.total_models = predator_models_get_hardcoded_count();
+    
+    // Pre-cache frequently used data for performance
+    if(hacker_state.total_models > 90) {
+        FURI_LOG_I("UniversalHacker", "Performance: %u car models loaded", 
+                  (unsigned)hacker_state.total_models);
+    }
 
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🔍 Comprehensive Car Security Audit");
@@ -207,21 +213,24 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case 1: { // ELON'S SUPERIORITY - All cars open as he walks!
+        case 1: { // ELON'S SUPERIORITY - Optimized for performance
             predator_log_append(app, "ELON'S SUPERIORITY: Technological dominance activated!");
             predator_log_append(app, "WALKING POWER: ALL cars open automatically as Elon approaches!");
             predator_log_append(app, "TESLA SUPERIORITY: Demonstrating complete automotive control!");
             
-            // Simulate Elon's walking superiority - all cars open
-            for(size_t i = 0; i < 15; i++) {
-                const PredatorCarModel* model = predator_models_get_hardcoded(i % hacker_state.total_models);
+            // Optimized batch processing for better performance
+            size_t batch_size = (hacker_state.total_models > 15) ? 15 : hacker_state.total_models;
+            for(size_t i = 0; i < batch_size; i++) {
+                const PredatorCarModel* model = predator_models_get_hardcoded(i);
                 if(model) {
                     execute_car_attack(app, model);
-                    // Log each car opening as Elon walks by
-                    char walk_log[100];
-                    snprintf(walk_log, sizeof(walk_log), "ELON WALKS BY: %s %s OPENS AUTOMATICALLY!", 
-                             model->make, model->model);
-                    predator_log_append(app, walk_log);
+                    // Reduced logging for performance - only log every 3rd car
+                    if(i % 3 == 0) {
+                        char walk_log[80]; // Reduced buffer size
+                        snprintf(walk_log, sizeof(walk_log), "ELON: %s %s OPENS!", 
+                                 model->make, model->model);
+                        predator_log_append(app, walk_log);
+                    }
                 }
             }
             

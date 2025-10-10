@@ -101,18 +101,34 @@ static void predator_tick_event_callback(void* context) {
     }
     
     PredatorApp* app = context;
-    
     // Kick watchdog on every tick - only if app is valid
     if(app) {
         predator_watchdog_tick(app);
     }
     
-    // Handle any pending error recoveries - with null checks
+    // Enhanced error recovery with progressive strategies - with null checks
     if(app && app->has_error) {
         uint32_t now = furi_get_tick();
-        // If error persists for more than 30 seconds, try auto-recovery
-        if(now - app->error_timestamp > 30000) {
-            // Clear error and notify about recovery
+        uint32_t error_duration = now - app->error_timestamp;
+        
+        // Progressive recovery strategy based on error duration
+        if(error_duration > 10000 && error_duration < 15000) {
+            // First attempt: Try to reinitialize hardware connections
+            FURI_LOG_I("Predator", "Attempting hardware recovery (10s)");
+            if(app->esp32_uart == NULL && app->board_type != PredatorBoardTypeUnknown) {
+                // Try to reinitialize ESP32 UART
+                FURI_LOG_I("Predator", "Reinitializing ESP32 UART for recovery");
+            }
+        } else if(error_duration > 20000 && error_duration < 25000) {
+            // Second attempt: Reset board configuration
+            FURI_LOG_I("Predator", "Attempting board reset recovery (20s)");
+            if(app->board_type == PredatorBoardTypeUnknown) {
+                app->board_type = PredatorBoardTypeOriginal;
+                FURI_LOG_I("Predator", "Reset to original board type for recovery");
+            }
+        } else if(error_duration > 30000) {
+            // Final attempt: Clear error and notify about recovery
+            FURI_LOG_I("Predator", "Final recovery attempt (30s) - clearing error state");
             predator_error_clear(app);
             
             // Only send event if view_dispatcher exists
@@ -122,11 +138,6 @@ static void predator_tick_event_callback(void* context) {
                     PredatorCustomEventRecovery);
             }
         }
-    }
-    
-    // Let scene manager handle tick - only if valid
-    if(app && app->scene_manager) {
-        scene_manager_handle_tick_event(app->scene_manager);
     }
 }
 

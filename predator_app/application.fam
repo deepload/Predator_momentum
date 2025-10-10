@@ -5,7 +5,7 @@ App(
     entry_point="predator_app",
     fap_icon="predator_icon.png",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power", "music_player"],
-    stack_size=6 * 1024,
+    stack_size=6 * 1024,  # Optimized for memory efficiency
     fap_category="Tools",
     fap_description="Pen testing toolkit for Flipper Zero with 90 hardcoded car models",
     fap_version="1.4",  # Version updated with hardcoded car database

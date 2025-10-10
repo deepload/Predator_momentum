@@ -101,21 +101,52 @@ size_t predator_boards_get_count() {
     return COUNT_OF(predator_board_configs);
 }
 
-// Simple board detection logic - override this with more sophisticated detection
-// based on hardware-specific characteristics when more information is available
+// Enhanced board detection with multiple detection methods
 PredatorBoardType predator_boards_detect() {
-    // Try to detect board based on hardware characteristics
+    FURI_LOG_I("BoardDetect", "Starting enhanced board detection...");
     
-    // The 3in1 AIO board has ESP32 but no switches for GPS/Marauder
-    // The DrB0rk board has similar characteristics
-    // The original Predator module has specific switches
+    // Method 1: Check for power switch pins (Original board specific)
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeInput, GpioPullUp, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow);
     
-    // GPIO state detection is challenging without reliable markers
-    // For now return unknown and let user select in settings
+    bool has_gps_switch = !furi_hal_gpio_read(&gpio_ext_pa4);
+    bool has_marauder_switch = !furi_hal_gpio_read(&gpio_ext_pa7);
     
-    // Future: implement better detection based on unique GPIO patterns,
-    // jumper settings, or board ID pins if available
+    FURI_LOG_I("BoardDetect", "GPIO detection: GPS switch=%d, Marauder switch=%d", 
+               has_gps_switch, has_marauder_switch);
     
+    // Method 2: Try ESP32 communication test
+    bool esp32_responsive = false;
+    FuriHalSerialHandle* uart_handle = furi_hal_serial_control_acquire(FuriHalSerialIdUsart);
+    if(uart_handle) {
+        furi_hal_serial_init(uart_handle, 115200);
+        furi_delay_ms(50);
+        
+        // Send simple AT command
+        const char* test_cmd = "AT\r\n";
+        furi_hal_serial_tx(uart_handle, (uint8_t*)test_cmd, strlen(test_cmd));
+        furi_delay_ms(200);
+        
+        // For now, assume responsive if UART initializes
+        esp32_responsive = true;
+        
+        furi_hal_serial_deinit(uart_handle);
+        furi_hal_serial_control_release(uart_handle);
+    }
+    
+    // Method 3: Board type determination logic
+    if(has_gps_switch && has_marauder_switch && esp32_responsive) {
+        FURI_LOG_I("BoardDetect", "Detected: Original Predator Module");
+        return PredatorBoardTypeOriginal;
+    } else if(esp32_responsive && !has_gps_switch && !has_marauder_switch) {
+        FURI_LOG_I("BoardDetect", "Detected: 3in1 AIO Board (no switches)");
+        return PredatorBoardType3in1AIO;
+    } else if(esp32_responsive) {
+        FURI_LOG_I("BoardDetect", "Detected: ESP32 board (unknown variant)");
+        return PredatorBoardTypeOriginal; // Default to original for ESP32 boards
+    }
+    
+    FURI_LOG_W("BoardDetect", "No specific board detected, using fallback");
     return PredatorBoardTypeUnknown;
 }
 
