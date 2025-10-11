@@ -82,11 +82,20 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        // Disabled scenes - show professional feedback
+        // VIP++ WORKING SCENES - NOW ENABLED! (Using existing scenes)
         case SubmenuIndexTeslaSecuritySuite:
+            predator_workflow_safe_scene_transition(app, PredatorSceneTeslaSecuritySuite);
+            break;
         case SubmenuIndexCarBrandSecuritySuite:
+            predator_workflow_safe_scene_transition(app, PredatorSceneCarBrandSecuritySuite);
+            break;
         case SubmenuIndexUserFriendlyUI:
+            predator_workflow_safe_scene_transition(app, PredatorSceneUserFriendlyUI);
+            break;
         case SubmenuIndexUniversalCarHacker:
+            predator_workflow_safe_scene_transition(app, PredatorSceneUniversalCarHacker);
+            break;
+        // Still disabled scenes - show professional feedback
         case SubmenuIndexGpsTracker:
         case SubmenuIndexWardriving:
         case SubmenuIndexSocialEngineering:

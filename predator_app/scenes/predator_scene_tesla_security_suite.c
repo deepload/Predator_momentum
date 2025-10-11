@@ -7,12 +7,14 @@
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
+#include "../helpers/predator_attack_predictor.h"
+#include "../helpers/predator_car_attacks.h"
 #include <furi.h>
 
-// ELON'S TESLA SECURITY SUITE - VIP++ QUANTUM-READY VERSION
-// 10 YEARS AHEAD - AI-POWERED QUANTUM RF SENSING PLATFORM
-// HARDCODED & PACKED - MAXIMUM CAPABILITIES - NO LIMITATIONS
-// FEATURES: Neural RF Analysis, Quantum Sensing, Post-Quantum Crypto
+// GOVERNMENT-GRADE TESLA SECURITY ANALYSIS SUITE
+// INDEPENDENT SECURITY PLATFORM FOR ALL GOVERNMENTS WORLDWIDE
+// AI-POWERED PREDICTIVE ATTACK SUCCESS - PROFESSIONAL GRADE
+// FEATURES: Predictive Analysis, Real Hardware Integration, Global Support
 
 // Professional stabilization - back debounce tracking
 static uint32_t last_back_press = 0;
@@ -55,26 +57,21 @@ void predator_scene_tesla_security_suite_on_enter(void* context) {
     // Hardware initialization handled by system
 
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "VIP++ QUANTUM TESLA SUITE");
-    // VIP++ QUANTUM-READY TESLA SECURITY ARSENAL - 10 YEARS AHEAD
-    submenu_add_item(app->submenu, "🧠 VIP++: AI Neural RF Analysis", 1, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚛️ VIP++: Quantum RF Sensing", 2, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 VIP++: Rolling Code Breaker", 3, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🛡️ VIP++: Tesla VCSEC Exploit", 4, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔋 VIP++: Charge Port Quantum", 5, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚗 VIP++: Supercharger AI Hack", 6, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "📱 VIP++: Mobile App AI Bypass", 7, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🤖 VIP++: Autopilot Neural Jam", 8, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔊 VIP++: Sentry AI Defeat", 9, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚡ VIP++: Battery Quantum Hack", 10, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🌐 VIP++: OTA Quantum Hijack", 11, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 VIP++: CAN Bus AI Injection", 12, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔮 VIP++: Post-Quantum Crypto", 13, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚶 VIP++: Walking Open AI", 14, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🏭 VIP++: Factory AI Infiltration", 15, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "🎯 VIP++: Ultimate Quantum Hack", 16, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "💎 VIP++: Elon's Quantum Test", 17, tesla_security_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 VIP++: Quantum Monitor", 99, tesla_security_submenu_callback, app);
+    submenu_set_header(app->submenu, "🏛️ TESLA SECURITY ANALYSIS");
+    // GOVERNMENT-GRADE TESLA SECURITY ANALYSIS - PROFESSIONAL TESTING
+    submenu_add_item(app->submenu, "🎯 Predictive Attack Analysis", 1, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔋 Tesla Charge Port Security", 2, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔑 Tesla Key Fob Analysis", 3, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚗 Supercharger Network Test", 4, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "📱 Mobile App Security Test", 5, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🛡️ Autopilot Signal Analysis", 6, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔊 Sentry Mode Assessment", 7, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Battery System Security", 8, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🌐 OTA Update Security", 9, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 CAN Bus Penetration Test", 10, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚶 Walking Open Analysis", 11, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "🏭 Factory Security Assessment", 12, tesla_security_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Live Security Monitor", 13, tesla_security_submenu_callback, app);
 
     // Log VIP++ Tesla security suite initialization
     predator_log_append(app, "VIP++ QUANTUM-READY: Tesla Security Suite activated");

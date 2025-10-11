@@ -31,6 +31,7 @@ App(
         "helpers/predator_car_attacks.c",
         "helpers/predator_ai_optimizer.c",
         "helpers/predator_workflow_validator.c",
+        "helpers/predator_attack_predictor.c",
         "helpers/predator_scene_utils.c",
         "helpers/predator_string.c",
         "helpers/predator_subghz.c",
