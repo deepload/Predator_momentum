@@ -3,8 +3,12 @@ ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 
 // 🏆 MASTER CONTROL CENTER - ULTIMATE COMMAND
 ADD_SCENE(predator, master_control_ui, MasterControlUI)
+ADD_SCENE(predator, master_orchestrator_simple, MasterOrchestratorSimple)
 ADD_SCENE(predator, app_launcher_ui, AppLauncherUI)
 ADD_SCENE(predator, system_monitor_ui, SystemMonitorUI)
+ADD_SCENE(predator, app_status, AppStatus)
+ADD_SCENE(predator, coordinated_attack, CoordinatedAttack)
+ADD_SCENE(predator, live_communication_demo, LiveCommunicationDemo)
 
 // 🚨 ELON'S EMERGENCY RENAULT DEMO - NEVER FAIL AGAIN!
 ADD_SCENE(predator, elon_renault_demo, ElonRenaultDemo)

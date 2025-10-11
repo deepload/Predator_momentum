@@ -1,29 +1,29 @@
 App(
-    appid="predator_car",
-    name="Predator Car Specialist",
+    appid="predator_working_only",
+    name="Predator Security Toolkit",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
-    requires=["gui", "dialogs", "storage", "notification", "subghz", "gpio", "power"],
-    stack_size=10 * 1024,  # Optimized stack for car operations
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power"],
+    stack_size=16 * 1024,
     fap_category="Tools",
-    fap_description="🚗 CAR SPECIALIST - 90+ Models, Syncs with Master",
+    fap_description="Complete Security Testing Toolkit - Working Version",
     fap_version="2.0",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=17000", "CAR_SPECIALIST_BUILD", "IPC_SYNC_ENABLED"],
+    cdefines=["HEAP_SIZE=28000"],
     sources=[
-        # Core
+        # Core application
         "predator.c",
+        "predator_uart.c",
 
-        # Essential helpers only
+        # Essential helpers - ONLY EXISTING ONES
         "helpers/predator_boards.c",
         "helpers/predator_error.c",
+        "helpers/predator_esp32.c",
         "helpers/predator_gps.c",
+        "helpers/predator_nfc.c",
         "helpers/predator_compliance.c",
-        "helpers/predator_models.c",
-        "helpers/predator_models_hardcoded.c",
-        "helpers/predator_car_attacks.c",
         "helpers/predator_workflow_validator.c",
         "helpers/predator_scene_utils.c",
         "helpers/predator_string.c",
@@ -34,32 +34,37 @@ App(
         "helpers/predator_settings.c",
         "helpers/predator_logging.c",
         "helpers/predator_ui_status.c",
-        "predator_uart.c",
-        
-        # Car-specific helpers
-        "helpers/predator_keeloq.c",
-        "helpers/predator_tpms_real.c",
-        "helpers/predator_automotive_advanced.c",
-        
-        # IPC SYNC SYSTEM - Lightweight communication with master
-        "helpers/predator_app_communication.c",
+        "helpers/predator_models_hardcoded.c",
         
         # Scene router
         "scenes/predator_scene.c",
 
-        # Car-focused scenes only
+        # ONLY CORE WORKING SCENES
         "scenes/predator_scene_main_menu_ui.c",
+        "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_car_attacks_ui.c",
-        "scenes/predator_scene_car_tesla_ui.c",
-        "scenes/predator_scene_car_jamming_ui.c",
-        "scenes/predator_scene_car_key_bruteforce_ui.c",
-        "scenes/predator_scene_car_passive_opener_ui.c",
-        "scenes/predator_scene_automotive_adv_ui.c",
+        "scenes/predator_scene_bluetooth_attacks_ui.c",
+        "scenes/predator_scene_rfid_attacks_ui.c",
         
-        # Essential system scenes
+        # ONLY VERIFIED WORKING ATTACK SCENES
+        "scenes/predator_scene_wifi_scan_ui.c",
+        "scenes/predator_scene_wifi_deauth_ui.c",
+        "scenes/predator_scene_wifi_evil_twin_ui.c",
+        "scenes/predator_scene_ble_scan_ui.c",
+        "scenes/predator_scene_ble_spam_ui.c",
+        "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_car_key_bruteforce_ui.c",
+        "scenes/predator_scene_car_jamming_ui.c",
+        "scenes/predator_scene_car_passive_opener_ui.c",
+        "scenes/predator_scene_rfid_clone_ui.c",
+        "scenes/predator_scene_rfid_bruteforce_ui.c",
+        
+        # ONLY ESSENTIAL SYSTEM SCENES
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
+        "scenes/predator_scene_live_monitor_ui.c",
+        "scenes/predator_scene_gps_tracker_ui.c",
     ],
 )

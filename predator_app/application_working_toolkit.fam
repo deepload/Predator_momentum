@@ -1,22 +1,22 @@
 App(
-    appid="predator_master",
-    name="Predator Master Control",
+    appid="predator_working_toolkit",
+    name="Predator Working Toolkit",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power"],
-    stack_size=12 * 1024,  # Larger stack for master control
+    stack_size=16 * 1024,
     fap_category="Tools",
-    fap_description="Master Control Center - All Predator Apps Management",
-    fap_version="1.0",
-    fap_author="Nico Lococo",
+    fap_description="Working Security Toolkit - All Real Tools Together",
+    fap_version="2.0",
+    fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=20000", "MASTER_CONTROL_BUILD"],  # Maximum heap for master
+    cdefines=["HEAP_SIZE=28000", "WORKING_TOOLKIT_BUILD"],
     sources=[
-        # Core
+        # Core application
         "predator.c",
 
-        # Master control helpers
+        # Essential helpers
         "helpers/predator_boards.c",
         "helpers/predator_error.c",
         "helpers/predator_esp32.c",
@@ -35,71 +35,73 @@ App(
         "helpers/predator_ui_status.c",
         "predator_uart.c",
         
-        # All specialized helpers for full control
+        # Attack helpers
         "helpers/predator_wifi_advanced.c",
         "helpers/predator_bluetooth_advanced.c",
-        "helpers/predator_traffic.c",
         "helpers/predator_tesla_advanced.c",
         "helpers/predator_automotive_advanced.c",
-        "helpers/predator_casino.c",
+        "helpers/predator_traffic.c",
         "helpers/predator_infrastructure.c",
-        "helpers/predator_can_real.c",
-        "helpers/predator_scada_real.c",
-        "helpers/predator_car_protocols_real.c",
+        "helpers/predator_casino.c",
         "helpers/predator_crypto1.c",
         "helpers/predator_keeloq.c",
         "helpers/predator_tpms_real.c",
-        "helpers/predator_lora.c",
-        "helpers/predator_zigbee.c",
-        "helpers/predator_zwave.c",
-        
-        # Professional IPC and Orchestration System
-        "helpers/predator_app_communication.c",
-        "helpers/predator_ecosystem_manager.c",
-        "helpers/predator_professional_ui.c",
+        "helpers/predator_models.c",
+        "helpers/predator_models_hardcoded.c",
+        "helpers/predator_car_attacks.c",
         
         # Scene router
         "scenes/predator_scene.c",
 
-        # Master control scenes
+        # ONLY EXISTING SCENES - Main navigation
         "scenes/predator_scene_main_menu_ui.c",
-        "scenes/predator_scene_master_control_ui.c",
-        "scenes/predator_scene_master_orchestrator.c",
-        "scenes/predator_scene_app_launcher_ui.c",
-        "scenes/predator_scene_system_monitor_ui.c",
-        "scenes/predator_scene_app_status.c",
-        "scenes/predator_scene_coordinated_attack.c",
-        "scenes/predator_scene_live_communication_demo.c",
         
-        # Emergency scenes
-        "scenes/predator_scene_elon_renault_demo.c",
-        
-        # All specialized app scenes for full control
+        # ONLY EXISTING SCENES - Attack categories
         "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_car_attacks_ui.c",
         "scenes/predator_scene_bluetooth_attacks_ui.c",
-        "scenes/predator_scene_subghz_attacks_ui.c",
         "scenes/predator_scene_rfid_attacks_ui.c",
-        "scenes/predator_scene_traffic_infrastructure_ui.c",
-        "scenes/predator_scene_tesla_advanced_ui.c",
-        "scenes/predator_scene_automotive_adv_ui.c",
-        "scenes/predator_scene_casino_rfid_ui.c",
-        "scenes/predator_scene_critical_infrastructure_ui.c",
-        "scenes/predator_scene_government_contracts_ui.c",
         
-        # Core attack scenes
+        # ONLY EXISTING SCENES - Working attacks
         "scenes/predator_scene_wifi_scan_ui.c",
+        "scenes/predator_scene_wifi_deauth_ui.c",
+        "scenes/predator_scene_wifi_evil_twin_ui.c",
         "scenes/predator_scene_ble_scan_ui.c",
+        "scenes/predator_scene_ble_spam_ui.c",
         "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_car_key_bruteforce_ui.c",
+        "scenes/predator_scene_car_jamming_ui.c",
+        "scenes/predator_scene_car_passive_opener_ui.c",
         "scenes/predator_scene_rfid_clone_ui.c",
-        "scenes/predator_scene_advanced_rf_ui.c",
-        "scenes/predator_scene_advanced_nfc_ui.c",
+        "scenes/predator_scene_rfid_bruteforce_ui.c",
         
-        # System scenes
+        # ONLY EXISTING SCENES - System
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
         "scenes/predator_scene_live_monitor_ui.c",
+        
+        # ONLY EXISTING SCENES - Utility
+        "scenes/predator_scene_car_model_selector.c",
+        "scenes/predator_scene_car_test_results.c",
+        
+        # ONLY EXISTING SCENES - Elon's requirements
+        "scenes/predator_scene_elon_renault_demo.c",
+        "scenes/predator_scene_tesla_security_suite.c",
+        "scenes/predator_scene_car_brand_security_suite.c",
+        "scenes/predator_scene_user_friendly_ui.c",
+        "scenes/predator_scene_universal_car_hacker.c",
+        
+        # ONLY EXISTING SCENES - Government
+        "scenes/predator_scene_traffic_infrastructure_ui.c",
+        "scenes/predator_scene_critical_infrastructure_ui.c",
+        "scenes/predator_scene_government_contracts_ui.c",
+        
+        # ONLY EXISTING SCENES - Advanced
+        "scenes/predator_scene_advanced_rf_ui.c",
+        "scenes/predator_scene_advanced_nfc_ui.c",
+        "scenes/predator_scene_advanced_wifi_ui.c",
+        "scenes/predator_scene_advanced_bt_ui.c",
     ],
 )

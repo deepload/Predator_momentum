@@ -3,9 +3,9 @@
 typedef enum {
     // 🏆 MASTER CONTROL CENTER - ULTIMATE COMMAND
     SubmenuIndexMasterControl,
+    SubmenuIndexMasterOrchestrator,
     SubmenuIndexAppLauncher,
     SubmenuIndexSystemMonitor,
-    SubmenuIndexGlobalSettings,
     
     // 🚨 EMERGENCY CONTROLS
     SubmenuIndexEmergencyMode,

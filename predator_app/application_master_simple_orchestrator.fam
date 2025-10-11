@@ -1,33 +1,30 @@
 App(
-    appid="predator_tesla",
-    name="Predator Tesla VIP Plus",
+    appid="predator_master_simple",
+    name="Predator Master Orchestrator",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
-    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=12 * 1024,  # Larger stack for Tesla VIP operations
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power"],
+    stack_size=12 * 1024,
     fap_category="Tools",
-    fap_description="⚡ TESLA VIP++ SPECIALIST - Elon's Requirements, Syncs with Master",
+    fap_description="Master Orchestrator - Multi-App Synchronization Control",
     fap_version="2.0",
-    fap_author="Nico Lococo - Elon's Startup",
+    fap_author="Nico Lococo",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=18000", "TESLA_VIP_BUILD", "IPC_SYNC_ENABLED", "ELON_REQUIREMENTS"],  # Tesla-focused build
+    cdefines=["HEAP_SIZE=20000", "MASTER_ORCHESTRATOR_BUILD"],
     sources=[
-        # Core
+        # Core application
         "predator.c",
 
-        # Tesla-specific helpers
+        # Essential helpers
         "helpers/predator_boards.c",
         "helpers/predator_error.c",
+        "helpers/predator_esp32.c",
         "helpers/predator_gps.c",
         "helpers/predator_compliance.c",
-        "helpers/predator_models.c",
-        "helpers/predator_models_hardcoded.c",
-        "helpers/predator_car_attacks.c",
         "helpers/predator_workflow_validator.c",
         "helpers/predator_scene_utils.c",
         "helpers/predator_string.c",
-        "helpers/predator_subghz.c",
         "helpers/predator_ui_callbacks.c",
         "helpers/predator_ui_elements.c",
         "helpers/predator_watchdog.c",
@@ -36,28 +33,27 @@ App(
         "helpers/predator_ui_status.c",
         "predator_uart.c",
         
-        # Tesla-specific helpers
-        "helpers/predator_tesla_advanced.c",
-        "helpers/predator_tesla_tpms_rce.c",
-        "helpers/predator_keeloq.c",
-        "helpers/predator_tpms_real.c",
-        
-        # IPC SYNC SYSTEM - Lightweight communication with master
+        # IPC System for multi-app sync
         "helpers/predator_app_communication.c",
+        "helpers/predator_professional_ui.c",
         
         # Scene router
         "scenes/predator_scene.c",
 
-        # Tesla-focused scenes
+        # Core orchestration scenes
         "scenes/predator_scene_main_menu_ui.c",
-        "scenes/predator_scene_tesla_lite_ui.c",
-        "scenes/predator_scene_tesla_advanced_ui.c",
-        "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_master_orchestrator.c",
+        "scenes/predator_scene_app_status.c",
+        "scenes/predator_scene_live_communication_demo.c",
         
         # Essential system scenes
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
+        "scenes/predator_scene_live_monitor_ui.c",
+        
+        # Emergency scenes for Elon
+        "scenes/predator_scene_elon_renault_demo.c",
     ],
 )

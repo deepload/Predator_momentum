@@ -28,6 +28,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     
     // 🏆 MASTER CONTROL CENTER - KEEP ALL FEATURES
     submenu_add_item(app->submenu, "🏆 Master Control", SubmenuIndexMasterControl, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🎛️ Master Orchestrator", SubmenuIndexMasterOrchestrator, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 App Launcher", SubmenuIndexAppLauncher, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📊 System Monitor", SubmenuIndexSystemMonitor, main_menu_submenu_callback, app);
     
@@ -72,6 +73,9 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         // 🏆 MASTER CONTROL CENTER - KEEP ALL FEATURES
         case SubmenuIndexMasterControl:
             scene_manager_next_scene(app->scene_manager, PredatorSceneMasterControlUI);
+            break;
+        case SubmenuIndexMasterOrchestrator:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneMasterOrchestratorSimple);
             break;
         case SubmenuIndexAppLauncher:
             scene_manager_next_scene(app->scene_manager, PredatorSceneAppLauncherUI);

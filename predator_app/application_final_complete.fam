@@ -1,0 +1,100 @@
+App(
+    appid="predator_complete",
+    name="Predator Complete Security Toolkit",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power"],
+    stack_size=16 * 1024,
+    fap_category="Tools",
+    fap_description="Complete Security Testing Toolkit - All Tools Working Together",
+    fap_version="2.0",
+    fap_author="Nico Lococo - Elon's Startup",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=28000", "COMPLETE_BUILD"],
+    sources=[
+        # Core application
+        "predator.c",
+        "predator_uart.c",
+
+        # Essential helpers - ONLY WORKING ONES
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_esp32.c",
+        "helpers/predator_gps.c",
+        "helpers/predator_nfc.c",
+        "helpers/predator_compliance.c",
+        "helpers/predator_workflow_validator.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_subghz.c",
+        "helpers/predator_ui_callbacks.c",
+        "helpers/predator_ui_elements.c",
+        "helpers/predator_watchdog.c",
+        "helpers/predator_settings.c",
+        "helpers/predator_logging.c",
+        "helpers/predator_ui_status.c",
+        
+        # Attack helpers - ONLY EXISTING ONES
+        "helpers/predator_wifi_advanced.c",
+        "helpers/predator_bluetooth_advanced.c",
+        "helpers/predator_automotive_advanced.c",
+        "helpers/predator_traffic.c",
+        "helpers/predator_infrastructure.c",
+        "helpers/predator_casino.c",
+        "helpers/predator_crypto1.c",
+        "helpers/predator_keeloq.c",
+        "helpers/predator_tpms_real.c",
+        "helpers/predator_models.c",
+        "helpers/predator_models_hardcoded.c",
+        "helpers/predator_car_attacks.c",
+        
+        # Scene router
+        "scenes/predator_scene.c",
+
+        # Main navigation - VERIFIED EXISTING
+        "scenes/predator_scene_main_menu_ui.c",
+        
+        # Attack category menus - VERIFIED EXISTING
+        "scenes/predator_scene_wifi_attacks_ui.c",
+        "scenes/predator_scene_car_attacks_ui.c",
+        "scenes/predator_scene_bluetooth_attacks_ui.c",
+        "scenes/predator_scene_rfid_attacks_ui.c",
+        
+        # Working attack implementations - VERIFIED EXISTING
+        "scenes/predator_scene_wifi_scan_ui.c",
+        "scenes/predator_scene_wifi_deauth_ui.c",
+        "scenes/predator_scene_wifi_evil_twin_ui.c",
+        "scenes/predator_scene_ble_scan_ui.c",
+        "scenes/predator_scene_ble_spam_ui.c",
+        "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_car_key_bruteforce_ui.c",
+        "scenes/predator_scene_car_jamming_ui.c",
+        "scenes/predator_scene_car_passive_opener_ui.c",
+        "scenes/predator_scene_rfid_clone_ui.c",
+        "scenes/predator_scene_rfid_bruteforce_ui.c",
+        
+        # System scenes - VERIFIED EXISTING
+        "scenes/predator_scene_module_status_ui.c",
+        "scenes/predator_scene_board_selection_ui.c",
+        "scenes/predator_scene_settings_ui.c",
+        "scenes/predator_scene_about_ui.c",
+        "scenes/predator_scene_live_monitor_ui.c",
+        
+        # Elon's requirements - VERIFIED EXISTING
+        "scenes/predator_scene_elon_renault_demo.c",
+        
+        # Government contracts - VERIFIED EXISTING
+        "scenes/predator_scene_traffic_infrastructure_ui.c",
+        "scenes/predator_scene_critical_infrastructure_ui.c",
+        "scenes/predator_scene_government_contracts_ui.c",
+        
+        # Advanced tools - VERIFIED EXISTING
+        "scenes/predator_scene_advanced_rf_ui.c",
+        "scenes/predator_scene_advanced_nfc_ui.c",
+        "scenes/predator_scene_advanced_wifi_ui.c",
+        "scenes/predator_scene_advanced_bt_ui.c",
+        "scenes/predator_scene_casino_rfid_ui.c",
+        "scenes/predator_scene_gps_tracker_ui.c",
+    ],
+)

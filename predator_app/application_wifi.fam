@@ -1,17 +1,17 @@
 App(
     appid="predator_wifi",
-    name="Predator WiFi",
+    name="Predator WiFi Specialist",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "bt", "gpio", "power"],
-    stack_size=8 * 1024,  # Smaller stack for specialized app
+    stack_size=10 * 1024,  # Optimized stack for WiFi operations
     fap_category="Tools",
-    fap_description="Professional WiFi security testing platform",
-    fap_version="1.0",
-    fap_author="Nico Lococo",
+    fap_description="📶 WIFI SPECIALIST - Syncs with Master Orchestrator",
+    fap_version="2.0",
+    fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=15000", "WIFI_ONLY_BUILD"],  # Smaller heap, WiFi-only build
+    cdefines=["HEAP_SIZE=16000", "WIFI_SPECIALIST_BUILD", "IPC_SYNC_ENABLED"],
     sources=[
         # Core
         "predator.c",
@@ -32,6 +32,9 @@ App(
         "helpers/predator_ui_status.c",
         "predator_uart.c",
         "helpers/predator_wifi_advanced.c",
+        
+        # IPC SYNC SYSTEM - Lightweight communication with master
+        "helpers/predator_app_communication.c",
         
         # Scene router
         "scenes/predator_scene.c",
