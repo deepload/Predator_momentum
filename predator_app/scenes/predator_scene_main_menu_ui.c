@@ -35,7 +35,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "⚡ Tesla Advanced 2024", SubmenuIndexTeslaAdvanced, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🏎️ Automotive Advanced", SubmenuIndexAutomotiveAdvancedNew, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🎰 Casino/RFID Advanced", SubmenuIndexCasinoRFID, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚡ Critical Infrastructure", SubmenuIndexCriticalInfrastructure, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🏛️ CRITICAL INFRASTRUCTURE", SubmenuIndexCriticalInfrastructure, main_menu_submenu_callback, app);
     
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
