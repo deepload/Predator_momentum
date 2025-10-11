@@ -74,6 +74,12 @@ static bool predator_custom_event_callback(void* context, uint32_t event) {
     return false;
 }
 
+// PROFESSIONAL BACK-DEBOUNCE - Prevent accidental app closure
+static uint32_t last_back_press = 0;
+static uint8_t back_press_count = 0;
+#define BACK_DEBOUNCE_MS 500
+#define BACK_PRESS_THRESHOLD 3
+
 static bool predator_back_event_callback(void* context) {
     // Check for NULL context
     if(context == NULL) {
@@ -85,12 +91,56 @@ static bool predator_back_event_callback(void* context) {
     
     // Check if scene manager exists
     if(app->scene_manager) {
-        return scene_manager_handle_back_event(app->scene_manager);
+        bool scene_handled = scene_manager_handle_back_event(app->scene_manager);
+        
+        // If scene handled the back event, reset counter
+        if(scene_handled) {
+            back_press_count = 0;
+            return true;
+        }
+        
+        // PROFESSIONAL BACK-DEBOUNCE: Prevent accidental app exit
+        uint32_t current_time = furi_get_tick();
+        
+        if(current_time - last_back_press > BACK_DEBOUNCE_MS) {
+            // Reset counter if too much time passed
+            back_press_count = 0;
+        }
+        
+        back_press_count++;
+        last_back_press = current_time;
+        
+        if(back_press_count < BACK_PRESS_THRESHOLD) {
+            // Show professional warning
+            if(app->popup) {
+                popup_reset(app->popup);
+                popup_set_header(app->popup, "⚠️ EXIT WARNING", 64, 10, AlignCenter, AlignTop);
+                
+                char warning_text[128];
+                snprintf(warning_text, sizeof(warning_text), 
+                        "Press BACK %d more time%s\nto exit application\n\n🏛️ Government Demo Active", 
+                        BACK_PRESS_THRESHOLD - back_press_count,
+                        (BACK_PRESS_THRESHOLD - back_press_count) == 1 ? "" : "s");
+                
+                popup_set_text(app->popup, warning_text, 64, 25, AlignCenter, AlignTop);
+                popup_set_timeout(app->popup, 2000);
+                popup_enable_timeout(app->popup);
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            }
+            
+            FURI_LOG_I("Predator", "🛡️ Professional back-debounce: %d/%d", 
+                      back_press_count, BACK_PRESS_THRESHOLD);
+            return false; // Prevent exit
+        }
+        
+        // Allow exit after multiple presses
+        FURI_LOG_I("Predator", "🛡️ Professional exit confirmed after %d presses", back_press_count);
+        return true;
     }
     
-    // Default to true to allow exit if scene manager is invalid
-    FURI_LOG_W("Predator", "Invalid scene manager in back event handler");
-    return true;
+    // Default to false to prevent exit if scene manager is invalid
+    FURI_LOG_W("Predator", "Invalid scene manager - preventing exit for safety");
+    return false;
 }
 
 static void predator_tick_event_callback(void* context) {

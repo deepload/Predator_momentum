@@ -29,6 +29,8 @@ App(
         # REMOVED: predator_models_seed.c - obsolete
         "helpers/predator_models_hardcoded.c",
         "helpers/predator_car_attacks.c",
+        "helpers/predator_ai_optimizer.c",
+        "helpers/predator_workflow_validator.c",
         "helpers/predator_scene_utils.c",
         "helpers/predator_string.c",
         "helpers/predator_subghz.c",
@@ -159,5 +161,6 @@ App(
         "scenes/predator_scene_automotive_adv_ui.c",
         "scenes/predator_scene_casino_rfid_ui.c",
         "scenes/predator_scene_critical_infrastructure_ui.c",
+        "scenes/predator_scene_government_contracts_ui.c",
     ],
 )

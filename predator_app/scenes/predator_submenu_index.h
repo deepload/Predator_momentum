@@ -154,5 +154,6 @@ typedef enum {
     SubmenuIndexTeslaAdvanced,          // 2024/2025 Pwn2Own exploits
     SubmenuIndexAutomotiveAdvancedNew,  // 50+ luxury/EV brands
     SubmenuIndexCasinoRFID,             // Atlantic City contract
-    SubmenuIndexCriticalInfrastructure, // Government-grade testing
+    SubmenuIndexCriticalInfrastructure,
+    SubmenuIndexGovernmentContracts, // Government-grade testing
 } SubmenuIndex;

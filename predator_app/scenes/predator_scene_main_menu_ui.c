@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
+#include "../helpers/predator_workflow_validator.h"
 
 // Main Menu - Professional UI
 // Clean submenu implementation for Tesla demo
@@ -8,6 +9,13 @@
 static void main_menu_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
     if(!app || !app->view_dispatcher) return;
+    
+    // PROFESSIONAL WORKFLOW VALIDATION
+    if(!predator_workflow_validate_submenu_callback(app, index)) {
+        return; // Validation failed, error already shown
+    }
+    
+    predator_workflow_add_breadcrumb(app, "Main Menu Selection");
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
@@ -36,6 +44,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🏎️ Automotive Advanced", SubmenuIndexAutomotiveAdvancedNew, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🎰 Casino/RFID Advanced", SubmenuIndexCasinoRFID, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🏛️ CRITICAL INFRASTRUCTURE", SubmenuIndexCriticalInfrastructure, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🌍 GLOBAL GOVERNMENT CONTRACTS", SubmenuIndexGovernmentContracts, main_menu_submenu_callback, app);
     
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
@@ -73,7 +82,7 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        // Disabled scenes - show popup instead
+        // Disabled scenes - show professional feedback
         case SubmenuIndexTeslaSecuritySuite:
         case SubmenuIndexCarBrandSecuritySuite:
         case SubmenuIndexUserFriendlyUI:
@@ -81,11 +90,23 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case SubmenuIndexGpsTracker:
         case SubmenuIndexWardriving:
         case SubmenuIndexSocialEngineering:
-            // Memory optimized - scene disabled
+            // Show professional "Coming Soon" popup
+            if(app->popup) {
+                popup_reset(app->popup);
+                popup_set_header(app->popup, "🚧 FEATURE DEVELOPMENT", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, 
+                    "This advanced feature is\ncurrently under development\n\n"
+                    "🏛️ Available in next update\n"
+                    "📧 Contact support for ETA", 
+                    64, 25, AlignCenter, AlignTop);
+                popup_set_timeout(app->popup, 3000);
+                popup_enable_timeout(app->popup);
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            }
             break;
         // Advanced attack categories
         case SubmenuIndexAdvancedRF:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedRFUI);
+            predator_workflow_safe_scene_transition(app, PredatorSceneAdvancedRFUI);
             break;
         case SubmenuIndexAdvancedNFC:
             scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedNFCUI);
@@ -153,6 +174,9 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             break;
         case SubmenuIndexCriticalInfrastructure:
             scene_manager_next_scene(app->scene_manager, PredatorSceneCriticalInfrastructureUI);
+            break;
+        case SubmenuIndexGovernmentContracts:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGovernmentContractsUI);
             break;
         default:
             consumed = false;

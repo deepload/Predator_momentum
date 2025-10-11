@@ -17,6 +17,7 @@
 #include "helpers/predator_boards.h"
 // Compliance and regional gating
 #include "helpers/predator_compliance.h"
+#include "helpers/predator_ai_optimizer.h"
 // Use generated scene IDs from config to avoid mismatches
 #include "scenes/predator_scene.h"
 
