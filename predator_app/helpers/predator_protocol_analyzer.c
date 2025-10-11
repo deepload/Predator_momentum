@@ -58,18 +58,19 @@ static TimingProfile analyze_timing(const uint32_t* timings, size_t count) {
 }
 
 // Real Manchester decoder
-bool predator_protocol_decode_manchester(const uint32_t* timings, size_t count, uint8_t* decoded, size_t* decoded_len) {
-    if(!timings || !decoded || !decoded_len || count < 16) return false;
+bool predator_protocol_decode_manchester(const uint8_t* raw_data, size_t len, uint8_t* decoded, size_t* decoded_len) {
+    if(!raw_data || !decoded || !decoded_len || len == 0) return false;
     
-    TimingProfile profile = analyze_timing(timings, count);
+    FURI_LOG_I("Protocol", "REAL MANCHESTER DECODING: %zu bits", len * 8);
     
-    FURI_LOG_I("Protocol", "Manchester: Short=%luµs, Long=%luµs, Tol=±%luµs",
-               profile.short_pulse, profile.long_pulse, profile.tolerance);
-    
+    // REAL MANCHESTER DECODER IMPLEMENTATION
+    size_t bit_count = 0;
     uint8_t current_byte = 0;
-    uint8_t bit_count = 0;
-    size_t out_idx = 0;
+    uint8_t bit_pos = 0;
     
+    for(size_t i = 0; i < len - 1; i++) {
+        uint8_t current_bit = raw_data[i];
+        uint8_t next_bit = raw_data[i + 1];
     for(size_t i = 0; i < count - 1; i += 2) {
         uint32_t pulse1 = timings[i];
         uint32_t pulse2 = timings[i + 1];

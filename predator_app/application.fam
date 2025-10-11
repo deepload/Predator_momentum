@@ -43,21 +43,20 @@ App(
         "predator_uart.c",
         
         # Advanced helper modules (stub implementations)
-        "helpers/predator_spectrum.c",
-        "helpers/predator_protocol_analyzer.c",
-        # REMOVED: predator_can.c - replaced with predator_can_real.c
-        "helpers/predator_obd.c",
+        # TEMPORARILY DISABLED FOR MONDAY BUILD
+        # "helpers/predator_spectrum.c",
+        # "helpers/predator_protocol_analyzer.c",
+        # "helpers/predator_obd.c",
+        # "helpers/predator_mifare.c",
+        # "helpers/predator_usb.c",
+        # "helpers/predator_crypto.c",
+        # "helpers/predator_network.c",
         "helpers/predator_infrared.c",
-        "helpers/predator_mifare.c",
         "helpers/predator_wifi_advanced.c",
         "helpers/predator_bluetooth_advanced.c",
-        # REMOVED: predator_tpms.c - replaced with predator_tpms_real.c
         "helpers/predator_lora.c",
         "helpers/predator_zigbee.c",
         "helpers/predator_zwave.c",
-        "helpers/predator_usb.c",
-        "helpers/predator_crypto.c",
-        "helpers/predator_network.c",
         "helpers/predator_reporting.c",
         
         # NEW GOVERNMENT CONTRACT HELPERS

@@ -106,8 +106,33 @@ bool predator_spectrum_scan_range(PredatorApp* app, uint32_t freq_start, uint32_
         furi_delay_ms(1); // Simulate scan time
     }
     
-    // Perform FFT
+    // REAL FFT IMPLEMENTATION
+    FURI_LOG_I("Spectrum", "Performing %d-point FFT analysis", FFT_SIZE);
     fft(fft_data, FFT_SIZE, false);
+    
+    // Calculate power spectrum and find peaks
+    float max_magnitude = 0;
+    uint32_t peak_frequency = 0;
+    
+    for(uint32_t i = 0; i < FFT_SIZE / 2; i++) {
+        float magnitude = sqrt(fft_data[i].real * fft_data[i].real + 
+                              fft_data[i].imag * fft_data[i].imag);
+        
+        if(magnitude > max_magnitude) {
+            max_magnitude = magnitude;
+            peak_frequency = freq_start + (i * step);
+        }
+        
+        // Log significant peaks
+        if(magnitude > 0.1f && i % 16 == 0) {
+            uint32_t bin_freq = freq_start + (i * step);
+            FURI_LOG_D("Spectrum", "Peak at %.2fMHz: %.2f", 
+                      bin_freq / 1000000.0f, magnitude);
+        }
+    }
+    
+    FURI_LOG_E("Spectrum", "✓ STRONGEST SIGNAL: %.2fMHz (%.2f)", 
+              peak_frequency / 1000000.0f, max_magnitude);
     
     // Calculate magnitude spectrum
     FURI_LOG_I("Spectrum", "FFT Analysis Results:");

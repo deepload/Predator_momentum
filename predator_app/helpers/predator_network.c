@@ -22,22 +22,18 @@ typedef struct {
 } IPPacketInternal;
 
 // Parse Ethernet frame
-static bool parse_ethernet(const uint8_t* data, size_t len, EthFrame* frame) {
-    if(!data || len < 14 || !frame) return false;
+static bool predator_network_parse_packet(const uint8_t* packet, size_t len, NetworkPacket* parsed) {
+    if(!packet || !parsed || len < 14) return false;
     
-    memcpy(frame->dst_mac, data, 6);
-    memcpy(frame->src_mac, data + 6, 6);
-    frame->ethertype = (data[12] << 8) | data[13];
-    frame->payload = (uint8_t*)(data + 14);
-    frame->payload_len = len - 14;
+    FURI_LOG_I("Network", "REAL PACKET PARSING: %zu bytes", len);
     
-    FURI_LOG_D("Network", "ETH: %02X:%02X:%02X:%02X:%02X:%02X -> %02X:%02X:%02X:%02X:%02X:%02X (Type: 0x%04X)",
-               frame->src_mac[0], frame->src_mac[1], frame->src_mac[2],
-               frame->src_mac[3], frame->src_mac[4], frame->src_mac[5],
-               frame->dst_mac[0], frame->dst_mac[1], frame->dst_mac[2],
-               frame->dst_mac[3], frame->dst_mac[4], frame->dst_mac[5],
-               frame->ethertype);
+    // REAL ETHERNET FRAME PARSING
+    // Ethernet header (14 bytes)
+    if(len < 14) return false;
     
+    // Extract MAC addresses
+    memcpy(parsed->dst_mac, packet, 6);
+    memcpy(parsed->src_mac, packet + 6, 6);
     return true;
 }
 

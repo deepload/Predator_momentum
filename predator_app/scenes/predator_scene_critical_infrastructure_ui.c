@@ -1,5 +1,6 @@
 #include "../predator_i.h"
 #include "../helpers/predator_infrastructure.h"
+#include "../helpers/predator_scada_real.h"
 #include "../helpers/predator_logging.h"
 
 static void infra_submenu_callback(void* context, uint32_t index) {
@@ -17,6 +18,7 @@ static void infra_submenu_callback(void* context, uint32_t index) {
         case 5: predator_infra_dam_control_scan(app); break;
         case 6: predator_infra_airport_scan(app); break;
         case 7: predator_infra_hospital_scan(app); break;
+        case 8: scada_government_demonstration(app); break;
     }
 }
 
@@ -35,6 +37,7 @@ void predator_scene_critical_infrastructure_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "Dam Control", 5, infra_submenu_callback, app);
     submenu_add_item(app->submenu, "Airport Systems", 6, infra_submenu_callback, app);
     submenu_add_item(app->submenu, "Hospital Networks", 7, infra_submenu_callback, app);
+    submenu_add_item(app->submenu, "🇨🇭🇺🇸 GOVERNMENT DEMO", 8, infra_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     

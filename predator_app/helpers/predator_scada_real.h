@@ -79,6 +79,7 @@ bool scada_check_encryption(PredatorApp* app, const char* ip);
 
 // Attack Simulations (Authorized Testing Only)
 bool scada_unauthorized_read(PredatorApp* app, const char* ip);
+bool scada_government_demonstration(PredatorApp* app);
 bool scada_unauthorized_write(PredatorApp* app, const char* ip);
 bool scada_replay_attack(PredatorApp* app, const char* ip);
 

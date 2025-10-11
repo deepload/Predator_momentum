@@ -1,4 +1,5 @@
 #include "predator_obd.h"
+#include "predator_can_real.h"
 #include "../predator_i.h"
 
 bool predator_obd_init(PredatorApp* app) {
@@ -41,6 +42,71 @@ static float parse_obd_value(uint8_t pid, const uint8_t* data) {
         default:
             return (float)data[0];
     }
+}
+
+bool predator_obd_read_pid(PredatorApp* app, uint8_t service, uint8_t pid, uint32_t* value) {
+    if(!app || !value) return false;
+    
+    FURI_LOG_I("OBD", "REAL OBD-II REQUEST: Service=0x%02X PID=0x%02X", service, pid);
+    
+    // REAL OBD-II PROTOCOL IMPLEMENTATION
+    // 1. Build ISO-TP frame
+    CANFrame obd_frame = {0};
+    obd_frame.id = 0x7DF; // Functional addressing
+    obd_frame.dlc = 8;
+    obd_frame.extended = false;
+    obd_frame.rtr = false;
+    
+    // 2. Build OBD request packet
+    obd_frame.data[0] = 0x02; // Length
+    obd_frame.data[1] = service; // Service ID
+    obd_frame.data[2] = pid; // Parameter ID
+    obd_frame.data[3] = 0x00; // Padding
+    obd_frame.data[4] = 0x00;
+    obd_frame.data[5] = 0x00;
+    obd_frame.data[6] = 0x00;
+    obd_frame.data[7] = 0x00;
+    
+    FURI_LOG_D("OBD", "TX Frame: %02X %02X %02X %02X %02X %02X %02X %02X",
+              obd_frame.data[0], obd_frame.data[1], obd_frame.data[2], obd_frame.data[3],
+              obd_frame.data[4], obd_frame.data[5], obd_frame.data[6], obd_frame.data[7]);
+    
+    // 3. Send via CAN bus
+    if(!can_send_frame(app, &obd_frame)) {
+        FURI_LOG_E("OBD", "Failed to send OBD request");
+        return false;
+    }
+    
+    // 4. Wait for response (ID 0x7E8-0x7EF)
+    CANFrame response = {0};
+    if(can_receive_frame(app, &response, 1000)) {
+        if(response.id >= 0x7E8 && response.id <= 0x7EF) {
+            // 5. Parse OBD response
+            if(response.data[1] == (service + 0x40) && response.data[2] == pid) {
+                // Valid response - extract data
+                switch(pid) {
+                    case 0x0C: // Engine RPM (2 bytes)
+                        *value = ((response.data[3] << 8) | response.data[4]) / 4;
+                        break;
+                    case 0x0D: // Vehicle speed (1 byte)
+                        *value = response.data[3];
+                        break;
+                    case 0x05: // Engine coolant temperature (1 byte)
+                        *value = response.data[3] - 40;
+                        break;
+                    default:
+                        *value = response.data[3];
+                        break;
+                }
+                
+                FURI_LOG_I("OBD", "✓ Real PID 0x%02X value: %lu", pid, *value);
+                return true;
+            }
+        }
+    }
+    
+    FURI_LOG_W("OBD", "No response received for PID 0x%02X", pid);
+    return false;
 }
 
 bool predator_obd_read_parameter(PredatorApp* app, uint8_t pid, OBDParameter* param) {

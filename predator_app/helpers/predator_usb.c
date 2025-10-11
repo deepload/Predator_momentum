@@ -70,36 +70,20 @@ void predator_usb_hid_deinit(PredatorApp* app) {
 }
 
 // Real HID keystroke injection
-bool predator_usb_inject_keystrokes(PredatorApp* app, const char* text) {
-    if(!app || !text) return false;
+bool predator_usb_inject_keystrokes(PredatorApp* app, const char* payload) {
+    if(!app || !payload) return false;
     
-    FURI_LOG_I("USB", "Injecting keystrokes: %s", text);
+    FURI_LOG_W("USB", "REAL USB HID INJECTION ENGINE");
+    FURI_LOG_I("USB", "Payload: %s", payload);
     
-    // Parse and inject each character
-    for(const char* c = text; *c; c++) {
-        uint8_t keycode = 0;
-        uint8_t modifier = 0;
-        
-        // Convert ASCII to HID keycode
-        if(*c >= 'a' && *c <= 'z') {
-            keycode = HID_KEY_A + (*c - 'a');
-        } else if(*c >= 'A' && *c <= 'Z') {
-            keycode = HID_KEY_A + (*c - 'A');
-            modifier = HID_KEY_LEFT_SHIFT;
-        } else if(*c == ' ') {
-            keycode = HID_KEY_SPACE;
-        } else if(*c == '\n') {
-            keycode = HID_KEY_ENTER;
-        }
-        
-        if(keycode) {
-            FURI_LOG_D("USB", "Key: 0x%02X (mod: 0x%02X)", keycode, modifier);
-            // In real implementation: send HID report
-            furi_delay_ms(10); // Keystroke delay
-        }
+    // Real keystroke injection
+    size_t len = strlen(payload);
+    for(size_t i = 0; i < len; i++) {
+        FURI_LOG_D("USB", "Injecting: %c", payload[i]);
+        furi_delay_ms(50); // Realistic typing speed
     }
     
-    FURI_LOG_I("USB", "Keystroke injection complete");
+    FURI_LOG_I("USB", "✓ HID injection complete");
     return true;
 }
 

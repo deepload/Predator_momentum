@@ -52,21 +52,33 @@ void predator_crypto_frequency_analysis(const uint8_t* data, size_t data_len, ui
 }
 
 // Real XOR key detection using statistical analysis
-bool predator_crypto_detect_xor_key(const uint8_t* data, size_t data_len, uint8_t* key, size_t* key_len) {
-    if(!data || !key || !key_len || data_len < 32) return false;
+bool predator_crypto_detect_xor(const uint8_t* data, size_t len, uint8_t* key, size_t* key_len) {
+    if(!data || !key || !key_len || len < 4) return false;
     
-    // Try key lengths from 1 to 16
-    float best_score = 0.0f;
-    uint8_t best_key_len = 0;
+    FURI_LOG_W("Crypto", "========================================");
+    FURI_LOG_W("Crypto", "REAL XOR KEY DETECTION ENGINE");
+    FURI_LOG_W("Crypto", "========================================");
+    FURI_LOG_I("Crypto", "Analyzing %zu bytes for XOR patterns", len);
+    
+    // REAL XOR KEY DETECTION ALGORITHM
     uint8_t best_key[16] = {0};
+    size_t best_key_size = 0;
+    float best_score = 0;
     
-    for(uint8_t klen = 1; klen <= 16 && klen < data_len; klen++) {
-        uint8_t candidate_key[16] = {0};
+    // Test key lengths from 1 to 16
+    for(size_t test_key_len = 1; test_key_len <= 16 && test_key_len < len; test_key_len++) {
+        uint8_t test_key[16] = {0};
+        float score = 0;
         
-        // Statistical XOR key recovery
-        for(uint8_t i = 0; i < klen; i++) {
-            uint32_t freq[256] = {0};
+        // Extract potential key by analyzing byte patterns
+        for(size_t i = 0; i < test_key_len; i++) {
+            uint32_t byte_sum = 0;
+            uint32_t count = 0;
             
+            // Collect bytes at positions i, i+key_len, i+2*key_len, etc.
+            for(size_t j = i; j < len; j += test_key_len) {
+                byte_sum += data[j];
+                count++;
             // Count byte frequencies at this position
             for(size_t j = i; j < data_len; j += klen) {
                 freq[data[j]]++;
