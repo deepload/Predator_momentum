@@ -1,13 +1,13 @@
 #pragma once
 
 typedef enum {
-    // ELON'S TESLA SECURITY SUITE - TOP PRIORITY
+    // TESLA SECURITY SUITE - TOP PRIORITY
     SubmenuIndexTeslaSecuritySuite,
     
-    // ELON'S ALL CAR BRANDS SECURITY SUITE - SUPERIORITY
+    // ALL CAR BRANDS SECURITY SUITE - COMPREHENSIVE
     SubmenuIndexCarBrandSecuritySuite,
     
-    // ELON'S USER-FRIENDLY FLIPPER ZERO UI
+    // USER-FRIENDLY FLIPPER ZERO UI
     SubmenuIndexUserFriendlyUI,
     
     // UNIVERSAL CAR HACKER - STANDALONE APP

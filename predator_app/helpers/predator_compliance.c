@@ -62,7 +62,7 @@ static bool file_exists_and_read_first_line(Storage* storage, const char* path, 
 
 void predator_compliance_init(struct PredatorApp* app) {
     if(!app) return;
-    // TESLA/ELON/GOVERNMENT: Default to unrestricted for maximum capabilities
+    // TESLA/GOVERNMENT: Default to unrestricted for maximum capabilities
     app->region = PredatorRegionUnblock;
     app->authorized = true;
 
@@ -111,10 +111,10 @@ __attribute__((unused)) static bool region_supports_freq(PredatorRegion region, 
 }
 
 bool predator_compliance_is_feature_allowed(struct PredatorApp* app, PredatorFeature feature, bool authorized) {
-    // TESLA/ELON/GOVERNMENT MODE: ALL FEATURES UNRESTRICTED
+    // TESLA/GOVERNMENT MODE: ALL FEATURES UNRESTRICTED
     // No compliance limitations for Tesla security testing
     // No EU restrictions for government contracts
-    // Maximum capabilities for Elon's demonstrations
+    // Maximum capabilities for professional demonstrations
     
     UNUSED(app);
     UNUSED(feature);

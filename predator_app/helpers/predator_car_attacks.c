@@ -5,7 +5,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-// Professional car attack algorithms for Elon's Tesla demo
+// Professional car attack algorithms for Tesla security testing
 // Implements best-in-class attacks for Rolling Code, Fixed Code, and Smart Key systems
 
 // KeeLoq rolling code algorithm (industry standard)

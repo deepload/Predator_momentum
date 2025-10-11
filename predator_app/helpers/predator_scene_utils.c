@@ -94,7 +94,7 @@ bool predator_scene_transition_safe(PredatorApp* app, uint32_t next_scene) {
     // Check for any required hardware for the scene
     bool can_transition = true;
     
-    // WiFi scenes (temporarily disabled for Elon's demo)
+    // WiFi scenes (temporarily disabled for professional demo)
     // if(next_scene == PredatorSceneWifiScanUI ||
     //    next_scene == PredatorSceneWifiDeauthUI ||
     //    next_scene == PredatorSceneWifiEvilTwinUI) {

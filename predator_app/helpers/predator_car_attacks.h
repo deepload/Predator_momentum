@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-// Professional car attack algorithms for Elon's Tesla demo
+// Professional car attack algorithms for Tesla security testing
 // Best-in-class attacks for Rolling Code, Fixed Code, and Smart Key systems
 
 // Attack individual car model by index (0-89)

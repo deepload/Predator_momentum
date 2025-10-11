@@ -16,7 +16,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     if(!app || !app->submenu) return;
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🚗 ELON'S CAR HACKER");
+    submenu_set_header(app->submenu, "🚗 PREDATOR SECURITY SUITE");
     
     // VIP++ QUANTUM-READY - ELON'S TESLA SECURITY SUITE
     submenu_add_item(app->submenu, "⚛️ VIP++ QUANTUM TESLA SUITE", SubmenuIndexTeslaSecuritySuite, main_menu_submenu_callback, app);
