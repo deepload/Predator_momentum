@@ -59,6 +59,13 @@ App(
         "helpers/predator_crypto.c",
         "helpers/predator_network.c",
         "helpers/predator_reporting.c",
+        
+        # NEW GOVERNMENT CONTRACT HELPERS
+        "helpers/predator_traffic.c",
+        "helpers/predator_tesla_advanced.c",
+        "helpers/predator_automotive_advanced.c",
+        "helpers/predator_casino.c",
+        "helpers/predator_infrastructure.c",
 
         # Scene router
         "scenes/predator_scene.c",
@@ -133,5 +140,12 @@ App(
         "scenes/predator_scene_usb_attacks_ui.c",
         "scenes/predator_scene_network_attacks_ui.c",
         "scenes/predator_scene_crypto_tools_ui.c",
+        
+        # NEW GOVERNMENT CONTRACT FEATURES - User-friendly UI
+        "scenes/predator_scene_traffic_infrastructure_ui.c",
+        "scenes/predator_scene_tesla_advanced_ui.c",
+        "scenes/predator_scene_automotive_adv_ui.c",
+        "scenes/predator_scene_casino_rfid_ui.c",
+        "scenes/predator_scene_critical_infrastructure_ui.c",
     ],
 )

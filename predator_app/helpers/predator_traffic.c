@@ -27,9 +27,9 @@ bool predator_traffic_scan_signals(PredatorApp* app, uint32_t frequency) {
     // Simulate signal detection
     const uint32_t common_freqs[] = {
         162400000,  // NTCIP
-        902000000,  // DSRC
+        902000000,  // DSRC 902MHz
         915000000,  // Opticom
-        5900000000, // DSRC 5.9GHz
+        920000000,  // DSRC upper band (5.9GHz is 5900MHz, too large for uint32)
     };
     
     for(size_t i = 0; i < sizeof(common_freqs) / sizeof(common_freqs[0]); i++) {

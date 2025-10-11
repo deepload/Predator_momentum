@@ -30,6 +30,13 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // UNIVERSAL CAR HACKER - STANDALONE APP THAT CAN DO EVERYTHING
     submenu_add_item(app->submenu, "🚗 UNIVERSAL CAR HACKER", SubmenuIndexUniversalCarHacker, main_menu_submenu_callback, app);
     
+    // === NEW GOVERNMENT CONTRACT FEATURES ===
+    submenu_add_item(app->submenu, "🚦 Traffic Infrastructure", SubmenuIndexTrafficInfrastructure, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Tesla Advanced 2024", SubmenuIndexTeslaAdvanced, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🏎️ Automotive Advanced", SubmenuIndexAutomotiveAdvancedNew, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🎰 Casino/RFID Advanced", SubmenuIndexCasinoRFID, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Critical Infrastructure", SubmenuIndexCriticalInfrastructure, main_menu_submenu_callback, app);
+    
     // Add main menu items (Professional UI only)
     submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", SubmenuIndexBluetoothAttacks, main_menu_submenu_callback, app);
@@ -130,6 +137,22 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             break;
         case SubmenuIndexAbout:
             scene_manager_next_scene(app->scene_manager, PredatorSceneAboutUI);
+            break;
+        // NEW GOVERNMENT CONTRACT FEATURES
+        case SubmenuIndexTrafficInfrastructure:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneTrafficInfrastructureUI);
+            break;
+        case SubmenuIndexTeslaAdvanced:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneTeslaAdvancedUI);
+            break;
+        case SubmenuIndexAutomotiveAdvancedNew:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAutomotiveAdvUI);
+            break;
+        case SubmenuIndexCasinoRFID:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCasinoRFIDUI);
+            break;
+        case SubmenuIndexCriticalInfrastructure:
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCriticalInfrastructureUI);
             break;
         default:
             consumed = false;

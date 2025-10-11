@@ -43,3 +43,10 @@ ADD_SCENE(predator, infrared_ui, InfraredUI)
 ADD_SCENE(predator, usb_attacks_ui, USBAttacksUI)
 ADD_SCENE(predator, network_attacks_ui, NetworkAttacksUI)
 ADD_SCENE(predator, crypto_tools_ui, CryptoToolsUI)
+
+// NEW GOVERNMENT CONTRACT FEATURES - User-friendly workflows
+ADD_SCENE(predator, traffic_infrastructure_ui, TrafficInfrastructureUI)
+ADD_SCENE(predator, tesla_advanced_ui, TeslaAdvancedUI)
+ADD_SCENE(predator, automotive_adv_ui, AutomotiveAdvUI)
+ADD_SCENE(predator, casino_rfid_ui, CasinoRFIDUI)
+ADD_SCENE(predator, critical_infrastructure_ui, CriticalInfrastructureUI)

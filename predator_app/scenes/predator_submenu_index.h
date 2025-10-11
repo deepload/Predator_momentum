@@ -148,4 +148,11 @@ typedef enum {
     SubmenuIndexBruteForce,
     SubmenuIndexDictAttack,
     SubmenuIndexHashCalc,
+    
+    // NEW FEATURES - 5 Major Expansions
+    SubmenuIndexTrafficInfrastructure,  // California/Switzerland contracts
+    SubmenuIndexTeslaAdvanced,          // 2024/2025 Pwn2Own exploits
+    SubmenuIndexAutomotiveAdvancedNew,  // 50+ luxury/EV brands
+    SubmenuIndexCasinoRFID,             // Atlantic City contract
+    SubmenuIndexCriticalInfrastructure, // Government-grade testing
 } SubmenuIndex;
