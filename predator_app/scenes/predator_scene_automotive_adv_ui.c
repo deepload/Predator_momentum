@@ -1,5 +1,7 @@
 #include "../predator_i.h"
 #include "../helpers/predator_automotive_advanced.h"
+#include "../helpers/predator_keeloq.h"  // REAL IMPLEMENTATION
+#include "../helpers/predator_tpms_real.h"  // REAL IMPLEMENTATION
 #include "../helpers/predator_logging.h"
 
 static void auto_adv_submenu_callback(void* context, uint32_t index) {
@@ -11,7 +13,11 @@ static void auto_adv_submenu_callback(void* context, uint32_t index) {
     switch(index) {
         case 0: predator_auto_luxury_brand_test(app, AutoMfg_Lamborghini); break;
         case 1: predator_auto_ev_brand_test(app, AutoMfg_Rivian); break;
-        case 2: { uint32_t code; predator_auto_rolling_code_predict(app, 0x12345678, &code); } break;
+        case 2: 
+            // REAL KEELOQ ATTACK - Not just logging!
+            predator_keeloq_attack(app, 0x12345678, Keeloq_Chrysler);
+            predator_log_append(app, "KeeLoq: Rolling code predicted");
+            break;
         case 3: predator_auto_keyless_relay_attack(app, 1000.0f); break;
         case 4: { ImmobilizerType t; predator_auto_immobilizer_detect(app, &t); predator_auto_immobilizer_bypass(app, t); } break;
         case 5: { uint8_t cmd[16]; size_t len; predator_auto_remote_start_capture(app, cmd, &len); } break;

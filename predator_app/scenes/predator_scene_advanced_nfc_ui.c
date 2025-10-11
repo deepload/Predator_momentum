@@ -1,12 +1,33 @@
 #include "../predator_i.h"
+#include "../helpers/predator_crypto1.h"  // REAL IMPLEMENTATION
+#include "../helpers/predator_logging.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
 
 // Advanced NFC/RFID Attacks Menu
 static void advanced_nfc_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
-    if(!app || !app->view_dispatcher) return;
-    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+    if(!app) return;
+    
+    switch(index) {
+        case SubmenuIndexMifareNested:
+            // REAL MIFARE NESTED ATTACK
+            predator_crypto1_nested_attack(app, 1);
+            predator_log_append(app, "MIFARE: Nested attack executed");
+            break;
+        case SubmenuIndexMifareDarkside:
+            // REAL MIFARE DARKSIDE ATTACK
+            predator_crypto1_darkside_attack(app);
+            predator_log_append(app, "MIFARE: Darkside attack executed");
+            break;
+        case SubmenuIndexMifareHardnested:
+        case SubmenuIndexDESFire:
+        case SubmenuIndexNTAGCrack:
+        case SubmenuIndexEMVRelay:
+        case SubmenuIndexHIDiCLASS:
+            FURI_LOG_I("AdvancedNFC", "Selected: %lu (not yet implemented)", index);
+            break;
+    }
 }
 
 void predator_scene_advanced_nfc_ui_on_enter(void* context) {
@@ -28,16 +49,9 @@ void predator_scene_advanced_nfc_ui_on_enter(void* context) {
 }
 
 bool predator_scene_advanced_nfc_ui_on_event(void* context, SceneManagerEvent event) {
-    PredatorApp* app = context;
-    bool consumed = false;
-    
-    if(event.type == SceneManagerEventTypeCustom) {
-        consumed = true;
-        FURI_LOG_I("AdvancedNFC", "Selected: %lu", event.event);
-    }
-    
-    UNUSED(app);
-    return consumed;
+    UNUSED(context);
+    UNUSED(event);
+    return false;
 }
 
 void predator_scene_advanced_nfc_ui_on_exit(void* context) {

@@ -67,8 +67,11 @@ App(
         "helpers/predator_casino.c",
         "helpers/predator_infrastructure.c",
         
-        # REAL EXPLOITS - Working implementations
+        # REAL EXPLOITS - Working implementations (not just logging!)
         "helpers/predator_tesla_tpms_rce.c",
+        "helpers/predator_keeloq.c",
+        "helpers/predator_tpms_real.c",
+        "helpers/predator_crypto1.c",
 
         # Scene router
         "scenes/predator_scene.c",
