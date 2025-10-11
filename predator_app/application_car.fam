@@ -47,14 +47,14 @@ App(
         # Scene router
         "scenes/predator_scene.c",
 
-        # Car-focused scenes only
-        "scenes/predator_scene_main_menu_ui.c",
+        # ONLY CAR SCENES - ISOLATED MAIN MENU
+        "scenes/predator_scene_car_main_menu.c",
         "scenes/predator_scene_car_attacks_ui.c",
         "scenes/predator_scene_car_tesla_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",
-        "scenes/predator_scene_automotive_adv_ui.c",
+        "scenes/predator_scene_car_model_selector.c",
         
         # Essential system scenes
         "scenes/predator_scene_module_status_ui.c",

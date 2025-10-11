@@ -41,21 +41,13 @@ App(
         # Scene router
         "scenes/predator_scene.c",
 
-        # Master orchestration scenes
-        "scenes/predator_scene_main_menu_ui.c",
-        "scenes/predator_scene_master_orchestrator.c",
+        # ONLY MASTER ORCHESTRATION SCENES - ISOLATED
+        "scenes/predator_scene_master_main_menu.c",
+        "scenes/predator_scene_master_orchestrator_simple.c",
+        "scenes/predator_scene_app_launcher_ui.c",
         "scenes/predator_scene_app_status.c",
-        "scenes/predator_scene_coordinated_attack.c",
-        "scenes/predator_scene_live_communication_demo.c",
         
-        # Emergency and VIP control
-        "scenes/predator_scene_elon_renault_demo.c",
-        "scenes/predator_scene_tesla_security_suite.c",
-        "scenes/predator_scene_car_brand_security_suite.c",
-        "scenes/predator_scene_user_friendly_ui.c",
-        "scenes/predator_scene_universal_car_hacker.c",
-        
-        # System management scenes
+        # ONLY SYSTEM MANAGEMENT SCENES  
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",

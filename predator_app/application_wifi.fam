@@ -39,15 +39,12 @@ App(
         # Scene router
         "scenes/predator_scene.c",
 
-        # WiFi-focused scenes only
-        "scenes/predator_scene_main_menu_ui.c",
+        # ONLY WIFI SCENES - ISOLATED MAIN MENU
+        "scenes/predator_scene_wifi_main_menu.c",
         "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_ui.c",
         "scenes/predator_scene_wifi_evil_twin_ui.c",
-        "scenes/predator_scene_wifi_handshake_ui.c",
-        "scenes/predator_scene_wifi_pmkid_ui.c",
-        "scenes/predator_scene_advanced_wifi_ui.c",
         
         # Essential system scenes
         "scenes/predator_scene_module_status_ui.c",
