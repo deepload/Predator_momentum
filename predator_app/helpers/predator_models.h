@@ -12,7 +12,7 @@ typedef struct {
     char make[16];
     char model[40];
     uint32_t frequency; // Hz
-    char remote_type[16];
+    char remote_type[32];  // INCREASED for Israeli Government security data
 } PredatorCarModel;
 
 // Returns number of models currently loaded from CSV (0 if none)
@@ -31,6 +31,9 @@ size_t predator_models_load_csv(Storage* storage, const char* path);
 
 // Load models from default path: /ext/apps_data/predator/car_models.csv
 size_t predator_models_load_default(Storage* storage);
+
+// REAL SECURITY ANALYSIS - Government Grade
+bool predator_models_analyze_security(const char* manufacturer, const char* model);
 
 #ifdef __cplusplus
 }

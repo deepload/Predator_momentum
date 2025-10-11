@@ -72,6 +72,12 @@ App(
         "helpers/predator_keeloq.c",
         "helpers/predator_tpms_real.c",
         "helpers/predator_crypto1.c",
+        "helpers/predator_ble_relay.c",
+        
+        # SWISS GOVERNMENT - Real protocol implementations
+        "helpers/predator_can_real.c",
+        "helpers/predator_scada_real.c",
+        "helpers/predator_car_protocols_real.c",
 
         # Scene router
         "scenes/predator_scene.c",

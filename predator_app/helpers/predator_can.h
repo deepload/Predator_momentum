@@ -12,10 +12,10 @@ typedef struct {
 } CANFrame;
 
 typedef enum {
-    CANSpeed125K = 125000,
-    CANSpeed250K = 250000,
-    CANSpeed500K = 500000,
-    CANSpeed1M = 1000000,
+    CAN_125KBPS = 125000,
+    CAN_250KBPS = 250000,
+    CAN_500KBPS = 500000,
+    CAN_1MBPS = 1000000,
 } CANSpeed;
 
 // CAN bus initialization
