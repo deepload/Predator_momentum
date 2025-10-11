@@ -136,6 +136,6 @@ bool predator_zero_day_symbolic_execution(PredatorApp* app);
 bool predator_zero_day_taint_analysis(PredatorApp* app);
 
 // Underground Research
-bool predator_zero_day_darkweb_database(PredatorApp* app);
+bool predator_zero_day_darkweb_databcase(PredatorApp* app);
 bool predator_zero_day_exploit_marketplace(PredatorApp* app);
 bool predator_zero_day_vulnerability_research(PredatorApp* app);

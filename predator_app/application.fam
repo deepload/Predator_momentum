@@ -66,6 +66,9 @@ App(
         "helpers/predator_automotive_advanced.c",
         "helpers/predator_casino.c",
         "helpers/predator_infrastructure.c",
+        
+        # REAL EXPLOITS - Working implementations
+        "helpers/predator_tesla_tpms_rce.c",
 
         # Scene router
         "scenes/predator_scene.c",

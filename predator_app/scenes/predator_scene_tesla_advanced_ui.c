@@ -1,5 +1,6 @@
 #include "../predator_i.h"
 #include "../helpers/predator_tesla_advanced.h"
+#include "../helpers/predator_tesla_tpms_rce.h"  // REAL EXPLOIT
 #include "../helpers/predator_logging.h"
 
 static void tesla_adv_submenu_callback(void* context, uint32_t index) {
@@ -10,7 +11,11 @@ static void tesla_adv_submenu_callback(void* context, uint32_t index) {
     
     switch(index) {
         case 0: predator_tesla_vcsec_scan(app); break;
-        case 1: predator_tesla_tpms_rce_test(app); break;
+        case 1: 
+            // REAL TPMS RCE EXPLOIT - Not just logging!
+            predator_tesla_tpms_execute_rce(app);
+            predator_log_append(app, "Tesla TPMS RCE: EXPLOIT EXECUTED");
+            break;
         case 2: predator_tesla_ble_relay_attack(app, true); break;
         case 3: predator_tesla_fsd_camera_jam(app, true); break;
         case 4: predator_tesla_supercharger_scan(app); break;
