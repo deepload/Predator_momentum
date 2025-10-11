@@ -1,0 +1,54 @@
+App(
+    appid="predator_subghz",
+    name="Predator SubGHz",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "gpio", "power"],
+    stack_size=8 * 1024,
+    fap_category="Tools",
+    fap_description="Professional SubGHz/RF security testing platform",
+    fap_version="1.0",
+    fap_author="Nico Lococo",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=15000", "SUBGHZ_ONLY_BUILD"],
+    sources=[
+        # Core
+        "predator.c",
+
+        # SubGHz-specific helpers
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_compliance.c",
+        "helpers/predator_workflow_validator.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_subghz.c",
+        "helpers/predator_ui_callbacks.c",
+        "helpers/predator_ui_elements.c",
+        "helpers/predator_watchdog.c",
+        "helpers/predator_settings.c",
+        "helpers/predator_logging.c",
+        "helpers/predator_ui_status.c",
+        "predator_uart.c",
+        "helpers/predator_lora.c",
+        "helpers/predator_zigbee.c",
+        "helpers/predator_zwave.c",
+        
+        # Scene router
+        "scenes/predator_scene.c",
+
+        # SubGHz-focused scenes
+        "scenes/predator_scene_main_menu_ui.c",
+        "scenes/predator_scene_subghz_attacks_ui.c",
+        "scenes/predator_scene_subghz_jamming_ui.c",
+        "scenes/predator_scene_subghz_raw_send_ui.c",
+        "scenes/predator_scene_advanced_rf_ui.c",
+        
+        # Essential system scenes
+        "scenes/predator_scene_module_status_ui.c",
+        "scenes/predator_scene_board_selection_ui.c",
+        "scenes/predator_scene_settings_ui.c",
+        "scenes/predator_scene_about_ui.c",
+    ],
+)

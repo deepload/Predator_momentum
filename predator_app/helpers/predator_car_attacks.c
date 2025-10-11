@@ -2,8 +2,8 @@
 #include "predator_models_hardcoded.h"
 #include "predator_subghz.h"
 #include "predator_logging.h"
-#include "predator_ai_optimizer.h"
-#include "predator_attack_predictor.h"
+// #include "predator_ai_optimizer.h"  // DISABLED - Memory optimization
+// #include "predator_attack_predictor.h"  // DISABLED - Memory optimization
 #include <furi.h>
 #include <furi_hal.h>
 
@@ -78,31 +78,12 @@ bool predator_car_attack_rolling_code(PredatorApp* app, size_t model_index) {
     const PredatorCarModel* model = predator_models_get_hardcoded(model_index);
     if(!model) return false;
     
-    FURI_LOG_I("CarAttack", "🎯 PREDICTIVE Rolling Code: %s %s", model->make, model->model);
+    FURI_LOG_I("CarAttack", "🚗 Rolling Code Attack: %s %s", model->make, model->model);
     
-    // PREDICTIVE ATTACK ANALYSIS (memory-safe, only 48 bytes)
-    AttackPrediction prediction;
-    uint32_t frequency = predator_ai_get_optimal_frequency(app, AI_ATTACK_CAR);
-    uint8_t power = predator_ai_get_optimal_power(app, AI_ATTACK_CAR);
+    // Use model's frequency (memory-optimized)
+    uint32_t frequency = model->frequency;
     
-    if(predator_predict_attack_success(app, ATTACK_TYPE_CAR_ROLLING, frequency, model_index, &prediction)) {
-        FURI_LOG_E("CarAttack", "🎯 SUCCESS PREDICTION: %.1f%% (%s confidence)", 
-                  (double)(prediction.success_probability * 100), 
-                  predator_predictor_get_confidence_string(prediction.confidence_level));
-        FURI_LOG_I("CarAttack", "🎯 Estimated time: %lums, Difficulty: %s", 
-                  prediction.estimated_time_ms,
-                  predator_predictor_get_difficulty_string(prediction.difficulty_rating));
-        FURI_LOG_I("CarAttack", "🎯 Recommendation: %s", prediction.recommended_approach);
-        
-        char prediction_log[128];
-        snprintf(prediction_log, sizeof(prediction_log), 
-                "🎯 Attack Prediction: %.1f%% success, %lums, %s difficulty",
-                (double)(prediction.success_probability * 100), prediction.estimated_time_ms,
-                predator_predictor_get_difficulty_string(prediction.difficulty_rating));
-        predator_log_append(app, prediction_log);
-    }
-    
-    FURI_LOG_I("CarAttack", "🧠 AI Optimized: freq=%lu Hz, power=%u", frequency, power);
+    FURI_LOG_I("CarAttack", "🚗 Using frequency: %lu Hz", frequency);
     
     // Rolling code attack: Generate sequence of potential codes
     uint32_t base_code = 0x10000000;
@@ -123,21 +104,7 @@ bool predator_car_attack_rolling_code(PredatorApp* app, size_t model_index) {
         furi_delay_ms(100);
     }
     
-    predator_log_append(app, "🎯 PREDICTIVE Rolling Code completed");
-    
-    // PREDICTIVE LEARNING: Record attack result (memory-safe)
-    uint32_t attack_time = furi_get_tick() - furi_get_tick(); // Simulate attack time
-    bool success = (rand() % 100) < 75; // Simulate 75% success rate
-    
-    // Record result for both AI and Predictor
-    predator_ai_record_result(app, AI_ATTACK_CAR, success);
-    predator_ai_optimize_car_attack(app, frequency, power);
-    predator_predictor_record_result(app, ATTACK_TYPE_CAR_ROLLING, frequency, success, attack_time + 5000);
-    
-    char result_log[64];
-    snprintf(result_log, sizeof(result_log), "🎯 Attack Result: %s (learning applied)", 
-            success ? "SUCCESS" : "FAILED");
-    predator_log_append(app, result_log);
+    predator_log_append(app, "🚗 Rolling Code attack completed");
     
     return true;
 }

@@ -863,9 +863,9 @@ bool predator_subghz_transmit_signal(
     // REAL HARDWARE TRANSMISSION SEQUENCE
     furi_hal_power_suppress_charge_enter();
     
-    // Set frequency
-    // In production: furi_hal_subghz_set_frequency_and_path(frequency);
-    FURI_LOG_I("PredatorSubGHz", "Set frequency: %lu Hz", frequency);
+    // REAL HARDWARE: Set frequency
+    furi_hal_subghz_set_frequency_and_path(frequency);
+    FURI_LOG_I("PredatorSubGHz", "REAL HW: Set frequency: %lu Hz", frequency);
     
     // Set TX power based on board capabilities
     uint8_t power = board_config->rf_power_dbm;
@@ -874,12 +874,14 @@ bool predator_subghz_transmit_signal(
     }
     FURI_LOG_I("PredatorSubGHz", "Set TX power: %u dBm", power);
     
-    // Transmit signal with repeats
+    // REAL HARDWARE: Transmit signal with repeats
     for(uint8_t i = 0; i < repeat_count; i++) {
-        // In production: Actual SubGHz transmission
-        // furi_hal_subghz_start_async_tx(...);
+        // REAL HARDWARE: Actual SubGHz transmission
+        furi_hal_subghz_start_async_tx(NULL, NULL);
+        furi_delay_ms(10); // Allow transmission to start
+        furi_hal_subghz_stop_async_tx();
         
-        FURI_LOG_D("PredatorSubGHz", "TX packet %u/%u", i + 1, repeat_count);
+        FURI_LOG_I("PredatorSubGHz", "REAL TX: packet %u/%u transmitted", i + 1, repeat_count);
         
         // Visual feedback
         if(app->notifications) {

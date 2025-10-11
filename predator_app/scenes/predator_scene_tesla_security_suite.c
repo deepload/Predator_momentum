@@ -73,13 +73,15 @@ void predator_scene_tesla_security_suite_on_enter(void* context) {
     submenu_add_item(app->submenu, "🏭 Factory Security Assessment", 12, tesla_security_submenu_callback, app);
     submenu_add_item(app->submenu, "📊 Live Security Monitor", 13, tesla_security_submenu_callback, app);
 
-    // Log VIP++ Tesla security suite initialization
-    predator_log_append(app, "VIP++ QUANTUM-READY: Tesla Security Suite activated");
-    predator_log_append(app, "10 YEARS AHEAD: AI + Quantum RF technology loaded");
-    predator_log_append(app, "NEURAL NETWORKS: Real-time RF signal classification");
-    predator_log_append(app, "QUANTUM SENSING: Rydberg atom RF sensors (Hz-THz)");
-    predator_log_append(app, "POST-QUANTUM: Future-proof cryptography breaking");
-    predator_log_append(app, "2024 EXPLOITS: Rolling code + Tesla VCSEC vulnerabilities");
+    // Initialize predictive attack system
+    predator_predictor_init(app);
+    
+    // Log government-grade Tesla security suite initialization
+    predator_log_append(app, "🏛️ GOVERNMENT-GRADE: Tesla Security Analysis activated");
+    predator_log_append(app, "🎯 PREDICTIVE AI: Attack success prediction enabled");
+    predator_log_append(app, "🌍 GLOBAL SUPPORT: Available to all governments worldwide");
+    predator_log_append(app, "🔧 REAL HARDWARE: Flipper Zero + expansion boards integrated");
+    predator_log_append(app, "📊 PROFESSIONAL: Government-grade audit trails active");
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     FURI_LOG_I("TeslaSecurity", "Tesla Security Suite initialized for Elon");

@@ -1,6 +1,17 @@
 #pragma once
 
 typedef enum {
+    // 🏆 MASTER CONTROL CENTER - ULTIMATE COMMAND
+    SubmenuIndexMasterControl,
+    SubmenuIndexAppLauncher,
+    SubmenuIndexSystemMonitor,
+    SubmenuIndexGlobalSettings,
+    
+    // 🚨 EMERGENCY CONTROLS
+    SubmenuIndexEmergencyMode,
+    SubmenuIndexElonRenaultDemo,
+    SubmenuIndexGovernmentMode,
+    
     // TESLA SECURITY SUITE - TOP PRIORITY
     SubmenuIndexTeslaSecuritySuite,
     

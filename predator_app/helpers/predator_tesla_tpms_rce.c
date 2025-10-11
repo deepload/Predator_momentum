@@ -283,8 +283,8 @@ bool predator_tesla_tpms_send_raw(
     FURI_LOG_I("TPMS_RCE", "  Frequency: %lu Hz", frequency);
     FURI_LOG_I("TPMS_RCE", "  Data length: %zu bytes", len);
     
-    // Simulate transmission (in real code, this would actually transmit)
-    // predator_subghz_transmit_raw(app, data, len, frequency);
+    // REAL HARDWARE: Actual TPMS RCE transmission
+    predator_subghz_transmit_raw(app, frequency, (uint32_t*)data, len);
     
     FURI_LOG_I("TPMS_RCE", "Transmitting...");
     furi_delay_ms(100);  // Simulate transmission time

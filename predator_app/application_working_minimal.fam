@@ -1,0 +1,43 @@
+App(
+    appid="predator_working",
+    name="Predator Working",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
+    stack_size=8 * 1024,
+    fap_category="Tools",
+    fap_description="Working Predator - Guaranteed to Build",
+    fap_version="1.0",
+    fap_author="Nico Lococo",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=15000", "WORKING_BUILD"],
+    sources=[
+        # Core - MINIMAL ONLY
+        "predator.c",
+
+        # Essential helpers - ONLY WHAT EXISTS
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_compliance.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_ui_callbacks.c",
+        "helpers/predator_ui_elements.c",
+        "helpers/predator_watchdog.c",
+        "helpers/predator_settings.c",
+        "helpers/predator_logging.c",
+        "helpers/predator_ui_status.c",
+        "predator_uart.c",
+        
+        # Scene router
+        "scenes/predator_scene.c",
+
+        # ONLY BASIC SCENES - NO COMPLEX ONES
+        "scenes/predator_scene_main_menu_ui.c",
+        "scenes/predator_scene_module_status_ui.c",
+        "scenes/predator_scene_board_selection_ui.c",
+        "scenes/predator_scene_settings_ui.c",
+        "scenes/predator_scene_about_ui.c",
+    ],
+)

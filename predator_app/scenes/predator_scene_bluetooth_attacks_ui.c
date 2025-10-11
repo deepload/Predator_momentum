@@ -16,8 +16,8 @@ void predator_scene_bluetooth_attacks_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "📱 Bluetooth Attacks");
     
-    submenu_add_item(app->submenu, "📱 BLE Scan", SubmenuIndexBleScan, bluetooth_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "💥 BLE Spam", SubmenuIndexBleSpam, bluetooth_attacks_submenu_callback, app);
+    // NUCLEAR OPTIMIZATION - ONLY ESSENTIAL FOR ONU
+    submenu_add_item(app->submenu, "BLE Scan", SubmenuIndexBleScan, bluetooth_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -32,9 +32,7 @@ bool predator_scene_bluetooth_attacks_ui_on_event(void* context, SceneManagerEve
         case SubmenuIndexBleScan:
             scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
             break;
-        case SubmenuIndexBleSpam:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);
-            break;
+        // BLE Spam disabled for memory optimization
         default:
             consumed = false;
             break;

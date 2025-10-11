@@ -1,0 +1,67 @@
+App(
+    appid="predator_gov_minimal",
+    name="Predator Government",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power"],
+    stack_size=10 * 1024,
+    fap_category="Tools",
+    fap_description="Government-grade security testing - ONU Ready",
+    fap_version="1.0",
+    fap_author="Nico Lococo",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=18000", "GOVERNMENT_BUILD"],
+    sources=[
+        # Core
+        "predator.c",
+
+        # Essential helpers only
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_esp32.c",
+        "helpers/predator_gps.c",
+        "helpers/predator_nfc.c",
+        "helpers/predator_compliance.c",
+        "helpers/predator_workflow_validator.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_subghz.c",
+        "helpers/predator_ui_callbacks.c",
+        "helpers/predator_ui_elements.c",
+        "helpers/predator_watchdog.c",
+        "helpers/predator_settings.c",
+        "helpers/predator_logging.c",
+        "helpers/predator_ui_status.c",
+        "predator_uart.c",
+        
+        # Government helpers
+        "helpers/predator_traffic.c",
+        "helpers/predator_tesla_advanced.c",
+        "helpers/predator_automotive_advanced.c",
+        "helpers/predator_casino.c",
+        "helpers/predator_infrastructure.c",
+        "helpers/predator_can_real.c",
+        "helpers/predator_scada_real.c",
+        "helpers/predator_car_protocols_real.c",
+        
+        # Scene router
+        "scenes/predator_scene.c",
+
+        # MINIMAL GOVERNMENT SCENES - ONLY EXISTING ONES
+        "scenes/predator_scene_main_menu_ui.c",
+        "scenes/predator_scene_elon_renault_demo.c",
+        "scenes/predator_scene_traffic_infrastructure_ui.c",
+        "scenes/predator_scene_tesla_advanced_ui.c",
+        "scenes/predator_scene_automotive_adv_ui.c",
+        "scenes/predator_scene_casino_rfid_ui.c",
+        "scenes/predator_scene_critical_infrastructure_ui.c",
+        "scenes/predator_scene_government_contracts_ui.c",
+        
+        # System scenes
+        "scenes/predator_scene_module_status_ui.c",
+        "scenes/predator_scene_board_selection_ui.c",
+        "scenes/predator_scene_settings_ui.c",
+        "scenes/predator_scene_about_ui.c",
+    ],
+)

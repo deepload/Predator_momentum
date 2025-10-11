@@ -6,17 +6,18 @@
 
 typedef struct PredatorApp PredatorApp;
 
-// PREDICTIVE ATTACK SUCCESS - AI-POWERED ANALYSIS
-// Memory-optimized for Flipper Zero (only 64 bytes total)
+// MEMORY-OPTIMIZED PREDICTIVE ATTACK SUCCESS
+// Ultra-lightweight for Flipper Zero (only 16 bytes total)
 
 typedef struct {
-    float success_probability;     // 0.0-1.0 (4 bytes)
-    uint32_t estimated_time_ms;   // Time to success (4 bytes)
-    char recommended_approach[32]; // Best attack method (32 bytes)
+    uint8_t success_probability;   // 0-100% (1 byte)
+    uint16_t estimated_time_ms;   // Time to success in 100ms units (2 bytes)
+    char recommended_approach[8]; // Best attack method (8 bytes)
     uint8_t confidence_level;     // 0-100% (1 byte)
     uint8_t difficulty_rating;    // 1-10 (1 byte)
-    uint16_t historical_attempts; // Previous attempts (2 bytes)
-    // Total: 44 bytes + padding = 48 bytes
+    uint8_t historical_attempts;  // Previous attempts (1 byte)
+    uint16_t padding;             // Alignment (2 bytes)
+    // Total: 16 bytes exactly
 } AttackPrediction;
 
 typedef enum {

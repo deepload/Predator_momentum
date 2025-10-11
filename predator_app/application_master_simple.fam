@@ -1,22 +1,22 @@
 App(
-    appid="predator_master_complete",
-    name="Predator Master Complete",
+    appid="predator_master_simple",
+    name="Predator Master Control",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "infrared", "gpio", "power"],
     stack_size=12 * 1024,
     fap_category="Tools",
-    fap_description="Master Control + All Features - Complete Ecosystem",
+    fap_description="Master Control Center - All Predator Apps Management",
     fap_version="1.0",
     fap_author="Nico Lococo",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=20000", "MASTER_COMPLETE_BUILD"],
+    cdefines=["HEAP_SIZE=20000", "MASTER_CONTROL_BUILD"],
     sources=[
         # Core
         "predator.c",
 
-        # ALL HELPERS - KEEP 100% FEATURES
+        # Essential helpers only
         "helpers/predator_boards.c",
         "helpers/predator_error.c",
         "helpers/predator_esp32.c",
@@ -35,42 +35,24 @@ App(
         "helpers/predator_ui_status.c",
         "predator_uart.c",
         
-        # ALL SPECIALIZED HELPERS - KEEP 100% FEATURES
-        "helpers/predator_wifi_advanced.c",
-        "helpers/predator_bluetooth_advanced.c",
+        # Key specialized helpers
         "helpers/predator_traffic.c",
         "helpers/predator_tesla_advanced.c",
         "helpers/predator_automotive_advanced.c",
         "helpers/predator_casino.c",
         "helpers/predator_infrastructure.c",
-        "helpers/predator_can_real.c",
-        "helpers/predator_scada_real.c",
-        "helpers/predator_car_protocols_real.c",
-        "helpers/predator_crypto1.c",
-        "helpers/predator_keeloq.c",
-        "helpers/predator_tpms_real.c",
-        "helpers/predator_lora.c",
-        "helpers/predator_zigbee.c",
-        "helpers/predator_zwave.c",
-        "helpers/predator_models_hardcoded.c",
         
         # Scene router
         "scenes/predator_scene.c",
 
-        # MASTER CONTROL SCENES - NEW FEATURES
+        # Master control scenes
         "scenes/predator_scene_main_menu_ui.c",
         "scenes/predator_scene_master_control_ui.c",
         "scenes/predator_scene_app_launcher_ui.c",
         "scenes/predator_scene_system_monitor_ui.c",
         "scenes/predator_scene_elon_renault_demo.c",
         
-        # VIP++ SCENES - KEEP ALL ELON'S REQUIREMENTS
-        "scenes/predator_scene_tesla_security_suite.c",
-        "scenes/predator_scene_car_brand_security_suite.c",
-        "scenes/predator_scene_user_friendly_ui.c",
-        "scenes/predator_scene_universal_car_hacker.c",
-        
-        # GOVERNMENT SCENES - KEEP ALL CONTRACTS
+        # Essential government scenes
         "scenes/predator_scene_traffic_infrastructure_ui.c",
         "scenes/predator_scene_tesla_advanced_ui.c",
         "scenes/predator_scene_automotive_adv_ui.c",
@@ -78,30 +60,10 @@ App(
         "scenes/predator_scene_critical_infrastructure_ui.c",
         "scenes/predator_scene_government_contracts_ui.c",
         
-        # CORE ATTACK SCENES - KEEP ALL EXISTING
-        "scenes/predator_scene_wifi_attacks_ui.c",
-        "scenes/predator_scene_car_attacks_ui.c",
-        "scenes/predator_scene_bluetooth_attacks_ui.c",
-        "scenes/predator_scene_subghz_attacks_ui.c",
-        "scenes/predator_scene_rfid_attacks_ui.c",
-        
-        # INDIVIDUAL ATTACK SCENES - KEEP ALL WORKING ONES
-        "scenes/predator_scene_wifi_scan_ui.c",
-        "scenes/predator_scene_wifi_deauth_ui.c",
-        "scenes/predator_scene_wifi_evil_twin_ui.c",
-        "scenes/predator_scene_ble_scan_ui.c",
-        "scenes/predator_scene_ble_spam_ui.c",
-        "scenes/predator_scene_car_tesla_ui.c",
-        "scenes/predator_scene_rfid_clone_ui.c",
-        "scenes/predator_scene_rfid_bruteforce_ui.c",
-        "scenes/predator_scene_advanced_rf_ui.c",
-        "scenes/predator_scene_advanced_nfc_ui.c",
-        
-        # SYSTEM SCENES - KEEP ALL
+        # System scenes
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
-        "scenes/predator_scene_live_monitor_ui.c",
     ],
 )

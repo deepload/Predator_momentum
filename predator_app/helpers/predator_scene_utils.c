@@ -101,22 +101,10 @@ bool predator_scene_transition_safe(PredatorApp* app, uint32_t next_scene) {
     //     // Check ESP32 initialization for WiFi scenes
     //     can_transition = (app->esp32_uart != NULL);
     // }
-    // Car attack scenes
-    if(next_scene == PredatorSceneCarKeyBruteforceUI ||
-            next_scene == PredatorSceneCarJammingUI) {
-        // Check SubGHz initialization for car attack scenes
-        can_transition = (app->subghz_txrx != NULL);
-    }
-    // GPS scenes - disabled for memory optimization
-    // else if(next_scene == PredatorSceneGpsTrackerUI ||
-    //         next_scene == PredatorSceneWardrivingUI) {
-    //     // Check GPS initialization for GPS scenes
-    //     can_transition = (app->gps_uart != NULL);
-    // }
-    else {
-        // No specific hardware requirements for other scenes
-        can_transition = true;
-    }
+    // GOVERNMENT BUILD - No specific hardware checks needed
+    // All scenes disabled for memory optimization
+    // No specific hardware requirements for government scenes
+    can_transition = true;
     
     // For multiboards, always allow transitions
     if(!can_transition && app->board_type != PredatorBoardTypeOriginal) {
