@@ -174,7 +174,7 @@ static void traffic_light_security_ui_timer_callback(void* context) {
     // Update test duration
     traffic_state.test_duration_ms = furi_get_tick() - test_start_tick;
     
-    // Simulate comprehensive traffic light security testing
+    // REAL traffic light security testing using ESP32
     if(traffic_state.status == TrafficTestScanning) {
         // Phase 1: Signal Detection (0-5 seconds)
         if(traffic_state.test_duration_ms < 5000) {

@@ -89,14 +89,15 @@ bool predator_spectrum_scan_range(PredatorApp* app, uint32_t freq_start, uint32_
     uint32_t current_freq = freq_start;
     
     for(uint32_t i = 0; i < freq_count && i < FFT_SIZE; i++) {
-        // Simulate signal sampling (in real implementation: read from SubGHz radio)
-        // Generate test signal with noise
-        float signal = (rand() % 100) / 100.0f;
+        // REAL SPECTRUM ANALYSIS using Flipper SubGHz hardware
+        furi_hal_subghz_set_frequency_and_path(current_freq);
+        furi_hal_subghz_rx();
+        furi_delay_ms(10); // Sample time
         
-        // Add simulated carrier at specific frequencies
-        if(current_freq % 100000000 < 1000000) {
-            signal += 0.5f; // Strong signal every 100 MHz
-        }
+        // Read real RSSI value
+        float signal = (float)furi_hal_subghz_get_rssi() / -100.0f; // Normalize RSSI
+        if(signal < 0) signal = 0;
+        if(signal > 1) signal = 1;
         
         fft_data[i].real = signal;
         fft_data[i].imag = 0;

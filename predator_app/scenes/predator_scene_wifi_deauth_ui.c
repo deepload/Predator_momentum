@@ -226,9 +226,8 @@ static void wifi_deauth_ui_timer_callback(void* context) {
         // Update attack time
         deauth_state.attack_time_ms = furi_get_tick() - attack_start_tick;
         
-        // Simulate packet sending (in real implementation, get from ESP32)
-        // Typical deauth rate: ~100 packets/second
-        deauth_state.packets_sent += 10; // 10 packets per 100ms = 100/sec
+        // REAL packet sending from ESP32
+        deauth_state.packets_sent = app->packets_sent;
         
         // Update from app state if available
         if(app->packets_sent > 0) {

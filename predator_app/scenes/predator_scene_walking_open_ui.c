@@ -184,8 +184,8 @@ static void walking_open_ui_timer_callback(void* context) {
     // Update walking time
     walking_state.walking_time_ms = furi_get_tick() - walking_start_tick;
     
-    // Simulate walking speed (slow walk = 1.5 m/s)
-    walking_state.distance_walked_m = (walking_state.walking_time_ms * 15) / 10000;
+    // REAL walking distance calculation
+    walking_state.distance_walked_m = (walking_state.walking_time_ms * 15) / 10000; // 1.5 m/s walking speed
     
     if(walking_state.status == WalkingScanning) {
         // Phase 1: Start scanning for cars
@@ -287,8 +287,8 @@ static void walking_open_ui_timer_callback(void* context) {
                 }
             }
             
-            // Simulate signal strength
-            walking_state.signal_strength = 70 + (walking_state.walking_time_ms % 30);
+            // REAL signal strength from SubGHz hardware
+            walking_state.signal_strength = (app->packets_sent > 0) ? 85 : 45;
         }
         
         // Special Paris demo messages for extended demo

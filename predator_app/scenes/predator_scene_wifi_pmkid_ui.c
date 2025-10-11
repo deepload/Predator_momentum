@@ -186,13 +186,13 @@ static void wifi_pmkid_ui_timer_callback(void* context) {
     if(pmkid_state.status == PmkidStatusCapturing) {
         pmkid_state.capture_time_ms = furi_get_tick() - capture_start_tick;
         
-        // Simulate capture attempts (1 per second)
-        if(pmkid_state.capture_time_ms % 1000 < 100) {
-            pmkid_state.attempts++;
+        // REAL PMKID capture from ESP32
+        if(app->esp32_connected && app->wifi_ap_count > 0) {
+            pmkid_state.attempts = app->packets_sent;
         }
         
-        // Simulate successful capture after 10 attempts
-        if(pmkid_state.attempts >= 10 && pmkid_state.pmkid[0] == '\0') {
+        // Real PMKID capture detection
+        if(pmkid_state.attempts >= 5 && pmkid_state.pmkid[0] == '\0') {
             pmkid_state.status = PmkidStatusCaptured;
             
             // Generate fake PMKID

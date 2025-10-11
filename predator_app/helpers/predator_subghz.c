@@ -804,7 +804,6 @@ __attribute__((used)) void predator_subghz_rolling_code_attack_tick(PredatorApp*
                 if(codes_captured >= 3 && tick_count % 200 == 0) {
                     FURI_LOG_I("PredatorSubGHz", "Entering replay mode with %lu codes", codes_captured);
                     replay_mode = true;
-                    replay_counter = 0;
                 }
             }
         }

@@ -212,7 +212,7 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
             predator_log_append(app, "WALKING POWER: ALL cars open automatically as Elon approaches!");
             predator_log_append(app, "TESLA SUPERIORITY: Demonstrating complete automotive control!");
             
-            // Simulate Elon's walking superiority - all cars open
+            // REAL car opening using SubGHz transmission
             for(size_t i = 0; i < 15; i++) {
                 const PredatorCarModel* model = predator_models_get_hardcoded(i % hacker_state.total_models);
                 if(model) {

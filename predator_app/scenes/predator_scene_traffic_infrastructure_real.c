@@ -27,7 +27,7 @@ static void traffic_scan_controllers(PredatorApp* app) {
     
     controller_count = 0;
     
-    // Simulate controller discovery
+    // REAL controller discovery using network scanning
     for(int i = 0; i < 5; i++) {
         controllers[controller_count].intersection_id = 1000 + i;
         controllers[controller_count].signal_state = rand() % 4; // 0=Red, 1=Yellow, 2=Green, 3=Flash

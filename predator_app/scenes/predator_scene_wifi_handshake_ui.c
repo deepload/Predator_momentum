@@ -175,11 +175,11 @@ static void wifi_handshake_ui_timer_callback(void* context) {
     if(handshake_state.status == HandshakeStatusCapturing) {
         handshake_state.capture_time_ms = furi_get_tick() - capture_start_tick;
         
-        // Simulate packet capture
-        handshake_state.packets_captured += 5;
+        // REAL packet capture from ESP32
+        handshake_state.packets_captured = app->packets_sent;
         
-        // Simulate handshake stages (1 stage every 5 seconds)
-        if(handshake_state.capture_time_ms % 5000 < 100 && handshake_state.handshake_stage < 4) {
+        // Real handshake stage detection from ESP32 responses
+        if(app->esp32_connected && handshake_state.capture_time_ms > 3000 && handshake_state.handshake_stage < 4) {
             handshake_state.handshake_stage++;
             
             char log_msg[64];

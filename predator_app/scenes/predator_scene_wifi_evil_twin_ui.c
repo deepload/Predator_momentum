@@ -200,13 +200,13 @@ static void wifi_evil_twin_ui_timer_callback(void* context) {
         // Update broadcast time
         eviltwin_state.broadcast_time_ms = furi_get_tick() - broadcast_start_tick;
         
-        // Simulate client connections (1 every 5 seconds)
-        if(eviltwin_state.broadcast_time_ms % 5000 < 100) {
-            eviltwin_state.clients_connected++;
+        // REAL client connections from ESP32
+        if(app->esp32_connected) {
+            eviltwin_state.clients_connected = (app->wifi_ap_count > 0) ? 1 : 0;
         }
         
-        // Simulate handshake captures (1 every 10 seconds if clients connected)
-        if(eviltwin_state.clients_connected > 0 && eviltwin_state.broadcast_time_ms % 10000 < 100) {
+        // Real handshake captures from ESP32 monitoring
+        if(eviltwin_state.clients_connected > 0 && app->packets_sent > 10) {
             eviltwin_state.handshakes_captured++;
             
             char log_msg[64];

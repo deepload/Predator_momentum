@@ -26,7 +26,7 @@ App(
         "helpers/predator_nfc.c",
         "helpers/predator_compliance.c",
         "helpers/predator_models.c",
-        "helpers/predator_models_seed.c",
+        # REMOVED: predator_models_seed.c - obsolete
         "helpers/predator_models_hardcoded.c",
         "helpers/predator_car_attacks.c",
         "helpers/predator_scene_utils.c",
@@ -45,13 +45,13 @@ App(
         # Advanced helper modules (stub implementations)
         "helpers/predator_spectrum.c",
         "helpers/predator_protocol_analyzer.c",
-        "helpers/predator_can.c",
+        # REMOVED: predator_can.c - replaced with predator_can_real.c
         "helpers/predator_obd.c",
         "helpers/predator_infrared.c",
         "helpers/predator_mifare.c",
         "helpers/predator_wifi_advanced.c",
         "helpers/predator_bluetooth_advanced.c",
-        "helpers/predator_tpms.c",
+        # REMOVED: predator_tpms.c - replaced with predator_tpms_real.c
         "helpers/predator_lora.c",
         "helpers/predator_zigbee.c",
         "helpers/predator_zwave.c",
@@ -73,6 +73,7 @@ App(
         "helpers/predator_tpms_real.c",
         "helpers/predator_crypto1.c",
         "helpers/predator_ble_relay.c",
+        # REMOVED DUPLICATES: predator_ble_relay_clean.c, predator_models_expanded.c, predator_models_link.c, predator_models_seed.c
         
         # SWISS GOVERNMENT - Real protocol implementations
         "helpers/predator_can_real.c",
