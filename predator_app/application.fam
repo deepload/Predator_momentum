@@ -41,6 +41,7 @@ App(
         # Tesla & Car Security (CORE BUSINESS)
         "scenes/predator_scene_car_tesla_ui.c",
         "scenes/predator_scene_universal_car_hacker.c",  # ALL-IN-ONE CAR SOLUTION
+        "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS REQUIREMENT
         "scenes/predator_scene_walking_open_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",

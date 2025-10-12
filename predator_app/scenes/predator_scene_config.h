@@ -4,6 +4,7 @@ ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 // Tesla & Car Security (CORE BUSINESS)
 ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
 ADD_SCENE(predator, universal_car_hacker, UniversalCarHacker)  // ALL-IN-ONE CAR SOLUTION
+ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // SWISS GOVERNMENT KKS REQUIREMENT
 ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)

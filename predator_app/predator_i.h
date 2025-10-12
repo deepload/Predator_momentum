@@ -37,6 +37,7 @@ typedef enum {
     PredatorViewBleScanUI,
     PredatorViewBleSpamUI,
     PredatorViewCarTeslaUI,
+    PredatorViewParkingBarriersUI,
     PredatorViewWalkingOpenUI,
     PredatorViewCarJammingUI,
     PredatorViewCarKeyBruteforceUI,

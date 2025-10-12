@@ -22,18 +22,19 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // PROFESSIONAL - OPTIMIZED FOR MEMORY & FUNCTIONALITY
     submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Universal Car Hacker", 2, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 WiFi Attacks", 3, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 4, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "💳 RFID Attacks", 5, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📻 SubGHz Attacks", 6, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🛰️ GPS Tracker", 7, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚙 Wardriving", 8, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🎭 Social Engineering", 9, main_menu_submenu_callback, app);
-    // submenu_add_item(app->submenu, "🚦 Traffic Light Security", 10, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 Module Status", 10, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔧 Board Selection", 11, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚙️ Settings", 12, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "ℹ️ About", 13, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚧 Parking Barriers", 3, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🛰️ GPS Tracker", 8, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚙 Wardriving", 9, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🎭 Social Engineering", 10, main_menu_submenu_callback, app);
+    // submenu_add_item(app->submenu, "🚦 Traffic Light Security", 11, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Module Status", 11, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔧 Board Selection", 12, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚙️ Settings", 13, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "ℹ️ About", 14, main_menu_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -59,40 +60,43 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 2: // Universal Car Hacker
             scene_manager_next_scene(app->scene_manager, PredatorSceneUniversalCarHacker);
             return true;
-        case 3: // WiFi Attacks
+        case 3: // Parking Barriers
+            scene_manager_next_scene(app->scene_manager, PredatorSceneParkingBarriersUI);
+            return true;
+        case 4: // WiFi Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
             return true;
-        case 4: // Bluetooth Attacks
+        case 5: // Bluetooth Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneBluetoothAttacksUI);
             return true;
-        case 5: // RFID Attacks
+        case 6: // RFID Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidAttacksUI);
             return true;
-        case 6: // SubGHz Attacks
+        case 7: // SubGHz Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzAttacksUI);
             return true;
-        case 7: // GPS Tracker
+        case 8: // GPS Tracker
             scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
             return true;
-        case 8: // Wardriving
+        case 9: // Wardriving
             scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
             return true;
-        case 9: // Social Engineering
+        case 10: // Social Engineering
             scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineeringUI);
             return true;
-        // case 10: // Traffic Light Security - Temporarily disabled
+        // case 11: // Traffic Light Security - Temporarily disabled
         //     scene_manager_next_scene(app->scene_manager, PredatorSceneTrafficLightSecurityUI);
         //     return true;
-        case 10: // Module Status
+        case 11: // Module Status
             scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);
             return true;
-        case 11: // Board Selection
+        case 12: // Board Selection
             scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelectionUI);
             return true;
-        case 12: // Settings
+        case 13: // Settings
             scene_manager_next_scene(app->scene_manager, PredatorSceneSettingsUI);
             return true;
-        case 13: // About
+        case 14: // About
             scene_manager_next_scene(app->scene_manager, PredatorSceneAboutUI);
             return true;
         default:
