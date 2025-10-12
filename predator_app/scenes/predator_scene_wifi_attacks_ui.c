@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
+#include "../helpers/predator_full_detection.h"
 
 // WiFi Attacks Submenu - Professional UI
 static void wifi_attacks_submenu_callback(void* context, uint32_t index) {
@@ -29,23 +30,40 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
     PredatorApp* app = context;
     bool consumed = false;
     
+    // Handle back button - return to main menu
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;
+    }
+    
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
         case 1: // WiFi Scan
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
+            // PROFESSIONAL: Check hardware requirements before proceeding
+            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
+            }
             return true;
         case 2: // WiFi Deauth
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
+            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
+            }
             return true;
         case 3: // Evil Twin
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+            }
             return true;
-        case 4: // WiFi Handshake
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
+        case 4: // Handshake
+            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
+            }
             return true;
         case 5: // PMKID
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+            }
             return true;
         default:
             consumed = false;

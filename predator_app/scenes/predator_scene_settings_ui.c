@@ -42,6 +42,8 @@ static void draw_settings_header(Canvas* canvas) {
 }
 
 static void draw_settings_list(Canvas* canvas, SettingsState* state) {
+    if(!canvas || !state) return;
+    
     canvas_set_font(canvas, FontSecondary);
     
     // Region setting
@@ -50,7 +52,12 @@ static void draw_settings_list(Canvas* canvas, SettingsState* state) {
         canvas_draw_str(canvas, 2, y, ">");
     }
     canvas_draw_str(canvas, 12, y, "Region:");
-    canvas_draw_str(canvas, 70, y, region_names[state->region_index]);
+    // Safe array access with bounds checking
+    if(state->region_index < region_count) {
+        canvas_draw_str(canvas, 70, y, region_names[state->region_index]);
+    } else {
+        canvas_draw_str(canvas, 70, y, "ERROR");
+    }
     
     // Deauth burst setting
     y += 10;
@@ -119,12 +126,16 @@ static bool settings_ui_input_callback(InputEvent* event, void* context) {
             return false; // Let scene manager handle back
         } else if(event->key == InputKeyOk) {
             if(settings_state.settings_changed) {
-                // Save settings
-                predator_compliance_set_region(app, (PredatorRegion)settings_state.region_index);
-                settings_state.settings_changed = false;
-                
-                predator_log_append(app, "Settings saved");
-                FURI_LOG_I("SettingsUI", "Settings saved");
+                // Save settings with safety checks
+                if(settings_state.region_index < region_count) {
+                    predator_compliance_set_region(app, (PredatorRegion)settings_state.region_index);
+                    settings_state.settings_changed = false;
+                    
+                    predator_log_append(app, "Settings saved");
+                    FURI_LOG_I("SettingsUI", "Settings saved: region=%d", settings_state.region_index);
+                } else {
+                    FURI_LOG_E("SettingsUI", "Invalid region index: %d", settings_state.region_index);
+                }
                 return true;
             }
         } else if(event->key == InputKeyUp) {
@@ -191,15 +202,29 @@ static bool settings_ui_input_callback(InputEvent* event, void* context) {
 
 void predator_scene_settings_ui_on_enter(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app) {
+        FURI_LOG_E("SettingsUI", "App context is NULL");
+        return;
+    }
     
+    // Safe initialization with NULL checks
     memset(&settings_state, 0, sizeof(SettingsState));
     settings_state.current_setting = SettingRegion;
-    settings_state.region_index = (uint8_t)app->region;
+    
+    // Safe region access with bounds checking
+    if(app->region < region_count) {
+        settings_state.region_index = (uint8_t)app->region;
+    } else {
+        settings_state.region_index = 0; // Default to Auto
+        FURI_LOG_W("SettingsUI", "Invalid region %d, defaulting to Auto", app->region);
+    }
+    
     settings_state.deauth_burst_enabled = true;
     settings_state.logging_enabled = true;
     settings_state.brightness = 80;
     settings_state.settings_changed = false;
+    
+    FURI_LOG_I("SettingsUI", "Settings initialized: region=%d", settings_state.region_index);
     
     if(!app->view_dispatcher) {
         FURI_LOG_E("SettingsUI", "View dispatcher is NULL");
@@ -225,6 +250,12 @@ void predator_scene_settings_ui_on_enter(void* context) {
 bool predator_scene_settings_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
+    
+    // Handle back button - return to main menu
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;
+    }
     
     if(event.type == SceneManagerEventTypeCustom) {
         return true;

@@ -30,12 +30,15 @@ App(
         "helpers/predator_logging.c",
         "helpers/predator_real_attack_engine.c",
         "helpers/predator_memory_optimized.c",  # OPTIMIZED: Replaces 4 heavy helpers
+        "helpers/predator_ui_clean.c",  # CLEAN UI: Professional scrollable menus
+        # "helpers/predator_full_detection.c",  # INTEGRATED: Functions moved to predator_memory_optimized.c
         
         # Scene router
         "scenes/predator_scene.c",
 
         # PROFESSIONAL - ESSENTIAL SCENES ONLY
         "scenes/predator_scene_main_menu_ui.c",
+        "scenes/predator_scene_main_menu_clean.c",  # CLEAN UI: Professional main menu
         
         # Tesla & Car Security (CORE BUSINESS)
         "scenes/predator_scene_car_tesla_ui.c",

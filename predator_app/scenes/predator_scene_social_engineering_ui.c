@@ -283,7 +283,12 @@ void predator_scene_social_engineering_ui_on_enter(void* context) {
 
 bool predator_scene_social_engineering_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
-    if(!app) return false;
+    
+    // Handle back button - return to main menu
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;
+    }
     
     if(event.type == SceneManagerEventTypeCustom) {
         return true;

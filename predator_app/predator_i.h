@@ -54,6 +54,8 @@ typedef enum {
     PredatorViewSettingsUI,
     PredatorViewAboutUI,
     PredatorViewLiveMonitorUI,
+    PredatorViewMainMenuClean,  // CLEAN UI: Professional main menu
+    PredatorViewBoardSelectionProfessional,  // PROFESSIONAL: Clean board selection
 } PredatorView;
 
 // Legacy PredatorScene enum disabled to prevent conflicts; use generated enum from scenes/predator_scene.h
