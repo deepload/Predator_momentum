@@ -19,7 +19,7 @@ extern const char* PREDATOR_BOARD_DESCRIPTIONS[];
 extern const char* PREDATOR_REGION_NAMES[];
 #define PREDATOR_REGION_COUNT 4
 
-// Generic Scene State (Replaces 30+ custom structs)
+// ADVANCED MEMORY OPTIMIZATION - Generic Scene State
 typedef enum {
     PredatorSceneStatusIdle,
     PredatorSceneStatusRunning,
@@ -27,11 +27,23 @@ typedef enum {
     PredatorSceneStatusError
 } PredatorSceneStatus;
 
+// ENGINEERED: Compact scene state - replaces 30+ custom structs
 typedef struct {
     PredatorSceneStatus status;
     uint32_t counter_primary;   // packets_sent, devices_found, etc.
     uint32_t counter_secondary; // time_ms, codes_tried, etc.
     uint32_t start_tick;
-    char target_name[32];       // ssid, card_type, etc.
+    char target_name[16];       // OPTIMIZED: Reduced from 32 to 16 bytes
     uint8_t mode_index;         // current mode/frequency index
+    uint8_t reserved[3];        // Padding for alignment
 } PredatorGenericSceneState;
+
+// MEMORY POOL MANAGEMENT - Advanced engineering approach
+#define PREDATOR_MEMORY_POOL_SIZE 2048
+#define PREDATOR_MAX_CONCURRENT_SCENES 3
+
+typedef struct {
+    uint8_t pool[PREDATOR_MEMORY_POOL_SIZE];
+    uint16_t allocated[PREDATOR_MAX_CONCURRENT_SCENES];
+    uint8_t active_scenes;
+} PredatorMemoryPool;

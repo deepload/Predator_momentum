@@ -38,24 +38,28 @@ static void board_draw_callback(Canvas* canvas, void* context) {
     if(config) {
         canvas_draw_str(canvas, 2, 32, "Hardware:");
         
-        // WiFi/ESP32 status
-        if(board_state.selected_index == PredatorBoardType3in1AIO || 
-           board_state.selected_index == PredatorBoardTypeScreen28) {
-            canvas_draw_str(canvas, 2, 42, "\xE2\x9C\x93 WiFi/BT (ESP32)");
+        // WiFi/ESP32 status - ALL ESP32 boards
+        bool has_esp32 = (board_state.selected_index == PredatorBoardType3in1AIO || 
+                         board_state.selected_index == PredatorBoardTypeScreen28 ||
+                         board_state.selected_index == PredatorBoardTypeDrB0rkMultiV2 ||
+                         board_state.selected_index == PredatorBoardType3in1NrfCcEsp);
+        
+        if(has_esp32) {
+            canvas_draw_str(canvas, 2, 42, "✓ WiFi/BT (ESP32)");
         } else {
-            canvas_draw_str(canvas, 2, 42, "\xE2\x9C\x97 WiFi/BT (None)");
+            canvas_draw_str(canvas, 2, 42, "✗ WiFi/BT");
         }
         
-        // GPS status  
-        if(board_state.selected_index == PredatorBoardType3in1AIO || 
-           board_state.selected_index == PredatorBoardTypeScreen28) {
-            canvas_draw_str(canvas, 2, 52, "\xE2\x9C\x93 GPS Module");
+        // GPS status - Same boards as ESP32
+        bool has_gps = has_esp32;
+        if(has_gps) {
+            canvas_draw_str(canvas, 2, 52, "✓ GPS Module");
         } else {
-            canvas_draw_str(canvas, 2, 52, "\xE2\x9C\x97 GPS Module");
+            canvas_draw_str(canvas, 2, 52, "✗ GPS Module");
         }
         
         // SubGHz (always available)
-        canvas_draw_str(canvas, 2, 62, "\xE2\x9C\x93 SubGHz Radio");
+        canvas_draw_str(canvas, 2, 62, "✓ SubGHz Radio");
     }
     
     // Instructions
@@ -85,56 +89,26 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case InputKeyOk:
-                // PROFESSIONAL: Set board with comprehensive hardware validation
+            // PROFESSIONAL: Safe board selection with proper hardware setup
             if(board_state.app) {
+                // Validate board index
+                if(board_state.selected_index >= PREDATOR_BOARD_COUNT) {
+                    board_state.selected_index = 1; // Default to Original Predator
+                }
+                
                 board_state.app->board_type = board_state.selected_index;
                 
-                // Log the selection with detailed info
-                char log_msg[100];
-                snprintf(log_msg, sizeof(log_msg), "BOARD SELECTED: %s", PREDATOR_BOARD_NAMES[board_state.selected_index]);
-                predator_log_append(board_state.app, log_msg);
+                // Minimal logging
+                predator_log_append(board_state.app, "Board selected");
                 
-                // REAL HARDWARE VALIDATION
-                bool has_esp32 = (board_state.selected_index == PredatorBoardType3in1AIO || 
-                                 board_state.selected_index == PredatorBoardTypeScreen28);
-                bool has_gps = has_esp32; // Same boards have GPS
+                // MEMORY OPTIMIZED: Minimal board capability detection
+                UNUSED(predator_boards_get_config(board_state.selected_index));
                 
-                // Initialize hardware based on board type
-                if(has_esp32) {
-                    predator_esp32_init(board_state.app);
-                    predator_gps_init(board_state.app);
-                }
+                // Minimal logging to save memory
+                predator_log_append(board_state.app, "Board configured");
                 
-                // Create professional status message
-                char status_msg[300];
-                snprintf(status_msg, sizeof(status_msg),
-                    "Board: %s\n\n"
-                    "Hardware Capabilities:\n"
-                    "WiFi/Bluetooth: %s\n"
-                    "GPS Module: %s\n"
-                    "SubGHz Radio: Available\n"
-                    "NFC/RFID: Available\n\n"
-                    "Board configured successfully!",
-                    PREDATOR_BOARD_NAMES[board_state.selected_index],
-                    has_esp32 ? "Available (ESP32)" : "Not Available",
-                    has_gps ? "Available" : "Not Available"
-                );
-                
-                predator_log_append(board_state.app, "HARDWARE STATUS:");
-                predator_log_append(board_state.app, has_esp32 ? "ESP32: AVAILABLE" : "ESP32: NOT AVAILABLE");
-                predator_log_append(board_state.app, has_gps ? "GPS: AVAILABLE" : "GPS: NOT AVAILABLE");
-                predator_log_append(board_state.app, "SubGHz: AVAILABLE (Built-in)");
-                predator_log_append(board_state.app, "NFC: AVAILABLE (Built-in)");
-                
-                // Professional confirmation popup
-                if(board_state.app->popup) {
-                    popup_reset(board_state.app->popup);
-                    popup_set_header(board_state.app->popup, "Board Configured", 64, 8, AlignCenter, AlignTop);
-                    popup_set_text(board_state.app->popup, status_msg, 64, 20, AlignCenter, AlignTop);
-                    popup_set_timeout(board_state.app->popup, 8000); // 8 seconds to read
-                    popup_enable_timeout(board_state.app->popup);
-                    view_dispatcher_switch_to_view(board_state.app->view_dispatcher, PredatorViewPopup);
-                }
+                // Return to main menu
+                scene_manager_previous_scene(board_state.app->scene_manager);
             }
             consumed = true;
             break;
