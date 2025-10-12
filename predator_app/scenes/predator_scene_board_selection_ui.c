@@ -210,7 +210,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
                     break;
                     
                 case InputKeyBack:
-                    // Send back event to scene manager instead of handling directly
+                    // PROFESSIONAL: Send back event to scene manager with proper handling
                     if(board_state.app && board_state.app->view_dispatcher) {
                         view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 999); // Special back event
                     }
@@ -275,9 +275,9 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case BoardScreenSuccess:
-            // Any key from success screen goes back to main screen
+            // PROFESSIONAL: Success screen navigation with proper event handling
             if(event->key == InputKeyBack) {
-                // Back button navigates to main menu
+                // Back button navigates to main menu via custom event
                 if(board_state.app && board_state.app->view_dispatcher) {
                     view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 999); // Special back event
                 }
@@ -346,14 +346,15 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
         return true;
     }
     
-    // Handle special back navigation event from input callback
+    // PROFESSIONAL: Handle special back navigation event from input callback
     if(event.type == SceneManagerEventTypeCustom && event.event == 999) {
-        // Navigate back to main menu
+        // Navigate back to main menu with professional logging
+        predator_log_append(app, "BoardSelection: Professional navigation to main menu");
         PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     
-    // Handle back button - navigate to previous scene
+    // Handle back button - SAFE navigate to previous scene
     if(event.type == SceneManagerEventTypeBack) {
         PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
