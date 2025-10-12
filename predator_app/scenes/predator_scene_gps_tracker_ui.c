@@ -145,9 +145,11 @@ static bool gps_tracker_ui_input_callback(InputEvent* event, void* context) {
                 gps_state.tracking_time_ms = 0;
                 tracking_start_tick = furi_get_tick();
                 
-                // Initialize GPS
+                // Initialize GPS with debugging
+                FURI_LOG_I("GPSTracker", "Initializing GPS for board type: %d", app->board_type);
                 predator_gps_init(app);
-                bool started = true; // GPS init is enough
+                bool started = predator_gps_is_connected(app);
+                FURI_LOG_I("GPSTracker", "GPS initialization: %s", started ? "SUCCESS" : "FAILED");
                 
                 if(started) {
                     gps_state.gps_connected = true;

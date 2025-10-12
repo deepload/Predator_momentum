@@ -25,7 +25,7 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
     memcpy(safe_buf, buf, len);
     safe_buf[len] = '\0';
     
-    FURI_LOG_I("PredatorESP32", "[REAL HW] Received: %s", (char*)safe_buf);
+    FURI_LOG_I("PredatorESP32", "[REAL HW] Received (%zu bytes): %s", len, (char*)safe_buf);
     
     // Process ESP32 response with safety checks
     if(app) {
@@ -38,7 +38,7 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
             FURI_LOG_I("PredatorESP32", "[REAL HW] ESP32 connection confirmed");
         }
         
-        // Parse scan results, attack status, etc.
+        // Parse WiFi scan results
         if(strstr((char*)safe_buf, "AP Found:") || strstr((char*)safe_buf, "SSID") || strstr((char*)safe_buf, "ESSID")) {
             // Try to extract an SSID from common formats
             const char* ssid = NULL;
@@ -111,6 +111,15 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
                         snprintf(logline, sizeof(logline), "WiFiScan SSID=%s RSSI=%d", name, (int)rssi_val);
                     predator_log_append(app, logline);
                 }
+            }
+        }
+        
+        // Parse BLE scan results
+        if(strstr((char*)safe_buf, "BLE Device:") || strstr((char*)safe_buf, "Device:") || strstr((char*)safe_buf, "Name:")) {
+            // Simple BLE device parsing - increment device count
+            if(app->ble_device_count < PREDATOR_BLE_MAX_DEVICES) {
+                app->ble_device_count++;
+                FURI_LOG_I("PredatorESP32", "[REAL HW] BLE device found, total: %d", app->ble_device_count);
             }
         }
         

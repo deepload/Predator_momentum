@@ -154,9 +154,15 @@ static bool wifi_scan_ui_input_callback(InputEvent* event, void* context) {
                 scan_state.scan_time_ms = 0;
                 scan_start_tick = furi_get_tick();
                 
+                // CLEAR previous scan results
+                app->wifi_ap_count = 0;
+                memset(app->wifi_ssids, 0, sizeof(app->wifi_ssids));
+                
                 // Initialize ESP32 and start scan
                 predator_esp32_init(app);
+                FURI_LOG_I("WiFiScan", "Starting WiFi scan - sending 'scanap' command");
                 bool started = predator_esp32_wifi_scan(app);
+                FURI_LOG_I("WiFiScan", "WiFi scan command sent: %s", started ? "SUCCESS" : "FAILED");
                 
                 if(started) {
                     snprintf(scan_state.transport_status, sizeof(scan_state.transport_status), "UART OK");
@@ -191,6 +197,14 @@ static void wifi_scan_ui_timer_callback(void* context) {
         
         // Update AP count from app state
         scan_state.aps_found = app->wifi_ap_count;
+        
+        // DEBUG: Log current AP count every 5 seconds
+        static uint32_t last_log_time = 0;
+        if(furi_get_tick() - last_log_time > 5000) {
+            FURI_LOG_I("WiFiScan", "Scan progress: %lu APs found, ESP32 connected: %s", 
+                scan_state.aps_found, scan_state.esp32_connected ? "YES" : "NO");
+            last_log_time = furi_get_tick();
+        }
         
         // Find strongest signal
         if(app->wifi_ap_count > 0) {

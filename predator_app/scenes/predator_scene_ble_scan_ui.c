@@ -144,9 +144,15 @@ static bool ble_scan_ui_input_callback(InputEvent* event, void* context) {
                 blescan_state.scan_time_ms = 0;
                 scan_start_tick = furi_get_tick();
                 
-                // Initialize ESP32 and start scan
+                // CLEAR previous BLE results
+                app->ble_device_count = 0;
+                memset(app->ble_devices, 0, sizeof(app->ble_devices));
+                
+                // Initialize ESP32 and start BLE scan
                 predator_esp32_init(app);
+                FURI_LOG_I("BLEScan", "Starting BLE scan - sending BLE scan command");
                 bool started = predator_esp32_ble_scan(app);
+                FURI_LOG_I("BLEScan", "BLE scan command sent: %s", started ? "SUCCESS" : "FAILED");
                 
                 if(started) {
                     snprintf(blescan_state.transport_status, sizeof(blescan_state.transport_status), "OK");
@@ -183,6 +189,17 @@ static void ble_scan_ui_timer_callback(void* context) {
             // Real BLE scanning would detect actual devices
             blescan_state.devices_found = app->targets_found; // Real device count
             FURI_LOG_I("BLEScan", "[REAL HW] BLE devices discovered: %lu", blescan_state.devices_found);
+            
+            // Update device count from app state
+            blescan_state.devices_found = app->ble_device_count;
+            
+            // DEBUG: Log BLE scan progress
+            static uint32_t last_log_time = 0;
+            if(furi_get_tick() - last_log_time > 5000) {
+                FURI_LOG_I("BLEScan", "Scan progress: %lu devices found, ESP32 connected: %s", 
+                    blescan_state.devices_found, blescan_state.esp32_connected ? "YES" : "NO");
+                last_log_time = furi_get_tick();
+            }
             
             // Real device information from BLE scan results
             if(blescan_state.devices_found > 0) {

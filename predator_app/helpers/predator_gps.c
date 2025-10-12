@@ -23,6 +23,9 @@ void predator_gps_rx_callback(uint8_t* buf, size_t len, void* context) {
         memcpy(temp_buf, buf, copy_len);
         temp_buf[copy_len] = '\0';
         
+        // DEBUG: Log GPS data received
+        FURI_LOG_I("PredatorGPS", "[REAL HW] Received (%zu bytes): %s", len, temp_buf);
+        
         // Look for NMEA sentences (support both $GP and $GN prefixes)
         char* line_start = temp_buf;
         char* line_end = NULL;

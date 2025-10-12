@@ -160,6 +160,11 @@ typedef struct PredatorApp {
     int8_t wifi_rssi[PREDATOR_WIFI_MAX_APS];
     uint8_t wifi_ch[PREDATOR_WIFI_MAX_APS];
     
+    // BLE scan results - Memory optimized
+    #define PREDATOR_BLE_MAX_DEVICES 8  // Keep small for memory
+    char ble_devices[PREDATOR_BLE_MAX_DEVICES][16];  // Device names
+    uint8_t ble_device_count;    // number of BLE devices found
+    
     // Selected WiFi target for attacks
     char selected_wifi_ssid[20];  // Reduced from 24 to 20 chars
     int8_t selected_wifi_rssi;
