@@ -461,8 +461,7 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
         
         case 99: { // LIVE MONITOR
             predator_log_append(app, "MONITOR: Real-time universal car hacking monitor");
-            // Live Monitor integrated into Module Status for memory optimization
-            scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             return true;
         }
         

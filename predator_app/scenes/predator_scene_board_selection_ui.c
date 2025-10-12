@@ -143,51 +143,30 @@ static bool board_selection_ui_input_callback(InputEvent* event, void* context) 
                 board_state.current_board = board_state.selected_board;
                 board_state.selection_changed = false;
                 
-                // REAL BOARD CHANGE - Initialize hardware for new board immediately
-                FURI_LOG_I("BoardSelectionUI", "[REAL HW] Board type changed - reinitializing hardware");
+                // SAFE BOARD CHANGE - Prevent crashes during hardware reinitialization
+                FURI_LOG_I("BoardSelectionUI", "[SAFE] Board type changed - safe reinitialization");
                 
-                // Deinitialize current hardware
-                if(app->esp32_uart) {
-                    predator_esp32_deinit(app);
-                }
-                if(app->gps_uart) {
-                    predator_gps_deinit(app);
-                }
-                if(app->subghz_txrx) {
-                    predator_subghz_deinit(app);
-                }
+                // SAFE: Skip hardware reinitialization to prevent crashes
+                // Hardware will be initialized on next app restart
+                // This prevents memory access violations during live switching
                 
-                // Initialize hardware for new board
+                // SAFE: Just log the board change, no hardware reinitialization
                 const PredatorBoardConfig* new_config = predator_boards_get_config(app->board_type);
                 if(new_config) {
-                    FURI_LOG_I("BoardSelectionUI", "[REAL HW] Initializing %s board", new_config->name);
-                    
-                    // Initialize SubGHz first (always available)
-                    predator_subghz_init(app);
-                    
-                    // Initialize ESP32 if available on this board type
-                    if(app->board_type == PredatorBoardType3in1AIO || app->board_type == PredatorBoardTypeScreen28) {
-                        predator_esp32_init(app);
-                        FURI_LOG_I("BoardSelectionUI", "[REAL HW] ESP32 initialized for %s", new_config->name);
-                    }
-                    
-                    // Initialize GPS if available on this board type
-                    if(app->board_type == PredatorBoardType3in1AIO || app->board_type == PredatorBoardTypeScreen28) {
-                        predator_gps_init(app);
-                        FURI_LOG_I("BoardSelectionUI", "[REAL HW] GPS initialized for %s", new_config->name);
-                    }
+                    FURI_LOG_I("BoardSelectionUI", "[SAFE] Board set to: %s (restart app to apply)", new_config->name);
                 } else {
-                    FURI_LOG_E("BoardSelectionUI", "[REAL HW] Invalid board configuration");
+                    FURI_LOG_E("BoardSelectionUI", "[SAFE] Invalid board configuration");
                 }
                 
+                // SAFE: Add bounds checking for array access
                 char log_msg[64];
-                if(board_state.selection_index < board_count) {
-                    snprintf(log_msg, sizeof(log_msg), "Board changed to: %s", 
+                if(board_state.selection_index < board_count && board_state.selection_index < sizeof(board_names)/sizeof(board_names[0])) {
+                    snprintf(log_msg, sizeof(log_msg), "Board: %s (restart to apply)", 
                             board_names[board_state.selection_index]);
                     predator_log_append(app, log_msg);
                     FURI_LOG_I("BoardSelectionUI", "Board set to: %s", board_names[board_state.selection_index]);
                 } else {
-                    snprintf(log_msg, sizeof(log_msg), "Board changed to index: %d", board_state.selection_index);
+                    snprintf(log_msg, sizeof(log_msg), "Board changed (index: %d)", board_state.selection_index);
                     predator_log_append(app, log_msg);
                     FURI_LOG_W("BoardSelectionUI", "Invalid board index: %d", board_state.selection_index);
                 }
@@ -196,8 +175,8 @@ static bool board_selection_ui_input_callback(InputEvent* event, void* context) 
         } else if(event->key == InputKeyUp) {
             if(board_state.selection_index > 0) {
                 board_state.selection_index--;
-                // Ensure we don't go below valid board types
-                if(board_state.selection_index < board_count) {
+                // SAFE: Ensure we stay within bounds
+                if(board_state.selection_index < board_count && board_state.selection_index < sizeof(board_names)/sizeof(board_names[0])) {
                     board_state.selected_board = (PredatorBoardType)board_state.selection_index;
                     board_state.selection_changed = (board_state.selected_board != board_state.current_board);
                 }
@@ -206,8 +185,8 @@ static bool board_selection_ui_input_callback(InputEvent* event, void* context) 
         } else if(event->key == InputKeyDown) {
             if(board_state.selection_index < (board_count - 1)) {
                 board_state.selection_index++;
-                // Ensure we don't exceed valid board types
-                if(board_state.selection_index < board_count) {
+                // SAFE: Ensure we don't exceed valid board types
+                if(board_state.selection_index < board_count && board_state.selection_index < sizeof(board_names)/sizeof(board_names[0])) {
                     board_state.selected_board = (PredatorBoardType)board_state.selection_index;
                     board_state.selection_changed = (board_state.selected_board != board_state.current_board);
                 }

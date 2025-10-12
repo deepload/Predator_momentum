@@ -9,7 +9,7 @@ ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
 
-// WiFi Attacks (GOVERNMENT GRADE)
+// WiFi Attacks (GOVERNMENT GRADE) - ALL SCENES KEPT
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
@@ -22,13 +22,13 @@ ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)
 ADD_SCENE(predator, ble_scan_ui, BleScanUI)
 ADD_SCENE(predator, ble_spam_ui, BleSpamUI)
 
-// RFID Attacks (ESSENTIAL)
+// RFID Attacks (ESSENTIAL) - ALL SCENES KEPT
 ADD_SCENE(predator, rfid_attacks_ui, RfidAttacksUI)
 ADD_SCENE(predator, rfid_clone_ui, RfidCloneUI)
 ADD_SCENE(predator, rfid_bruteforce_ui, RfidBruteforceUI)
 ADD_SCENE(predator, rfid_fuzzing_ui, RfidFuzzingUI)
 
-// SubGHz Attacks (ESSENTIAL)
+// SubGHz Attacks (ESSENTIAL) - ALL SCENES KEPT
 ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
 ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)
 ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)

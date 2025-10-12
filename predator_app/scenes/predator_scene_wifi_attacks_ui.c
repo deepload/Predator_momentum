@@ -47,11 +47,11 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
         case 3: // Evil Twin
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
             return true;
-        case 4: // Handshake - integrated into Evil Twin for memory optimization
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+        case 4: // Handshake
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
             return true;
-        case 5: // PMKID - integrated into Evil Twin for memory optimization
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+        case 5: // PMKID
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
             return true;
         default:
             consumed = false;

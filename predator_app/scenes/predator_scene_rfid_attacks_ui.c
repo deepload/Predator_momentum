@@ -43,8 +43,7 @@ bool predator_scene_rfid_attacks_ui_on_event(void* context, SceneManagerEvent ev
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
             break;
         case SubmenuIndexRfidFuzzing:
-            // Fuzzing integrated into bruteforce for memory optimization
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidFuzzingUI);
             break;
         default:
             consumed = false;

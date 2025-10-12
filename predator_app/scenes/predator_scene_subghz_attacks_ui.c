@@ -39,8 +39,7 @@ bool predator_scene_subghz_attacks_ui_on_event(void* context, SceneManagerEvent 
             scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
             break;
         case SubmenuIndexSubGhzRawSend:
-            // Raw Send temporarily integrated into jamming for memory optimization
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzRawSendUI);
             break;
         default:
             consumed = false;
