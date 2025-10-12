@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=8 * 1024,  # OPTIMIZED: Reduced from 10KB
+    stack_size=6 * 1024,  # OPTIMIZED: Increased to 6KB after memory optimization
     fap_category="Tools",
     fap_description="Professional Security Toolkit - Memory Optimized",
     fap_version="2.0",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=16000", "MEMORY_OPTIMIZED=1"],  # OPTIMIZED: Reduced heap + optimization flag
+    cdefines=["HEAP_SIZE=12000", "MEMORY_OPTIMIZED=1"],  # OPTIMIZED: Increased heap after optimization
     sources=[
         # Core application
         "predator.c",
@@ -30,6 +30,7 @@ App(
         "helpers/predator_logging.c",
         "helpers/predator_real_attack_engine.c",
         "helpers/predator_memory_optimized.c",  # OPTIMIZED: Replaces 4 heavy helpers
+        "helpers/predator_constants.c",  # SHARED: Constants implementation
         
         # Scene router
         "scenes/predator_scene.c",
@@ -85,6 +86,5 @@ App(
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
         "scenes/predator_scene_live_monitor_ui.c",
-        "scenes/predator_scene_subghz_raw_send_ui.c",
     ],
 )

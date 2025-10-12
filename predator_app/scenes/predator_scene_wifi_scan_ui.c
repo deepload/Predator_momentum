@@ -25,7 +25,8 @@ typedef struct {
 } WiFiScanState;
 
 static WiFiScanState scan_state;
-static uint32_t scan_start_tick = 0;
+static uint32_t scan_start_tick;
+static View* wifi_scan_view = NULL; // Store view reference for cleanup
 
 static void draw_scan_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -264,18 +265,18 @@ void predator_scene_wifi_scan_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    wifi_scan_view = view_alloc();
+    if(!wifi_scan_view) {
         FURI_LOG_E("WiFiScanUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, wifi_scan_ui_draw_callback);
-    view_set_input_callback(view, wifi_scan_ui_input_callback);
+    view_set_context(wifi_scan_view, app);
+    view_set_draw_callback(wifi_scan_view, wifi_scan_ui_draw_callback);
+    view_set_input_callback(wifi_scan_view, wifi_scan_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiScanUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiScanUI, wifi_scan_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWifiScanUI);
     
     FURI_LOG_I("WiFiScanUI", "WiFi Scan UI initialized");
@@ -321,9 +322,12 @@ void predator_scene_wifi_scan_ui_on_exit(void* context) {
     // SAFE: Reset scan state
     memset(&scan_state, 0, sizeof(scan_state));
     
-    // CRITICAL: Safe view cleanup to prevent bus fault
-    if(app->view_dispatcher) {
+    // CRITICAL: Free allocated view to prevent memory leak
+    if(app->view_dispatcher && wifi_scan_view) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiScanUI);
+        view_free(wifi_scan_view);
+        wifi_scan_view = NULL;
+        FURI_LOG_I("WiFiScanUI", "View freed - memory leak prevented");
     }
     
     FURI_LOG_I("WiFiScanUI", "WiFi Scan UI safely exited");

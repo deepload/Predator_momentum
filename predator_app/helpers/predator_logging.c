@@ -9,8 +9,14 @@
 
 bool predator_log_append(struct PredatorApp* app, const char* line) {
     if(!line) return false;
-    Storage* storage = app && app->storage ? app->storage : furi_record_open(RECORD_STORAGE);
-    bool close_storage = (!app || storage != app->storage);
+    
+    // CRITICAL: Only use app->storage if available, otherwise skip logging to prevent memory leaks
+    if(!app || !app->storage) {
+        FURI_LOG_W("PredatorLog", "Storage not available - skipping log to prevent memory leak");
+        return false;
+    }
+    
+    Storage* storage = app->storage;
 
     File* file = storage_file_alloc(storage);
     bool ok = false;
@@ -28,6 +34,5 @@ bool predator_log_append(struct PredatorApp* app, const char* line) {
         ok = true;
     }
     storage_file_free(file);
-    if(close_storage) furi_record_close(RECORD_STORAGE);
     return ok;
 }

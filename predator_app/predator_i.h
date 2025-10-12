@@ -102,7 +102,14 @@ typedef struct PredatorApp {
     
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
-    PredatorBoardType board_type;  // Type of expansion board attached
+    // Board configuration
+    PredatorBoardType board_type;
+    
+    // Hardware availability flags (set by board detection)
+    bool esp32_available;
+    bool gps_available;
+    bool subghz_available;
+    bool nfc_available;  // Type of expansion board attached
     // Regional compliance and authorization
     PredatorRegion region;     // Active compliance region
     bool authorized;           // Authorization status for high-impact ops

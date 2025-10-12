@@ -18,6 +18,7 @@
 #include "helpers/predator_gps.h"
 #include "helpers/predator_error.h"
 #include "helpers/predator_watchdog.h"
+#include "helpers/predator_boards.h"
 
 #include "scenes/predator_scene.h"
 
@@ -152,10 +153,7 @@ PredatorApp* predator_app_alloc() {
     // Initialize to zeros to prevent undefined behavior with uninitialized fields
     memset(app, 0, sizeof(PredatorApp));
 
-    // Default to unknown board type, will be overridden by detection/config
-    app->board_type = PredatorBoardTypeUnknown;
-
-    // Open required records with null checks
+    // Open required records FIRST (needed for board detection file operations)
     app->gui = furi_record_open(RECORD_GUI);
     app->notifications = furi_record_open(RECORD_NOTIFICATION);
     app->dialogs = furi_record_open(RECORD_DIALOGS);
@@ -166,6 +164,54 @@ PredatorApp* predator_app_alloc() {
         FURI_LOG_E("Predator", "Failed to open required records");
         predator_app_free(app);
         return NULL;
+    }
+    
+    // 🔍 ULTIMATE BOARD DETECTION AT STARTUP (after storage init)
+    FURI_LOG_I("Predator", "🚀 STARTING ULTIMATE BOARD DETECTION...");
+    app->board_type = predator_detect_board_at_startup();
+    
+    // Professional board name mapping
+    const char* board_names[] = {
+        "Unknown Board", "Original Predator", "3in1 AIO V1.4", "DrB0rk Multi V2", 
+        "3in1 NRF24+CC1101", "2.8\" Screen", "Auto-Detect"
+    };
+    const char* detected_name = (app->board_type < 7) ? board_names[app->board_type] : "Unknown";
+    FURI_LOG_I("Predator", "🏆 ULTIMATE DETECTION RESULT: %s", detected_name);
+    
+    // ⚙️ AUTOMATIC HARDWARE CONFIGURATION
+    const PredatorBoardConfig* config = predator_boards_get_config(app->board_type);
+    if(config) {
+        FURI_LOG_I("Predator", "⚙️ Configuring hardware for: %s", config->name);
+        
+        // Configure based on board capabilities
+        if(app->board_type == PredatorBoardType3in1AIO || app->board_type == PredatorBoardTypeScreen28) {
+            FURI_LOG_I("Predator", "📶 ESP32 + GPS board detected - enabling WiFi/BT + GPS");
+            app->esp32_available = true;
+            app->gps_available = true;
+        } else if(app->board_type == PredatorBoardTypeOriginal) {
+            FURI_LOG_I("Predator", "🔧 Original board detected - basic RF + optional ESP32");
+            app->esp32_available = false; // Will be detected dynamically
+            app->gps_available = false;
+        } else {
+            FURI_LOG_I("Predator", "❓ Unknown/Custom board - safe defaults");
+            app->esp32_available = false;
+            app->gps_available = false;
+        }
+        
+        // Always available on Flipper Zero
+        app->subghz_available = true;
+        app->nfc_available = true;
+        
+        FURI_LOG_I("Predator", "📊 Hardware Status: ESP32=%s GPS=%s SubGHz=YES NFC=YES",
+                   app->esp32_available ? "YES" : "NO",
+                   app->gps_available ? "YES" : "NO");
+    }
+    
+    // 🚀 OPTIMIZE SYSTEM FOR DETECTED BOARD
+    if(predator_boards_optimize_for_board(app->board_type)) {
+        FURI_LOG_I("Predator", "✅ Board optimization successful");
+    } else {
+        FURI_LOG_W("Predator", "⚠️ Board optimization failed - using defaults");
     }
 
     // Allocate view dispatcher with null check

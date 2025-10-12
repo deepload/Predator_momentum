@@ -4,19 +4,10 @@
 #include "../helpers/predator_full_detection.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
+#include "../helpers/predator_constants.h"
 #include <gui/view.h>
 
-// PROFESSIONAL BOARD SELECTION - FIXED API CALLS
-
-static const char* board_names[] = {
-    "Original Predator",
-    "3in1 AIO V1.4", 
-    "DrB0rk Multi V2",
-    "3in1 NRF24+CC1101",
-    "2.8\" Screen"
-};
-
-static const uint8_t board_count = 5;
+// PROFESSIONAL BOARD SELECTION - MEMORY OPTIMIZED
 
 typedef struct {
     uint8_t selected_index;
@@ -40,7 +31,7 @@ static void board_draw_callback(Canvas* canvas, void* context) {
     // Current selection
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 22, "Board:");
-    canvas_draw_str(canvas, 35, 22, board_names[board_state.selected_index]);
+    canvas_draw_str(canvas, 35, 22, PREDATOR_BOARD_NAMES[board_state.selected_index]);
     
     // Hardware capabilities for selected board
     const PredatorBoardConfig* config = predator_boards_get_config(board_state.selected_index);
@@ -87,7 +78,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case InputKeyDown:
-            if(board_state.selected_index < board_count - 1) {
+            if(board_state.selected_index < PREDATOR_BOARD_COUNT - 1) {
                 board_state.selected_index++;
                 consumed = true;
             }
@@ -100,7 +91,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
                 
                 // Log the selection with detailed info
                 char log_msg[100];
-                snprintf(log_msg, sizeof(log_msg), "BOARD SELECTED: %s", board_names[board_state.selected_index]);
+                snprintf(log_msg, sizeof(log_msg), "BOARD SELECTED: %s", PREDATOR_BOARD_NAMES[board_state.selected_index]);
                 predator_log_append(board_state.app, log_msg);
                 
                 // REAL HARDWARE VALIDATION
@@ -124,7 +115,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
                     "SubGHz Radio: Available\n"
                     "NFC/RFID: Available\n\n"
                     "Board configured successfully!",
-                    board_names[board_state.selected_index],
+                    PREDATOR_BOARD_NAMES[board_state.selected_index],
                     has_esp32 ? "Available (ESP32)" : "Not Available",
                     has_gps ? "Available" : "Not Available"
                 );
@@ -168,7 +159,7 @@ void predator_scene_board_selection_ui_on_enter(void* context) {
     board_state.app = app;
     
     // Set current board as selected
-    if(app->board_type > 0 && app->board_type <= board_count) {
+    if(app->board_type > 0 && app->board_type <= PREDATOR_BOARD_COUNT) {
         board_state.selected_index = app->board_type - 1;
     }
     

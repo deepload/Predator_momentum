@@ -95,3 +95,9 @@ PredatorBoardType predator_boards_detect_runtime(void);
  * @return true if optimization successful
  */
 bool predator_boards_optimize_for_board(PredatorBoardType board_type);
+
+/**
+ * @brief Detect board at startup with comprehensive hardware probing
+ * @return Detected board type with automatic configuration
+ */
+PredatorBoardType predator_detect_board_at_startup(void);
