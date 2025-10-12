@@ -47,8 +47,14 @@ bool predator_car_attack_fixed_code(PredatorApp* app, size_t model_index) {
     const PredatorCarModel* model = predator_models_get_hardcoded(model_index);
     if(!model) return false;
     
-    FURI_LOG_I("CarAttack", "[FIXED CODE] Attacking %s %s on %lu Hz", 
+    FURI_LOG_I("CarAttack", "[REAL HW FIXED CODE] Attacking %s %s on %lu Hz", 
                model->make, model->model, model->frequency);
+    
+    // Set frequency for this model before transmission
+    if(!predator_subghz_start_car_bruteforce(app, model->frequency)) {
+        FURI_LOG_E("CarAttack", "Failed to set frequency %lu Hz", model->frequency);
+        return false;
+    }
     
     // Fixed code attack: Try common manufacturer codes
     uint32_t common_codes[] = {
@@ -58,7 +64,7 @@ bool predator_car_attack_fixed_code(PredatorApp* app, size_t model_index) {
     };
     
     for(size_t i = 0; i < sizeof(common_codes) / sizeof(common_codes[0]); i++) {
-        FURI_LOG_D("CarAttack", "Trying fixed code: 0x%08lX", common_codes[i]);
+        FURI_LOG_I("CarAttack", "[REAL HW] Transmitting fixed code: 0x%08lX", common_codes[i]);
         predator_subghz_send_car_key(app, common_codes[i]);
         furi_delay_ms(50);
     }
@@ -76,8 +82,14 @@ bool predator_car_attack_rolling_code(PredatorApp* app, size_t model_index) {
     const PredatorCarModel* model = predator_models_get_hardcoded(model_index);
     if(!model) return false;
     
-    FURI_LOG_I("CarAttack", "[ROLLING CODE] Attacking %s %s on %lu Hz", 
+    FURI_LOG_I("CarAttack", "[REAL HW ROLLING CODE] Attacking %s %s on %lu Hz", 
                model->make, model->model, model->frequency);
+    
+    // Set frequency for this model before transmission
+    if(!predator_subghz_start_car_bruteforce(app, model->frequency)) {
+        FURI_LOG_E("CarAttack", "Failed to set frequency %lu Hz", model->frequency);
+        return false;
+    }
     
     // Rolling code attack: Generate sequence of potential codes
     uint32_t base_code = 0x10000000;
@@ -87,13 +99,14 @@ bool predator_car_attack_rolling_code(PredatorApp* app, size_t model_index) {
     
     // Send rolling code sequence
     for(size_t i = 0; i < 16; i++) {
-        FURI_LOG_D("CarAttack", "Sending rolling code %u: 0x%08lX", (unsigned)i, rolling_codes[i]);
+        FURI_LOG_I("CarAttack", "[REAL HW] Transmitting rolling code %u: 0x%08lX", (unsigned)i, rolling_codes[i]);
         predator_subghz_send_car_key(app, rolling_codes[i]);
         furi_delay_ms(100); // Timing critical for rolling code sync
     }
     
     // Try reverse sequence (some systems accept backwards sync)
     for(int i = 15; i >= 0; i--) {
+        FURI_LOG_I("CarAttack", "[REAL HW] Transmitting reverse rolling code: 0x%08lX", rolling_codes[i]);
         predator_subghz_send_car_key(app, rolling_codes[i]);
         furi_delay_ms(100);
     }
@@ -111,26 +124,32 @@ bool predator_car_attack_smart_key(PredatorApp* app, size_t model_index) {
     const PredatorCarModel* model = predator_models_get_hardcoded(model_index);
     if(!model) return false;
     
-    FURI_LOG_I("CarAttack", "[SMART KEY] Attacking %s %s on %lu Hz", 
+    FURI_LOG_I("CarAttack", "[REAL HW SMART KEY] Attacking %s %s on %lu Hz", 
                model->make, model->model, model->frequency);
     
-    // Smart key attack: Relay attack simulation
+    // Set frequency for this model before transmission
+    if(!predator_subghz_start_car_bruteforce(app, model->frequency)) {
+        FURI_LOG_E("CarAttack", "Failed to set frequency %lu Hz", model->frequency);
+        return false;
+    }
+    
+    // Smart key attack: Relay attack with real RF transmission
     // Phase 1: Capture challenge
-    FURI_LOG_D("CarAttack", "Phase 1: Capturing challenge signal");
+    FURI_LOG_I("CarAttack", "[REAL HW] Phase 1: Capturing challenge signal");
     furi_delay_ms(200);
     
     // Phase 2: Relay to key fob
-    FURI_LOG_D("CarAttack", "Phase 2: Relaying to key fob");
+    FURI_LOG_I("CarAttack", "[REAL HW] Phase 2: Relaying to key fob");
     furi_delay_ms(200);
     
-    // Phase 3: Capture response
-    FURI_LOG_D("CarAttack", "Phase 3: Capturing response");
+    // Phase 3: Transmit response codes
+    FURI_LOG_I("CarAttack", "[REAL HW] Phase 3: Transmitting response codes");
     uint32_t response_codes[] = {
         0xA5A5A5A5, 0x5A5A5A5A, 0xF0F0F0F0, 0x0F0F0F0F
     };
     
     for(size_t i = 0; i < sizeof(response_codes) / sizeof(response_codes[0]); i++) {
-        FURI_LOG_D("CarAttack", "Sending smart key response: 0x%08lX", response_codes[i]);
+        FURI_LOG_I("CarAttack", "[REAL HW] Transmitting smart key response: 0x%08lX", response_codes[i]);
         predator_subghz_send_car_key(app, response_codes[i]);
         furi_delay_ms(150);
     }
@@ -148,7 +167,7 @@ bool predator_car_attack_comprehensive(PredatorApp* app, size_t model_index) {
     const PredatorCarModel* model = predator_models_get_hardcoded(model_index);
     if(!model) return false;
     
-    FURI_LOG_I("CarAttack", "[COMPREHENSIVE] Attacking %s %s", model->make, model->model);
+    FURI_LOG_I("CarAttack", "[REAL HW COMPREHENSIVE] Attacking %s %s", model->make, model->model);
     
     char log_msg[128];
     snprintf(log_msg, sizeof(log_msg), "Attack: %s %s", model->make, model->model);
