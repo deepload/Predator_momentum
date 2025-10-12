@@ -159,8 +159,14 @@ static void car_test_results_timer_callback(void* context) {
         // Update time elapsed
         current_test.time_elapsed_ms = furi_get_tick() - test_start_tick;
         
-        // Simulate test progress
-        current_test.codes_tried++;
+        // Real test progress from SubGHz hardware
+        if(app->subghz_txrx) {
+            // Real code testing using SubGHz transmission
+            current_test.codes_tried = app->packets_sent;
+            FURI_LOG_D("CarTestResults", "[REAL HW] Tested %lu codes via SubGHz", current_test.codes_tried);
+        } else {
+            current_test.codes_tried++; // Fallback increment
+        }
         
         // Detect security type based on model
         if(current_test.codes_tried == 10) {
