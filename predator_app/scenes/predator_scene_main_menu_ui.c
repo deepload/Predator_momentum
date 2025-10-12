@@ -1,5 +1,6 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
+#include "../helpers/predator_ui_clean.h"
 #include "predator_submenu_index.h"
 
 // Main Menu - Professional UI

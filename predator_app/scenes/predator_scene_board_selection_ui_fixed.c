@@ -23,7 +23,6 @@ typedef struct {
 static BoardSelectionState board_state;
 
 static void board_draw_callback(Canvas* canvas, void* context) {
-    UNUSED(context);
     if(!canvas) return;
     
     canvas_clear(canvas);
@@ -64,7 +63,6 @@ static void board_draw_callback(Canvas* canvas, void* context) {
 }
 
 static bool board_input_callback(InputEvent* event, void* context) {
-    UNUSED(context);
     if(!event || event->type != InputTypeShort) return false;
     
     bool consumed = false;

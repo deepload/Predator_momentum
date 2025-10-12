@@ -1,5 +1,6 @@
 // PROFESSIONAL SCENE CONFIGURATION - ESSENTIAL SCENES ONLY
 ADD_SCENE(predator, main_menu_ui, MainMenuUI)
+ADD_SCENE(predator, main_menu_clean, MainMenuClean)  // CLEAN UI: Professional main menu
 
 // Tesla & Car Security (CORE BUSINESS)
 ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
