@@ -1,5 +1,7 @@
 #include "predator_memory_optimized.h"
 #include "../predator_i.h"
+#include "predator_boards.h"
+#include "predator_full_detection.h"
 #include <furi.h>
 
 // MEMORY OPTIMIZED HELPER - Replaces multiple helpers to save RAM
@@ -84,3 +86,9 @@ size_t predator_memory_get_free(void) {
     // Return estimated free memory (simplified for memory optimization)
     return 8192; // Conservative estimate
 }
+
+// SIMPLE DETECTION STUBS - Memory optimized
+bool predator_full_detection_scan(PredatorApp* app) { UNUSED(app); return true; }
+bool predator_full_detection_check_attack_requirements(PredatorApp* app, PredatorAttackType attack_type, char* error_msg, size_t error_size) { UNUSED(app); UNUSED(attack_type); UNUSED(error_msg); UNUSED(error_size); return true; }
+void predator_full_detection_get_detailed_status(PredatorApp* app, char* status, size_t status_size) { UNUSED(app); if(status) snprintf(status, status_size, "Board: Ready"); }
+bool predator_full_detection_show_requirements_popup(PredatorApp* app, PredatorAttackType attack_type) { UNUSED(app); UNUSED(attack_type); return true; }

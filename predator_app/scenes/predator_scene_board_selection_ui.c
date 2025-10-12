@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "../helpers/predator_boards.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_full_detection.h"
 #include <gui/view.h>
 
 // PROFESSIONAL BOARD SELECTION - FIXED API CALLS
@@ -85,29 +86,45 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case InputKeyOk:
-            // PROFESSIONAL: Apply selection immediately
-            if(board_state.app) {
-                board_state.app->board_type = (PredatorBoardType)(board_state.selected_index + 1);
-                
-                // Show confirmation popup
-                if(board_state.app->popup) {
-                    popup_reset(board_state.app->popup);
-                    popup_set_header(board_state.app->popup, "Board Selected", 64, 20, AlignCenter, AlignTop);
+                // PROFESSIONAL: Apply selection with real hardware validation
+                if(board_state.app) {
+                    PredatorBoardType old_board = board_state.app->board_type;
+                    board_state.app->board_type = (PredatorBoardType)(board_state.selected_index + 1);
                     
-                    char text[64];
-                    snprintf(text, sizeof(text), "%s\n\nSaved successfully!", board_names[board_state.selected_index]);
-                    popup_set_text(board_state.app->popup, text, 64, 32, AlignCenter, AlignCenter);
-                    
-                    popup_set_timeout(board_state.app->popup, 2000);
-                    popup_enable_timeout(board_state.app->popup);
-                    view_dispatcher_switch_to_view(board_state.app->view_dispatcher, PredatorViewPopup);
-                    
-                    // Log the selection
-                    char log_msg[64];
-                    snprintf(log_msg, sizeof(log_msg), "Board: %s", board_names[board_state.selected_index]);
-                    predator_log_append(board_state.app, log_msg);
+                    // VALIDATE HARDWARE for new board
+                    if(predator_full_detection_scan(board_state.app)) {
+                        // Show professional status popup with hardware details
+                        if(board_state.app->popup) {
+                            popup_reset(board_state.app->popup);
+                            popup_set_header(board_state.app->popup, "Board Configured", 64, 10, AlignCenter, AlignTop);
+                            
+                            char status_text[256];
+                            predator_full_detection_get_detailed_status(board_state.app, status_text, sizeof(status_text));
+                            
+                            popup_set_text(board_state.app->popup, status_text, 64, 32, AlignCenter, AlignCenter);
+                            popup_set_timeout(board_state.app->popup, 4000); // 4 seconds to read hardware status
+                            popup_enable_timeout(board_state.app->popup);
+                            view_dispatcher_switch_to_view(board_state.app->view_dispatcher, PredatorViewPopup);
+                            
+                            // Log the selection with hardware status
+                            char log_msg[128];
+                            snprintf(log_msg, sizeof(log_msg), "Board: %s - Hardware validated", board_names[board_state.selected_index]);
+                            predator_log_append(board_state.app, log_msg);
+                        }
+                    } else {
+                        // Hardware validation failed - revert and show error
+                        board_state.app->board_type = old_board;
+                        
+                        if(board_state.app->popup) {
+                            popup_reset(board_state.app->popup);
+                            popup_set_header(board_state.app->popup, "Hardware Error", 64, 10, AlignCenter, AlignTop);
+                            popup_set_text(board_state.app->popup, "Failed to validate hardware\nfor selected board", 64, 32, AlignCenter, AlignCenter);
+                            popup_set_timeout(board_state.app->popup, 3000);
+                            popup_enable_timeout(board_state.app->popup);
+                            view_dispatcher_switch_to_view(board_state.app->view_dispatcher, PredatorViewPopup);
+                        }
+                    }
                 }
-            }
             consumed = true;
             break;
             
