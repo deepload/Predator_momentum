@@ -40,11 +40,16 @@ static void draw_main_screen(Canvas* canvas) {
     uint8_t anim_offset = (board_state.animation_tick / 10) % 3;
     canvas_set_font(canvas, FontSecondary);
     
-    // Board name with animation
+    // Board name with animation - add bounds checking
     char board_display[32];
+    uint8_t safe_index = board_state.selected_index;
+    if(safe_index >= PredatorBoardTypeCount) {
+        safe_index = PredatorBoardTypeOriginal;
+    }
+    
     snprintf(board_display, sizeof(board_display), "%s%s", 
              anim_offset == 0 ? "► " : anim_offset == 1 ? "▶ " : "▷ ",
-             PREDATOR_BOARD_NAMES[board_state.selected_index]);
+             PREDATOR_BOARD_NAMES[safe_index]);
     canvas_draw_str(canvas, 2, 25, board_display);
     
     // Quick capabilities preview
@@ -67,8 +72,12 @@ static void draw_details_screen(Canvas* canvas) {
     
     canvas_set_font(canvas, FontSecondary);
     
-    // Board name
-    canvas_draw_str(canvas, 2, 22, PREDATOR_BOARD_NAMES[board_state.selected_index]);
+    // Board name - add bounds checking
+    uint8_t safe_index = board_state.selected_index;
+    if(safe_index >= PredatorBoardTypeCount) {
+        safe_index = PredatorBoardTypeOriginal;
+    }
+    canvas_draw_str(canvas, 2, 22, PREDATOR_BOARD_NAMES[safe_index]);
     
     // Detailed capabilities
     bool has_esp32 = (board_state.selected_index == PredatorBoardType3in1AIO || 
@@ -91,7 +100,13 @@ static void draw_confirm_screen(Canvas* canvas) {
     
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 25, "Selected Board:");
-    canvas_draw_str(canvas, 2, 35, PREDATOR_BOARD_NAMES[board_state.selected_index]);
+    
+    // Add bounds checking
+    uint8_t safe_index = board_state.selected_index;
+    if(safe_index >= PredatorBoardTypeCount) {
+        safe_index = PredatorBoardTypeOriginal;
+    }
+    canvas_draw_str(canvas, 2, 35, PREDATOR_BOARD_NAMES[safe_index]);
     
     if(board_state.hardware_tested) {
         canvas_draw_str(canvas, 2, 45, "✓ Hardware Test: PASSED");
@@ -109,7 +124,13 @@ static void draw_success_screen(Canvas* canvas) {
     
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 25, "Board configured:");
-    canvas_draw_str(canvas, 2, 35, PREDATOR_BOARD_NAMES[board_state.selected_index]);
+    
+    // Add bounds checking
+    uint8_t safe_index = board_state.selected_index;
+    if(safe_index >= PredatorBoardTypeCount) {
+        safe_index = PredatorBoardTypeOriginal;
+    }
+    canvas_draw_str(canvas, 2, 35, PREDATOR_BOARD_NAMES[safe_index]);
     
     // Success animation
     uint8_t anim = (board_state.animation_tick / 5) % 4;
@@ -177,7 +198,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
                     break;
                     
                 case InputKeyDown:
-                    if(board_state.selected_index < PREDATOR_BOARD_COUNT - 1) {
+                    if(board_state.selected_index < PredatorBoardTypeCount - 1) {
                         board_state.selected_index++;
                         consumed = true;
                     }
@@ -189,9 +210,9 @@ static bool board_input_callback(InputEvent* event, void* context) {
                     break;
                     
                 case InputKeyBack:
-                    // FIXED: Properly navigate back to main menu
-                    if(board_state.app && board_state.app->scene_manager) {
-                        scene_manager_previous_scene(board_state.app->scene_manager);
+                    // Send back event to scene manager instead of handling directly
+                    if(board_state.app && board_state.app->view_dispatcher) {
+                        view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 999); // Special back event
                     }
                     consumed = true;
                     break;
@@ -254,8 +275,16 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case BoardScreenSuccess:
-            // FIXED: Any key goes back to main screen first, then user can navigate
-            board_state.current_screen = BoardScreenMain;
+            // Any key from success screen goes back to main screen
+            if(event->key == InputKeyBack) {
+                // Back button navigates to main menu
+                if(board_state.app && board_state.app->view_dispatcher) {
+                    view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 999); // Special back event
+                }
+            } else {
+                // Any other key goes back to main board selection screen
+                board_state.current_screen = BoardScreenMain;
+            }
             consumed = true;
             break;
     }
@@ -277,8 +306,11 @@ void predator_scene_board_selection_ui_on_enter(void* context) {
     board_state.animation_tick = 0;
     
     // Set current board as selected if valid
-    if(app->board_type > 0 && app->board_type < PREDATOR_BOARD_COUNT) {
+    if(app->board_type < PredatorBoardTypeCount) {
         board_state.selected_index = app->board_type;
+    } else {
+        // Default to Original Predator if invalid board type
+        board_state.selected_index = PredatorBoardTypeOriginal;
     }
     
     // Create view with timer for animations
@@ -314,10 +346,17 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
         return true;
     }
     
-    // FIXED: Handle back navigation properly
+    // Handle special back navigation event from input callback
+    if(event.type == SceneManagerEventTypeCustom && event.event == 999) {
+        // Navigate back to main menu
+        scene_manager_previous_scene(app->scene_manager);
+        return true;
+    }
+    
+    // Handle back button - navigate to previous scene
     if(event.type == SceneManagerEventTypeBack) {
-        // Don't let framework quit the app, handle back navigation ourselves
-        return true; // We handle back in input callback
+        scene_manager_previous_scene(app->scene_manager);
+        return true;
     }
     
     return false; // Let framework handle other events
@@ -334,7 +373,7 @@ void predator_scene_board_selection_ui_on_exit(void* context) {
         app->timer = NULL;
     }
     
-    // Clean up view
+    // Clean up view properly
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBoardSelectionUI);
     
     // Log final board selection
