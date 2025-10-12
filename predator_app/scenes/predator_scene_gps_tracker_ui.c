@@ -280,9 +280,9 @@ bool predator_scene_gps_tracker_ui_on_event(void* context, SceneManagerEvent eve
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button - return to main menu
+    // Handle back button - SAFE return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     

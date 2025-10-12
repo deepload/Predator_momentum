@@ -349,13 +349,13 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
     // Handle special back navigation event from input callback
     if(event.type == SceneManagerEventTypeCustom && event.event == 999) {
         // Navigate back to main menu
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     
     // Handle back button - navigate to previous scene
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     

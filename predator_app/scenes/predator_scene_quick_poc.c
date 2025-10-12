@@ -83,7 +83,7 @@ bool predator_scene_quick_poc_on_event(void* context, SceneManagerEvent event) {
     if(!app) return false;
 
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {

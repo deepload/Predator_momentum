@@ -284,9 +284,9 @@ void predator_scene_social_engineering_ui_on_enter(void* context) {
 bool predator_scene_social_engineering_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     
-    // Handle back button - return to main menu
+    // Handle back button - SAFE return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     

@@ -271,7 +271,7 @@ bool predator_scene_ai_attack_coordinator_on_event(void* context, SceneManagerEv
         last_back_press = current_tick;
         
         predator_log_append(app, "AI COORDINATOR: Shutting down AI systems");
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     

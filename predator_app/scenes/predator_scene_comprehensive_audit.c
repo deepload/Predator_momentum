@@ -158,7 +158,7 @@ bool predator_scene_comprehensive_audit_on_event(void* context, SceneManagerEven
     
     if(event.type == SceneManagerEventTypeBack) {
         consumed = true;
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
     }
     
     return consumed;

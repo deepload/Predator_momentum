@@ -103,7 +103,7 @@ bool predator_scene_car_brand_security_suite_on_event(void* context, SceneManage
         last_back_press = current_tick;
         
         predator_log_append(app, "CarBrandSecurity: Exiting All Car Brands Security Suite");
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
 
