@@ -34,11 +34,15 @@ App(
         # Scene router
         "scenes/predator_scene.c",
 
-        # MINIMAL WORKING SCENES
+        # PHASE 3: Car Domain Expansion
         "scenes/predator_scene_main_menu_ui.c",
         "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_car_attacks_ui.c",
+        "scenes/predator_scene_car_key_bruteforce_ui.c",
+        "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_ui.c",
+        "scenes/predator_scene_wifi_handshake_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_about_ui.c",

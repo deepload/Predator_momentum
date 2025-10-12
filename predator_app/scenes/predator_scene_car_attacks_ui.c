@@ -31,13 +31,10 @@ void predator_scene_car_attacks_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🚗 Car Attacks - REAL POWER");
     
-    submenu_add_item(app->submenu, "🏆 ULTIMATE AUTO TEST", SubmenuIndexCarTestResults, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚶‍♂️ WALKING OPEN (ELON)", SubmenuIndexWalkingOpen, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚗 Tesla Charge Port", SubmenuIndexCarTesla, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚙 Car Models", SubmenuIndexCarModels, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 Key Bruteforce", SubmenuIndexCarKeyBruteforce, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 Car Jamming", SubmenuIndexCarJamming, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔓 Passive Opener", SubmenuIndexCarPassiveOpener, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚗 Tesla Security", 1, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔑 Key Bruteforce", 2, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 Car Jamming", 3, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔓 Passive Opener", 4, car_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -49,27 +46,18 @@ bool predator_scene_car_attacks_ui_on_event(void* context, SceneManagerEvent eve
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case SubmenuIndexCarTestResults:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTestResults);
-            break;
-        case SubmenuIndexWalkingOpen:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
-            break;
-        case SubmenuIndexCarTesla:
+        case 1: // Tesla Security
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
-            break;
-        case SubmenuIndexCarModels:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelSelector);
-            break;
-        case SubmenuIndexCarKeyBruteforce:
+            return true;
+        case 2: // Key Bruteforce
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
-            break;
-        case SubmenuIndexCarJamming:
+            return true;
+        case 3: // Car Jamming
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
-            break;
-        case SubmenuIndexCarPassiveOpener:
+            return true;
+        case 4: // Passive Opener
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
-            break;
+            return true;
         default:
             consumed = false;
             break;
