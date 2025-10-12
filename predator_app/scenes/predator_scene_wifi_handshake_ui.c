@@ -28,6 +28,7 @@ typedef struct {
 
 static HandshakeState handshake_state;
 static uint32_t capture_start_tick = 0;
+static View* handshake_view = NULL;
 
 static void draw_handshake_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -226,17 +227,17 @@ void predator_scene_wifi_handshake_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
+    handshake_view = view_alloc();
+    if(!handshake_view) {
         FURI_LOG_E("HandshakeUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, wifi_handshake_ui_draw_callback);
-    view_set_input_callback(view, wifi_handshake_ui_input_callback);
+    view_set_context(handshake_view, app);
+    view_set_draw_callback(handshake_view, wifi_handshake_ui_draw_callback);
+    view_set_input_callback(handshake_view, wifi_handshake_ui_input_callback);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiHandshakeUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiHandshakeUI, handshake_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWifiHandshakeUI);
     
     FURI_LOG_I("HandshakeUI", "WiFi Handshake UI initialized");
@@ -279,6 +280,10 @@ void predator_scene_wifi_handshake_ui_on_exit(void* context) {
     
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiHandshakeUI);
+    }
+    if(handshake_view) {
+        view_free(handshake_view);
+        handshake_view = NULL;
     }
     
     FURI_LOG_I("HandshakeUI", "WiFi Handshake UI exited");

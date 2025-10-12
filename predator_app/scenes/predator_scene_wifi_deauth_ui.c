@@ -28,6 +28,7 @@ typedef struct {
 } DeauthState;
 
 static DeauthState deauth_state;
+static View* wifi_deauth_view = NULL;
 static uint32_t attack_start_tick = 0;
 
 static void draw_deauth_header(Canvas* canvas) {
@@ -282,18 +283,18 @@ void predator_scene_wifi_deauth_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    wifi_deauth_view = view_alloc();
+    if(!wifi_deauth_view) {
         FURI_LOG_E("DeauthUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, wifi_deauth_ui_draw_callback);
-    view_set_input_callback(view, wifi_deauth_ui_input_callback);
+    view_set_context(wifi_deauth_view, app);
+    view_set_draw_callback(wifi_deauth_view, wifi_deauth_ui_draw_callback);
+    view_set_input_callback(wifi_deauth_view, wifi_deauth_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiDeauthUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiDeauthUI, wifi_deauth_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWifiDeauthUI);
     
     FURI_LOG_I("DeauthUI", "WiFi Deauth UI initialized");
@@ -341,6 +342,11 @@ void predator_scene_wifi_deauth_ui_on_exit(void* context) {
     // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiDeauthUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(wifi_deauth_view) {
+        view_free(wifi_deauth_view);
+        wifi_deauth_view = NULL;
     }
     
     FURI_LOG_I("DeauthUI", "WiFi Deauth UI exited");

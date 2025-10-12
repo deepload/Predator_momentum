@@ -26,6 +26,7 @@ typedef struct {
 
 static BleScanState blescan_state;
 static uint32_t scan_start_tick = 0;
+static View* ble_scan_view = NULL;
 
 static void draw_ble_scan_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -250,18 +251,18 @@ void predator_scene_ble_scan_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    ble_scan_view = view_alloc();
+    if(!ble_scan_view) {
         FURI_LOG_E("BleScanUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, ble_scan_ui_draw_callback);
-    view_set_input_callback(view, ble_scan_ui_input_callback);
+    view_set_context(ble_scan_view, app);
+    view_set_draw_callback(ble_scan_view, ble_scan_ui_draw_callback);
+    view_set_input_callback(ble_scan_view, ble_scan_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBleScanUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBleScanUI, ble_scan_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewBleScanUI);
     
     FURI_LOG_I("BleScanUI", "BLE Scan UI initialized");
@@ -309,6 +310,11 @@ void predator_scene_ble_scan_ui_on_exit(void* context) {
     // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBleScanUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(ble_scan_view) {
+        view_free(ble_scan_view);
+        ble_scan_view = NULL;
     }
     
     FURI_LOG_I("BleScanUI", "BLE Scan UI exited");

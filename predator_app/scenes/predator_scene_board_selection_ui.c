@@ -28,6 +28,7 @@ typedef struct {
 } BoardSelectionState;
 
 static BoardSelectionState board_state;
+static View* board_selection_view = NULL;
 
 // ULTIMATE BOARD SELECTION SCREENS
 
@@ -314,18 +315,18 @@ void predator_scene_board_selection_ui_on_enter(void* context) {
     }
     
     // Create view with timer for animations
-    View* view = view_alloc();
-    if(!view) return;
+    board_selection_view = view_alloc();
+    if(!board_selection_view) return;
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, board_draw_callback);
-    view_set_input_callback(view, board_input_callback);
+    view_set_context(board_selection_view, app);
+    view_set_draw_callback(board_selection_view, board_draw_callback);
+    view_set_input_callback(board_selection_view, board_input_callback);
     
     // Enable continuous redraw for animations
-    view_set_update_callback(view, NULL);
-    view_set_update_callback_context(view, app);
+    view_set_update_callback(board_selection_view, NULL);
+    view_set_update_callback_context(board_selection_view, app);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBoardSelectionUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBoardSelectionUI, board_selection_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewBoardSelectionUI);
     
     // Start animation timer
@@ -376,6 +377,10 @@ void predator_scene_board_selection_ui_on_exit(void* context) {
     
     // Clean up view properly
     view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBoardSelectionUI);
+    if(board_selection_view) {
+        view_free(board_selection_view);
+        board_selection_view = NULL;
+    }
     
     // Log final board selection
     if(board_state.selection_confirmed) {
