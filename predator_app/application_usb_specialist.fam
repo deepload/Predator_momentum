@@ -1,0 +1,59 @@
+App(
+    appid="predator_usb",
+    name="Predator USB Specialist",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=["gui", "dialogs", "storage", "notification", "usb_uart", "gpio", "power"],
+    stack_size=10 * 1024,
+    fap_category="Tools",
+    fap_description="💾 USB SPECIALIST - BadUSB, HID, Rubber Ducky Attacks",
+    fap_version="2.0",
+    fap_author="Nico Lococo - Elon's Startup",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=16000", "USB_SPECIALIST_BUILD", "IPC_SYNC_ENABLED"],
+    sources=[
+        # Core
+        "predator.c",
+        "predator_uart.c",
+
+        # Essential helpers
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_compliance.c",
+        "helpers/predator_workflow_validator.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_ui_callbacks.c",
+        "helpers/predator_ui_elements.c",
+        "helpers/predator_watchdog.c",
+        "helpers/predator_settings.c",
+        "helpers/predator_logging.c",
+        "helpers/predator_ui_status.c",
+        
+        # USB-specific helpers
+        "helpers/predator_usb.c",
+        "helpers/predator_badusb.c",
+        "helpers/predator_hid_attacks.c",
+        
+        # IPC system
+        "helpers/predator_ipc_system.c",
+        
+        # Scene router
+        "scenes/predator_scene.c",
+
+        # USB specialist scenes
+        "scenes/predator_scene_usb_main_menu.c",
+        "scenes/predator_scene_usb_attacks_ui.c",
+        "scenes/predator_scene_badusb_ui.c",
+        "scenes/predator_scene_hid_keyboard_ui.c",
+        "scenes/predator_scene_hid_mouse_ui.c",
+        "scenes/predator_scene_rubber_ducky_ui.c",
+        
+        # Essential system scenes
+        "scenes/predator_scene_module_status_ui.c",
+        "scenes/predator_scene_board_selection_ui.c",
+        "scenes/predator_scene_settings_ui.c",
+        "scenes/predator_scene_about_ui.c",
+    ],
+)

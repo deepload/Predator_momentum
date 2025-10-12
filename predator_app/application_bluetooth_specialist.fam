@@ -1,0 +1,55 @@
+App(
+    appid="predator_bluetooth",
+    name="Predator Bluetooth Specialist",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="predator_app",
+    requires=["gui", "dialogs", "storage", "notification", "bt", "gpio", "power"],
+    stack_size=10 * 1024,
+    fap_category="Tools",
+    fap_description="🔵 BLUETOOTH SPECIALIST - BLE, Classic, Advanced Protocols",
+    fap_version="2.0",
+    fap_author="Nico Lococo - Elon's Startup",
+    fap_weburl="https://github.com/predator-momentum/flipper",
+    targets=["f7"],
+    cdefines=["HEAP_SIZE=16000", "BLUETOOTH_SPECIALIST_BUILD", "IPC_SYNC_ENABLED"],
+    sources=[
+        # Core
+        "predator.c",
+        "predator_uart.c",
+
+        # Essential helpers
+        "helpers/predator_boards.c",
+        "helpers/predator_error.c",
+        "helpers/predator_compliance.c",
+        "helpers/predator_workflow_validator.c",
+        "helpers/predator_scene_utils.c",
+        "helpers/predator_string.c",
+        "helpers/predator_ui_callbacks.c",
+        "helpers/predator_ui_elements.c",
+        "helpers/predator_watchdog.c",
+        "helpers/predator_settings.c",
+        "helpers/predator_logging.c",
+        "helpers/predator_ui_status.c",
+        
+        # Bluetooth-specific helpers
+        "helpers/predator_bluetooth_advanced.c",
+        
+        # IPC system
+        "helpers/predator_ipc_system.c",
+        
+        # Scene router
+        "scenes/predator_scene.c",
+
+        # Bluetooth specialist scenes
+        "scenes/predator_scene_bluetooth_main_menu.c",
+        "scenes/predator_scene_bluetooth_attacks_ui.c",
+        "scenes/predator_scene_ble_scan_ui.c",
+        "scenes/predator_scene_ble_spam_ui.c",
+        
+        # Essential system scenes
+        "scenes/predator_scene_module_status_ui.c",
+        "scenes/predator_scene_board_selection_ui.c",
+        "scenes/predator_scene_settings_ui.c",
+        "scenes/predator_scene_about_ui.c",
+    ],
+)
