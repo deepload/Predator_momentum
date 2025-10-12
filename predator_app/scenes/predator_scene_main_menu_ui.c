@@ -18,22 +18,19 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🔧 PREDATOR Security Testing");
     
-    // Core Tesla functionality
-    submenu_add_item(app->submenu, "🚗 Tesla Security", SubmenuIndexCarTesla, main_menu_submenu_callback, app);
-    
-    // Add main menu items (Professional UI only)
-    submenu_add_item(app->submenu, "📡 WiFi Attacks", SubmenuIndexWifiAttacks, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📱 Bluetooth Attacks", SubmenuIndexBluetoothAttacks, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚗 Car Attacks", SubmenuIndexCarAttacks, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📻 SubGHz Attacks", SubmenuIndexSubGhzAttacks, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "💳 RFID Attacks", SubmenuIndexRfidAttacks, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🛰️ GPS Tracker", SubmenuIndexGpsTracker, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚙 Wardriving", SubmenuIndexWardriving, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🎭 Social Engineering", SubmenuIndexSocialEngineering, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 Module Status", SubmenuIndexModuleStatus, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔧 Board Selection", SubmenuIndexBoardSelection, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚙️ Settings", SubmenuIndexSettings, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "ℹ️ About", SubmenuIndexAbout, main_menu_submenu_callback, app);
+    // EXPANDED APP - Core Domains Complete
+    submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚗 Car Attacks", 2, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 WiFi Attacks", 3, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 4, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "💳 RFID Attacks", 5, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📻 SubGHz Attacks", 6, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🛰️ GPS Tracker", 7, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🎭 Social Engineering", 8, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Module Status", 9, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔧 Board Selection", 10, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚙️ Settings", 11, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "ℹ️ About", 12, main_menu_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -45,45 +42,42 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case SubmenuIndexCarTesla:
+        case 1: // Tesla Security
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
-            break;
-        case SubmenuIndexWifiAttacks:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
-            break;
-        case SubmenuIndexBluetoothAttacks:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBluetoothAttacksUI);
-            break;
-        case SubmenuIndexCarAttacks:
+            return true;
+        case 2: // Car Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarAttacksUI);
-            break;
-        case SubmenuIndexSubGhzAttacks:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzAttacksUI);
-            break;
-        case SubmenuIndexRfidAttacks:
+            return true;
+        case 3: // WiFi Attacks
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
+            return true;
+        case 4: // Bluetooth Attacks
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBluetoothAttacksUI);
+            return true;
+        case 5: // RFID Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidAttacksUI);
-            break;
-        case SubmenuIndexGpsTracker:
+            return true;
+        case 6: // SubGHz Attacks
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzAttacksUI);
+            return true;
+        case 7: // GPS Tracker
             scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
-            break;
-        case SubmenuIndexWardriving:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
-            break;
-        case SubmenuIndexSocialEngineering:
+            return true;
+        case 8: // Social Engineering
             scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineeringUI);
-            break;
-        case SubmenuIndexModuleStatus:
+            return true;
+        case 9: // Module Status
             scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);
-            break;
-        case SubmenuIndexBoardSelection:
+            return true;
+        case 10: // Board Selection
             scene_manager_next_scene(app->scene_manager, PredatorSceneBoardSelectionUI);
-            break;
-        case SubmenuIndexSettings:
+            return true;
+        case 11: // Settings
             scene_manager_next_scene(app->scene_manager, PredatorSceneSettingsUI);
-            break;
-        case SubmenuIndexAbout:
+            return true;
+        case 12: // About
             scene_manager_next_scene(app->scene_manager, PredatorSceneAboutUI);
-            break;
+            return true;
         default:
             consumed = false;
             break;

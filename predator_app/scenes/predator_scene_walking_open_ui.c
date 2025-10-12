@@ -184,8 +184,29 @@ static void walking_open_ui_timer_callback(void* context) {
     // Update walking time
     walking_state.walking_time_ms = furi_get_tick() - walking_start_tick;
     
-    // Simulate walking speed (slow walk = 1.5 m/s)
-    walking_state.distance_walked_m = (walking_state.walking_time_ms * 15) / 10000;
+    // Calculate real walking speed from GPS if available
+    if(app->satellites > 0 && app->latitude != 0.0f && app->longitude != 0.0f) {
+        static float last_lat = 0.0f, last_lon = 0.0f;
+        static uint32_t last_time = 0;
+        
+        if(last_lat != 0.0f && last_lon != 0.0f && last_time != 0) {
+            // Real distance calculation using GPS coordinates
+            float dlat = (app->latitude - last_lat) * M_PI / 180.0f;
+            float dlon = (app->longitude - last_lon) * M_PI / 180.0f;
+            float a = sin(dlat/2) * sin(dlat/2) + cos(last_lat * M_PI / 180.0f) * cos(app->latitude * M_PI / 180.0f) * sin(dlon/2) * sin(dlon/2);
+            float c = 2 * atan2(sqrt(a), sqrt(1-a));
+            float distance_delta = 6371000.0f * c; // Earth radius in meters
+            walking_state.distance_walked_m += distance_delta;
+            FURI_LOG_D("WalkingOpen", "[REAL GPS] Walking distance: %.2f m", (double)distance_delta);
+        }
+        
+        last_lat = app->latitude;
+        last_lon = app->longitude;
+        last_time = walking_state.walking_time_ms;
+    } else {
+        // Fallback: estimate walking speed (1.5 m/s)
+        walking_state.distance_walked_m = (walking_state.walking_time_ms * 15) / 10000;
+    }
     
     if(walking_state.status == WalkingScanning) {
         // Phase 1: Start scanning for cars
@@ -260,8 +281,14 @@ static void walking_open_ui_timer_callback(void* context) {
                 }
             }
             
-            // Simulate signal strength
-            walking_state.signal_strength = 70 + (walking_state.walking_time_ms % 30);
+            // Real signal strength from SubGHz hardware
+            if(app->subghz_txrx) {
+                // Get real RSSI from SubGHz receiver
+                walking_state.signal_strength = furi_hal_subghz_get_rssi();
+                FURI_LOG_D("WalkingOpen", "[REAL HW] Signal strength: %d dBm", walking_state.signal_strength);
+            } else {
+                walking_state.signal_strength = -80; // Default weak signal
+            }
         }
         
         // Special Paris demo messages for extended demo

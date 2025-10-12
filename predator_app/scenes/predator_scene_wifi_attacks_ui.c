@@ -16,11 +16,11 @@ void predator_scene_wifi_attacks_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "📡 WiFi Attacks");
     
-    submenu_add_item(app->submenu, "📡 WiFi Scan", SubmenuIndexWifiScan, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "💥 WiFi Deauth", SubmenuIndexWifiDeauth, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "👹 Evil Twin", SubmenuIndexWifiEvilTwin, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🤝 Handshake", SubmenuIndexWifiHandshake, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 PMKID", SubmenuIndexWifiPmkid, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 WiFi Scan", 1, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "💥 WiFi Deauth", 2, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "👹 Evil Twin", 3, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🤝 Handshake", 4, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔑 PMKID", 5, wifi_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -32,21 +32,21 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case SubmenuIndexWifiScan:
+        case 1: // WiFi Scan
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiScanUI);
-            break;
-        case SubmenuIndexWifiDeauth:
+            return true;
+        case 2: // WiFi Deauth
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
-            break;
-        case SubmenuIndexWifiEvilTwin:
+            return true;
+        case 3: // Evil Twin
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
-            break;
-        case SubmenuIndexWifiHandshake:
+            return true;
+        case 4: // WiFi Handshake
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
-            break;
-        case SubmenuIndexWifiPmkid:
+            return true;
+        case 5: // PMKID
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
-            break;
+            return true;
         default:
             consumed = false;
             break;

@@ -152,9 +152,15 @@ static void ai_execute_coordinated_attack(PredatorApp* app) {
     if(predator_crypto_multi_vector_attack(app, &ai_state.current_config)) {
         predator_log_append(app, "AI SUCCESS: Multi-vector attack deployed");
         
-        // Real-time success rate calculation
-        ai_state.success_rate = (ai_state.attacks_coordinated > 0) ? 
-            (85 + (furi_get_tick() % 15)) : 0; // 85-100% success rate simulation
+        // Real success rate calculation from actual attack results
+        if(ai_state.attacks_coordinated > 0 && app->packets_sent > 0) {
+            // Real success rate based on actual hardware responses
+            ai_state.success_rate = (app->packets_received * 100) / app->packets_sent;
+            FURI_LOG_I("AICoordinator", "[REAL HW] Success rate: %u%% (%lu/%lu)", 
+                      ai_state.success_rate, app->packets_received, app->packets_sent);
+        } else {
+            ai_state.success_rate = 0;
+        }
         
         char success_log[80];
         snprintf(success_log, sizeof(success_log), 
@@ -184,8 +190,14 @@ static void ai_walking_mode_coordinator(PredatorApp* app) {
     
     // Continuous scanning and attacking while walking
     for(int step = 0; step < 10; step++) {
-        // Simulate walking steps with GPS updates
-        predator_log_append(app, "WALKING AI: Step detected, scanning area...");
+        // Real walking steps with GPS updates
+        if(app->gps_connected && app->latitude != 0.0f) {
+            predator_log_append(app, "WALKING AI: Real GPS step detected, scanning area...");
+            FURI_LOG_I("AICoordinator", "[REAL HW] GPS position: %.6f, %.6f", 
+                      (double)app->latitude, (double)app->longitude);
+        } else {
+            predator_log_append(app, "WALKING AI: Step detected, scanning area...");
+        }
         
         // AI scans for new targets
         ai_analyze_targets(app);

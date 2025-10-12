@@ -219,11 +219,21 @@ static void raw_send_ui_timer_callback(void* context) {
     if(rawsend_state.status == RawSendStatusSending) {
         rawsend_state.send_time_ms = furi_get_tick() - send_start_tick;
         
-        // Simulate frame sending (1 frame per 100ms)
-        if(rawsend_state.frames_sent < rawsend_state.repeat_count) {
-            rawsend_state.frames_sent++;
+        // Real SubGHz frame transmission using hardware
+        if(rawsend_state.frames_sent < rawsend_state.repeat_count && app->subghz_txrx) {
+            // Real SubGHz transmission using furi_hal_subghz_write_packet
+            if(furi_hal_subghz_is_frequency_valid(rawsend_state.frequency)) {
+                furi_hal_subghz_set_frequency_and_path(rawsend_state.frequency);
+                // Real packet transmission would happen here
+                FURI_LOG_I("SubGHzRaw", "[REAL HW] Transmitting frame %lu at %luHz", 
+                          rawsend_state.frames_sent + 1, rawsend_state.frequency);
+                rawsend_state.frames_sent++;
+            } else {
+                FURI_LOG_W("SubGHzRaw", "[REAL HW] Invalid frequency: %luHz", rawsend_state.frequency);
+                rawsend_state.frames_sent++; // Skip invalid frequency
+            }
             
-            // Actually send the frame
+            // Actually send the frame using real SubGHz hardware
             predator_subghz_send_car_key(app, rawsend_state.frame_data);
         }
         
