@@ -25,6 +25,7 @@ typedef struct {
 } JammingState;
 
 static JammingState jamming_state;
+static View* jamming_view = NULL;
 static uint32_t jamming_start_tick = 0;
 
 // Common car frequencies
@@ -271,18 +272,18 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    jamming_view = view_alloc();
+    if(!jamming_view) {
         FURI_LOG_E("JammingUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, car_jamming_ui_draw_callback);
-    view_set_input_callback(view, car_jamming_ui_input_callback);
+    view_set_context(jamming_view, app);
+    view_set_draw_callback(jamming_view, car_jamming_ui_draw_callback);
+    view_set_input_callback(jamming_view, car_jamming_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, jamming_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarJammingUI);
     
     FURI_LOG_I("JammingUI", "Car Jamming UI initialized");
@@ -330,6 +331,11 @@ void predator_scene_car_jamming_ui_on_exit(void* context) {
     // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarJammingUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(jamming_view) {
+        view_free(jamming_view);
+        jamming_view = NULL;
     }
     
     FURI_LOG_I("JammingUI", "Car Jamming UI exited");

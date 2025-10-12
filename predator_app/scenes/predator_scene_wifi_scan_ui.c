@@ -25,7 +25,7 @@ typedef struct {
 } WiFiScanState;
 
 static WiFiScanState scan_state;
-static uint32_t scan_start_tick;
+static uint32_t scan_start_tick = 0;
 static View* wifi_scan_view = NULL; // Store view reference for cleanup
 
 static void draw_scan_header(Canvas* canvas) {

@@ -27,6 +27,7 @@ typedef struct {
 } CarKeyBruteforceState;
 
 static CarKeyBruteforceState carkey_state;
+static View* car_key_view = NULL;
 static uint32_t attack_start_tick = 0;
 
 static void draw_car_key_header(Canvas* canvas) {
@@ -249,17 +250,19 @@ void predator_scene_car_key_bruteforce_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
+    // Create view with callbacks
+    car_key_view = view_alloc();
+    if(!car_key_view) {
         FURI_LOG_E("CarKeyBruteforceUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, car_key_bruteforce_ui_draw_callback);
-    view_set_input_callback(view, car_key_bruteforce_ui_input_callback);
+    view_set_context(car_key_view, app);
+    view_set_draw_callback(car_key_view, car_key_bruteforce_ui_draw_callback);
+    view_set_input_callback(car_key_view, car_key_bruteforce_ui_input_callback);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI, view);
+    // Add view to dispatcher
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI, car_key_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI);
     
     FURI_LOG_I("CarKeyBruteforceUI", "Car Key Bruteforce UI initialized");
@@ -299,9 +302,14 @@ void predator_scene_car_key_bruteforce_ui_on_exit(void* context) {
     }
     
     carkey_state.status = CarKeyBruteforceStatusIdle;
-    
+    // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(car_key_view) {
+        view_free(car_key_view);
+        car_key_view = NULL;
     }
     
     FURI_LOG_I("CarKeyBruteforceUI", "Car Key Bruteforce UI exited");

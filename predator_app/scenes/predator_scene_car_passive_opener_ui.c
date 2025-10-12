@@ -26,6 +26,7 @@ typedef struct {
 } PassiveOpenerState;
 
 static PassiveOpenerState passive_state;
+static View* passive_opener_view = NULL;
 static uint32_t listen_start_tick = 0;
 
 static void draw_passive_opener_header(Canvas* canvas) {
@@ -235,17 +236,19 @@ void predator_scene_car_passive_opener_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
+    // Create view with callbacks
+    passive_opener_view = view_alloc();
+    if(!passive_opener_view) {
         FURI_LOG_E("PassiveOpenerUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, car_passive_opener_ui_draw_callback);
-    view_set_input_callback(view, car_passive_opener_ui_input_callback);
+    view_set_context(passive_opener_view, app);
+    view_set_draw_callback(passive_opener_view, car_passive_opener_ui_draw_callback);
+    view_set_input_callback(passive_opener_view, car_passive_opener_ui_input_callback);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI, view);
+    // Add view to dispatcher
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI, passive_opener_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI);
     
     FURI_LOG_I("PassiveOpenerUI", "Car Passive Opener UI initialized");
@@ -285,9 +288,14 @@ void predator_scene_car_passive_opener_ui_on_exit(void* context) {
     }
     
     passive_state.status = PassiveOpenerStatusIdle;
-    
+    // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(passive_opener_view) {
+        view_free(passive_opener_view);
+        passive_opener_view = NULL;
     }
     
     FURI_LOG_I("PassiveOpenerUI", "Car Passive Opener UI exited");
