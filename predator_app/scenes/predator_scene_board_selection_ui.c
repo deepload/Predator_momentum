@@ -117,7 +117,7 @@ static void draw_success_screen(Canvas* canvas) {
     canvas_draw_str(canvas, 2, 45, success_icons[anim]);
     canvas_draw_str(canvas, 20, 45, "Ready for Swiss Demo!");
     
-    canvas_draw_str(canvas, 2, 58, "Any key to continue...");
+    canvas_draw_str(canvas, 2, 58, "Any key=Back  Back=Main Menu");
 }
 
 static void board_draw_callback(Canvas* canvas, void* context) {
@@ -189,7 +189,11 @@ static bool board_input_callback(InputEvent* event, void* context) {
                     break;
                     
                 case InputKeyBack:
-                    // Let framework handle back to main menu
+                    // FIXED: Properly navigate back to main menu
+                    if(board_state.app && board_state.app->scene_manager) {
+                        scene_manager_previous_scene(board_state.app->scene_manager);
+                    }
+                    consumed = true;
                     break;
                     
                 default:
@@ -250,10 +254,8 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case BoardScreenSuccess:
-            // Any key exits back to main menu
-            if(board_state.app && board_state.app->scene_manager) {
-                scene_manager_previous_scene(board_state.app->scene_manager);
-            }
+            // FIXED: Any key goes back to main screen first, then user can navigate
+            board_state.current_screen = BoardScreenMain;
             consumed = true;
             break;
     }
@@ -310,6 +312,12 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
     if(event.type == SceneManagerEventTypeCustom && event.event == 1) {
         // Trigger redraw for animations
         return true;
+    }
+    
+    // FIXED: Handle back navigation properly
+    if(event.type == SceneManagerEventTypeBack) {
+        // Don't let framework quit the app, handle back navigation ourselves
+        return true; // We handle back in input callback
     }
     
     return false; // Let framework handle other events
