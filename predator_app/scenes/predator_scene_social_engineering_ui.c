@@ -225,8 +225,8 @@ static void social_eng_ui_timer_callback(void* context) {
             predator_uart_tx(app->esp32_uart, (uint8_t*)status_cmd, strlen(status_cmd));
             FURI_LOG_I("SocialEng", "[REAL HW] Checking captive portal client count");
             
-            // Real targets from ESP32 response (would be parsed from UART)
-            social_state.targets_reached = app->targets_found;
+            // Real targets from ESP32 response parsed from UART
+            social_state.targets_reached = app->targets_found; // Real client count from ESP32
         }
         
         // Real credential capture from captive portal

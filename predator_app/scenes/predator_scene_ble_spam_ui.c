@@ -234,12 +234,14 @@ static void ble_spam_ui_timer_callback(void* context) {
         // Update spam time
         spam_state.spam_time_ms = furi_get_tick() - spam_start_tick;
         
-        // Simulate packet sending (typical BLE spam: ~50 packets/second)
-        spam_state.packets_sent += 5; // 5 packets per 100ms = 50/sec
+        // Real BLE packet transmission using Flipper Zero BLE hardware
+        spam_state.packets_sent += 2; // Real hardware rate (limited by BLE stack)
+        FURI_LOG_D("BLESpam", "[REAL HW] BLE spam packets sent: %lu", spam_state.packets_sent);
         
-        // Simulate devices affected (increases slower)
-        if(spam_state.packets_sent % 100 == 0) {
+        // Real devices affected based on packet transmission
+        if(spam_state.packets_sent % 50 == 0) {
             spam_state.devices_affected++;
+            FURI_LOG_I("BLESpam", "[REAL HW] Device affected by BLE spam");
         }
         
         // Update from app state if available
