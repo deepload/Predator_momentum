@@ -193,16 +193,14 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
     PredatorApp* app = context;
     if(!app) return false;
 
-    // Professional back-debounce
+    // Professional back-debounce using navigation safety helper
     if(event.type == SceneManagerEventTypeBack) {
-        uint32_t current_tick = furi_get_tick();
-        if(current_tick - last_back_press < 500) {
-            return true;
+        if(predator_navigation_back_debounce(&last_back_press, 500)) {
+            return true; // Debounced
         }
-        last_back_press = current_tick;
         
         predator_log_append(app, "UniversalHacker: Exiting universal car hacker");
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
 

@@ -43,11 +43,10 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Handle back button - exit app only from main menu
+    // Handle back button - SAFE exit app only from main menu
     if(event.type == SceneManagerEventTypeBack) {
-        // From main menu, we exit the app
-        scene_manager_stop(app->scene_manager);
-        view_dispatcher_stop(app->view_dispatcher);
+        // CRITICAL: Only exit from main menu - use safe exit pattern
+        PREDATOR_SAFE_EXIT_APP(app);
         return true;
     }
     
