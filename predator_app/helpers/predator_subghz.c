@@ -423,7 +423,18 @@ __attribute__((used)) bool predator_subghz_start_jamming(PredatorApp* app, uint3
         FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
         return false;
     }
-    FURI_LOG_I("PredatorSubGHz", "Starting jamming on %lu Hz", frequency);
+    FURI_LOG_I("PredatorSubGHz", "[REAL HW] Starting jamming on %lu Hz", frequency);
+    
+    // REAL HARDWARE: Set SubGHz frequency and start transmission
+    if(furi_hal_subghz_is_frequency_valid(frequency)) {
+        furi_hal_subghz_set_frequency_and_path(frequency);
+        furi_hal_subghz_start_async_tx(NULL, 0); // Start continuous transmission
+        FURI_LOG_I("PredatorSubGHz", "[REAL HW] RF transmission started on %lu Hz", frequency);
+    } else {
+        FURI_LOG_E("PredatorSubGHz", "[REAL HW] Invalid frequency for transmission: %lu Hz", frequency);
+        return false;
+    }
+    
     app->attack_running = true;
     notification_message(app->notifications, &sequence_set_red_255);
     return true;
@@ -439,9 +450,13 @@ __attribute__((used)) bool predator_subghz_stop_attack(PredatorApp* app) {
         FURI_LOG_W("PredatorSubGHz", "SubGHz not initialized - nothing to stop");
         return false;
     }
+    // REAL HARDWARE: Stop SubGHz transmission
+    furi_hal_subghz_stop_async_tx();
+    FURI_LOG_I("PredatorSubGHz", "[REAL HW] RF transmission stopped");
+    
     app->attack_running = false;
     notification_message(app->notifications, &sequence_reset_red);
-    FURI_LOG_I("PredatorSubGHz", "Stopped SubGHz attack");
+    FURI_LOG_I("PredatorSubGHz", "[REAL HW] SubGHz attack stopped");
     return true;
 }
 
