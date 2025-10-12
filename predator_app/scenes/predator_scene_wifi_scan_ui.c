@@ -141,10 +141,15 @@ static bool wifi_scan_ui_input_callback(InputEvent* event, void* context) {
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            // Stop scan and exit
-            scan_state.status = WiFiScanStatusIdle;
-            predator_esp32_stop_attack(app);
-            predator_log_append(app, "WiFiScan STOP");
+            // SAFE STOP: Prevent crash during exit
+            if(scan_state.status == WiFiScanStatusScanning) {
+                scan_state.status = WiFiScanStatusIdle;
+                if(app && app->esp32_uart) {
+                    predator_esp32_stop_attack(app);
+                }
+                predator_log_append(app, "WiFiScan STOP");
+                furi_delay_ms(100); // Allow cleanup
+            }
             return false; // Let scene manager handle back
         } else if(event->key == InputKeyOk) {
             if(scan_state.status == WiFiScanStatusIdle) {
@@ -296,25 +301,30 @@ void predator_scene_wifi_scan_ui_on_exit(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
-    // Stop timer
+    // CRITICAL: Stop timer first to prevent callbacks during cleanup
     if(app->timer) {
         furi_timer_stop(app->timer);
         furi_timer_free(app->timer);
         app->timer = NULL;
     }
     
-    // Stop any running scan
+    // SAFE STOP: Stop any running scan with NULL checks
     if(scan_state.status == WiFiScanStatusScanning) {
-        predator_esp32_stop_attack(app);
-        predator_log_append(app, "WiFiScan STOP");
+        scan_state.status = WiFiScanStatusIdle;
+        if(app->esp32_uart) {
+            predator_esp32_stop_attack(app);
+        }
+        predator_log_append(app, "WiFiScan EXIT");
+        furi_delay_ms(50); // Allow ESP32 to process stop
     }
     
-    scan_state.status = WiFiScanStatusIdle;
+    // SAFE: Reset scan state
+    memset(&scan_state, 0, sizeof(scan_state));
     
-    // Remove view
+    // CRITICAL: Safe view cleanup to prevent bus fault
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiScanUI);
     }
     
-    FURI_LOG_I("WiFiScanUI", "WiFi Scan UI exited");
+    FURI_LOG_I("WiFiScanUI", "WiFi Scan UI safely exited");
 }

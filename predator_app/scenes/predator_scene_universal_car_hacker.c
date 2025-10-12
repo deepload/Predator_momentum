@@ -170,9 +170,9 @@ void predator_scene_universal_car_hacker_on_enter(void* context) {
     submenu_add_item(app->submenu, "🔒 FIXED CODE ONLY", 4, universal_hacker_submenu_callback, app);
     submenu_add_item(app->submenu, "🔐 SMART KEY ONLY", 5, universal_hacker_submenu_callback, app);
     submenu_add_item(app->submenu, "🚶 WALKING MODE (ELON)", 6, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 FREQUENCY SCAN", 10, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 DATABASE INFO", 11, universal_hacker_submenu_callback, app);
-    submenu_add_item(app->submenu, "📈 ATTACK STATS", 12, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "📡 FREQUENCY SCAN", 13, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 DATABASE INFO", 14, universal_hacker_submenu_callback, app);
+    submenu_add_item(app->submenu, "📈 ATTACK STATS", 15, universal_hacker_submenu_callback, app);
 
     // Log initialization - Professional status
     predator_log_append(app, "COMPREHENSIVE AUDIT: Security testing platform initialized");
@@ -209,9 +209,19 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case 1: { // SELECT CAR MODEL (MAIN) - Professional car model selection
-            predator_log_append(app, "PROFESSIONAL: Car model selection - core functionality");
-            predator_log_append(app, "DATABASE: 90+ car models available for testing");
-            predator_log_append(app, "NAVIGATE: Use this menu to select specific car models");
+            predator_log_append(app, "CAR MODEL SELECTION: Accessing 90+ model database");
+            
+            // Show professional car selection popup
+            if(app->popup) {
+                popup_reset(app->popup);
+                popup_set_header(app->popup, "CAR MODEL SELECTION", 64, 10, AlignCenter, AlignTop);
+                popup_set_text(app->popup, "90+ Car Models Available\n\nUse Car Attacks menu\nto access specific models\n\nAll manufacturers included:\nToyota, BMW, Mercedes, etc.", 
+                              64, 25, AlignCenter, AlignTop);
+                popup_set_timeout(app->popup, 6000);
+                popup_enable_timeout(app->popup);
+                view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
+            }
+            return true;
             
             // Optimized batch processing for better performance
             size_t batch_size = (hacker_state.total_models > 15) ? 15 : hacker_state.total_models;
@@ -405,7 +415,7 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
             return true;
         }
         
-        case 10: { // FREQUENCY SCAN
+        case 13: { // FREQUENCY SCAN
             predator_log_append(app, "FREQUENCY SCAN: Scanning all car frequencies");
             predator_log_append(app, "SCANNING: 315MHz, 433MHz, 433.42MHz, 868MHz, 915MHz");
             
@@ -422,7 +432,7 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
             return true;
         }
         
-        case 11: { // DATABASE INFO
+        case 14: { // DATABASE INFO
             predator_log_append(app, "DATABASE: Displaying car models database information");
             
             if(app->popup) {
@@ -451,7 +461,7 @@ bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEve
             return true;
         }
         
-        case 12: { // ATTACK STATS
+        case 15: { // ATTACK STATS
             predator_log_append(app, "STATS: Displaying attack statistics");
             
             if(app->popup) {
