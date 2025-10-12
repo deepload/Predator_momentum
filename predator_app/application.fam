@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=4 * 1024,  # ENGINEERED: Optimized 4KB with memory consolidation
+    stack_size=2 * 1024,  # EMERGENCY: Critical 2KB for Swiss demo
     fap_category="Tools",
     fap_description="Professional Security Toolkit - Memory Optimized",
     fap_version="2.0",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=8000", "MEMORY_OPTIMIZED=1", "ADVANCED_CONSOLIDATION=1"],  # ENGINEERED: Smart heap management
+    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "EMERGENCY_MODE=1"],  # EMERGENCY: Minimal heap
     sources=[
         # Core application
         "predator.c",
