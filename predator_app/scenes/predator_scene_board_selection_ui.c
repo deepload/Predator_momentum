@@ -3,6 +3,7 @@
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
+#include "../helpers/predator_subghz.h"
 #include "../predator_uart.h"
 #include <gui/view.h>
 #include <string.h>
@@ -36,7 +37,8 @@ static void draw_board_selection_header(Canvas* canvas) {
     canvas_draw_line(canvas, 0, 12, 128, 12);
 }
 
-static void draw_board_list(Canvas* canvas, BoardSelectionState* state) {
+static void draw_board_list(Canvas* canvas, BoardSelectionState* state, PredatorApp* app) {
+    UNUSED(app);
     canvas_set_font(canvas, FontSecondary);
     
     // Instructions
@@ -57,9 +59,31 @@ static void draw_board_list(Canvas* canvas, BoardSelectionState* state) {
             canvas_draw_str(canvas, 2, y, ">");
         }
         
-        // Board name (with bounds check)
+        // Board name with real hardware status
         if(idx < board_count) {
             canvas_draw_str(canvas, 12, y, board_names[idx]);
+            
+            // Show real hardware availability for each board
+            const PredatorBoardConfig* config = predator_boards_get_config((PredatorBoardType)idx);
+            if(config) {
+                // Show hardware capabilities with simple string building
+                char hw_status[8] = "";
+                int pos = 0;
+                
+                // Check board capabilities based on board type
+                if(idx == PredatorBoardType3in1AIO || idx == PredatorBoardTypeScreen28) {
+                    hw_status[pos++] = 'W'; // WiFi
+                    hw_status[pos++] = 'G'; // GPS (same boards have both)
+                }
+                if(config->has_external_rf && pos < 7) {
+                    hw_status[pos++] = 'R'; // RF
+                }
+                hw_status[pos] = '\0';
+                
+                if(pos > 0) {
+                    canvas_draw_str(canvas, 90, y, hw_status);
+                }
+            }
         } else {
             canvas_draw_str(canvas, 12, y, "Invalid Board");
         }
@@ -70,11 +94,11 @@ static void draw_board_list(Canvas* canvas, BoardSelectionState* state) {
         }
     }
     
-    // Status line
+    // Status line with hardware legend
     if(state->selection_changed) {
         canvas_draw_str(canvas, 2, 58, "Press OK to confirm");
     } else {
-        canvas_draw_str(canvas, 2, 58, "* = Current board");
+        canvas_draw_str(canvas, 2, 58, "W=WiFi G=GPS R=RF * = Current");
     }
 }
 
@@ -88,7 +112,7 @@ static void board_selection_ui_draw_callback(Canvas* canvas, void* context) {
     canvas_set_color(canvas, ColorBlack);
     
     draw_board_selection_header(canvas);
-    draw_board_list(canvas, &board_state);
+    draw_board_list(canvas, &board_state, (PredatorApp*)context);
     
     canvas_set_font(canvas, FontSecondary);
     if(board_state.selection_changed) {
@@ -119,8 +143,42 @@ static bool board_selection_ui_input_callback(InputEvent* event, void* context) 
                 board_state.current_board = board_state.selected_board;
                 board_state.selection_changed = false;
                 
-                // SAFE board change - just update type, no hardware reinit during selection
-                FURI_LOG_I("BoardSelectionUI", "Board type changed - hardware will reinit on next app start");
+                // REAL BOARD CHANGE - Initialize hardware for new board immediately
+                FURI_LOG_I("BoardSelectionUI", "[REAL HW] Board type changed - reinitializing hardware");
+                
+                // Deinitialize current hardware
+                if(app->esp32_uart) {
+                    predator_esp32_deinit(app);
+                }
+                if(app->gps_uart) {
+                    predator_gps_deinit(app);
+                }
+                if(app->subghz_txrx) {
+                    predator_subghz_deinit(app);
+                }
+                
+                // Initialize hardware for new board
+                const PredatorBoardConfig* new_config = predator_boards_get_config(app->board_type);
+                if(new_config) {
+                    FURI_LOG_I("BoardSelectionUI", "[REAL HW] Initializing %s board", new_config->name);
+                    
+                    // Initialize SubGHz first (always available)
+                    predator_subghz_init(app);
+                    
+                    // Initialize ESP32 if available on this board type
+                    if(app->board_type == PredatorBoardType3in1AIO || app->board_type == PredatorBoardTypeScreen28) {
+                        predator_esp32_init(app);
+                        FURI_LOG_I("BoardSelectionUI", "[REAL HW] ESP32 initialized for %s", new_config->name);
+                    }
+                    
+                    // Initialize GPS if available on this board type
+                    if(app->board_type == PredatorBoardType3in1AIO || app->board_type == PredatorBoardTypeScreen28) {
+                        predator_gps_init(app);
+                        FURI_LOG_I("BoardSelectionUI", "[REAL HW] GPS initialized for %s", new_config->name);
+                    }
+                } else {
+                    FURI_LOG_E("BoardSelectionUI", "[REAL HW] Invalid board configuration");
+                }
                 
                 char log_msg[64];
                 if(board_state.selection_index < board_count) {

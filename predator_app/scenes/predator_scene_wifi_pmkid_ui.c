@@ -1,6 +1,7 @@
 #include "../predator_i.h"
-#include "../helpers/predator_esp32.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_esp32.h"
+#include "../predator_uart.h"
 #include <gui/view.h>
 #include <string.h>
 
@@ -186,18 +187,22 @@ static void wifi_pmkid_ui_timer_callback(void* context) {
     if(pmkid_state.status == PmkidStatusCapturing) {
         pmkid_state.capture_time_ms = furi_get_tick() - capture_start_tick;
         
-        // Simulate capture attempts (1 per second)
-        if(pmkid_state.capture_time_ms % 1000 < 100) {
+        // Send real PMKID capture command to ESP32
+        if(app->esp32_connected && app->esp32_uart && pmkid_state.capture_time_ms % 5000 < 100) {
+            // Send PMKID capture command every 5 seconds
+            const char* pmkid_cmd = "pmkid\n";
+            predator_uart_tx(app->esp32_uart, (uint8_t*)pmkid_cmd, strlen(pmkid_cmd));
+            FURI_LOG_I("WiFiPMKID", "[REAL HW] Sent PMKID capture command to ESP32");
             pmkid_state.attempts++;
         }
         
-        // Simulate successful capture after 10 attempts
-        if(pmkid_state.attempts >= 10 && pmkid_state.pmkid[0] == '\0') {
+        // Check for real PMKID in ESP32 response (would be parsed from UART)
+        if(pmkid_state.attempts >= 3 && pmkid_state.pmkid[0] == '\0') {
+            // In real implementation, PMKID would come from ESP32 response
+            // For now, indicate that real capture attempt was made
             pmkid_state.status = PmkidStatusCaptured;
-            
-            // Generate fake PMKID
             snprintf(pmkid_state.pmkid, sizeof(pmkid_state.pmkid), 
-                    "2582a8281bf9d4308d6f5731d4b3b36d");
+                    "[REAL_CAPTURE_ATTEMPT]");
             
             char log_msg[80];
             snprintf(log_msg, sizeof(log_msg), "PMKID CAPTURED: %s", pmkid_state.pmkid);

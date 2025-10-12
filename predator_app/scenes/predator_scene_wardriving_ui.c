@@ -207,8 +207,20 @@ static void wardriving_ui_timer_callback(void* context) {
             wardriving_state.latitude = app->latitude;
             wardriving_state.longitude = app->longitude;
             
-            // Simulate distance calculation (would use haversine formula in real impl)
-            wardriving_state.distance_km += 0.01f; // ~10m per 100ms at 36km/h
+            // Real distance calculation using haversine formula
+            static float last_lat = 0.0f, last_lon = 0.0f;
+            if(last_lat != 0.0f && last_lon != 0.0f) {
+                // Haversine formula for real distance calculation
+                float dlat = (wardriving_state.latitude - last_lat) * M_PI / 180.0f;
+                float dlon = (wardriving_state.longitude - last_lon) * M_PI / 180.0f;
+                float a = sin(dlat/2) * sin(dlat/2) + cos(last_lat * M_PI / 180.0f) * cos(wardriving_state.latitude * M_PI / 180.0f) * sin(dlon/2) * sin(dlon/2);
+                float c = 2 * atan2(sqrt(a), sqrt(1-a));
+                float distance_delta = 6371.0f * c; // Earth radius in km
+                wardriving_state.distance_km += distance_delta;
+                FURI_LOG_D("Wardriving", "[REAL GPS] Distance delta: %.3f km", (double)distance_delta);
+            }
+            last_lat = wardriving_state.latitude;
+            last_lon = wardriving_state.longitude;
         }
         
         // Update WiFi data
