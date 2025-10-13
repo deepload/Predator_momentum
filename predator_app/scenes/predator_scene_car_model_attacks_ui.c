@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_subghz.h"
+#include "../helpers/predator_logging.h"
 
 // Attack methods for the model selected in app->selected_model_*
 // Navigates to existing attack scenes with proper UI and live status
@@ -29,9 +30,10 @@ void predator_scene_car_model_attacks_ui_on_enter(void* context) {
 
     // Offer all methods - navigates to existing professional attack scenes
     submenu_add_item(app->submenu, "🔑 Key Bruteforce", 1, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "📡 RF Jamming", 2, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "🚗 Passive Opener", 3, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "📈 Live Monitor", 4, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🔄 Rolling Code Attack", 2, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "📡 RF Jamming", 3, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🚗 Passive Opener", 4, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "📈 Live Monitor", 5, model_attacks_cb, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -41,10 +43,10 @@ bool predator_scene_car_model_attacks_ui_on_event(void* context, SceneManagerEve
     if(!app) return false;
 
     if(event.type == SceneManagerEventTypeBack) {
-        // Ensure any TX is stopped, then go back to model list
+        // Ensure any TX is stopped, then let scene manager navigate back
         predator_subghz_stop_attack(app);
-        scene_manager_previous_scene(app->scene_manager);
-        return true;
+        // Return false to let scene manager do normal back navigation
+        return false;
     }
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -52,13 +54,17 @@ bool predator_scene_car_model_attacks_ui_on_event(void* context, SceneManagerEve
             case 1: // Key Bruteforce - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
                 return true;
-            case 2: // RF Jamming - Navigate to existing scene
+            case 2: // Rolling Code Attack - Advanced bruteforce with rolling code detection
+                predator_log_append(app, "Rolling Code: Advanced cryptographic attack");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+                return true;
+            case 3: // RF Jamming - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
                 return true;
-            case 3: // Passive Opener - Navigate to existing scene
+            case 4: // Passive Opener - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
                 return true;
-            case 4: // Live Monitor - Navigate to existing scene
+            case 5: // Live Monitor - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             default:

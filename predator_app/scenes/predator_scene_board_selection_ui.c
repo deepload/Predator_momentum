@@ -211,11 +211,9 @@ static bool board_input_callback(InputEvent* event, void* context) {
                     break;
                     
                 case InputKeyBack:
-                    // PROFESSIONAL: Send back event to scene manager with proper handling
-                    if(board_state.app && board_state.app->view_dispatcher) {
-                        view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 999); // Special back event
-                    }
-                    consumed = true;
+                    // DON'T consume Back on main screen - let view dispatcher handle it
+                    // This allows proper scene manager navigation
+                    consumed = false;
                     break;
                     
                 default:
@@ -276,15 +274,15 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case BoardScreenSuccess:
-            // PROFESSIONAL: Success screen navigation with proper event handling
-            if(event->key == InputKeyBack) {
-                // Back button navigates to main menu via custom event
-                if(board_state.app && board_state.app->view_dispatcher) {
-                    view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 999); // Special back event
-                }
-            } else {
-                // Any other key goes back to main board selection screen
-                board_state.current_screen = BoardScreenMain;
+            // PROFESSIONAL: Success screen - any key returns to main menu
+            // Board has been saved successfully, no need to stay in selection
+            FURI_LOG_I("BoardSelection", "Success screen - user pressed key, returning to main menu");
+            // Reset to main screen state for next time
+            board_state.current_screen = BoardScreenMain;
+            // Send custom event to tell scene manager to go back
+            // This is safer than calling scene_manager_previous_scene directly
+            if(board_state.app && board_state.app->view_dispatcher) {
+                view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 998); // Success complete event
             }
             consumed = true;
             break;
@@ -347,18 +345,20 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
         return true;
     }
     
-    // PROFESSIONAL: Handle special back navigation event from input callback
-    if(event.type == SceneManagerEventTypeCustom && event.event == 999) {
-        // Navigate back to main menu with professional logging
-        predator_log_append(app, "BoardSelection: Professional navigation to main menu");
-        PREDATOR_SAFE_PREVIOUS_SCENE(app);
-        return true;
+    // PROFESSIONAL: Handle success complete event - board selected, go back to main menu
+    if(event.type == SceneManagerEventTypeCustom && event.event == 998) {
+        // Board successfully selected, return to main menu
+        FURI_LOG_I("BoardSelection", "Board selection complete, returning to main menu");
+        predator_log_append(app, "BoardSelection: Board configured successfully");
+        // Return false to let scene manager navigate back
+        return false;
     }
     
-    // Handle back button - SAFE navigate to previous scene
+    // Handle back button - let scene manager navigate back
     if(event.type == SceneManagerEventTypeBack) {
-        PREDATOR_SAFE_PREVIOUS_SCENE(app);
-        return true;
+        // Return false to let scene manager do default back navigation
+        // Returning true would exit the app!
+        return false;
     }
     
     return false; // Let framework handle other events

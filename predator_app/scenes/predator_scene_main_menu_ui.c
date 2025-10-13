@@ -5,6 +5,10 @@
 
 // Main Menu - Professional UI (Memory Optimized, No Guards)
 // Clean submenu implementation for Tesla demo
+// ANTI-ACCIDENTAL-EXIT: Double-press Back to exit app
+
+static uint32_t last_back_press_time = 0;
+#define DOUBLE_PRESS_TIMEOUT_MS 2000 // 2 seconds to press Back again
 
 static void main_menu_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
@@ -15,6 +19,9 @@ static void main_menu_submenu_callback(void* context, uint32_t index) {
 void predator_scene_main_menu_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app || !app->submenu) return;
+    
+    // Reset back button timer when entering main menu
+    last_back_press_time = 0;
     
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🔧 PREDATOR Optimized");
@@ -42,11 +49,29 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Handle back button - SAFE exit app only from main menu
+    // ANTI-ACCIDENTAL-EXIT: Double-press Back to exit app
     if(event.type == SceneManagerEventTypeBack) {
-        // CRITICAL: Only exit from main menu - use safe exit pattern
-        PREDATOR_SAFE_EXIT_APP(app);
-        return true;
+        uint32_t current_time = furi_get_tick();
+        uint32_t time_since_last = current_time - last_back_press_time;
+        
+        // Check if this is a double-press (within 2 seconds)
+        if(time_since_last < DOUBLE_PRESS_TIMEOUT_MS && last_back_press_time != 0) {
+            // DOUBLE PRESS DETECTED - Exit app
+            FURI_LOG_I("MainMenu", "Double Back press detected - exiting app");
+            PREDATOR_SAFE_EXIT_APP(app);
+            return true;
+        } else {
+            // FIRST PRESS - Show warning and wait for second press
+            FURI_LOG_I("MainMenu", "Press Back again to exit app");
+            last_back_press_time = current_time;
+            
+            // Optional: Show a popup or notification
+            if(app->notifications) {
+                notification_message(app->notifications, &sequence_single_vibro);
+            }
+            
+            return true; // Consume the event but don't exit
+        }
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

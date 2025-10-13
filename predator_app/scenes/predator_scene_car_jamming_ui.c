@@ -131,17 +131,10 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            // Stop jamming and exit
-            if(jamming_state.status == JammingStatusJamming) {
-                jamming_state.status = JammingStatusComplete;
-                predator_subghz_stop_attack(app);
-                
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Jamming STOP: %s for %lus", 
-                        jamming_state.frequency_str, jamming_state.jamming_time_ms / 1000);
-                predator_log_append(app, log_msg);
-            }
-            return false; // Let scene manager handle back
+            // DON'T intercept Back here - let view dispatcher handle it
+            // The scene manager's on_event will receive SceneManagerEventTypeBack
+            FURI_LOG_I("JammingUI", "Back key in input callback, returning false to pass to scene manager");
+            return false;
         } else if(event->key == InputKeyOk) {
             if(jamming_state.status == JammingStatusIdle) {
                 // Start jamming
@@ -298,19 +291,23 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
         return;
     }
     
-    // Create view with callbacks
-    jamming_view = view_alloc();
+    // Create view with callbacks (only if not already created)
     if(!jamming_view) {
-        FURI_LOG_E("JammingUI", "Failed to allocate view");
-        return;
+        jamming_view = view_alloc();
+        if(!jamming_view) {
+            FURI_LOG_E("JammingUI", "Failed to allocate view");
+            return;
+        }
+        
+        view_set_context(jamming_view, app);
+        view_set_draw_callback(jamming_view, car_jamming_ui_draw_callback);
+        view_set_input_callback(jamming_view, car_jamming_ui_input_callback);
+        
+        // Add view to dispatcher
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, jamming_view);
+        FURI_LOG_I("JammingUI", "View allocated and added to dispatcher");
     }
     
-    view_set_context(jamming_view, app);
-    view_set_draw_callback(jamming_view, car_jamming_ui_draw_callback);
-    view_set_input_callback(jamming_view, car_jamming_ui_input_callback);
-    
-    // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, jamming_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarJammingUI);
     
     FURI_LOG_I("JammingUI", "Car Jamming UI initialized");
@@ -323,6 +320,26 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
 bool predator_scene_car_jamming_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
+    
+    // CRITICAL: Handle back button to stay in app
+    if(event.type == SceneManagerEventTypeBack) {
+        FURI_LOG_I("JammingUI", "Back button pressed - stopping attack");
+        // Stop jamming if active, then return false to let scene manager handle navigation
+        if(jamming_state.status == JammingStatusJamming) {
+            jamming_state.status = JammingStatusComplete;
+            predator_subghz_stop_attack(app);
+            
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Jamming STOPPED by user: %s for %lus", 
+                    jamming_state.frequency_str, jamming_state.jamming_time_ms / 1000);
+            predator_log_append(app, log_msg);
+            FURI_LOG_I("JammingUI", "Attack stopped");
+        }
+        // Return false to let scene manager do default back navigation (go to previous scene)
+        // Returning true would exit the app!
+        FURI_LOG_I("JammingUI", "Returning false - scene manager will navigate back");
+        return false;
+    }
     
     if(event.type == SceneManagerEventTypeCustom) {
         // Custom event received - view will redraw automatically
@@ -343,7 +360,7 @@ void predator_scene_car_jamming_ui_on_exit(void* context) {
         app->timer = NULL;
     }
     
-    // Stop jamming
+    // Stop jamming if active
     if(jamming_state.status == JammingStatusJamming) {
         predator_subghz_stop_attack(app);
         
@@ -354,16 +371,7 @@ void predator_scene_car_jamming_ui_on_exit(void* context) {
     }
     
     jamming_state.status = JammingStatusIdle;
-    
-    // Remove view
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarJammingUI);
-    }
-    // Free allocated view to prevent memory leak
-    if(jamming_view) {
-        view_free(jamming_view);
-        jamming_view = NULL;
-    }
+    // DON'T remove/free view - we reuse it next time
     
     FURI_LOG_I("JammingUI", "Car Jamming UI exited");
 }

@@ -273,10 +273,10 @@ bool predator_scene_module_status_ui_on_event(void* context, SceneManagerEvent e
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button - SAFE return to main menu
+    // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        PREDATOR_SAFE_PREVIOUS_SCENE(app);
-        return true;
+        // Return false to let scene manager navigate back
+        return false;
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

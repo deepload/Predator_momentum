@@ -30,10 +30,10 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Handle back button - SAFE return to main menu
+    // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        PREDATOR_SAFE_PREVIOUS_SCENE(app);
-        return true;
+        // Return false to let scene manager navigate back
+        return false;
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

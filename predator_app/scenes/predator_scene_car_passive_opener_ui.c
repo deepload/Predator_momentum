@@ -139,15 +139,8 @@ static bool car_passive_opener_ui_input_callback(InputEvent* event, void* contex
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            if(passive_state.status == PassiveOpenerStatusListening) {
-                passive_state.status = PassiveOpenerStatusComplete;
-                predator_subghz_stop_attack(app);
-                
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Passive Opener STOP: %lu signals, %lu keys", 
-                        passive_state.signals_detected, passive_state.keys_captured);
-                predator_log_append(app, log_msg);
-            }
+            // DON'T intercept Back here - let view dispatcher handle it
+            // The scene manager's on_event will receive SceneManagerEventTypeBack
             return false;
         } else if(event->key == InputKeyOk) {
             if(passive_state.status == PassiveOpenerStatusIdle) {
@@ -245,19 +238,22 @@ void predator_scene_car_passive_opener_ui_on_enter(void* context) {
         return;
     }
     
-    // Create view with callbacks
-    passive_opener_view = view_alloc();
+    // Create view with callbacks (only once - reuse it)
     if(!passive_opener_view) {
-        FURI_LOG_E("PassiveOpenerUI", "Failed to allocate view");
-        return;
+        passive_opener_view = view_alloc();
+        if(!passive_opener_view) {
+            FURI_LOG_E("PassiveOpenerUI", "Failed to allocate view");
+            return;
+        }
+        
+        view_set_context(passive_opener_view, app);
+        view_set_draw_callback(passive_opener_view, car_passive_opener_ui_draw_callback);
+        view_set_input_callback(passive_opener_view, car_passive_opener_ui_input_callback);
+        
+        // Add view to dispatcher
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI, passive_opener_view);
     }
     
-    view_set_context(passive_opener_view, app);
-    view_set_draw_callback(passive_opener_view, car_passive_opener_ui_draw_callback);
-    view_set_input_callback(passive_opener_view, car_passive_opener_ui_input_callback);
-    
-    // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI, passive_opener_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI);
     
     FURI_LOG_I("PassiveOpenerUI", "Car Passive Opener UI initialized");
@@ -269,6 +265,23 @@ void predator_scene_car_passive_opener_ui_on_enter(void* context) {
 bool predator_scene_car_passive_opener_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
+    
+    // CRITICAL: Handle back button to stay in app
+    if(event.type == SceneManagerEventTypeBack) {
+        // Stop listening if active, then return false to let scene manager handle navigation
+        if(passive_state.status == PassiveOpenerStatusListening) {
+            passive_state.status = PassiveOpenerStatusComplete;
+            predator_subghz_stop_attack(app);
+            
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Passive Opener STOPPED: %lu signals, %lu keys", 
+                    passive_state.signals_detected, passive_state.keys_captured);
+            predator_log_append(app, log_msg);
+        }
+        // Return false to let scene manager do default back navigation (go to previous scene)
+        // Returning true would exit the app!
+        return false;
+    }
     
     if(event.type == SceneManagerEventTypeCustom) {
         return true;
@@ -297,15 +310,7 @@ void predator_scene_car_passive_opener_ui_on_exit(void* context) {
     }
     
     passive_state.status = PassiveOpenerStatusIdle;
-    // Remove view
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarPassiveOpenerUI);
-    }
-    // Free allocated view to prevent memory leak
-    if(passive_opener_view) {
-        view_free(passive_opener_view);
-        passive_opener_view = NULL;
-    }
+    // DON'T remove/free view - we reuse it next time
     
     FURI_LOG_I("PassiveOpenerUI", "Car Passive Opener UI exited");
 }
