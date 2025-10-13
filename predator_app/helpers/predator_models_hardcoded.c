@@ -152,6 +152,80 @@ static const PredatorCarModel hardcoded_models[] = {
     {"Volvo", "Various Rolling", 868350000, "Rolling Code"},
     {"Volvo", "Various Smart", 868350000, "Smart Key"},
     
+    // === CHINESE MANUFACTURERS (China Standard 433.92MHz) ===
+    
+    // BYD (比亚迪) - World's Largest EV Maker
+    {"BYD", "Han 2020+", 433920000, "Smart Key"},
+    {"BYD", "Tang 2018+", 433920000, "Smart Key"},
+    {"BYD", "Song Plus", 433920000, "Rolling Code"},
+    {"BYD", "Seal 2022+", 433920000, "Smart Key"},
+    {"BYD", "Dolphin 2021+", 433920000, "Smart Key"},
+    {"BYD", "Various Rolling", 433920000, "Rolling Code"},
+    
+    // NIO (蔚来) - Premium EVs
+    {"NIO", "ES6 2019+", 433920000, "Smart Key"},
+    {"NIO", "ES8 2018+", 433920000, "Smart Key"},
+    {"NIO", "ET5 2022+", 433920000, "Smart Key"},
+    {"NIO", "ET7 2022+", 433920000, "Smart Key"},
+    
+    // XPENG (小鹏) - Tech-Focused EVs
+    {"Xpeng", "P7 2020+", 433920000, "Smart Key"},
+    {"Xpeng", "P5 2021+", 433920000, "Smart Key"},
+    {"Xpeng", "G9 2022+", 433920000, "Smart Key"},
+    {"Xpeng", "G3 2019+", 433920000, "Smart Key"},
+    
+    // GEELY (吉利) - Major Manufacturer
+    {"Geely", "Emgrand GT", 433920000, "Rolling Code"},
+    {"Geely", "Boyue 2018+", 433920000, "Rolling Code"},
+    {"Geely", "Coolray 2020+", 433920000, "Smart Key"},
+    {"Geely", "Various Rolling", 433920000, "Rolling Code"},
+    
+    // GREAT WALL (长城) - SUVs & Pickups
+    {"Great Wall", "Haval H6", 433920000, "Rolling Code"},
+    {"Great Wall", "WEY VV7", 433920000, "Smart Key"},
+    {"Great Wall", "Tank 300", 433920000, "Rolling Code"},
+    
+    // MG (SAIC Motor) - Global Brand
+    {"MG", "ZS EV 2019+", 433920000, "Smart Key"},
+    {"MG", "HS 2019+", 433920000, "Rolling Code"},
+    {"MG", "Various", 433920000, "Rolling Code"},
+    
+    // ROEWE (上汽荣威) - SAIC Brand
+    {"Roewe", "RX5 2016+", 433920000, "Rolling Code"},
+    {"Roewe", "i6 2017+", 433920000, "Rolling Code"},
+    
+    // CHANGAN (长安)
+    {"Changan", "CS75 Plus", 433920000, "Rolling Code"},
+    {"Changan", "UNI-T 2020+", 433920000, "Smart Key"},
+    {"Changan", "Eado 2018+", 433920000, "Rolling Code"},
+    
+    // HONGQI (红旗) - Luxury State Cars
+    {"Hongqi", "H9 2020+", 433920000, "Smart Key"},
+    {"Hongqi", "E-HS9 2021+", 433920000, "Smart Key"},
+    
+    // LI AUTO (理想) - Extended-Range EVs
+    {"Li Auto", "Li ONE 2019+", 433920000, "Smart Key"},
+    {"Li Auto", "L7 2023+", 433920000, "Smart Key"},
+    {"Li Auto", "L8 2022+", 433920000, "Smart Key"},
+    {"Li Auto", "L9 2022+", 433920000, "Smart Key"},
+    
+    // ZEEKR (极氪) - Geely's Premium EV
+    {"Zeekr", "001 2021+", 433920000, "Smart Key"},
+    {"Zeekr", "X 2023+", 433920000, "Smart Key"},
+    
+    // LYNK & CO (领克) - Geely-Volvo Joint
+    {"Lynk & Co", "01 2017+", 433920000, "Rolling Code"},
+    {"Lynk & Co", "03 2018+", 433920000, "Smart Key"},
+    
+    // JAC (江淮) - Commercial & Passenger
+    {"JAC", "iEV7S", 433920000, "Fixed Code"},
+    {"JAC", "Various", 433920000, "Rolling Code"},
+    
+    // AIWAYS (爱驰) - EV Startup
+    {"Aiways", "U5 2019+", 433920000, "Smart Key"},
+    
+    // === END CHINESE MANUFACTURERS ===
+    
     // 433.42 MHz - Honda-specific frequency
     {"Honda", "Various", 433420000, "Rolling Code"},
     {"Honda", "Various", 433420000, "Fixed Code"},

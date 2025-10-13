@@ -35,12 +35,12 @@ ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
 ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)
 ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)
 
-// GPS & Navigation
-ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
-ADD_SCENE(predator, wardriving_ui, WardrivingUI)
+// GPS & Navigation (TEMPORARILY DISABLED - memory optimization)
+// ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
+// ADD_SCENE(predator, wardriving_ui, WardrivingUI)
 
-// Social Engineering
-ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
+// Social Engineering (TEMPORARILY DISABLED - memory optimization)
+// ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 
 // System & Utility (ESSENTIAL)
 ADD_SCENE(predator, module_status_ui, ModuleStatusUI)

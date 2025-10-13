@@ -27,11 +27,10 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🛰️ GPS Tracker", 8, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚙 Wardriving", 9, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🎭 Social Engineering", 10, main_menu_submenu_callback, app);
-    // submenu_add_item(app->submenu, "🚦 Traffic Light Security", 11, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 Module Status", 11, main_menu_submenu_callback, app);
+    // submenu_add_item(app->submenu, "🛰️ GPS Tracker", 8, main_menu_submenu_callback, app);  // Temp disabled
+    // submenu_add_item(app->submenu, "🚙 Wardriving", 9, main_menu_submenu_callback, app);  // Temp disabled
+    // submenu_add_item(app->submenu, "🎭 Social Engineering", 10, main_menu_submenu_callback, app);  // Temp disabled
+    submenu_add_item(app->submenu, "📊 Module Status", 8, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🔧 Board Selection", 12, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "⚙️ Settings", 13, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "ℹ️ About", 14, main_menu_submenu_callback, app);
@@ -74,19 +73,7 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 7: // SubGHz Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzAttacksUI);
             return true;
-        case 8: // GPS Tracker
-            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
-            return true;
-        case 9: // Wardriving
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
-            return true;
-        case 10: // Social Engineering
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSocialEngineeringUI);
-            return true;
-        // case 11: // Traffic Light Security - Temporarily disabled
-        //     scene_manager_next_scene(app->scene_manager, PredatorSceneTrafficLightSecurityUI);
-        //     return true;
-        case 11: // Module Status
+        case 8: // Module Status
             scene_manager_next_scene(app->scene_manager, PredatorSceneModuleStatusUI);
             return true;
         case 12: // Board Selection
