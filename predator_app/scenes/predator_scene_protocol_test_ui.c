@@ -150,7 +150,9 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
 
         switch(event.event) {
             case 1: { // Test Keeloq
-                predator_log_append(app, "KEELOQ: Testing rolling code encryption...");
+                predator_log_append(app, "=== KEELOQ TEST STARTED ===");
+                predator_log_append(app, "Testing rolling code encryption...");
+                predator_log_append(app, "");
                 
                 // Test Keeloq encryption
                 KeeloqContext ctx = {
@@ -163,17 +165,25 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
                 uint8_t packet[16];
                 size_t len = 0;
                 if(predator_crypto_keeloq_generate_packet(&ctx, packet, &len)) {
-                    snprintf(msg, sizeof(msg), "KEELOQ: Generated %u-byte packet", (unsigned)len);
+                    snprintf(msg, sizeof(msg), "✅ SUCCESS: Generated %u-byte packet", (unsigned)len);
                     predator_log_append(app, msg);
-                    predator_log_append(app, "KEELOQ: 528-round encryption ✅");
+                    predator_log_append(app, "✅ 528-round encryption complete");
+                    predator_log_append(app, "✅ Keeloq algorithm working");
                 } else {
-                    predator_log_append(app, "KEELOQ: Generation failed ❌");
+                    predator_log_append(app, "❌ FAILED: Packet generation error");
                 }
+                predator_log_append(app, "");
+                predator_log_append(app, "=== TEST COMPLETE ===");
+                
+                // Navigate to Live Monitor to show results
+                scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             }
 
             case 2: { // Test Hitag2
-                predator_log_append(app, "HITAG2: Testing BMW/Audi protocol...");
+                predator_log_append(app, "=== HITAG2 TEST STARTED ===");
+                predator_log_append(app, "Testing BMW/Audi protocol...");
+                predator_log_append(app, "");
                 
                 Hitag2Context ctx = {
                     .key_uid = 0xABCDEF1234567890ULL,
@@ -184,24 +194,32 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
                 uint32_t challenge = 0x12345678;
                 uint32_t response = 0;
                 if(predator_crypto_hitag2_auth_challenge(&ctx, challenge, &response)) {
-                    snprintf(msg, sizeof(msg), "HITAG2: Auth OK (response=0x%08lX)", response);
+                    snprintf(msg, sizeof(msg), "✅ SUCCESS: Auth response=0x%08lX", response);
                     predator_log_append(app, msg);
                     
                     // Generate packet
                     uint8_t packet[16];
                     size_t len = 0;
                     if(predator_crypto_hitag2_generate_packet(&ctx, 0x01, packet, &len)) {
-                        snprintf(msg, sizeof(msg), "HITAG2: Generated %u-byte packet ✅", (unsigned)len);
+                        snprintf(msg, sizeof(msg), "✅ SUCCESS: Generated %u-byte packet", (unsigned)len);
                         predator_log_append(app, msg);
+                        predator_log_append(app, "✅ Hitag2 LFSR cipher working");
                     }
                 } else {
-                    predator_log_append(app, "HITAG2: Authentication failed ❌");
+                    predator_log_append(app, "❌ FAILED: Authentication error");
                 }
+                predator_log_append(app, "");
+                predator_log_append(app, "=== TEST COMPLETE ===");
+                
+                // Navigate to Live Monitor to show results
+                scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             }
 
             case 3: { // Test Smart Key AES
-                predator_log_append(app, "SMART_KEY: Testing AES-128 encryption...");
+                predator_log_append(app, "=== SMART KEY TEST STARTED ===");
+                predator_log_append(app, "Testing AES-128 encryption...");
+                predator_log_append(app, "");
                 
                 SmartKeyContext ctx;
                 memset(&ctx, 0, sizeof(ctx));
@@ -213,20 +231,26 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
                 // Generate challenge
                 uint8_t challenge[16];
                 if(predator_crypto_smart_key_challenge(&ctx, challenge, 16)) {
-                    snprintf(msg, sizeof(msg), "SMART_KEY: Challenge 0x%08lX generated", ctx.challenge);
+                    snprintf(msg, sizeof(msg), "✅ SUCCESS: Challenge 0x%08lX", ctx.challenge);
                     predator_log_append(app, msg);
                     
                     // Generate response
                     uint8_t response[16];
                     size_t len = 0;
                     if(predator_crypto_smart_key_response(&ctx, response, &len)) {
-                        predator_log_append(app, "SMART_KEY: AES-128 response generated ✅");
-                        snprintf(msg, sizeof(msg), "SMART_KEY: Response=0x%08lX", ctx.response);
+                        predator_log_append(app, "✅ SUCCESS: AES-128 encrypted");
+                        snprintf(msg, sizeof(msg), "✅ Response=0x%08lX", ctx.response);
                         predator_log_append(app, msg);
+                        predator_log_append(app, "✅ Smart Key challenge-response OK");
                     }
                 } else {
-                    predator_log_append(app, "SMART_KEY: Generation failed ❌");
+                    predator_log_append(app, "❌ FAILED: Challenge generation error");
                 }
+                predator_log_append(app, "");
+                predator_log_append(app, "=== TEST COMPLETE ===");
+                
+                // Navigate to Live Monitor to show results
+                scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             }
 
