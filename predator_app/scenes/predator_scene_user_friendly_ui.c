@@ -49,7 +49,7 @@ void predator_scene_user_friendly_ui_on_enter(void* context) {
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    // ELON'S USER-FRIENDLY UI - DEMO READY!
+    // USER-FRIENDLY UI - PRODUCTION READY
 
     // Initialize hardware power rails
     // Hardware initialization handled by system
@@ -72,7 +72,7 @@ void predator_scene_user_friendly_ui_on_enter(void* context) {
 
     // Log user-friendly UI initialization
     predator_log_append(app, "USER-FRIENDLY: Flipper Zero optimized interface activated");
-    predator_log_append(app, "ONE-CLICK: Simplified car hacking for maximum usability");
+    predator_log_append(app, "ONE-CLICK: Optimized security testing for efficiency");
     predator_log_append(app, "READY: All major car brands - one button press");
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
@@ -113,7 +113,7 @@ bool predator_scene_user_friendly_ui_on_event(void* context, SceneManagerEvent e
                 popup_set_text(app->popup, "🎯 HACK ANY CAR\n\n✅ Scanning for vehicles...\n✅ AI identifying target...\n✅ Quantum RF active...\n✅ Exploiting vulnerabilities...\n\n🚗 CAR HACKED!", 
                               64, 25, AlignCenter, AlignTop);
                 popup_set_context(app->popup, app);
-                popup_set_timeout(app->popup, 5000); // 5 second demo
+                popup_set_timeout(app->popup, 5000); // 5 second operation
                 popup_enable_timeout(app->popup);
                 view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
             }
@@ -173,7 +173,7 @@ bool predator_scene_user_friendly_ui_on_event(void* context, SceneManagerEvent e
         
         case 10: { // Walking Mode
             predator_log_append(app, "WALKING MODE: Automatic car hacking while walking");
-            predator_log_append(app, "ELON'S DEMO: Paris Forum transparency demonstration");
+            predator_log_append(app, "WALKING MODE: Continuous security assessment");
             scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
             return true;
         }

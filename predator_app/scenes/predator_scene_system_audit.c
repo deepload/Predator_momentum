@@ -6,7 +6,7 @@
 #include "../helpers/predator_logging.h"
 
 // SYSTEM AUDIT SCENE - COMPREHENSIVE ASSESSMENT
-// Validates all capabilities for Tesla demonstrations and government contracts
+// Validates all capabilities for government contracts and production deployment
 
 typedef enum {
     SystemAuditStateInitializing,
@@ -63,7 +63,7 @@ void predator_scene_system_audit_on_enter(void* context) {
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewPopup);
     
-    predator_log_append(app, "SYSTEM AUDIT: Starting comprehensive assessment for Tesla demo");
+    predator_log_append(app, "SYSTEM AUDIT: Starting comprehensive system validation");
 }
 
 bool predator_scene_system_audit_on_event(void* context, SceneManagerEvent event) {

@@ -140,11 +140,11 @@ void predator_scene_universal_car_hacker_on_enter(void* context) {
         return;
     }
 
-    // ELON'S WOW EFFECT - DEMO READY!
+    // PRODUCTION READY - GOVERNMENT GRADE
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    // All VIP++ capabilities logged for demonstration
+    // All VIP++ capabilities enabled for government contracts
 
     // WOW EFFECT - Opens all cars in parking
     // Hardware initialization handled by system

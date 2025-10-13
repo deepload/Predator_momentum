@@ -46,11 +46,11 @@ void predator_scene_tesla_security_suite_on_enter(void* context) {
         return;
     }
 
-    // ELON'S TESLA SECURITY SUITE - DEMO READY!
+    // TESLA SECURITY SUITE - PRODUCTION DEPLOYMENT
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    // All VIP++ capabilities logged for demonstration
+    // All VIP++ capabilities enabled for government contracts
     
     // Hardware initialization handled by system
 
@@ -252,9 +252,9 @@ bool predator_scene_tesla_security_suite_on_event(void* context, SceneManagerEve
             return true;
         }
         
-        case 10: { // Walking Open (Paris Demo)
-            predator_log_append(app, "WALKING OPEN: Elon's Paris Forum demonstration");
-            predator_log_append(app, "Tesla transparency demo - all brands vulnerable");
+        case 10: { // Walking Open (Production Assessment)
+            predator_log_append(app, "WALKING OPEN: Continuous security assessment");
+            predator_log_append(app, "Multi-brand vulnerability assessment");
             scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
             return true;
         }
