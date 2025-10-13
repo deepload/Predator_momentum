@@ -391,7 +391,7 @@ PredatorApp* predator_app_alloc() {
 
     // Only proceed to first scene if app and scene manager are valid
     if(app && app->scene_manager) {
-        scene_manager_next_scene(app->scene_manager, PredatorSceneMainMenuClean);
+        scene_manager_next_scene(app->scene_manager, PredatorSceneMainMenuUI);
     } else {
         FURI_LOG_E("Predator", "Cannot start initial scene - app or scene manager is NULL");
     }

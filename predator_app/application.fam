@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=2 * 1024,  # EMERGENCY: Critical 2KB for Swiss demo
+    stack_size=3 * 1024,  # Stabilized: 3KB to avoid startup OOM on 3in1
     fap_category="Tools",
     fap_description="Professional Security Toolkit - Memory Optimized",
     fap_version="2.0",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "EMERGENCY_MODE=1"],  # EMERGENCY: Minimal heap
+    cdefines=["HEAP_SIZE=6000", "MEMORY_OPTIMIZED=1", "EMERGENCY_MODE=1"],  # Stabilized: modest heap for real HW
     sources=[
         # Core application
         "predator.c",
@@ -40,7 +40,8 @@ App(
         
         # Tesla & Car Security (CORE BUSINESS)
         "scenes/predator_scene_car_tesla_ui.c",
-        "scenes/predator_scene_universal_car_hacker.c",  # ALL-IN-ONE CAR SOLUTION
+        "scenes/predator_scene_car_models_ui.c",           # Simple model picker
+        "scenes/predator_scene_car_model_attacks_ui.c",    # Attacks for selected model
         "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS REQUIREMENT
         "scenes/predator_scene_walking_open_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",

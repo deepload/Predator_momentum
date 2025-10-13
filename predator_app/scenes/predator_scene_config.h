@@ -1,11 +1,11 @@
 // PROFESSIONAL SCENE CONFIGURATION - ESSENTIAL SCENES ONLY
-ADD_SCENE(predator, main_menu_clean, MainMenuClean)
+ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 
-// Car Security (CORE BUSINESS)
-ADD_SCENE(predator, car_attacks_ui, CarAttacksUI)
-ADD_SCENE(predator, car_model_selector, CarModelSelector)
-ADD_SCENE(predator, car_test_results, CarTestResults)
+// Tesla & Car Security (CORE BUSINESS)
 ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
+ADD_SCENE(predator, car_models_ui, CarModelsUI)           // Simple model picker
+ADD_SCENE(predator, car_model_attacks_ui, CarModelAttacksUI) // Attacks for selected model
+ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
@@ -39,3 +39,4 @@ ADD_SCENE(predator, module_status_ui, ModuleStatusUI)
 ADD_SCENE(predator, board_selection_ui, BoardSelectionUI)
 ADD_SCENE(predator, settings_ui, SettingsUI)
 ADD_SCENE(predator, about_ui, AboutUI)
+ADD_SCENE(predator, live_monitor_ui, LiveMonitorUI)

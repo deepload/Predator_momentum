@@ -1,9 +1,11 @@
+#if !MEMORY_OPTIMIZED
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
-#include "../helpers/predator_ui_status.h"
+#include "../helpers/predator_models_hardcoded.h"
+#include "../helpers/predator_real_attack_engine.h"
 #include "../helpers/predator_logging.h"
-#include "../helpers/predator_compliance.h"
+#include <furi.h>
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
@@ -53,6 +55,24 @@ static void universal_hacker_submenu_callback(void* context, uint32_t index) {
     if(!app || !app->view_dispatcher) return;
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
+#else
+#include "../predator_i.h"
+#include "predator_scene.h"
+
+void predator_scene_universal_car_hacker_on_enter(void* context) {
+    (void)context;
+}
+
+bool predator_scene_universal_car_hacker_on_event(void* context, SceneManagerEvent event) {
+    (void)context;
+    (void)event;
+    return false;
+}
+
+void predator_scene_universal_car_hacker_on_exit(void* context) {
+    (void)context;
+}
+#endif
 
 // Execute attack based on car model type
 static void execute_car_attack(PredatorApp* app, const PredatorCarModel* model) {

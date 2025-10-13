@@ -1,3 +1,4 @@
+#if !MEMORY_OPTIMIZED
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_ui_clean.h"
@@ -113,3 +114,22 @@ void predator_scene_main_menu_ui_on_exit(void* context) {
         submenu_reset(app->submenu);
     }
 }
+
+#else
+#include "../predator_i.h"
+#include "predator_scene.h"
+
+void predator_scene_main_menu_ui_on_enter(void* context) {
+    (void)context;
+}
+
+bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event) {
+    (void)context;
+    (void)event;
+    return false;
+}
+
+void predator_scene_main_menu_ui_on_exit(void* context) {
+    (void)context;
+}
+#endif
