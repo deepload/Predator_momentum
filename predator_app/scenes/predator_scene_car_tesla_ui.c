@@ -26,6 +26,7 @@ typedef struct {
 } TeslaState;
 
 static TeslaState tesla_state;
+static View* tesla_view = NULL;
 static uint32_t attack_start_tick = 0;
 
 static void draw_tesla_header(Canvas* canvas) {
@@ -241,17 +242,17 @@ void predator_scene_car_tesla_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
+    tesla_view = view_alloc();
+    if(!tesla_view) {
         FURI_LOG_E("TeslaUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, tesla_ui_draw_callback);
-    view_set_input_callback(view, tesla_ui_input_callback);
+    view_set_context(tesla_view, app);
+    view_set_draw_callback(tesla_view, tesla_ui_draw_callback);
+    view_set_input_callback(tesla_view, tesla_ui_input_callback);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarTeslaUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarTeslaUI, tesla_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarTeslaUI);
     
     FURI_LOG_I("TeslaUI", "Tesla Attack UI initialized");
@@ -294,6 +295,11 @@ void predator_scene_car_tesla_ui_on_exit(void* context) {
     
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarTeslaUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(tesla_view) {
+        view_free(tesla_view);
+        tesla_view = NULL;
     }
     
     FURI_LOG_I("TeslaUI", "Tesla Attack UI exited");

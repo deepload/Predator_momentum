@@ -28,6 +28,7 @@ typedef struct {
 
 static PmkidState pmkid_state;
 static uint32_t capture_start_tick = 0;
+static View* pmkid_view = NULL;
 
 static void draw_pmkid_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -229,17 +230,17 @@ void predator_scene_wifi_pmkid_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
+    pmkid_view = view_alloc();
+    if(!pmkid_view) {
         FURI_LOG_E("PmkidUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, wifi_pmkid_ui_draw_callback);
-    view_set_input_callback(view, wifi_pmkid_ui_input_callback);
+    view_set_context(pmkid_view, app);
+    view_set_draw_callback(pmkid_view, wifi_pmkid_ui_draw_callback);
+    view_set_input_callback(pmkid_view, wifi_pmkid_ui_input_callback);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiPmkidUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiPmkidUI, pmkid_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWifiPmkidUI);
     
     FURI_LOG_I("PmkidUI", "WiFi PMKID UI initialized");
@@ -282,6 +283,11 @@ void predator_scene_wifi_pmkid_ui_on_exit(void* context) {
     
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiPmkidUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(pmkid_view) {
+        view_free(pmkid_view);
+        pmkid_view = NULL;
     }
     
     FURI_LOG_I("PmkidUI", "WiFi PMKID UI exited");

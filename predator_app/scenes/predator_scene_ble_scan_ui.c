@@ -26,6 +26,7 @@ typedef struct {
 
 static BleScanState blescan_state;
 static uint32_t scan_start_tick = 0;
+static View* ble_scan_view = NULL;
 
 static void draw_ble_scan_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -144,9 +145,15 @@ static bool ble_scan_ui_input_callback(InputEvent* event, void* context) {
                 blescan_state.scan_time_ms = 0;
                 scan_start_tick = furi_get_tick();
                 
-                // Initialize ESP32 and start scan
+                // CLEAR previous BLE results
+                app->ble_device_count = 0;
+                memset(app->ble_devices, 0, sizeof(app->ble_devices));
+                
+                // Initialize ESP32 and start BLE scan
                 predator_esp32_init(app);
+                FURI_LOG_I("BLEScan", "Starting BLE scan - sending BLE scan command");
                 bool started = predator_esp32_ble_scan(app);
+                FURI_LOG_I("BLEScan", "BLE scan command sent: %s", started ? "SUCCESS" : "FAILED");
                 
                 if(started) {
                     snprintf(blescan_state.transport_status, sizeof(blescan_state.transport_status), "OK");
@@ -183,6 +190,17 @@ static void ble_scan_ui_timer_callback(void* context) {
             // Real BLE scanning would detect actual devices
             blescan_state.devices_found = app->targets_found; // Real device count
             FURI_LOG_I("BLEScan", "[REAL HW] BLE devices discovered: %lu", blescan_state.devices_found);
+            
+            // Update device count from app state
+            blescan_state.devices_found = app->ble_device_count;
+            
+            // DEBUG: Log BLE scan progress
+            static uint32_t last_log_time = 0;
+            if(furi_get_tick() - last_log_time > 5000) {
+                FURI_LOG_I("BLEScan", "Scan progress: %lu devices found, ESP32 connected: %s", 
+                    blescan_state.devices_found, blescan_state.esp32_connected ? "YES" : "NO");
+                last_log_time = furi_get_tick();
+            }
             
             // Real device information from BLE scan results
             if(blescan_state.devices_found > 0) {
@@ -233,18 +251,18 @@ void predator_scene_ble_scan_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    ble_scan_view = view_alloc();
+    if(!ble_scan_view) {
         FURI_LOG_E("BleScanUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, ble_scan_ui_draw_callback);
-    view_set_input_callback(view, ble_scan_ui_input_callback);
+    view_set_context(ble_scan_view, app);
+    view_set_draw_callback(ble_scan_view, ble_scan_ui_draw_callback);
+    view_set_input_callback(ble_scan_view, ble_scan_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBleScanUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBleScanUI, ble_scan_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewBleScanUI);
     
     FURI_LOG_I("BleScanUI", "BLE Scan UI initialized");
@@ -292,6 +310,11 @@ void predator_scene_ble_scan_ui_on_exit(void* context) {
     // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBleScanUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(ble_scan_view) {
+        view_free(ble_scan_view);
+        ble_scan_view = NULL;
     }
     
     FURI_LOG_I("BleScanUI", "BLE Scan UI exited");

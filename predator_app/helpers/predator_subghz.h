@@ -57,6 +57,7 @@ void predator_subghz_deinit(PredatorApp* app);
 bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency);
 void predator_subghz_send_car_key(PredatorApp* app, uint32_t key_code);
 bool predator_subghz_start_jamming(PredatorApp* app, uint32_t frequency);
+bool predator_subghz_start_parking_attack(PredatorApp* app, uint32_t frequency, uint8_t barrier_type);
 bool predator_subghz_stop_attack(PredatorApp* app);
 void predator_subghz_send_tesla_charge_port(PredatorApp* app);
 

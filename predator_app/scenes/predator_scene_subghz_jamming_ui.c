@@ -1,12 +1,11 @@
 #include "../predator_i.h"
 #include "../helpers/predator_subghz.h"
-#include "../helpers/predator_compliance.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_constants.h"
 #include <gui/view.h>
-#include <string.h>
 
-// SubGHz RF Jamming - Professional UI
-// Shows real-time RF jamming with frequency and power control
+// SubGHz Jamming - Professional UI
+// Real-time RF jamming with frequency selection
 
 typedef enum {
     RFJammingStatusIdle,
@@ -28,20 +27,6 @@ typedef struct {
 static RFJammingState jamming_state;
 static uint32_t jamming_start_tick = 0;
 
-// Common frequencies
-static const uint32_t frequencies[] = {
-    315000000,  // 315 MHz
-    433920000,  // 433.92 MHz
-    868350000,  // 868.35 MHz
-    915000000   // 915 MHz
-};
-static const char* frequency_names[] = {
-    "315 MHz",
-    "433.92 MHz",
-    "868.35 MHz",
-    "915 MHz"
-};
-static const uint8_t freq_count = 4;
 
 static void draw_rf_jamming_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -176,17 +161,17 @@ static bool rf_jamming_ui_input_callback(InputEvent* event, void* context) {
         } else if(event->key == InputKeyLeft && jamming_state.status == RFJammingStatusIdle) {
             if(jamming_state.freq_index > 0) {
                 jamming_state.freq_index--;
-                jamming_state.frequency = frequencies[jamming_state.freq_index];
+                jamming_state.frequency = PREDATOR_FREQUENCIES[jamming_state.freq_index];
                 snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
-                        "%.15s", frequency_names[jamming_state.freq_index]);
+                        "%.15s", PREDATOR_FREQUENCY_NAMES[jamming_state.freq_index]);
             }
             return true;
         } else if(event->key == InputKeyRight && jamming_state.status == RFJammingStatusIdle) {
-            if(jamming_state.freq_index < (freq_count - 1)) {
+            if(jamming_state.freq_index < (PREDATOR_FREQUENCY_COUNT - 1)) {
                 jamming_state.freq_index++;
-                jamming_state.frequency = frequencies[jamming_state.freq_index];
+                jamming_state.frequency = PREDATOR_FREQUENCIES[jamming_state.freq_index];
                 snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
-                        "%.15s", frequency_names[jamming_state.freq_index]);
+                        "%.15s", PREDATOR_FREQUENCY_NAMES[jamming_state.freq_index]);
             }
             return true;
         } else if(event->key == InputKeyUp && jamming_state.status == RFJammingStatusIdle) {
@@ -245,10 +230,10 @@ void predator_scene_subghz_jamming_ui_on_enter(void* context) {
         jamming_state.freq_index = 0; // 315 MHz for US/JP
     }
     
-    jamming_state.frequency = frequencies[jamming_state.freq_index];
+    jamming_state.frequency = PREDATOR_FREQUENCIES[jamming_state.freq_index];
     jamming_state.power_level = 80;
     snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
-            "%.15s", frequency_names[jamming_state.freq_index]);
+            "%.15s", PREDATOR_FREQUENCY_NAMES[jamming_state.freq_index]);
     
     if(!app->view_dispatcher) {
         FURI_LOG_E("RFJammingUI", "View dispatcher is NULL");

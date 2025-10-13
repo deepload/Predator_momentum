@@ -3,13 +3,16 @@ ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 
 // Tesla & Car Security (CORE BUSINESS)
 ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
-ADD_SCENE(predator, universal_car_hacker, UniversalCarHacker)  // ALL-IN-ONE CAR SOLUTION
+ADD_SCENE(predator, car_models_ui, CarModelsUI)           // Simple model picker
+ADD_SCENE(predator, car_model_attacks_ui, CarModelAttacksUI) // Attacks for selected model
+ADD_SCENE(predator, protocol_test_ui, ProtocolTestUI)     // Protocol testing (Keeloq/Hitag2/AES)
 ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
+ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)
 
-// WiFi Attacks (GOVERNMENT GRADE) - ALL SCENES KEPT
+// WiFi Attacks (GOVERNMENT GRADE)
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
@@ -22,26 +25,23 @@ ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)
 ADD_SCENE(predator, ble_scan_ui, BleScanUI)
 ADD_SCENE(predator, ble_spam_ui, BleSpamUI)
 
-// RFID Attacks (ESSENTIAL) - ALL SCENES KEPT
+// RFID Attacks (ESSENTIAL)
 ADD_SCENE(predator, rfid_attacks_ui, RfidAttacksUI)
 ADD_SCENE(predator, rfid_clone_ui, RfidCloneUI)
 ADD_SCENE(predator, rfid_bruteforce_ui, RfidBruteforceUI)
 ADD_SCENE(predator, rfid_fuzzing_ui, RfidFuzzingUI)
 
-// SubGHz Attacks (ESSENTIAL) - ALL SCENES KEPT
+// SubGHz Attacks (ESSENTIAL)
 ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
 ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)
 ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)
 
-// GPS & Navigation (ESSENTIAL)
-ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
-ADD_SCENE(predator, wardriving_ui, WardrivingUI)
+// GPS & Navigation (TEMPORARILY DISABLED - memory optimization)
+// ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
+// ADD_SCENE(predator, wardriving_ui, WardrivingUI)
 
-// Social Engineering (ESSENTIAL)
-ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
-
-// Government Contracts (CRITICAL) - Temporarily disabled
-// ADD_SCENE(predator, traffic_light_security_ui, TrafficLightSecurityUI)
+// Social Engineering (TEMPORARILY DISABLED - memory optimization)
+// ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 
 // System & Utility (ESSENTIAL)
 ADD_SCENE(predator, module_status_ui, ModuleStatusUI)

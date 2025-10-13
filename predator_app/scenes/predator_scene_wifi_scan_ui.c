@@ -26,6 +26,7 @@ typedef struct {
 
 static WiFiScanState scan_state;
 static uint32_t scan_start_tick = 0;
+static View* wifi_scan_view = NULL; // Store view reference for cleanup
 
 static void draw_scan_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -141,10 +142,15 @@ static bool wifi_scan_ui_input_callback(InputEvent* event, void* context) {
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            // Stop scan and exit
-            scan_state.status = WiFiScanStatusIdle;
-            predator_esp32_stop_attack(app);
-            predator_log_append(app, "WiFiScan STOP");
+            // SAFE STOP: Prevent crash during exit
+            if(scan_state.status == WiFiScanStatusScanning) {
+                scan_state.status = WiFiScanStatusIdle;
+                if(app && app->esp32_uart) {
+                    predator_esp32_stop_attack(app);
+                }
+                predator_log_append(app, "WiFiScan STOP");
+                furi_delay_ms(100); // Allow cleanup
+            }
             return false; // Let scene manager handle back
         } else if(event->key == InputKeyOk) {
             if(scan_state.status == WiFiScanStatusIdle) {
@@ -154,9 +160,15 @@ static bool wifi_scan_ui_input_callback(InputEvent* event, void* context) {
                 scan_state.scan_time_ms = 0;
                 scan_start_tick = furi_get_tick();
                 
+                // CLEAR previous scan results
+                app->wifi_ap_count = 0;
+                memset(app->wifi_ssids, 0, sizeof(app->wifi_ssids));
+                
                 // Initialize ESP32 and start scan
                 predator_esp32_init(app);
+                FURI_LOG_I("WiFiScan", "Starting WiFi scan - sending 'scanap' command");
                 bool started = predator_esp32_wifi_scan(app);
+                FURI_LOG_I("WiFiScan", "WiFi scan command sent: %s", started ? "SUCCESS" : "FAILED");
                 
                 if(started) {
                     snprintf(scan_state.transport_status, sizeof(scan_state.transport_status), "UART OK");
@@ -191,6 +203,14 @@ static void wifi_scan_ui_timer_callback(void* context) {
         
         // Update AP count from app state
         scan_state.aps_found = app->wifi_ap_count;
+        
+        // DEBUG: Log current AP count every 5 seconds
+        static uint32_t last_log_time = 0;
+        if(furi_get_tick() - last_log_time > 5000) {
+            FURI_LOG_I("WiFiScan", "Scan progress: %lu APs found, ESP32 connected: %s", 
+                scan_state.aps_found, scan_state.esp32_connected ? "YES" : "NO");
+            last_log_time = furi_get_tick();
+        }
         
         // Find strongest signal
         if(app->wifi_ap_count > 0) {
@@ -245,18 +265,18 @@ void predator_scene_wifi_scan_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    wifi_scan_view = view_alloc();
+    if(!wifi_scan_view) {
         FURI_LOG_E("WiFiScanUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, wifi_scan_ui_draw_callback);
-    view_set_input_callback(view, wifi_scan_ui_input_callback);
+    view_set_context(wifi_scan_view, app);
+    view_set_draw_callback(wifi_scan_view, wifi_scan_ui_draw_callback);
+    view_set_input_callback(wifi_scan_view, wifi_scan_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiScanUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiScanUI, wifi_scan_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWifiScanUI);
     
     FURI_LOG_I("WiFiScanUI", "WiFi Scan UI initialized");
@@ -282,25 +302,33 @@ void predator_scene_wifi_scan_ui_on_exit(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
-    // Stop timer
+    // CRITICAL: Stop timer first to prevent callbacks during cleanup
     if(app->timer) {
         furi_timer_stop(app->timer);
         furi_timer_free(app->timer);
         app->timer = NULL;
     }
     
-    // Stop any running scan
+    // SAFE STOP: Stop any running scan with NULL checks
     if(scan_state.status == WiFiScanStatusScanning) {
-        predator_esp32_stop_attack(app);
-        predator_log_append(app, "WiFiScan STOP");
+        scan_state.status = WiFiScanStatusIdle;
+        if(app->esp32_uart) {
+            predator_esp32_stop_attack(app);
+        }
+        predator_log_append(app, "WiFiScan EXIT");
+        furi_delay_ms(50); // Allow ESP32 to process stop
     }
     
-    scan_state.status = WiFiScanStatusIdle;
+    // SAFE: Reset scan state
+    memset(&scan_state, 0, sizeof(scan_state));
     
-    // Remove view
-    if(app->view_dispatcher) {
+    // CRITICAL: Free allocated view to prevent memory leak
+    if(app->view_dispatcher && wifi_scan_view) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiScanUI);
+        view_free(wifi_scan_view);
+        wifi_scan_view = NULL;
+        FURI_LOG_I("WiFiScanUI", "View freed - memory leak prevented");
     }
     
-    FURI_LOG_I("WiFiScanUI", "WiFi Scan UI exited");
+    FURI_LOG_I("WiFiScanUI", "WiFi Scan UI safely exited");
 }

@@ -25,6 +25,7 @@ typedef struct {
 } JammingState;
 
 static JammingState jamming_state;
+static View* jamming_view = NULL;
 static uint32_t jamming_start_tick = 0;
 
 // Common car frequencies
@@ -130,17 +131,10 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            // Stop jamming and exit
-            if(jamming_state.status == JammingStatusJamming) {
-                jamming_state.status = JammingStatusComplete;
-                predator_subghz_stop_attack(app);
-                
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Jamming STOP: %s for %lus", 
-                        jamming_state.frequency_str, jamming_state.jamming_time_ms / 1000);
-                predator_log_append(app, log_msg);
-            }
-            return false; // Let scene manager handle back
+            // DON'T intercept Back here - let view dispatcher handle it
+            // The scene manager's on_event will receive SceneManagerEventTypeBack
+            FURI_LOG_I("JammingUI", "Back key in input callback, returning false to pass to scene manager");
+            return false;
         } else if(event->key == InputKeyOk) {
             if(jamming_state.status == JammingStatusIdle) {
                 // Start jamming
@@ -161,12 +155,19 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
                     jamming_state.status = JammingStatusError;
                 }
                 
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Jamming START: %s at %u%% power", 
-                        jamming_state.frequency_str, (unsigned)jamming_state.power_level);
+                char log_msg[96];
+                if(app->selected_model_make[0] != '\0') {
+                    snprintf(log_msg, sizeof(log_msg), "Jamming %s %s: %s at %u%% power", 
+                            app->selected_model_make, app->selected_model_name,
+                            jamming_state.frequency_str, (unsigned)jamming_state.power_level);
+                } else {
+                    snprintf(log_msg, sizeof(log_msg), "Car Jamming START: %s at %u%% power", 
+                            jamming_state.frequency_str, (unsigned)jamming_state.power_level);
+                }
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("JammingUI", "Jamming started: %lu Hz", jamming_state.frequency);
+                FURI_LOG_I("JammingUI", "Jamming %s %s: %lu Hz", 
+                          app->selected_model_make, app->selected_model_name, jamming_state.frequency);
                 return true;
             } else if(jamming_state.status == JammingStatusJamming) {
                 // Stop jamming
@@ -257,12 +258,32 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
     // Initialize jamming state
     memset(&jamming_state, 0, sizeof(JammingState));
     jamming_state.status = JammingStatusIdle;
-    jamming_state.frequency = car_frequencies[0]; // Default 315 MHz
+    
+    // Use selected model's frequency if available, otherwise default
+    if(app->selected_model_freq > 0) {
+        jamming_state.frequency = app->selected_model_freq;
+        // Find closest match in frequency list for display
+        if(app->selected_model_freq == 315000000) {
+            current_freq_index = 0;
+        } else if(app->selected_model_freq >= 433000000 && app->selected_model_freq <= 434000000) {
+            current_freq_index = 1;
+        } else if(app->selected_model_freq >= 868000000 && app->selected_model_freq <= 869000000) {
+            current_freq_index = 2;
+        } else {
+            current_freq_index = 0; // Default
+        }
+        snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
+                "%lu.%02lu MHz", app->selected_model_freq / 1000000, 
+                (app->selected_model_freq % 1000000) / 10000);
+    } else {
+        jamming_state.frequency = car_frequencies[0]; // Default 315 MHz
+        current_freq_index = 0;
+        snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
+                "%.15s", frequency_names[0]);
+    }
+    
     jamming_state.power_level = 80; // Default 80% power
-    snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
-            "%.15s", frequency_names[0]);
     snprintf(jamming_state.status_text, sizeof(jamming_state.status_text), "Ready");
-    current_freq_index = 0;
     
     // Setup custom view
     if(!app->view_dispatcher) {
@@ -270,19 +291,23 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
         return;
     }
     
-    // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
-        FURI_LOG_E("JammingUI", "Failed to allocate view");
-        return;
+    // Create view with callbacks (only if not already created)
+    if(!jamming_view) {
+        jamming_view = view_alloc();
+        if(!jamming_view) {
+            FURI_LOG_E("JammingUI", "Failed to allocate view");
+            return;
+        }
+        
+        view_set_context(jamming_view, app);
+        view_set_draw_callback(jamming_view, car_jamming_ui_draw_callback);
+        view_set_input_callback(jamming_view, car_jamming_ui_input_callback);
+        
+        // Add view to dispatcher
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, jamming_view);
+        FURI_LOG_I("JammingUI", "View allocated and added to dispatcher");
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, car_jamming_ui_draw_callback);
-    view_set_input_callback(view, car_jamming_ui_input_callback);
-    
-    // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarJammingUI);
     
     FURI_LOG_I("JammingUI", "Car Jamming UI initialized");
@@ -295,6 +320,26 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
 bool predator_scene_car_jamming_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
+    
+    // CRITICAL: Handle back button to stay in app
+    if(event.type == SceneManagerEventTypeBack) {
+        FURI_LOG_I("JammingUI", "Back button pressed - stopping attack");
+        // Stop jamming if active, then return false to let scene manager handle navigation
+        if(jamming_state.status == JammingStatusJamming) {
+            jamming_state.status = JammingStatusComplete;
+            predator_subghz_stop_attack(app);
+            
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Jamming STOPPED by user: %s for %lus", 
+                    jamming_state.frequency_str, jamming_state.jamming_time_ms / 1000);
+            predator_log_append(app, log_msg);
+            FURI_LOG_I("JammingUI", "Attack stopped");
+        }
+        // Return false to let scene manager do default back navigation (go to previous scene)
+        // Returning true would exit the app!
+        FURI_LOG_I("JammingUI", "Returning false - scene manager will navigate back");
+        return false;
+    }
     
     if(event.type == SceneManagerEventTypeCustom) {
         // Custom event received - view will redraw automatically
@@ -315,7 +360,7 @@ void predator_scene_car_jamming_ui_on_exit(void* context) {
         app->timer = NULL;
     }
     
-    // Stop jamming
+    // Stop jamming if active
     if(jamming_state.status == JammingStatusJamming) {
         predator_subghz_stop_attack(app);
         
@@ -326,11 +371,7 @@ void predator_scene_car_jamming_ui_on_exit(void* context) {
     }
     
     jamming_state.status = JammingStatusIdle;
-    
-    // Remove view
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarJammingUI);
-    }
+    // DON'T remove/free view - we reuse it next time
     
     FURI_LOG_I("JammingUI", "Car Jamming UI exited");
 }

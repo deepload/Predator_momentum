@@ -128,6 +128,16 @@ static void module_status_ui_timer_callback(void* context) {
     // Update uptime
     status_state.uptime_ms = furi_get_tick() - start_tick;
     
+    // REAL BOARD DETECTION - Get actual board configuration
+    const PredatorBoardConfig* board_config = predator_boards_get_config(app->board_type);
+    if(board_config) {
+        strncpy(status_state.board_name, board_config->name, sizeof(status_state.board_name) - 1);
+        status_state.board_name[sizeof(status_state.board_name) - 1] = '\0';
+        FURI_LOG_D("ModuleStatus", "[REAL HW] Board: %s", status_state.board_name);
+    } else {
+        strncpy(status_state.board_name, "Unknown Board", sizeof(status_state.board_name) - 1);
+    }
+    
     // REAL HARDWARE STATUS DETECTION - NO SIMULATION
     // Real ESP32 detection based on board type and UART status
     if(app->board_type == PredatorBoardType3in1AIO || app->board_type == PredatorBoardTypeScreen28) {
@@ -265,8 +275,8 @@ bool predator_scene_module_status_ui_on_event(void* context, SceneManagerEvent e
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
-        return true;
+        // Return false to let scene manager navigate back
+        return false;
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

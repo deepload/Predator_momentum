@@ -15,28 +15,27 @@ void predator_scene_car_attacks_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app || !app->submenu) return;
     
-    // Initialize Real Attack Engine (critical for Elon's requirements)
+    // Initialize Real Attack Engine
     if(!predator_real_attack_init(app)) {
-        FURI_LOG_E("CarAttacks", "CRITICAL: Real Attack Engine initialization failed");
+        FURI_LOG_E("CarAttacks", "Real Attack Engine initialization failed");
     }
     
-    // Activate VIP mode for Tesla demonstrations
+    // Activate professional mode
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
     
-    predator_log_append(app, "CAR ATTACKS: Real attack engine activated");
-    predator_log_append(app, "TESLA MODE: Ready for security demonstrations");
+    predator_log_append(app, "Car Attacks: Real attack engine activated");
+    predator_log_append(app, "Professional Mode: Ready for security testing");
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🚗 Car Attacks - REAL POWER");
+    submenu_set_header(app->submenu, "Car Security Tests");
     
-    submenu_add_item(app->submenu, "🚗 Tesla Security", 1, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚗 Universal Car Hacker", 2, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 Key Bruteforce", 3, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 Car Jamming", 4, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔓 Passive Opener", 5, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚶 Walking Open", 6, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Select Car Model", 1, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Tesla Charge Port", 2, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Key Bruteforce", 3, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Car Jamming", 4, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Passive Opener", 5, car_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -45,20 +44,20 @@ bool predator_scene_car_attacks_ui_on_event(void* context, SceneManagerEvent eve
     PredatorApp* app = context;
     bool consumed = false;
     
-    // Handle back button - return to main menu
+    // Handle back button - SAFE return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case 1: // Tesla Security
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
+        case 1: // Select Car Model
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelSelector);
             return true;
-        case 2: // Universal Car Hacker
-            scene_manager_next_scene(app->scene_manager, PredatorSceneUniversalCarHacker);
+        case 2: // Tesla Charge Port
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             return true;
         case 3: // Key Bruteforce
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
@@ -68,9 +67,6 @@ bool predator_scene_car_attacks_ui_on_event(void* context, SceneManagerEvent eve
             return true;
         case 5: // Passive Opener
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
-            return true;
-        case 6: // Walking Open
-            scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
             return true;
         default:
             consumed = false;

@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=8 * 1024,  # OPTIMIZED: Reduced from 10KB
+    stack_size=6 * 1024,  # OPTIMIZED: Reduced to 6KB for memory efficiency
     fap_category="Tools",
     fap_description="Professional Security Toolkit - Memory Optimized",
     fap_version="2.0",
-    fap_author="Nico Lococo - Elon's Startup",
+    fap_author="Nico Lococo - Professional Security",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=16000", "MEMORY_OPTIMIZED=1"],  # OPTIMIZED: Reduced heap + optimization flag
+    cdefines=["HEAP_SIZE=12000", "MEMORY_OPTIMIZED=1"],  # OPTIMIZED: Further reduced heap
     sources=[
         # Core application
         "predator.c",
@@ -37,13 +37,13 @@ App(
         "scenes/predator_scene.c",
 
         # PROFESSIONAL - ESSENTIAL SCENES ONLY
-        "scenes/predator_scene_main_menu_ui.c",
         "scenes/predator_scene_main_menu_clean.c",  # CLEAN UI: Professional main menu
         
-        # Tesla & Car Security (CORE BUSINESS)
+        # Car Security (CORE BUSINESS)
+        "scenes/predator_scene_car_attacks_ui.c",
+        "scenes/predator_scene_car_model_selector.c",
+        "scenes/predator_scene_car_test_results.c",
         "scenes/predator_scene_car_tesla_ui.c",
-        "scenes/predator_scene_universal_car_hacker.c",  # ALL-IN-ONE CAR SOLUTION
-        "scenes/predator_scene_walking_open_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",
@@ -74,20 +74,11 @@ App(
         
         # GPS & Navigation (ESSENTIAL)
         "scenes/predator_scene_gps_tracker_ui.c",
-        "scenes/predator_scene_wardriving_ui.c",
-        
-        # Social Engineering (ESSENTIAL)
-        "scenes/predator_scene_social_engineering_ui.c",
-        
-        # Government Contracts (CRITICAL) - Temporarily disabled due to compilation errors
-        # "scenes/predator_scene_traffic_light_security_ui.c",
         
         # System & Utility (ESSENTIAL)
         "scenes/predator_scene_module_status_ui.c",
         "scenes/predator_scene_board_selection_ui.c",
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
-        "scenes/predator_scene_live_monitor_ui.c",
-        "scenes/predator_scene_subghz_raw_send_ui.c",
     ],
 )

@@ -27,6 +27,7 @@ typedef struct {
 } CarKeyBruteforceState;
 
 static CarKeyBruteforceState carkey_state;
+static View* car_key_view = NULL;
 static uint32_t attack_start_tick = 0;
 
 static void draw_car_key_header(Canvas* canvas) {
@@ -126,15 +127,8 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            if(carkey_state.status == CarKeyBruteforceStatusAttacking) {
-                carkey_state.status = CarKeyBruteforceStatusComplete;
-                predator_subghz_stop_attack(app);
-                
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce STOP: %lu/%lu codes", 
-                        carkey_state.codes_tried, carkey_state.total_codes);
-                predator_log_append(app, log_msg);
-            }
+            // DON'T intercept Back here - let view dispatcher handle it
+            // The scene manager's on_event will receive SceneManagerEventTypeBack
             return false;
         } else if(event->key == InputKeyOk) {
             if(carkey_state.status == CarKeyBruteforceStatusIdle) {
@@ -143,19 +137,28 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 carkey_state.attack_time_ms = 0;
                 attack_start_tick = furi_get_tick();
                 
-                carkey_state.frequency = 433920000; // 433.92 MHz
+                // Use selected model's frequency (or default if not set)
+                carkey_state.frequency = (app->selected_model_freq > 0) ? 
+                    app->selected_model_freq : 433920000;
                 carkey_state.total_codes = 65536; // 16-bit key space
                 
                 predator_subghz_init(app);
                 bool started = predator_subghz_start_car_bruteforce(app, carkey_state.frequency);
                 carkey_state.subghz_ready = started;
                 
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce START: %lu.%02lu MHz", 
-                        carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
+                char log_msg[96];
+                if(app->selected_model_make[0] != '\0') {
+                    snprintf(log_msg, sizeof(log_msg), "Bruteforce %s %s: %lu.%02lu MHz", 
+                            app->selected_model_make, app->selected_model_name,
+                            carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
+                } else {
+                    snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce START: %lu.%02lu MHz", 
+                            carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
+                }
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("CarKeyBruteforceUI", "Attack started");
+                FURI_LOG_I("CarKeyBruteforceUI", "Attack started on %s %s", 
+                          app->selected_model_make, app->selected_model_name);
                 return true;
             } else if(carkey_state.status == CarKeyBruteforceStatusAttacking) {
                 carkey_state.status = CarKeyBruteforceStatusComplete;
@@ -249,17 +252,22 @@ void predator_scene_car_key_bruteforce_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
-        FURI_LOG_E("CarKeyBruteforceUI", "Failed to allocate view");
-        return;
+    // Create view with callbacks (only if not already created)
+    if(!car_key_view) {
+        car_key_view = view_alloc();
+        if(!car_key_view) {
+            FURI_LOG_E("CarKeyBruteforceUI", "Failed to allocate view");
+            return;
+        }
+        
+        view_set_context(car_key_view, app);
+        view_set_draw_callback(car_key_view, car_key_bruteforce_ui_draw_callback);
+        view_set_input_callback(car_key_view, car_key_bruteforce_ui_input_callback);
+        
+        // Add view to dispatcher
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI, car_key_view);
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, car_key_bruteforce_ui_draw_callback);
-    view_set_input_callback(view, car_key_bruteforce_ui_input_callback);
-    
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI);
     
     FURI_LOG_I("CarKeyBruteforceUI", "Car Key Bruteforce UI initialized");
@@ -271,6 +279,23 @@ void predator_scene_car_key_bruteforce_ui_on_enter(void* context) {
 bool predator_scene_car_key_bruteforce_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
+    
+    // CRITICAL: Handle back button to stay in app
+    if(event.type == SceneManagerEventTypeBack) {
+        // Stop attack if running, then return false to let scene manager handle navigation
+        if(carkey_state.status == CarKeyBruteforceStatusAttacking) {
+            carkey_state.status = CarKeyBruteforceStatusComplete;
+            predator_subghz_stop_attack(app);
+            
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Bruteforce STOPPED by user: %lu/%lu codes", 
+                    carkey_state.codes_tried, carkey_state.total_codes);
+            predator_log_append(app, log_msg);
+        }
+        // Return false to let scene manager do default back navigation (go to previous scene)
+        // Returning true would exit the app!
+        return false;
+    }
     
     if(event.type == SceneManagerEventTypeCustom) {
         return true;
@@ -299,10 +324,7 @@ void predator_scene_car_key_bruteforce_ui_on_exit(void* context) {
     }
     
     carkey_state.status = CarKeyBruteforceStatusIdle;
-    
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI);
-    }
+    // DON'T remove/free view - we reuse it next time
     
     FURI_LOG_I("CarKeyBruteforceUI", "Car Key Bruteforce UI exited");
 }

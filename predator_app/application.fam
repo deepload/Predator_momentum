@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=8 * 1024,  # OPTIMIZED: Reduced from 10KB
+    stack_size=3 * 1024,  # Stable: 3KB (tested working)
     fap_category="Tools",
     fap_description="Professional Security Toolkit - Memory Optimized",
     fap_version="2.0",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=16000", "MEMORY_OPTIMIZED=1"],  # OPTIMIZED: Reduced heap + optimization flag
+    cdefines=["HEAP_SIZE=6000", "MEMORY_OPTIMIZED=1", "EMERGENCY_MODE=1"],  # Stable: tested working for real HW
     sources=[
         # Core application
         "predator.c",
@@ -30,6 +30,9 @@ App(
         "helpers/predator_logging.c",
         "helpers/predator_real_attack_engine.c",
         "helpers/predator_memory_optimized.c",  # OPTIMIZED: Replaces 4 heavy helpers
+        "helpers/predator_constants.c",  # SHARED: Constants implementation
+        "helpers/predator_crypto_engine.c",  # PRODUCTION: Keeloq, Hitag2, AES-128
+        "helpers/predator_crypto_packets.c",  # PRODUCTION: Manufacturer-specific packets
         
         # Scene router
         "scenes/predator_scene.c",
@@ -39,7 +42,10 @@ App(
         
         # Tesla & Car Security (CORE BUSINESS)
         "scenes/predator_scene_car_tesla_ui.c",
-        "scenes/predator_scene_universal_car_hacker.c",  # ALL-IN-ONE CAR SOLUTION
+        "scenes/predator_scene_car_models_ui.c",           # Simple model picker (WORKING)
+        "scenes/predator_scene_car_model_attacks_ui.c",    # Attacks for selected model (WORKING)
+        "scenes/predator_scene_protocol_test_ui.c",        # Protocol testing (Keeloq/Hitag2/AES)
+        "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS REQUIREMENT
         "scenes/predator_scene_walking_open_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
@@ -70,11 +76,11 @@ App(
         "scenes/predator_scene_subghz_raw_send_ui.c",
         
         # GPS & Navigation (ESSENTIAL)
-        "scenes/predator_scene_gps_tracker_ui.c",
-        "scenes/predator_scene_wardriving_ui.c",
+        #"scenes/predator_scene_gps_tracker_ui.c",
+        #"scenes/predator_scene_wardriving_ui.c",
         
         # Social Engineering (ESSENTIAL)
-        "scenes/predator_scene_social_engineering_ui.c",
+        #"scenes/predator_scene_social_engineering_ui.c",
         
         # Government Contracts (CRITICAL) - Temporarily disabled due to compilation errors
         # "scenes/predator_scene_traffic_light_security_ui.c",
@@ -85,6 +91,5 @@ App(
         "scenes/predator_scene_settings_ui.c",
         "scenes/predator_scene_about_ui.c",
         "scenes/predator_scene_live_monitor_ui.c",
-        "scenes/predator_scene_subghz_raw_send_ui.c",
     ],
 )

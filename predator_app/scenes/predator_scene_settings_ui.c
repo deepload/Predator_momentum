@@ -1,11 +1,13 @@
 #include "../predator_i.h"
+#include "../helpers/predator_settings.h"
 #include "../helpers/predator_compliance.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_constants.h"
 #include <gui/view.h>
 #include <string.h>
 
 // Settings - Professional UI
-// Shows configuration options with selection interface
+// Comprehensive settings with region selection and feature toggles
 
 typedef enum {
     SettingRegion,
@@ -22,18 +24,11 @@ typedef struct {
     bool logging_enabled;
     uint8_t brightness;
     bool settings_changed;
+    PredatorApp* app;
 } SettingsState;
 
 static SettingsState settings_state;
 
-static const char* region_names[] = {
-    "Auto",
-    "US/CA",
-    "EU",
-    "China",
-    "Japan"
-};
-static const uint8_t region_count = 5;
 
 static void draw_settings_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
@@ -53,8 +48,8 @@ static void draw_settings_list(Canvas* canvas, SettingsState* state) {
     }
     canvas_draw_str(canvas, 12, y, "Region:");
     // Safe array access with bounds checking
-    if(state->region_index < region_count) {
-        canvas_draw_str(canvas, 70, y, region_names[state->region_index]);
+    if(state->region_index < PREDATOR_REGION_COUNT) {
+        canvas_draw_str(canvas, 70, y, PREDATOR_REGION_NAMES[state->region_index]);
     } else {
         canvas_draw_str(canvas, 70, y, "ERROR");
     }
@@ -127,7 +122,7 @@ static bool settings_ui_input_callback(InputEvent* event, void* context) {
         } else if(event->key == InputKeyOk) {
             if(settings_state.settings_changed) {
                 // Save settings with safety checks
-                if(settings_state.region_index < region_count) {
+                if(settings_state.region_index < PREDATOR_REGION_COUNT) {
                     predator_compliance_set_region(app, (PredatorRegion)settings_state.region_index);
                     settings_state.settings_changed = false;
                     
@@ -175,7 +170,7 @@ static bool settings_ui_input_callback(InputEvent* event, void* context) {
             settings_state.settings_changed = true;
             switch(settings_state.current_setting) {
                 case SettingRegion:
-                    if(settings_state.region_index < (region_count - 1)) {
+                    if(settings_state.region_index < (PREDATOR_REGION_COUNT - 1)) {
                         settings_state.region_index++;
                     }
                     break;
@@ -212,7 +207,7 @@ void predator_scene_settings_ui_on_enter(void* context) {
     settings_state.current_setting = SettingRegion;
     
     // Safe region access with bounds checking
-    if(app->region < region_count) {
+    if(app->region < PREDATOR_REGION_COUNT) {
         settings_state.region_index = (uint8_t)app->region;
     } else {
         settings_state.region_index = 0; // Default to Auto
@@ -253,8 +248,8 @@ bool predator_scene_settings_ui_on_event(void* context, SceneManagerEvent event)
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
-        return true;
+        // Return false to let scene manager navigate back
+        return false;
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

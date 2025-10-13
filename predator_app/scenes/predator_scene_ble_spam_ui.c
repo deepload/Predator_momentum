@@ -34,6 +34,7 @@ typedef struct {
 } BleSpamState;
 
 static BleSpamState spam_state;
+static View* ble_spam_view = NULL;
 static uint32_t spam_start_tick = 0;
 
 static const char* get_mode_name(BleSpamMode mode) {
@@ -291,18 +292,18 @@ void predator_scene_ble_spam_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    ble_spam_view = view_alloc();
+    if(!ble_spam_view) {
         FURI_LOG_E("BleSpamUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, ble_spam_ui_draw_callback);
-    view_set_input_callback(view, ble_spam_ui_input_callback);
+    view_set_context(ble_spam_view, app);
+    view_set_draw_callback(ble_spam_view, ble_spam_ui_draw_callback);
+    view_set_input_callback(ble_spam_view, ble_spam_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBleSpamUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBleSpamUI, ble_spam_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewBleSpamUI);
     
     FURI_LOG_I("BleSpamUI", "BLE Spam UI initialized");
@@ -350,6 +351,11 @@ void predator_scene_ble_spam_ui_on_exit(void* context) {
     // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBleSpamUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(ble_spam_view) {
+        view_free(ble_spam_view);
+        ble_spam_view = NULL;
     }
     
     FURI_LOG_I("BleSpamUI", "BLE Spam UI exited");

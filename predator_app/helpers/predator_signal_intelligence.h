@@ -25,13 +25,8 @@ typedef enum {
 // Use AttackType from crypto engine - avoid duplicate definition
 #include "predator_crypto_engine.h"
 
-// Modulation Types
-typedef enum {
-    ModulationASK,
-    ModulationFSK,
-    ModulationPSK,
-    ModulationOOK
-} ModulationType;
+// RF Modulation Types (defined in predator_crypto_engine.h)
+// Using shared ModulationType from crypto engine
 
 // Signal Fingerprint Database Entry
 typedef struct {

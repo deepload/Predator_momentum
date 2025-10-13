@@ -92,17 +92,15 @@ bool predator_scene_car_model_tests_on_event(void* context, SceneManagerEvent ev
         return false;
     }
 
-    // Professional back-debounce (500ms)
+    // Professional back-debounce using navigation safety helper
     if(event.type == SceneManagerEventTypeBack) {
-        uint32_t current_tick = furi_get_tick();
-        if(current_tick - last_back_press < 500) {
+        if(predator_navigation_back_debounce(&last_back_press, 500)) {
             FURI_LOG_D("CarModelTests", "Back press debounced");
-            return true; // Ignore rapid back presses
+            return true;
         }
-        last_back_press = current_tick;
         
         predator_log_append(app, "CarModelTests: Exiting to car attacks menu");
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
 

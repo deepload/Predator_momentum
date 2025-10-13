@@ -145,9 +145,11 @@ static bool gps_tracker_ui_input_callback(InputEvent* event, void* context) {
                 gps_state.tracking_time_ms = 0;
                 tracking_start_tick = furi_get_tick();
                 
-                // Initialize GPS
+                // Initialize GPS with debugging
+                FURI_LOG_I("GPSTracker", "Initializing GPS for board type: %d", app->board_type);
                 predator_gps_init(app);
-                bool started = true; // GPS init is enough
+                bool started = predator_gps_is_connected(app);
+                FURI_LOG_I("GPSTracker", "GPS initialization: %s", started ? "SUCCESS" : "FAILED");
                 
                 if(started) {
                     gps_state.gps_connected = true;
@@ -278,9 +280,9 @@ bool predator_scene_gps_tracker_ui_on_event(void* context, SceneManagerEvent eve
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button - return to main menu
+    // Handle back button - SAFE return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
     

@@ -150,18 +150,12 @@ PredatorBoardType predator_boards_detect() {
     return PredatorBoardTypeUnknown;
 }
 
-const PredatorBoardConfig* predator_boards_get_config(PredatorBoardType type) {
-    if(type == PredatorBoardTypeUnknown) {
-        return &predator_board_configs[0]; // Default to original
+const PredatorBoardConfig* predator_boards_get_config(PredatorBoardType board_type) {
+    if(board_type >= PredatorBoardTypeCount) {
+        // Fallback to original board for invalid types
+        return &predator_board_configs[PredatorBoardTypeOriginal];
     }
-    
-    for(size_t i = 0; i < predator_boards_get_count(); i++) {
-        if(predator_board_configs[i].type == type) {
-            return &predator_board_configs[i];
-        }
-    }
-    
-    // Fall back to original if specified type not found
+    return &predator_board_configs[board_type];
     return &predator_board_configs[0];
 }
 
@@ -319,4 +313,123 @@ bool predator_boards_optimize_for_board(PredatorBoardType board_type) {
     
     FURI_LOG_I("BoardOptim", "Optimization complete for %s", config->name);
     return true;
+}
+
+// ULTIMATE BOARD DETECTION AT STARTUP
+PredatorBoardType predator_detect_board_at_startup(void) {
+    FURI_LOG_I("BoardDetect", "🔍 ULTIMATE BOARD DETECTION STARTING...");
+    
+    // PHASE 1: GPIO PIN ANALYSIS
+    bool esp32_detected = false;
+    bool gps_switch_detected = false;
+    bool marauder_switch_detected = false;
+    
+    FURI_LOG_I("BoardDetect", "Phase 1: GPIO Pin Analysis");
+    
+    // Test ESP32 UART pins (PC0/PC1 - pins 15/16)
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_write(&gpio_ext_pc0, true);
+    furi_delay_ms(5);
+    
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeInput, GpioPullDown, GpioSpeedLow);
+    furi_delay_ms(5);
+    
+    if(furi_hal_gpio_read(&gpio_ext_pc0)) {
+        esp32_detected = true;
+        FURI_LOG_I("BoardDetect", "✅ ESP32 UART detected on PC0");
+    } else {
+        FURI_LOG_I("BoardDetect", "❌ No ESP32 UART on PC0");
+    }
+    
+    // Test GPS power switch (PA4 - original board)
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeInput, GpioPullUp, GpioSpeedLow);
+    furi_delay_ms(5);
+    if(!furi_hal_gpio_read(&gpio_ext_pa4)) {
+        gps_switch_detected = true;
+        FURI_LOG_I("BoardDetect", "✅ GPS power switch detected on PA4");
+    }
+    
+    // Test Marauder switch (PA7 - original board)
+    furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow);
+    furi_delay_ms(5);
+    if(!furi_hal_gpio_read(&gpio_ext_pa7)) {
+        marauder_switch_detected = true;
+        FURI_LOG_I("BoardDetect", "✅ Marauder switch detected on PA7");
+    }
+    
+    // PHASE 2: UART COMMUNICATION TEST
+    FURI_LOG_I("BoardDetect", "Phase 2: UART Communication Test");
+    
+    bool uart_responsive = false;
+    if(esp32_detected) {
+        FuriHalSerialHandle* uart_handle = furi_hal_serial_control_acquire(FuriHalSerialIdUsart);
+        if(uart_handle) {
+            furi_hal_serial_init(uart_handle, 115200);
+            furi_delay_ms(100);
+            
+            // Send ESP32 test command
+            const char* test_cmd = "AT\r\n";
+            furi_hal_serial_tx(uart_handle, (uint8_t*)test_cmd, strlen(test_cmd));
+            furi_delay_ms(200);
+            
+            // Try Marauder command
+            const char* marauder_cmd = "help\r\n";
+            furi_hal_serial_tx(uart_handle, (uint8_t*)marauder_cmd, strlen(marauder_cmd));
+            furi_delay_ms(200);
+            
+            uart_responsive = true;
+            FURI_LOG_I("BoardDetect", "✅ UART communication successful");
+            
+            furi_hal_serial_deinit(uart_handle);
+            furi_hal_serial_control_release(uart_handle);
+        }
+    }
+    
+    // PHASE 3: ADVANCED DETECTION LOGIC
+    FURI_LOG_I("BoardDetect", "Phase 3: Advanced Board Classification");
+    
+    PredatorBoardType detected_type = PredatorBoardTypeUnknown;
+    
+    // Classification matrix based on detected features
+    if(esp32_detected && uart_responsive && !gps_switch_detected && !marauder_switch_detected) {
+        // ESP32 present, no switches = 3in1 AIO or Screen board
+        detected_type = PredatorBoardType3in1AIO;
+        FURI_LOG_I("BoardDetect", "🎯 DETECTED: 3in1 AIO V1.4 (ESP32 + No switches)");
+    } else if(esp32_detected && gps_switch_detected && marauder_switch_detected) {
+        // ESP32 + switches = Original Predator with ESP32 addon
+        detected_type = PredatorBoardTypeOriginal;
+        FURI_LOG_I("BoardDetect", "🎯 DETECTED: Original Predator (ESP32 + Switches)");
+    } else if(!esp32_detected && gps_switch_detected && marauder_switch_detected) {
+        // No ESP32 but has switches = Original Predator
+        detected_type = PredatorBoardTypeOriginal;
+        FURI_LOG_I("BoardDetect", "🎯 DETECTED: Original Predator (Switches only)");
+    } else if(esp32_detected && !uart_responsive) {
+        // ESP32 detected but not responsive = Possible DrB0rk or other variant
+        detected_type = PredatorBoardTypeDrB0rkMultiV2;
+        FURI_LOG_I("BoardDetect", "🎯 DETECTED: DrB0rk Multi V2 (ESP32 non-responsive)");
+    } else if(!esp32_detected && !gps_switch_detected && !marauder_switch_detected) {
+        // Nothing detected = Unknown or minimal board
+        detected_type = PredatorBoardTypeOriginal; // Safe fallback
+        FURI_LOG_I("BoardDetect", "🎯 FALLBACK: Original Predator (Nothing detected)");
+    } else {
+        // Mixed signals = Unknown configuration
+        detected_type = PredatorBoardTypeUnknown;
+        FURI_LOG_W("BoardDetect", "⚠️ UNKNOWN: Mixed signals detected");
+    }
+    
+    // PHASE 4: VALIDATION AND LOGGING
+    FURI_LOG_I("BoardDetect", "Phase 4: Detection Summary");
+    FURI_LOG_I("BoardDetect", "ESP32: %s | GPS Switch: %s | Marauder Switch: %s | UART: %s",
+               esp32_detected ? "YES" : "NO",
+               gps_switch_detected ? "YES" : "NO", 
+               marauder_switch_detected ? "YES" : "NO",
+               uart_responsive ? "YES" : "NO");
+    
+    // Reset all pins to safe state
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa7, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    
+    FURI_LOG_I("BoardDetect", "🏁 ULTIMATE DETECTION COMPLETE: %d", detected_type);
+    return detected_type;
 }

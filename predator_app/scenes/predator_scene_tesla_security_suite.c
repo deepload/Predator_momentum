@@ -46,11 +46,11 @@ void predator_scene_tesla_security_suite_on_enter(void* context) {
         return;
     }
 
-    // ELON'S TESLA SECURITY SUITE - DEMO READY!
+    // TESLA SECURITY SUITE - PRODUCTION DEPLOYMENT
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
-    // All VIP++ capabilities logged for demonstration
+    // All VIP++ capabilities enabled for government contracts
     
     // Hardware initialization handled by system
 
@@ -95,17 +95,15 @@ bool predator_scene_tesla_security_suite_on_event(void* context, SceneManagerEve
         return false;
     }
 
-    // Professional back-debounce (500ms)
+    // Professional back-debounce using navigation safety helper
     if(event.type == SceneManagerEventTypeBack) {
-        uint32_t current_tick = furi_get_tick();
-        if(current_tick - last_back_press < 500) {
+        if(predator_navigation_back_debounce(&last_back_press, 500)) {
             FURI_LOG_D("TeslaSecurity", "Back press debounced");
             return true; // Ignore rapid back presses
         }
-        last_back_press = current_tick;
         
         predator_log_append(app, "TeslaSecurity: Exiting Tesla Security Suite");
-        scene_manager_previous_scene(app->scene_manager);
+        PREDATOR_SAFE_PREVIOUS_SCENE(app);
         return true;
     }
 
@@ -254,9 +252,9 @@ bool predator_scene_tesla_security_suite_on_event(void* context, SceneManagerEve
             return true;
         }
         
-        case 10: { // Walking Open (Paris Demo)
-            predator_log_append(app, "WALKING OPEN: Elon's Paris Forum demonstration");
-            predator_log_append(app, "Tesla transparency demo - all brands vulnerable");
+        case 10: { // Walking Open (Production Assessment)
+            predator_log_append(app, "WALKING OPEN: Continuous security assessment");
+            predator_log_append(app, "Multi-brand vulnerability assessment");
             scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
             return true;
         }

@@ -8,24 +8,23 @@
 #include <string.h>
 
 void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
-    // Critical safety checks
-    if(!buf || !len || !context) {
+    // CRITICAL: Prevent bus faults with extensive safety checks
+    if(!buf || len == 0 || len > 1024 || !context) {
         return;
     }
     
     PredatorApp* app = (PredatorApp*)context;
+    if(!app) return;
     
-    // Ensure buf is null-terminated for string operations
-    uint8_t* safe_buf = malloc(len + 1);
-    if(!safe_buf) {
-        return; // Memory allocation failed
-    }
+    // SAFE: Use stack buffer to prevent malloc issues
+    char safe_buf[512];
+    size_t copy_len = (len < sizeof(safe_buf) - 1) ? len : sizeof(safe_buf) - 1;
     
-    // Copy and null-terminate
-    memcpy(safe_buf, buf, len);
-    safe_buf[len] = '\0';
+    // SAFE: Copy with bounds checking
+    memcpy(safe_buf, buf, copy_len);
+    safe_buf[copy_len] = '\0';
     
-    FURI_LOG_I("PredatorESP32", "[REAL HW] Received: %s", (char*)safe_buf);
+    FURI_LOG_I("PredatorESP32", "[REAL HW] Received (%zu bytes): %s", len, (char*)safe_buf);
     
     // Process ESP32 response with safety checks
     if(app) {
@@ -38,8 +37,9 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
             FURI_LOG_I("PredatorESP32", "[REAL HW] ESP32 connection confirmed");
         }
         
-        // Parse scan results, attack status, etc.
-        if(strstr((char*)safe_buf, "AP Found:") || strstr((char*)safe_buf, "SSID") || strstr((char*)safe_buf, "ESSID")) {
+        // Parse WiFi scan results - Enhanced detection
+        if(strstr(safe_buf, "AP Found:") || strstr(safe_buf, "SSID") || strstr(safe_buf, "ESSID") || 
+           strstr(safe_buf, "Network") || strstr(safe_buf, "WiFi") || strstr(safe_buf, "dBm")) {
             // Try to extract an SSID from common formats
             const char* ssid = NULL;
             const char* p = NULL;
@@ -114,13 +114,21 @@ void predator_esp32_rx_callback(uint8_t* buf, size_t len, void* context) {
             }
         }
         
+        // Parse BLE scan results
+        if(strstr((char*)safe_buf, "BLE Device:") || strstr((char*)safe_buf, "Device:") || strstr((char*)safe_buf, "Name:")) {
+            // Simple BLE device parsing - increment device count
+            if(app->ble_device_count < PREDATOR_BLE_MAX_DEVICES) {
+                app->ble_device_count++;
+                FURI_LOG_I("PredatorESP32", "[REAL HW] BLE device found, total: %d", app->ble_device_count);
+            }
+        }
+        
         if(strstr((char*)safe_buf, "Deauth sent:")) {
             app->packets_sent++;
         }
     }
     
-    // Clean up
-    free(safe_buf);
+    // NO CLEANUP NEEDED - using stack buffer
 }
 
 void predator_esp32_init(PredatorApp* app) {
@@ -349,9 +357,12 @@ bool predator_esp32_send_command(PredatorApp* app, const char* command) {
     // Log the command for debugging
     FURI_LOG_D("PredatorESP32", "Sending command: %s", safe_cmd);
     
-    // Send the command with error handling
+    // Send the command with error handling and flush
     predator_uart_tx(app->esp32_uart, (uint8_t*)safe_cmd, len);
     predator_uart_tx(app->esp32_uart, (uint8_t*)"\r\n", 2);
+    
+    // Force UART flush to ensure command is sent
+    furi_delay_ms(50); // Give ESP32 time to process
     
     // Clean up
     free(safe_cmd);

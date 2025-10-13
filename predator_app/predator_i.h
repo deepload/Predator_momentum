@@ -17,6 +17,8 @@
 #include "helpers/predator_boards.h"
 // Compliance and regional gating
 #include "helpers/predator_compliance.h"
+// Navigation safety patterns for Tesla/Government demos
+#include "helpers/predator_navigation_safe.h"
 // Use generated scene IDs from config to avoid mismatches
 #include "scenes/predator_scene.h"
 
@@ -37,6 +39,7 @@ typedef enum {
     PredatorViewBleScanUI,
     PredatorViewBleSpamUI,
     PredatorViewCarTeslaUI,
+    PredatorViewParkingBarriersUI,
     PredatorViewWalkingOpenUI,
     PredatorViewCarJammingUI,
     PredatorViewCarKeyBruteforceUI,
@@ -102,7 +105,14 @@ typedef struct PredatorApp {
     
     // Application state
     bool safe_mode;           // Whether app is running in safe mode with reduced functionality
-    PredatorBoardType board_type;  // Type of expansion board attached
+    // Board configuration
+    PredatorBoardType board_type;
+    
+    // Hardware availability flags (set by board detection)
+    bool esp32_available;
+    bool gps_available;
+    bool subghz_available;
+    bool nfc_available;  // Type of expansion board attached
     // Regional compliance and authorization
     PredatorRegion region;     // Active compliance region
     bool authorized;           // Authorization status for high-impact ops
@@ -159,6 +169,11 @@ typedef struct PredatorApp {
     uint8_t wifi_ap_count;    // number of SSIDs stored (capped at max)
     int8_t wifi_rssi[PREDATOR_WIFI_MAX_APS];
     uint8_t wifi_ch[PREDATOR_WIFI_MAX_APS];
+    
+    // BLE scan results - Memory optimized
+    #define PREDATOR_BLE_MAX_DEVICES 8  // Keep small for memory
+    char ble_devices[PREDATOR_BLE_MAX_DEVICES][16];  // Device names
+    uint8_t ble_device_count;    // number of BLE devices found
     
     // Selected WiFi target for attacks
     char selected_wifi_ssid[20];  // Reduced from 24 to 20 chars

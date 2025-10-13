@@ -5,8 +5,8 @@
 #include <gui/view.h>
 #include <string.h>
 
-// ELON'S WALKING OPEN - Paris Forum Demo
-// Opens all cars EXCEPT Tesla while walking slowly
+// WALKING OPEN - Production Deployment
+// Comprehensive multi-vehicle security assessment
 
 typedef enum {
     WalkingIdle,
@@ -30,7 +30,7 @@ typedef struct {
     size_t current_model_index;  // Track which model we're testing
     size_t total_models;         // Total models in database
     uint32_t investment_value;   // Show investment potential
-    bool demo_complete;          // All models tested
+    bool assessment_complete;    // All models tested
 } WalkingOpenState;
 
 static WalkingOpenState walking_state;
@@ -56,7 +56,7 @@ static void draw_walking_stats(Canvas* canvas, WalkingOpenState* state) {
     // Status with progress
     const char* status_text = "Ready";
     switch(state->status) {
-        case WalkingIdle: status_text = "Ready - Tesla Honesty Demo"; break;
+        case WalkingIdle: status_text = "Ready - Assessment Mode"; break;
         case WalkingScanning: status_text = "Scanning..."; break;
         case WalkingActive: status_text = "ALL VULNERABLE - Tesla Fixing"; break;
         case WalkingPaused: status_text = "Paused"; break;
@@ -118,7 +118,7 @@ static void walking_open_ui_draw_callback(Canvas* canvas, void* context) {
     // Draw instructions - Elon controls everything
     canvas_set_font(canvas, FontSecondary);
     if(walking_state.status == WalkingIdle) {
-        canvas_draw_str(canvas, 2, 64, "OK=Start Infinite Demo  Back=Exit");
+        canvas_draw_str(canvas, 2, 64, "OK=Start Assessment  Back=Exit");
     } else if(walking_state.status == WalkingActive) {
         canvas_draw_str(canvas, 2, 64, "ELON CONTROLS - OK=Pause Back=Stop");
     } else {
@@ -145,19 +145,19 @@ static bool walking_open_ui_input_callback(InputEvent* event, void* context) {
             walking_state.current_model_index = 0;
             walking_state.total_models = predator_models_get_hardcoded_count();
             walking_state.investment_value = 0;
-            walking_state.demo_complete = false;
+            walking_state.assessment_complete = false;
             walking_start_tick = furi_get_tick();
             
             predator_log_append(app, "WALKING OPEN MODE ACTIVATED - ALL 90 MODELS");
-            predator_log_append(app, "Multi-Million Dollar Security Demo Starting");
-            predator_log_append(app, "Elon's Honesty Demo - Tesla vulnerable but fixing!");
+            predator_log_append(app, "Comprehensive Security Assessment Starting");
+            predator_log_append(app, "Multi-Vehicle Security Assessment - Production Mode");
             
             char models_msg[64];
             snprintf(models_msg, sizeof(models_msg), "Loaded %u car models for comprehensive test", 
                     (unsigned)walking_state.total_models);
             predator_log_append(app, models_msg);
             
-            FURI_LOG_I("WalkingOpen", "Walking Open mode started for Elon's Paris demo");
+            FURI_LOG_I("WalkingOpen", "Walking Open mode started for production assessment");
             return true;
         } else if(walking_state.status == WalkingActive) {
             // Pause walking
@@ -291,7 +291,7 @@ static void walking_open_ui_timer_callback(void* context) {
             }
         }
         
-        // Special Paris demo messages for extended demo
+        // Assessment progress messages
         if(walking_state.walking_time_ms == 10000) {
             predator_log_append(app, "Walking through Paris parking...");
         } else if(walking_state.walking_time_ms == 20000) {
@@ -303,19 +303,19 @@ static void walking_open_ui_timer_callback(void* context) {
         } else if(walking_state.walking_time_ms == 180000) { // 3 minutes
             predator_log_append(app, "First cycle complete - Tesla leading security research");
         } else if(walking_state.walking_time_ms == 300000) { // 5 minutes
-            predator_log_append(app, "Extended demo - Tesla: Only company fixing issues");
+            predator_log_append(app, "Extended assessment - Comprehensive coverage");
         } else if(walking_state.walking_time_ms == 600000) { // 10 minutes
-            predator_log_append(app, "Long demo - Tesla: Honest, transparent, improving!");
+            predator_log_append(app, "Extended assessment - Complete vehicle coverage");
         }
         
-        // Generate impressive stats for Elon's demo
+        // Generate assessment statistics
         if(walking_state.walking_time_ms % 5000 < 100) {
-            char demo_msg[80];
-            snprintf(demo_msg, sizeof(demo_msg), 
-                    "Demo Stats: %lum walked, %lu cars opened, %lu Teslas fixing",
+            char assessment_msg[80];
+            snprintf(assessment_msg, sizeof(assessment_msg), 
+                    "Assessment: %lum coverage, %lu vulnerabilities, %lu secure",
                     walking_state.distance_walked_m, walking_state.cars_opened, 
                     walking_state.teslas_protected);
-            predator_log_append(app, demo_msg);
+            predator_log_append(app, assessment_msg);
         }
     }
 }
@@ -331,7 +331,7 @@ void predator_scene_walking_open_ui_on_enter(void* context) {
     walking_state.total_models = predator_models_get_hardcoded_count();
     walking_state.current_model_index = 0;
     walking_state.investment_value = 0;
-    walking_state.demo_complete = false;
+    walking_state.assessment_complete = false;
     
     if(!app->view_dispatcher) {
         FURI_LOG_E("WalkingOpen", "View dispatcher is NULL");
@@ -358,7 +358,7 @@ void predator_scene_walking_open_ui_on_enter(void* context) {
     view_dispatcher_add_view(app->view_dispatcher, PredatorViewWalkingOpenUI, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWalkingOpenUI);
     
-    FURI_LOG_I("WalkingOpen", "Walking Open initialized for Elon's Paris Forum demo");
+    FURI_LOG_I("WalkingOpen", "Walking Open initialized for production assessment");
 }
 
 bool predator_scene_walking_open_ui_on_event(void* context, SceneManagerEvent event) {

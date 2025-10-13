@@ -27,6 +27,7 @@ typedef struct {
 } EvilTwinState;
 
 static EvilTwinState eviltwin_state;
+static View* wifi_evil_twin_view = NULL;
 static uint32_t broadcast_start_tick = 0;
 
 static void draw_eviltwin_header(Canvas* canvas) {
@@ -258,18 +259,18 @@ void predator_scene_wifi_evil_twin_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    wifi_evil_twin_view = view_alloc();
+    if(!wifi_evil_twin_view) {
         FURI_LOG_E("EvilTwinUI", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, wifi_evil_twin_ui_draw_callback);
-    view_set_input_callback(view, wifi_evil_twin_ui_input_callback);
+    view_set_context(wifi_evil_twin_view, app);
+    view_set_draw_callback(wifi_evil_twin_view, wifi_evil_twin_ui_draw_callback);
+    view_set_input_callback(wifi_evil_twin_view, wifi_evil_twin_ui_input_callback);
     
     // Add view to dispatcher
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiEvilTwinUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWifiEvilTwinUI, wifi_evil_twin_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWifiEvilTwinUI);
     
     FURI_LOG_I("EvilTwinUI", "WiFi Evil Twin UI initialized");
@@ -318,6 +319,11 @@ void predator_scene_wifi_evil_twin_ui_on_exit(void* context) {
     // Remove view
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWifiEvilTwinUI);
+    }
+    // Free allocated view to prevent memory leak
+    if(wifi_evil_twin_view) {
+        view_free(wifi_evil_twin_view);
+        wifi_evil_twin_view = NULL;
     }
     
     FURI_LOG_I("EvilTwinUI", "WiFi Evil Twin UI exited");
