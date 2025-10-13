@@ -1,10 +1,9 @@
-#if !MEMORY_OPTIMIZED
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_ui_clean.h"
 #include "predator_submenu_index.h"
 
-// Main Menu - Professional UI
+// Main Menu - Professional UI (Memory Optimized, No Guards)
 // Clean submenu implementation for Tesla demo
 
 static void main_menu_submenu_callback(void* context, uint32_t index) {
@@ -22,7 +21,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     
     // PROFESSIONAL - OPTIMIZED FOR MEMORY & FUNCTIONALITY
     submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚗 Universal Car Hacker", 2, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚗 Car Models", 2, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚧 Parking Barriers", 3, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);
@@ -57,8 +56,8 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 1: // Tesla Security
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             return true;
-        case 2: // Universal Car Hacker
-            scene_manager_next_scene(app->scene_manager, PredatorSceneUniversalCarHacker);
+        case 2: // Car Models
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelsUI);
             return true;
         case 3: // Parking Barriers
             scene_manager_next_scene(app->scene_manager, PredatorSceneParkingBarriersUI);
@@ -114,22 +113,3 @@ void predator_scene_main_menu_ui_on_exit(void* context) {
         submenu_reset(app->submenu);
     }
 }
-
-#else
-#include "../predator_i.h"
-#include "predator_scene.h"
-
-void predator_scene_main_menu_ui_on_enter(void* context) {
-    (void)context;
-}
-
-bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event) {
-    (void)context;
-    (void)event;
-    return false;
-}
-
-void predator_scene_main_menu_ui_on_exit(void* context) {
-    (void)context;
-}
-#endif

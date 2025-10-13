@@ -9,6 +9,7 @@ ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
+ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)
 
 // WiFi Attacks (GOVERNMENT GRADE)
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
@@ -33,6 +34,13 @@ ADD_SCENE(predator, rfid_fuzzing_ui, RfidFuzzingUI)
 ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
 ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)
 ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)
+
+// GPS & Navigation
+ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
+ADD_SCENE(predator, wardriving_ui, WardrivingUI)
+
+// Social Engineering
+ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 
 // System & Utility (ESSENTIAL)
 ADD_SCENE(predator, module_status_ui, ModuleStatusUI)
