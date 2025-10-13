@@ -15,27 +15,27 @@ void predator_scene_car_attacks_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app || !app->submenu) return;
     
-    // Initialize Real Attack Engine (critical for Elon's requirements)
+    // Initialize Real Attack Engine
     if(!predator_real_attack_init(app)) {
-        FURI_LOG_E("CarAttacks", "CRITICAL: Real Attack Engine initialization failed");
+        FURI_LOG_E("CarAttacks", "Real Attack Engine initialization failed");
     }
     
-    // Activate VIP mode for Tesla demonstrations
+    // Activate professional mode
     app->region = PredatorRegionUnblock;
     app->vip_mode = true;
     app->authorized = true;
     
-    predator_log_append(app, "CAR ATTACKS: Real attack engine activated");
-    predator_log_append(app, "TESLA MODE: Ready for security demonstrations");
+    predator_log_append(app, "Car Attacks: Real attack engine activated");
+    predator_log_append(app, "Professional Mode: Ready for security testing");
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🚗 Car Security Tests");
+    submenu_set_header(app->submenu, "Car Security Tests");
     
-    submenu_add_item(app->submenu, "🚗 Select Car Model", 1, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔋 Tesla Charge Port", 2, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 Key Bruteforce", 3, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 Car Jamming", 4, car_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔓 Passive Opener", 5, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Select Car Model", 1, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Tesla Charge Port", 2, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Key Bruteforce", 3, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Car Jamming", 4, car_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Passive Opener", 5, car_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
