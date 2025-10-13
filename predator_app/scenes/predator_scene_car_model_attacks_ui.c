@@ -29,11 +29,12 @@ void predator_scene_car_model_attacks_ui_on_enter(void* context) {
     submenu_set_header(app->submenu, header);
 
     // Offer all methods - navigates to existing professional attack scenes
-    submenu_add_item(app->submenu, "🔑 Key Bruteforce", 1, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "🔄 Rolling Code Attack", 2, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "📡 RF Jamming", 3, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "🚗 Passive Opener", 4, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "📈 Live Monitor", 5, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🔐 Protocol Test", 1, model_attacks_cb, app);  // NEW: Test crypto protocols
+    submenu_add_item(app->submenu, "🔑 Key Bruteforce", 2, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🔄 Rolling Code Attack", 3, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "📡 RF Jamming", 4, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🚗 Passive Opener", 5, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "📈 Live Monitor", 6, model_attacks_cb, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -51,20 +52,23 @@ bool predator_scene_car_model_attacks_ui_on_event(void* context, SceneManagerEve
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-            case 1: // Key Bruteforce - Navigate to existing scene
+            case 1: // Protocol Test - NEW: Test crypto algorithms
+                scene_manager_next_scene(app->scene_manager, PredatorSceneProtocolTestUI);
+                return true;
+            case 2: // Key Bruteforce - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
                 return true;
-            case 2: // Rolling Code Attack - Advanced bruteforce with rolling code detection
+            case 3: // Rolling Code Attack - Advanced bruteforce with rolling code detection
                 predator_log_append(app, "Rolling Code: Advanced cryptographic attack");
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
                 return true;
-            case 3: // RF Jamming - Navigate to existing scene
+            case 4: // RF Jamming - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
                 return true;
-            case 4: // Passive Opener - Navigate to existing scene
+            case 5: // Passive Opener - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
                 return true;
-            case 5: // Live Monitor - Navigate to existing scene
+            case 6: // Live Monitor - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             default:
