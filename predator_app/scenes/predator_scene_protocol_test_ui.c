@@ -63,7 +63,7 @@ void predator_scene_protocol_test_ui_on_enter(void* context) {
         uses_hitag2 = true;
     }
 
-    // Smart Key users (luxury/modern cars)
+    // Smart Key users (luxury/modern cars + Chinese EVs)
     if(strstr(app->selected_model_make, "Tesla") ||
        strstr(app->selected_model_make, "Mercedes") ||
        strstr(app->selected_model_make, "Lexus") ||
@@ -73,31 +73,59 @@ void predator_scene_protocol_test_ui_on_enter(void* context) {
        strstr(app->selected_model_make, "Acura") ||        // Honda luxury
        strstr(app->selected_model_make, "Infiniti") ||     // Nissan luxury
        strstr(app->selected_model_make, "Volvo") ||        // Swedish luxury
-       strstr(app->selected_model_make, "Lamborghini") ||  // Italian exotic
-       strstr(app->selected_model_make, "Ferrari") ||      // Italian exotic
-       strstr(app->selected_model_make, "Maserati") ||     // Italian exotic
-       strstr(app->selected_model_make, "Bentley") ||      // British exotic
-       strstr(app->selected_model_make, "Rolls-Royce")) {  // British exotic
+       // Italian exotics
+       strstr(app->selected_model_make, "Lamborghini") ||
+       strstr(app->selected_model_make, "Ferrari") ||
+       strstr(app->selected_model_make, "Maserati") ||
+       strstr(app->selected_model_make, "Pagani") ||
+       // British exotics
+       strstr(app->selected_model_make, "Bentley") ||
+       strstr(app->selected_model_make, "Rolls-Royce") ||
+       strstr(app->selected_model_make, "Aston Martin") ||
+       strstr(app->selected_model_make, "McLaren") ||
+       // Hypercars
+       strstr(app->selected_model_make, "Bugatti") ||
+       strstr(app->selected_model_make, "Koenigsegg") ||
+       // Chinese EVs (modern smart key)
+       strstr(app->selected_model_make, "BYD") ||
+       strstr(app->selected_model_make, "NIO") ||
+       strstr(app->selected_model_make, "Xpeng") ||
+       strstr(app->selected_model_make, "Li Auto") ||
+       strstr(app->selected_model_make, "Hongqi") ||
+       strstr(app->selected_model_make, "Zeekr") ||
+       strstr(app->selected_model_make, "Aiways") ||
+       strstr(app->selected_model_make, "Lynk & Co") ||
+       strstr(app->selected_model_make, "MG")) {           // MG EVs use smart key
         uses_smart_key = true;
     }
+    
+    // Chinese brands with rolling code (older/cheaper models)
+    if(strstr(app->selected_model_make, "Geely") ||
+       strstr(app->selected_model_make, "Great Wall") ||
+       strstr(app->selected_model_make, "Changan") ||
+       strstr(app->selected_model_make, "Roewe") ||
+       strstr(app->selected_model_make, "JAC")) {
+        uses_keeloq = true;
+    }
 
-    // Add detected protocols
+    // Add ALL protocols (always clickable for testing!)
+    // Use emoji + OK/KO labels for maximum clarity
     if(uses_keeloq) {
-        submenu_add_item(app->submenu, "✅ Keeloq (Rolling Code)", 1, protocol_test_cb, app);
+        submenu_add_item(app->submenu, "✅ OK - Keeloq Rolling Code", 1, protocol_test_cb, app);
     } else {
-        submenu_add_item(app->submenu, "⚪ Keeloq (Not Used)", 100, protocol_test_cb, app);
+        submenu_add_item(app->submenu, "❌ KO - Keeloq (Test Anyway)", 1, protocol_test_cb, app);
     }
 
     if(uses_hitag2) {
-        submenu_add_item(app->submenu, "✅ Hitag2 (BMW/Audi)", 2, protocol_test_cb, app);
+        submenu_add_item(app->submenu, "✅ OK - Hitag2 (BMW/Audi)", 2, protocol_test_cb, app);
     } else {
-        submenu_add_item(app->submenu, "⚪ Hitag2 (Not Used)", 101, protocol_test_cb, app);
+        submenu_add_item(app->submenu, "❌ KO - Hitag2 (Test Anyway)", 2, protocol_test_cb, app);
     }
 
     if(uses_smart_key) {
-        submenu_add_item(app->submenu, "✅ Smart Key (AES-128)", 3, protocol_test_cb, app);
+        submenu_add_item(app->submenu, "✅ OK - Smart Key AES-128", 3, protocol_test_cb, app);
     } else {
-        submenu_add_item(app->submenu, "⚪ Smart Key (Not Used)", 102, protocol_test_cb, app);
+        submenu_add_item(app->submenu, "❌ KO - Smart Key (Test Anyway)", 3, protocol_test_cb, app);
     }
 
     // Add test options
