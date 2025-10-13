@@ -3,7 +3,7 @@
 #include "../helpers/predator_subghz.h"
 
 // Attack methods for the model selected in app->selected_model_*
-// Uses shared submenu only. Real hardware calls, no simulation.
+// Navigates to existing attack scenes with proper UI and live status
 
 static void model_attacks_cb(void* context, uint32_t index) {
     PredatorApp* app = context;
@@ -27,10 +27,10 @@ void predator_scene_car_model_attacks_ui_on_enter(void* context) {
              mhz_i, mhz_d);
     submenu_set_header(app->submenu, header);
 
-    // Offer all methods; user decides which to demo
-    submenu_add_item(app->submenu, "🔑 Rolling Code Attack", 1, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "🔒 Fixed Code Bruteforce", 2, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "🔐 Smart Key / Proximity", 3, model_attacks_cb, app);
+    // Offer all methods - navigates to existing professional attack scenes
+    submenu_add_item(app->submenu, "🔑 Key Bruteforce", 1, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "📡 RF Jamming", 2, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🚗 Passive Opener", 3, model_attacks_cb, app);
     submenu_add_item(app->submenu, "📈 Live Monitor", 4, model_attacks_cb, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
@@ -49,19 +49,16 @@ bool predator_scene_car_model_attacks_ui_on_event(void* context, SceneManagerEve
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-            case 1: // Rolling Code
-                predator_subghz_stop_attack(app);
-                predator_subghz_start_rolling_code_attack(app, app->selected_model_freq);
+            case 1: // Key Bruteforce - Navigate to existing scene
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
                 return true;
-            case 2: // Fixed Code Bruteforce
-                predator_subghz_stop_attack(app);
-                predator_subghz_start_car_bruteforce(app, app->selected_model_freq);
+            case 2: // RF Jamming - Navigate to existing scene
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
                 return true;
-            case 3: // Smart Key / Proximity demo (use Tesla charge port as proof)
-                predator_subghz_stop_attack(app);
-                predator_subghz_send_tesla_charge_port(app);
+            case 3: // Passive Opener - Navigate to existing scene
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
                 return true;
-            case 4: // Live Monitor
+            case 4: // Live Monitor - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             default:

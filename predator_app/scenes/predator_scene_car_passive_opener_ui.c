@@ -161,8 +161,17 @@ static bool car_passive_opener_ui_input_callback(InputEvent* event, void* contex
                 predator_subghz_start_passive_car_opener(app);
                 passive_state.subghz_ready = true;
                 
-                predator_log_append(app, "Passive Opener START: Listening for car keys");
-                FURI_LOG_I("PassiveOpenerUI", "Listening started");
+                char log_msg[96];
+                if(app->selected_model_make[0] != '\0') {
+                    snprintf(log_msg, sizeof(log_msg), "Passive Opener: %s %s (%lu MHz)", 
+                            app->selected_model_make, app->selected_model_name,
+                            app->selected_model_freq / 1000000);
+                } else {
+                    snprintf(log_msg, sizeof(log_msg), "Passive Opener START: Listening for car keys");
+                }
+                predator_log_append(app, log_msg);
+                FURI_LOG_I("PassiveOpenerUI", "Listening started on %s %s", 
+                          app->selected_model_make, app->selected_model_name);
                 return true;
             } else if(passive_state.status == PassiveOpenerStatusListening) {
                 passive_state.status = PassiveOpenerStatusComplete;

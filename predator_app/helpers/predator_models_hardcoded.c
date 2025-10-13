@@ -1,8 +1,10 @@
 #include "predator_models.h"
 #include <string.h>
 
-// ALPHABETICALLY ORDERED car models database - Elon Approved! 🚗
-// Total: 90 models with Rolling Code, Fixed Code, and Smart Key types
+// COMPLETE WORLDWIDE CAR MODELS DATABASE - Production Ready! 🚗
+// Total: 178 models with Rolling Code, Fixed Code, and Smart Key types
+// Coverage: US (315MHz), EU (433/868MHz), China (433.92MHz), Honda (433.42MHz)
+// Includes: Standard brands + Chinese EVs + Premium/Luxury (Tesla, Ferrari, Lamborghini, etc.)
 static const PredatorCarModel hardcoded_models[] = {
     // ACURA (Alphabetical Order)
     {"Acura", "Integra 2022+", 315000000, "Smart Key"},
@@ -225,6 +227,73 @@ static const PredatorCarModel hardcoded_models[] = {
     {"Aiways", "U5 2019+", 433920000, "Smart Key"},
     
     // === END CHINESE MANUFACTURERS ===
+    
+    // === PREMIUM/LUXURY BRANDS (Expanded Database) ===
+    
+    // ASTON MARTIN (British Luxury)
+    {"Aston Martin", "DB11 2016+", 433920000, "Smart Key"},
+    {"Aston Martin", "DBS Superleggera 2018+", 433920000, "Smart Key"},
+    {"Aston Martin", "Vantage 2018+", 433920000, "Smart Key"},
+    {"Aston Martin", "DBX 2020+", 433920000, "Smart Key"},
+    
+    // BENTLEY (British Ultra-Luxury)
+    {"Bentley", "Continental GT 2018+", 433920000, "Smart Key"},
+    {"Bentley", "Flying Spur 2019+", 433920000, "Smart Key"},
+    {"Bentley", "Bentayga 2016+", 433920000, "Smart Key"},
+    {"Bentley", "Mulsanne 2010-2020", 433920000, "Smart Key"},
+    
+    // BUGATTI (Hypercar Manufacturer)
+    {"Bugatti", "Chiron 2016+", 433920000, "Smart Key"},
+    {"Bugatti", "Veyron 2005-2015", 433920000, "Smart Key"},
+    
+    // FERRARI (Italian Supercar)
+    {"Ferrari", "488 GTB 2015+", 433920000, "Smart Key"},
+    {"Ferrari", "F8 Tributo 2019+", 433920000, "Smart Key"},
+    {"Ferrari", "SF90 Stradale 2019+", 433920000, "Smart Key"},
+    {"Ferrari", "Roma 2020+", 433920000, "Smart Key"},
+    {"Ferrari", "Portofino 2017+", 433920000, "Smart Key"},
+    {"Ferrari", "812 Superfast 2017+", 433920000, "Smart Key"},
+    {"Ferrari", "296 GTB 2022+", 433920000, "Smart Key"},
+    
+    // LAMBORGHINI (Italian Supercar)
+    {"Lamborghini", "Huracan 2014+", 433920000, "Smart Key"},
+    {"Lamborghini", "Aventador 2011+", 433920000, "Smart Key"},
+    {"Lamborghini", "Urus 2018+", 433920000, "Smart Key"},
+    {"Lamborghini", "Gallardo 2003-2013", 433920000, "Rolling Code"},
+    {"Lamborghini", "Murcielago 2001-2010", 433920000, "Fixed Code"},
+    
+    // MASERATI (Italian Luxury)
+    {"Maserati", "Ghibli 2014+", 433920000, "Smart Key"},
+    {"Maserati", "Quattroporte 2013+", 433920000, "Smart Key"},
+    {"Maserati", "Levante 2016+", 433920000, "Smart Key"},
+    {"Maserati", "MC20 2021+", 433920000, "Smart Key"},
+    {"Maserati", "GranTurismo 2007-2019", 433920000, "Rolling Code"},
+    
+    // McLAREN (British Supercar)
+    {"McLaren", "720S 2017+", 433920000, "Smart Key"},
+    {"McLaren", "765LT 2020+", 433920000, "Smart Key"},
+    {"McLaren", "Artura 2021+", 433920000, "Smart Key"},
+    {"McLaren", "GT 2019+", 433920000, "Smart Key"},
+    
+    // ROLLS-ROYCE (British Ultra-Luxury)
+    {"Rolls-Royce", "Phantom 2017+", 433920000, "Smart Key"},
+    {"Rolls-Royce", "Ghost 2020+", 433920000, "Smart Key"},
+    {"Rolls-Royce", "Cullinan 2018+", 433920000, "Smart Key"},
+    {"Rolls-Royce", "Wraith 2013+", 433920000, "Smart Key"},
+    
+    // TESLA (American EV Leader) - CRITICAL!
+    {"Tesla", "Model S 2012-2016", 315000000, "Rolling Code"},
+    {"Tesla", "Model S 2017+", 315000000, "Smart Key"},
+    {"Tesla", "Model 3 2018+", 315000000, "Smart Key"},
+    {"Tesla", "Model X 2016-2020", 315000000, "Rolling Code"},
+    {"Tesla", "Model X 2021+", 315000000, "Smart Key"},
+    {"Tesla", "Model Y 2020+", 315000000, "Smart Key"},
+    {"Tesla", "Cybertruck 2024+", 315000000, "Smart Key"},
+    {"Tesla", "Roadster 2008-2012", 315000000, "Fixed Code"},
+    {"Tesla", "Roadster 2023+", 315000000, "Smart Key"},
+    {"Tesla", "Semi 2023+", 315000000, "Smart Key"},
+    
+    // === END PREMIUM/LUXURY BRANDS ===
     
     // 433.42 MHz - Honda-specific frequency
     {"Honda", "Various", 433420000, "Rolling Code"},

@@ -144,19 +144,28 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 carkey_state.attack_time_ms = 0;
                 attack_start_tick = furi_get_tick();
                 
-                carkey_state.frequency = 433920000; // 433.92 MHz
+                // Use selected model's frequency (or default if not set)
+                carkey_state.frequency = (app->selected_model_freq > 0) ? 
+                    app->selected_model_freq : 433920000;
                 carkey_state.total_codes = 65536; // 16-bit key space
                 
                 predator_subghz_init(app);
                 bool started = predator_subghz_start_car_bruteforce(app, carkey_state.frequency);
                 carkey_state.subghz_ready = started;
                 
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce START: %lu.%02lu MHz", 
-                        carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
+                char log_msg[96];
+                if(app->selected_model_make[0] != '\0') {
+                    snprintf(log_msg, sizeof(log_msg), "Bruteforce %s %s: %lu.%02lu MHz", 
+                            app->selected_model_make, app->selected_model_name,
+                            carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
+                } else {
+                    snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce START: %lu.%02lu MHz", 
+                            carkey_state.frequency / 1000000, (carkey_state.frequency % 1000000) / 10000);
+                }
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("CarKeyBruteforceUI", "Attack started");
+                FURI_LOG_I("CarKeyBruteforceUI", "Attack started on %s %s", 
+                          app->selected_model_make, app->selected_model_name);
                 return true;
             } else if(carkey_state.status == CarKeyBruteforceStatusAttacking) {
                 carkey_state.status = CarKeyBruteforceStatusComplete;

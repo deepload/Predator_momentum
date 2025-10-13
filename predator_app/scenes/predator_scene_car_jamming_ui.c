@@ -162,12 +162,19 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
                     jamming_state.status = JammingStatusError;
                 }
                 
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Car Jamming START: %s at %u%% power", 
-                        jamming_state.frequency_str, (unsigned)jamming_state.power_level);
+                char log_msg[96];
+                if(app->selected_model_make[0] != '\0') {
+                    snprintf(log_msg, sizeof(log_msg), "Jamming %s %s: %s at %u%% power", 
+                            app->selected_model_make, app->selected_model_name,
+                            jamming_state.frequency_str, (unsigned)jamming_state.power_level);
+                } else {
+                    snprintf(log_msg, sizeof(log_msg), "Car Jamming START: %s at %u%% power", 
+                            jamming_state.frequency_str, (unsigned)jamming_state.power_level);
+                }
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("JammingUI", "Jamming started: %lu Hz", jamming_state.frequency);
+                FURI_LOG_I("JammingUI", "Jamming %s %s: %lu Hz", 
+                          app->selected_model_make, app->selected_model_name, jamming_state.frequency);
                 return true;
             } else if(jamming_state.status == JammingStatusJamming) {
                 // Stop jamming
@@ -258,12 +265,32 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
     // Initialize jamming state
     memset(&jamming_state, 0, sizeof(JammingState));
     jamming_state.status = JammingStatusIdle;
-    jamming_state.frequency = car_frequencies[0]; // Default 315 MHz
+    
+    // Use selected model's frequency if available, otherwise default
+    if(app->selected_model_freq > 0) {
+        jamming_state.frequency = app->selected_model_freq;
+        // Find closest match in frequency list for display
+        if(app->selected_model_freq == 315000000) {
+            current_freq_index = 0;
+        } else if(app->selected_model_freq >= 433000000 && app->selected_model_freq <= 434000000) {
+            current_freq_index = 1;
+        } else if(app->selected_model_freq >= 868000000 && app->selected_model_freq <= 869000000) {
+            current_freq_index = 2;
+        } else {
+            current_freq_index = 0; // Default
+        }
+        snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
+                "%lu.%02lu MHz", app->selected_model_freq / 1000000, 
+                (app->selected_model_freq % 1000000) / 10000);
+    } else {
+        jamming_state.frequency = car_frequencies[0]; // Default 315 MHz
+        current_freq_index = 0;
+        snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
+                "%.15s", frequency_names[0]);
+    }
+    
     jamming_state.power_level = 80; // Default 80% power
-    snprintf(jamming_state.frequency_str, sizeof(jamming_state.frequency_str), 
-            "%.15s", frequency_names[0]);
     snprintf(jamming_state.status_text, sizeof(jamming_state.status_text), "Ready");
-    current_freq_index = 0;
     
     // Setup custom view
     if(!app->view_dispatcher) {
