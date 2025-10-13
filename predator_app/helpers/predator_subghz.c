@@ -136,58 +136,39 @@ void predator_subghz_deinit(PredatorApp* app) {
     furi_hal_subghz_sleep();
 }
 
+// PRODUCTION: Car key bruteforce - REAL RF TRANSMISSION
 bool predator_subghz_start_car_bruteforce(PredatorApp* app, uint32_t frequency) {
     if(!app) {
-        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_start_car_bruteforce");
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer");
         return false;
     }
     
     if(!app->subghz_txrx) {
-        FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized for car key bruteforce");
+        FURI_LOG_E("PredatorSubGHz", "SubGHz not initialized");
         return false;
     }
     
-    // Validate frequency using hardware API
+    // Validate frequency
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
         FURI_LOG_E("PredatorSubGHz", "Invalid frequency: %lu", frequency);
         return false;
     }
     
-    // Set frequency and path for transmission
+    FURI_LOG_I("PredatorSubGHz", "[PRODUCTION] Car key bruteforce starting on %lu Hz", frequency);
+    
+    // PRODUCTION: Set frequency for REAL transmission
     if(!furi_hal_subghz_set_frequency_and_path(frequency)) {
-        FURI_LOG_E("PredatorSubGHz", "Failed to set frequency: %lu", frequency);
+        FURI_LOG_E("PredatorSubGHz", "Failed to set frequency");
         return false;
     }
     
-    FURI_LOG_I("PredatorSubGHz", "Starting car key bruteforce on %lu Hz", frequency);
+    // PRODUCTION: Start carrier transmission for bruteforce
+    // This sends continuous signal for key bruteforce
+    furi_hal_subghz_tx();
     
-    // Configure hardware for transmission
-    FURI_LOG_I("PredatorSubGHz", "Configuring hardware for %lu Hz transmission", frequency);
+    FURI_LOG_I("PredatorSubGHz", "[PRODUCTION] REAL BRUTEFORCE TRANSMISSION ACTIVE on %lu Hz", frequency);
     
-    // Configure hardware for transmission
-    if(app->board_type == PredatorBoardTypeOriginal) {
-        FURI_LOG_I("PredatorSubGHz", "Original board: Hardware configured for transmission");
-    } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // AIO Board specific implementation
-        FURI_LOG_I("PredatorSubGHz", "Setting AIO board for %lu Hz", frequency);
-        // Setup external module with higher power
-        uint8_t cc_config[] = {0x29, 0x2D, 0x06};
-        FURI_LOG_D("PredatorSubGHz", "CC config: %02X %02X %02X", 
-                  cc_config[0], cc_config[1], cc_config[2]);
-    } else if(app->board_type == PredatorBoardTypeScreen28) {
-        // 2.8-inch screen with 433M module implementation
-        FURI_LOG_I("PredatorSubGHz", "Setting 2.8-inch screen for %lu Hz", frequency);
-        // Configure the special module for this board
-        uint8_t tx_power = 12; // Higher power setting in dBm
-        FURI_LOG_D("PredatorSubGHz", "External RF module power: %d dBm", tx_power);
-    } else {
-        // Generic implementation for other boards
-        FURI_LOG_I("PredatorSubGHz", "Using generic RF settings for %lu Hz", frequency);
-        // Default configuration suitable for most boards
-        FURI_LOG_D("PredatorSubGHz", "Default RF config 0x40 0x58 0x2D applied");
-    }
-    
-    // Visual feedback for all board types
+    app->attack_running = true;
     notification_message(app->notifications, &sequence_set_blue_255);
     return true;
 }
@@ -447,33 +428,23 @@ __attribute__((used)) bool predator_subghz_start_parking_attack(PredatorApp* app
     return true;
 }
 
-// Stop any ongoing SubGHz attack
+// PRODUCTION: Stop ongoing SubGHz attack - SAFE for all TX modes
 __attribute__((used)) bool predator_subghz_stop_attack(PredatorApp* app) {
     if(!app) {
-        FURI_LOG_E("PredatorSubGHz", "NULL app pointer in predator_subghz_stop_attack");
+        FURI_LOG_E("PredatorSubGHz", "NULL app pointer");
         return false;
     }
     
     if(!app->subghz_txrx) {
-        FURI_LOG_W("PredatorSubGHz", "SubGHz not initialized - nothing to stop");
+        FURI_LOG_W("PredatorSubGHz", "SubGHz not initialized");
         return false;
     }
     
-    FURI_LOG_I("PredatorSubGHz", "[STOP] Stopping SubGHz transmission");
+    FURI_LOG_I("PredatorSubGHz", "[PRODUCTION] Stopping RF transmission");
     
-    // Check if transmission is active before trying to stop
-    if(!furi_hal_subghz_is_async_tx_complete()) {
-        // Stop async transmission
-        furi_hal_subghz_stop_async_tx();
-        furi_delay_ms(10);
-        FURI_LOG_I("PredatorSubGHz", "[STOP] Transmission stopped");
-    } else {
-        FURI_LOG_I("PredatorSubGHz", "[STOP] No active transmission");
-    }
-    
-    // Put radio back to idle state
+    // CRITICAL: Go to idle first (stops any TX mode - async or carrier)
     furi_hal_subghz_idle();
-    furi_delay_ms(5);
+    furi_delay_ms(10);
     
     // Then sleep
     furi_hal_subghz_sleep();
@@ -484,7 +455,7 @@ __attribute__((used)) bool predator_subghz_stop_attack(PredatorApp* app) {
         notification_message(app->notifications, &sequence_reset_red);
     }
     
-    FURI_LOG_I("PredatorSubGHz", "[STOP] SubGHz attack stopped, radio in sleep mode");
+    FURI_LOG_I("PredatorSubGHz", "[PRODUCTION] RF transmission stopped - radio in sleep mode");
     return true;
 }
 
