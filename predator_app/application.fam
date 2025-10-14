@@ -56,8 +56,8 @@ App(
         "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_ui.c",
         "scenes/predator_scene_wifi_evil_twin_ui.c",   # RE-ADDED: Testing stability
-        # "scenes/predator_scene_wifi_handshake_ui.c",   # REMOVED: Memory optimization
-        # "scenes/predator_scene_wifi_pmkid_ui.c",       # REMOVED: Memory optimization
+        # "scenes/predator_scene_wifi_handshake_ui.c",   # REMOVED: Out of memory
+        "scenes/predator_scene_wifi_pmkid_ui.c",       # KEPT: More important than handshake
         
         # Bluetooth Attacks - REDUCED FOR MEMORY
         "scenes/predator_scene_bluetooth_attacks_ui.c",

@@ -15,13 +15,13 @@ void predator_scene_wifi_attacks_ui_on_enter(void* context) {
     if(!app || !app->submenu) return;
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "📡 WiFi Attacks");
+    submenu_set_header(app->submenu, "WiFi Attacks");
     
-    submenu_add_item(app->submenu, "📡 WiFi Scan", 1, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "💥 WiFi Deauth", 2, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "👹 Evil Twin", 3, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🤝 Handshake", 4, wifi_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔑 PMKID", 5, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "WiFi Scan", 1, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "WiFi Deauth", 2, wifi_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "Evil Twin", 3, wifi_attacks_submenu_callback, app);
+    // submenu_add_item(app->submenu, "Handshake Capture", 4, wifi_attacks_submenu_callback, app); // REMOVED: Out of memory
+    submenu_add_item(app->submenu, "PMKID Capture", 5, wifi_attacks_submenu_callback, app); // KEPT: More efficient
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -55,16 +55,16 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
                 scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
             }
             return true;
-        // case 4: // Handshake - REMOVED: Memory optimization
+        // case 4: // Handshake - REMOVED: Out of memory
         //     if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
         //         scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
         //     }
         //     return true;
-        // case 5: // PMKID - REMOVED: Memory optimization
-        //     if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
-        //         scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
-        //     }
-        //     return true;
+        case 5: // PMKID - KEPT: More efficient than handshake
+            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+            }
+            return true;
         default:
             consumed = false;
             break;

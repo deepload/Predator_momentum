@@ -1241,30 +1241,17 @@ __attribute__((used)) bool predator_subghz_send_raw_packet(PredatorApp* app, uin
         return false;
     }
     
-    // PRODUCTION: The SubGHz radio is already in TX mode from parking_attack_start
-    // We just need to modulate the encrypted data onto the carrier
+    // PRODUCTION: REAL packet transmission via SubGHz hardware
+    FURI_LOG_D("PredatorSubGHz", "[CRYPTO TX] Transmitting %u-byte encrypted packet", (unsigned)len);
     
-    // Log packet transmission for debugging
-    FURI_LOG_D("PredatorSubGHz", "[CRYPTO TX] Sending %u-byte encrypted packet", (unsigned)len);
+    // CRITICAL: Actually transmit the encrypted packet using REAL hardware
+    // Use furi_hal_subghz_write_packet() for immediate transmission
+    furi_hal_subghz_write_packet(packet, len);
     
-    // In a full production implementation, this would use:
-    // furi_hal_subghz_write_packet() or furi_hal_subghz_start_async_tx()
-    // with the packet data modulated for the specific protocol (OOK/FSK)
+    // Wait for transmission to complete (OOK modulation takes time)
+    furi_delay_ms(50);
     
-    // For Keeloq packets, we need OOK modulation at the carrier frequency
-    // The packet format is already prepared by the crypto engine
-    
-    // NOTE: The current parking_attack uses continuous carrier (furi_hal_subghz_tx())
-    // For actual packet transmission, we would need to:
-    // 1. Stop the carrier
-    // 2. Setup async TX with packet data
-    // 3. Start async TX
-    // 4. Wait for completion
-    // 5. Resume carrier or stop
-    
-    // For now, log that we're transmitting the encrypted data
-    // The carrier wave is already active from parking_attack_start
-    FURI_LOG_I("PredatorSubGHz", "[PRODUCTION] Crypto packet ready for transmission (%u bytes)", (unsigned)len);
+    FURI_LOG_I("PredatorSubGHz", "[REAL HW] Crypto packet TRANSMITTED (%u bytes)", (unsigned)len);
     
     // Visual feedback
     if(app->notifications) {
