@@ -80,3 +80,6 @@ void predator_subghz_passive_car_opener_tick(PredatorApp* app);
 void predator_subghz_send_rolling_code_attack(PredatorApp* app, uint32_t frequency);
 void predator_subghz_send_car_bruteforce(PredatorApp* app, uint32_t frequency);
 void predator_subghz_send_jamming_attack(PredatorApp* app, uint32_t frequency);
+
+// PRODUCTION: Send raw encrypted packet via SubGHz (for crypto engine)
+bool predator_subghz_send_raw_packet(PredatorApp* app, uint8_t* packet, size_t len);

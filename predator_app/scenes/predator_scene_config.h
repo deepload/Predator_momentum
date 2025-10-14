@@ -10,7 +10,7 @@ ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
-// ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // COMMENTED OUT: Out of memory issue
+ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // RE-ADDED: Swiss Gov requirement - Testing stability
 
 // WiFi Attacks - REDUCED FOR MEMORY (Keep essentials only)
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)

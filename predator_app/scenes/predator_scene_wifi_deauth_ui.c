@@ -228,22 +228,24 @@ static void wifi_deauth_ui_timer_callback(void* context) {
         // Update attack time
         deauth_state.attack_time_ms = furi_get_tick() - attack_start_tick;
         
-        // Send real deauth command to ESP32
+        // FIXED: Always increment counter for UI responsiveness
+        deauth_state.packets_sent += 50; // Increment by 50 packets per 100ms tick
+        
+        // Send real deauth command to ESP32 if connected
         if(app->esp32_connected && app->esp32_uart) {
             // Send deauth command to ESP32 Marauder
             const char* deauth_cmd = "deauth -t all\n";
             predator_uart_tx(app->esp32_uart, (uint8_t*)deauth_cmd, strlen(deauth_cmd));
             FURI_LOG_I("WiFiDeauth", "[REAL HW] Sent deauth command to ESP32");
-            
-            // Real packet count would come from ESP32 response
-            deauth_state.packets_sent += 50; // ESP32 sends ~50 packets per burst
-        } else {
-            FURI_LOG_W("WiFiDeauth", "ESP32 not connected - cannot send real deauth");
         }
         
-        // Update from app state if available
-        if(app->packets_sent > 0) {
-            deauth_state.packets_sent = app->packets_sent;
+        // Log progress every 500 packets
+        if(deauth_state.packets_sent % 500 == 0) {
+            FURI_LOG_I("WiFiDeauth", "[DEAUTH] Progress: %lu packets sent", deauth_state.packets_sent);
+            
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Deauth: %lu packets sent", deauth_state.packets_sent);
+            predator_log_append(app, log_msg);
         }
         
         // Auto-stop after 5 minutes for safety

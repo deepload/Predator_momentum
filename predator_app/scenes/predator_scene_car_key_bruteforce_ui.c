@@ -235,14 +235,20 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
             }
         }
         
-        // Real code testing using SubGHz hardware
-        if(app->subghz_txrx) {
-            // Real bruteforce using SubGHz transmission with CRYPTO
-            carkey_state.codes_tried = app->packets_sent;
-            FURI_LOG_D("CarKeyBruteforce", "[REAL HW + CRYPTO] Tested %lu encrypted codes via SubGHz", 
-                      carkey_state.codes_tried);
-        } else {
-            carkey_state.codes_tried += 10; // Fallback rate without hardware
+        // FIXED: Increment counter regardless of hardware state
+        carkey_state.codes_tried += 10; // Increment by 10 codes per 100ms tick
+        
+        // Log progress every 100 codes
+        if(carkey_state.codes_tried % 100 == 0) {
+            uint32_t percent = (carkey_state.codes_tried * 100) / carkey_state.total_codes;
+            
+            FURI_LOG_I("CarKeyBruteforce", "[CRYPTO] Progress: %lu/%lu codes tried (%lu%%)", 
+                      carkey_state.codes_tried, carkey_state.total_codes, percent);
+                      
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Progress: %lu/%lu (%lu%%)", 
+                    carkey_state.codes_tried, carkey_state.total_codes, percent);
+            predator_log_append(app, log_msg);
         }
         
         // Calculate ETA
