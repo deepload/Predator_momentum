@@ -55,7 +55,7 @@ App(
         "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_ui.c",
-        # "scenes/predator_scene_wifi_evil_twin_ui.c",   # REMOVED: Memory optimization
+        "scenes/predator_scene_wifi_evil_twin_ui.c",   # RE-ADDED: Testing stability
         # "scenes/predator_scene_wifi_handshake_ui.c",   # REMOVED: Memory optimization
         # "scenes/predator_scene_wifi_pmkid_ui.c",       # REMOVED: Memory optimization
         
@@ -67,12 +67,12 @@ App(
         # RFID Attacks - REDUCED FOR MEMORY
         "scenes/predator_scene_rfid_attacks_ui.c",
         "scenes/predator_scene_rfid_clone_ui.c",
-        # "scenes/predator_scene_rfid_bruteforce_ui.c",  # REMOVED: Memory optimization
+        "scenes/predator_scene_rfid_bruteforce_ui.c",  # RE-ADDED: Testing stability
         # "scenes/predator_scene_rfid_fuzzing_ui.c",     # REMOVED: Memory optimization
         
         # SubGHz Attacks - REDUCED FOR MEMORY
         "scenes/predator_scene_subghz_attacks_ui.c",
-        # "scenes/predator_scene_subghz_jamming_ui.c",   # REMOVED: Memory optimization (use car_jamming instead)
+        "scenes/predator_scene_subghz_jamming_ui.c",   # RE-ADDED: Testing stability
         # "scenes/predator_scene_subghz_raw_send_ui.c",  # REMOVED: Memory optimization
         
         # GPS & Navigation (ESSENTIAL)

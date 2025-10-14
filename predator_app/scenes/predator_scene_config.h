@@ -16,7 +16,7 @@ ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
-// ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // REMOVED: Memory optimization
+ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // RE-ADDED: Testing stability
 // ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Memory optimization
 // ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // REMOVED: Memory optimization
 
@@ -28,12 +28,12 @@ ADD_SCENE(predator, ble_spam_ui, BleSpamUI)               // RE-ADDED: Testing s
 // RFID Attacks - REDUCED FOR MEMORY
 ADD_SCENE(predator, rfid_attacks_ui, RfidAttacksUI)
 ADD_SCENE(predator, rfid_clone_ui, RfidCloneUI)
-// ADD_SCENE(predator, rfid_bruteforce_ui, RfidBruteforceUI) // REMOVED: Memory optimization
+ADD_SCENE(predator, rfid_bruteforce_ui, RfidBruteforceUI) // RE-ADDED: Testing stability
 // ADD_SCENE(predator, rfid_fuzzing_ui, RfidFuzzingUI)       // REMOVED: Memory optimization
 
 // SubGHz Attacks - REDUCED FOR MEMORY
 ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
-// ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)   // REMOVED: Memory optimization (use car_jamming)
+ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)   // RE-ADDED: Testing stability
 // ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)  // REMOVED: Memory optimization
 
 // GPS & Navigation (TEMPORARILY DISABLED - memory optimization)

@@ -23,7 +23,8 @@ void predator_scene_subghz_attacks_ui_on_enter(void* context) {
 }
 
 bool predator_scene_subghz_attacks_ui_on_event(void* context, SceneManagerEvent event) {
-    UNUSED(context); // All scenes removed for memory optimization
+    PredatorApp* app = context;
+    bool consumed = false;
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
@@ -31,8 +32,22 @@ bool predator_scene_subghz_attacks_ui_on_event(void* context, SceneManagerEvent 
         return false;
     }
     
-    // All SubGHz attacks removed for memory optimization - use car attack scenes instead
-    return false;
+    if(event.type == SceneManagerEventTypeCustom) {
+        consumed = true;
+        switch(event.event) {
+        case SubmenuIndexSubGhzJamming: // RE-ADDED: Testing stability
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
+            break;
+        // case SubmenuIndexSubGhzRawSend: // REMOVED: Memory optimization
+        //     scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzRawSendUI);
+        //     break;
+        default:
+            consumed = false;
+            break;
+        }
+    }
+    
+    return consumed;
 }
 
 void predator_scene_subghz_attacks_ui_on_exit(void* context) {
