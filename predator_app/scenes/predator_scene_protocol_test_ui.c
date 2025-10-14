@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_crypto_engine.h"
+#include "../helpers/predator_models.h"
 #include "../helpers/predator_logging.h"
 #include <string.h>
 
@@ -26,87 +27,18 @@ void predator_scene_protocol_test_ui_on_enter(void* context) {
              app->selected_model_name);
     submenu_set_header(app->submenu, header);
 
-    // Determine which protocol this car likely uses based on frequency and make
-    bool uses_keeloq = false;
-    bool uses_hitag2 = false;
-    bool uses_smart_key = false;
-
-    // Keeloq users (American/Japanese/French brands at 315/433MHz)
-    if(strstr(app->selected_model_make, "Chrysler") ||
-       strstr(app->selected_model_make, "Ford") ||
-       strstr(app->selected_model_make, "GM") ||
-       strstr(app->selected_model_make, "Honda") ||
-       strstr(app->selected_model_make, "Toyota") ||
-       strstr(app->selected_model_make, "Nissan") ||
-       strstr(app->selected_model_make, "Chevrolet") ||
-       strstr(app->selected_model_make, "Dodge") ||
-       strstr(app->selected_model_make, "Jeep") ||
-       strstr(app->selected_model_make, "Peugeot") ||      // French
-       strstr(app->selected_model_make, "Renault") ||      // French
-       strstr(app->selected_model_make, "Fiat") ||         // Italian
-       strstr(app->selected_model_make, "Mazda") ||        // Japanese
-       strstr(app->selected_model_make, "Mitsubishi") ||   // Japanese
-       strstr(app->selected_model_make, "Subaru") ||       // Japanese
-       strstr(app->selected_model_make, "Hyundai") ||      // Korean
-       strstr(app->selected_model_make, "Kia")) {          // Korean
-        uses_keeloq = true;
-    }
-
-    // Hitag2 users (German/VW Group brands at 868MHz)
-    if(strstr(app->selected_model_make, "BMW") ||
-       strstr(app->selected_model_make, "Audi") ||
-       strstr(app->selected_model_make, "VW") ||
-       strstr(app->selected_model_make, "Volkswagen") ||
-       strstr(app->selected_model_make, "Porsche") ||
-       strstr(app->selected_model_make, "Skoda") ||        // VW Group
-       strstr(app->selected_model_make, "Seat")) {         // VW Group
-        uses_hitag2 = true;
-    }
-
-    // Smart Key users (luxury/modern cars + Chinese EVs)
-    if(strstr(app->selected_model_make, "Tesla") ||
-       strstr(app->selected_model_make, "Mercedes") ||
-       strstr(app->selected_model_make, "Lexus") ||
-       strstr(app->selected_model_make, "Cadillac") ||
-       strstr(app->selected_model_make, "Range Rover") ||
-       strstr(app->selected_model_make, "Jaguar") ||
-       strstr(app->selected_model_make, "Acura") ||        // Honda luxury
-       strstr(app->selected_model_make, "Infiniti") ||     // Nissan luxury
-       strstr(app->selected_model_make, "Volvo") ||        // Swedish luxury
-       // Italian exotics
-       strstr(app->selected_model_make, "Lamborghini") ||
-       strstr(app->selected_model_make, "Ferrari") ||
-       strstr(app->selected_model_make, "Maserati") ||
-       strstr(app->selected_model_make, "Pagani") ||
-       // British exotics
-       strstr(app->selected_model_make, "Bentley") ||
-       strstr(app->selected_model_make, "Rolls-Royce") ||
-       strstr(app->selected_model_make, "Aston Martin") ||
-       strstr(app->selected_model_make, "McLaren") ||
-       // Hypercars
-       strstr(app->selected_model_make, "Bugatti") ||
-       strstr(app->selected_model_make, "Koenigsegg") ||
-       // Chinese EVs (modern smart key)
-       strstr(app->selected_model_make, "BYD") ||
-       strstr(app->selected_model_make, "NIO") ||
-       strstr(app->selected_model_make, "Xpeng") ||
-       strstr(app->selected_model_make, "Li Auto") ||
-       strstr(app->selected_model_make, "Hongqi") ||
-       strstr(app->selected_model_make, "Zeekr") ||
-       strstr(app->selected_model_make, "Aiways") ||
-       strstr(app->selected_model_make, "Lynk & Co") ||
-       strstr(app->selected_model_make, "MG")) {           // MG EVs use smart key
-        uses_smart_key = true;
-    }
+    // INTELLIGENT: Use database-driven protocol detection instead of string matching
+    CryptoProtocol detected_protocol = predator_models_get_protocol(app->selected_model_index);
     
-    // Chinese brands with rolling code (older/cheaper models)
-    if(strstr(app->selected_model_make, "Geely") ||
-       strstr(app->selected_model_make, "Great Wall") ||
-       strstr(app->selected_model_make, "Changan") ||
-       strstr(app->selected_model_make, "Roewe") ||
-       strstr(app->selected_model_make, "JAC")) {
-        uses_keeloq = true;
-    }
+    bool uses_keeloq = (detected_protocol == CryptoProtocolKeeloq);
+    bool uses_hitag2 = (detected_protocol == CryptoProtocolHitag2);
+    bool uses_smart_key = (detected_protocol == CryptoProtocolAES128 || 
+                           detected_protocol == CryptoProtocolTesla);
+    
+    // Log detected protocol for debugging
+    FURI_LOG_I("ProtocolTest", "Detected protocol: %s for model index %u",
+              predator_models_get_protocol_name(detected_protocol),
+              (unsigned)app->selected_model_index);
 
     // Add ALL protocols (always clickable for testing!)
     // Use emoji + OK/KO labels for maximum clarity

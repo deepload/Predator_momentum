@@ -15,6 +15,7 @@
 #include <storage/storage.h>
 
 #include "helpers/predator_boards.h"
+#include "helpers/predator_models.h"
 // Compliance and regional gating
 #include "helpers/predator_compliance.h"
 // Navigation safety patterns for Tesla/Government demos
@@ -182,6 +183,7 @@ typedef struct PredatorApp {
     bool wifi_target_selected;
 
     // Selected car model context
+    CarContinent selected_continent;  // Selected continent filter
     size_t selected_model_index;
     uint32_t selected_model_freq;
     char selected_model_make[16];

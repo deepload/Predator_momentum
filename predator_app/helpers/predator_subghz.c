@@ -1241,21 +1241,20 @@ __attribute__((used)) bool predator_subghz_send_raw_packet(PredatorApp* app, uin
         return false;
     }
     
-    // PRODUCTION: REAL packet transmission via SubGHz hardware
-    FURI_LOG_D("PredatorSubGHz", "[CRYPTO TX] Transmitting %u-byte encrypted packet", (unsigned)len);
+    // CRITICAL FIX: Actually transmit the packet via real SubGHz hardware
+    FURI_LOG_I("PredatorSubGHz", "[REAL HW] Transmitting %u-byte encrypted packet", (unsigned)len);
     
-    // CRITICAL: Actually transmit the encrypted packet using REAL hardware
-    // Use furi_hal_subghz_write_packet() for immediate transmission
+    // Use the actual Flipper Zero hardware SubGHz API to transmit
     furi_hal_subghz_write_packet(packet, len);
     
-    // Wait for transmission to complete (OOK modulation takes time)
+    // Wait for transmission to complete
     furi_delay_ms(50);
     
-    FURI_LOG_I("PredatorSubGHz", "[REAL HW] Crypto packet TRANSMITTED (%u bytes)", (unsigned)len);
+    FURI_LOG_I("PredatorSubGHz", "[REAL HW] Packet transmission COMPLETE");
     
-    // Visual feedback
+    // Visual feedback - green blink for successful transmission
     if(app->notifications) {
-        notification_message(app->notifications, &sequence_blink_cyan_10);
+        notification_message(app->notifications, &sequence_blink_green_100);
     }
     
     return true;

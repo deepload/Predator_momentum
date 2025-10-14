@@ -42,6 +42,7 @@ App(
         
         # Tesla & Car Security (CORE BUSINESS)
         "scenes/predator_scene_car_tesla_ui.c",
+        "scenes/predator_scene_car_continent_ui.c",        # NEW: Continent picker (Europe/Asia/America)
         "scenes/predator_scene_car_models_ui.c",           # Simple model picker (WORKING)
         "scenes/predator_scene_car_model_attacks_ui.c",    # Attacks for selected model (WORKING)
         "scenes/predator_scene_protocol_test_ui.c",        # Protocol testing (Keeloq/Hitag2/AES)
