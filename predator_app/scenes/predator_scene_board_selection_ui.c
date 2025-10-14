@@ -1,10 +1,10 @@
 #include "../predator_i.h"
+#include "predator_scene.h"
 #include "../helpers/predator_boards.h"
-#include "../helpers/predator_logging.h"
-#include "../helpers/predator_full_detection.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
 #include "../helpers/predator_constants.h"
+#include "../helpers/predator_logging.h"
 #include <gui/view.h>
 #include <notification/notification_messages.h>
 

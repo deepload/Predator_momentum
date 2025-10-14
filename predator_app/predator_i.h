@@ -18,8 +18,6 @@
 #include "helpers/predator_models.h"
 // Compliance and regional gating
 #include "helpers/predator_compliance.h"
-// Navigation safety patterns for Tesla/Government demos
-#include "helpers/predator_navigation_safe.h"
 // Use generated scene IDs from config to avoid mismatches
 #include "scenes/predator_scene.h"
 

@@ -1,7 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "predator_submenu_index.h"
-#include "../helpers/predator_full_detection.h"
+#include "../helpers/predator_memory_optimized.h"
 
 // WiFi Attacks Submenu - Professional UI
 static void wifi_attacks_submenu_callback(void* context, uint32_t index) {

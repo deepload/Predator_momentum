@@ -1,8 +1,7 @@
 #include "predator_memory_optimized.h"
 #include "../predator_i.h"
-#include "predator_boards.h"
-#include "predator_full_detection.h"
 #include <furi.h>
+#include <string.h>
 
 // ADVANCED MEMORY OPTIMIZER - Consolidates 30+ helpers into one efficient module
 // Swiss Government Demo - Critical Memory Management

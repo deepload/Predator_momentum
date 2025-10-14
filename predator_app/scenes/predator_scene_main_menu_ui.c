@@ -1,6 +1,5 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
-#include "../helpers/predator_ui_clean.h"
 #include "../helpers/predator_boards.h"
 #include "predator_submenu_index.h"
 
@@ -10,6 +9,14 @@
 
 static uint32_t last_back_press_time = 0;
 #define DOUBLE_PRESS_TIMEOUT_MS 2000 // 2 seconds to press Back again
+
+// Safe exit macro
+#define PREDATOR_SAFE_EXIT_APP(app) \
+    do { \
+        if(app && app->view_dispatcher) { \
+            view_dispatcher_stop(app->view_dispatcher); \
+        } \
+    } while(0)
 
 static void main_menu_submenu_callback(void* context, uint32_t index) {
     PredatorApp* app = context;

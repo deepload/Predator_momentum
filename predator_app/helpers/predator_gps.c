@@ -1,8 +1,8 @@
 #include "predator_gps.h"
 #include "../predator_i.h"
 #include "../predator_uart.h"
-#include "predator_string.h"
 #include "predator_boards.h"
+#include "predator_memory_optimized.h"
 #include <furi.h>
 #include <stdlib.h>
 #include <string.h>
