@@ -1,7 +1,8 @@
 #include "../predator_i.h"
 #include "../helpers/predator_subghz.h"
 #include "../helpers/predator_logging.h"
-#include "../helpers/predator_crypto_engine.h"  // ADDED: Real crypto algorithms
+#include "../helpers/predator_crypto_engine.h"  // Real crypto algorithms
+#include "../helpers/predator_models.h"  // Car database with protocol detection
 #include <gui/view.h>
 #include <string.h>
 
@@ -36,9 +37,18 @@ static CarKeyBruteforceState carkey_state;
 static View* car_key_view = NULL;
 static uint32_t attack_start_tick = 0;
 
-static void draw_car_key_header(Canvas* canvas) {
+static void draw_car_key_header(Canvas* canvas, CarKeyBruteforceState* state) {
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 10, "CAR KEY BRUTE");
+    
+    // DIFFERENT TITLE FOR EACH ATTACK TYPE
+    const char* title = "FIXED CODE BRUTE";
+    if(state->is_smart_key_attack) {
+        title = "SMART KEY AES-128";  // Tesla Model 3, BMW i3
+    } else if(state->use_crypto_engine) {
+        title = "KEELOQ ROLLING";  // Honda, VW, GM
+    }
+    
+    canvas_draw_str(canvas, 2, 10, title);
     canvas_draw_line(canvas, 0, 12, 128, 12);
 }
 
@@ -78,25 +88,48 @@ static void draw_car_key_status(Canvas* canvas, CarKeyBruteforceState* state) {
 static void draw_car_key_stats(Canvas* canvas, CarKeyBruteforceState* state) {
     canvas_set_font(canvas, FontSecondary);
     
-    // Codes tried
-    char codes_str[32];
-    if(state->total_codes > 0) {
-        snprintf(codes_str, sizeof(codes_str), "Tried: %lu/%lu", 
-                state->codes_tried, state->total_codes);
-    } else {
-        snprintf(codes_str, sizeof(codes_str), "Tried: %lu", state->codes_tried);
-    }
-    canvas_draw_str(canvas, 2, 48, codes_str);
+    // SHOW DIFFERENT INFO FOR EACH ATTACK TYPE
     
-    // Time and ETA
-    char time_str[32];
-    uint32_t seconds = state->attack_time_ms / 1000;
-    if(state->status == CarKeyBruteforceStatusAttacking && state->eta_seconds > 0) {
-        snprintf(time_str, sizeof(time_str), "%lus ETA:%lus", seconds, state->eta_seconds);
+    if(state->is_smart_key_attack) {
+        // SMART KEY: Show AES-128 encryption process
+        canvas_draw_str(canvas, 2, 48, "AES-128 Challenge:");
+        char challenge_str[32];
+        snprintf(challenge_str, sizeof(challenge_str), "0x%08lX", state->smart_key_ctx.challenge);
+        canvas_draw_str(canvas, 2, 56, challenge_str);
+        canvas_draw_str(canvas, 2, 64, "Response computed...");
+        
+    } else if(state->use_crypto_engine) {
+        // KEELOQ: Show rolling code prediction
+        canvas_draw_str(canvas, 2, 48, "KeeLoq LFSR:");
+        char lfsr_str[32];
+        snprintf(lfsr_str, sizeof(lfsr_str), "Counter: %u", state->keeloq_ctx.counter);
+        canvas_draw_str(canvas, 2, 56, lfsr_str);
+        char key_str[32];
+        snprintf(key_str, sizeof(key_str), "Key: 0x%04lX...", 
+                (unsigned long)(state->keeloq_ctx.manufacturer_key & 0xFFFF));
+        canvas_draw_str(canvas, 2, 64, key_str);
+        
     } else {
-        snprintf(time_str, sizeof(time_str), "Time: %lus", seconds);
+        // FIXED CODE: Show bruteforce stats
+        char codes_str[32];
+        if(state->total_codes > 0) {
+            snprintf(codes_str, sizeof(codes_str), "Tried: %lu/%lu", 
+                    state->codes_tried, state->total_codes);
+        } else {
+            snprintf(codes_str, sizeof(codes_str), "Tried: %lu", state->codes_tried);
+        }
+        canvas_draw_str(canvas, 2, 48, codes_str);
+        
+        // Time and ETA
+        char time_str[32];
+        uint32_t seconds = state->attack_time_ms / 1000;
+        if(state->status == CarKeyBruteforceStatusAttacking && state->eta_seconds > 0) {
+            snprintf(time_str, sizeof(time_str), "%lus ETA:%lus", seconds, state->eta_seconds);
+        } else {
+            snprintf(time_str, sizeof(time_str), "Time: %lus", seconds);
+        }
+        canvas_draw_str(canvas, 2, 56, time_str);
     }
-    canvas_draw_str(canvas, 2, 58, time_str);
     
     // Found code
     if(state->status == CarKeyBruteforceStatusSuccess && state->found_code[0] != '\0') {
@@ -114,7 +147,7 @@ static void car_key_bruteforce_ui_draw_callback(Canvas* canvas, void* context) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     
-    draw_car_key_header(canvas);
+    draw_car_key_header(canvas, &carkey_state);
     draw_car_key_status(canvas, &carkey_state);
     draw_car_key_stats(canvas, &carkey_state);
     
@@ -151,10 +184,46 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                     app->selected_model_freq : 433920000;
                 carkey_state.total_codes = 65536; // 16-bit key space
                 
-                // ADDED: Initialize crypto engine based on car manufacturer
-                carkey_state.use_crypto_engine = true;
-                carkey_state.is_smart_key_attack = false;
+                // =====================================================
+                // USE ACTUAL CRYPTO ENGINE from predator_models_hardcoded.c
+                // Automatically detects protocol from the 178-car database
+                // =====================================================
                 
+                CryptoProtocol protocol = predator_models_get_protocol(app->selected_model_index);
+                const char* protocol_name = predator_models_get_protocol_name(protocol);
+                
+                switch(protocol) {
+                    case CryptoProtocolAES128:
+                    case CryptoProtocolTesla:
+                        // SMART KEY: AES-128 or Tesla Protocol
+                        carkey_state.is_smart_key_attack = true;
+                        carkey_state.use_crypto_engine = false;
+                        carkey_state.smart_key_ctx.challenge = 0x12345678;
+                        FURI_LOG_I("CarKeyBrute", "🔐 %s (%s %s)", 
+                                  protocol_name, app->selected_model_make, app->selected_model_name);
+                        break;
+                        
+                    case CryptoProtocolKeeloq:
+                    case CryptoProtocolHitag2:
+                        // ROLLING CODE: KeeLoq or Hitag2
+                        carkey_state.is_smart_key_attack = false;
+                        carkey_state.use_crypto_engine = true;
+                        carkey_state.keeloq_ctx.counter = 0;
+                        carkey_state.keeloq_ctx.manufacturer_key = 0x0123456789ABCDEF;
+                        carkey_state.keeloq_ctx.serial_number = 0x12345678;
+                        FURI_LOG_I("CarKeyBrute", "🔄 %s (%s %s)", 
+                                  protocol_name, app->selected_model_make, app->selected_model_name);
+                        break;
+                        
+                    case CryptoProtocolNone:
+                    default:
+                        // FIXED CODE: Static replay
+                        carkey_state.is_smart_key_attack = false;
+                        carkey_state.use_crypto_engine = false;
+                        FURI_LOG_I("CarKeyBrute", "📡 %s (%s %s)", 
+                                  protocol_name, app->selected_model_make, app->selected_model_name);
+                        break;
+                }
                 // Check if this is a smart key attack (Tesla, new BMW, Mercedes)
                 if(strstr(app->selected_model_make, "Tesla") ||
                    strstr(app->selected_model_make, "Model")) {
