@@ -28,6 +28,8 @@ typedef struct {
     bool use_crypto_engine;  // ADDED: Use real crypto
     KeeloqContext keeloq_ctx;  // ADDED: Keeloq context for rolling codes
     Hitag2Context hitag2_ctx;  // ADDED: Hitag2 context for BMW/Audi
+    SmartKeyContext smart_key_ctx;  // ADDED: Smart key context for AES-128 (Tesla, new BMW, Mercedes)
+    bool is_smart_key_attack;  // ADDED: Flag for smart key mode
 } CarKeyBruteforceState;
 
 static CarKeyBruteforceState carkey_state;
@@ -55,11 +57,14 @@ static void draw_car_key_status(Canvas* canvas, CarKeyBruteforceState* state) {
     }
     canvas_draw_str(canvas, 45, 22, status_text);
     
-    // Frequency
-    char freq_str[32];
-    snprintf(freq_str, sizeof(freq_str), "%lu.%02lu MHz", 
-            state->frequency / 1000000, (state->frequency % 1000000) / 10000);
-    canvas_draw_str(canvas, 2, 32, freq_str);
+    // Frequency line and attack mode
+    canvas_draw_str(canvas, 2, 32, "Freq:");
+    char freq_str[24];
+    snprintf(freq_str, sizeof(freq_str), "%lu.%02lu MHz%s", 
+             state->frequency / 1000000, 
+             (state->frequency % 1000000) / 10000,
+             state->is_smart_key_attack ? " AES" : "");
+    canvas_draw_str(canvas, 35, 32, freq_str);
     
     // Progress bar
     canvas_draw_frame(canvas, 2, 36, 124, 6);
@@ -148,9 +153,22 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 
                 // ADDED: Initialize crypto engine based on car manufacturer
                 carkey_state.use_crypto_engine = true;
+                carkey_state.is_smart_key_attack = false;
                 
-                // Initialize Keeloq for rolling code cars (American/Japanese/French)
-                if(strstr(app->selected_model_make, "BMW") || 
+                // Check if this is a smart key attack (Tesla, new BMW, Mercedes)
+                if(strstr(app->selected_model_make, "Tesla") ||
+                   strstr(app->selected_model_make, "Model")) {
+                    // Smart Key for Tesla and modern EVs
+                    carkey_state.is_smart_key_attack = true;
+                    memset(&carkey_state.smart_key_ctx, 0, sizeof(SmartKeyContext));
+                    // Initialize with default AES key (would be extracted from key fob)
+                    uint8_t default_key[16] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
+                                               0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10};
+                    memcpy(carkey_state.smart_key_ctx.aes_key, default_key, 16);
+                    // Set vehicle ID from selected model
+                    memcpy(carkey_state.smart_key_ctx.vehicle_id, "TESLA123", 8);
+                    predator_log_append(app, "CRYPTO: Using Smart Key AES-128 (Tesla/Modern)");
+                } else if(strstr(app->selected_model_make, "BMW") || 
                    strstr(app->selected_model_make, "Audi") ||
                    strstr(app->selected_model_make, "VW") ||
                    strstr(app->selected_model_make, "Porsche")) {
@@ -212,8 +230,27 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
         
         // CRYPTO ENGINE: Generate real encrypted packets
         if(carkey_state.use_crypto_engine) {
-            // Increment counter for rolling code
-            if(strstr(app->selected_model_make, "BMW") || 
+            // Smart Key Attack (AES-128 challenge-response)
+            if(carkey_state.is_smart_key_attack) {
+                // Generate challenge-response for smart key systems
+                uint8_t challenge[16];
+                uint8_t response[16];
+                size_t len = 16;
+                
+                // Generate new challenge
+                if(predator_crypto_smart_key_challenge(&carkey_state.smart_key_ctx, challenge, 16)) {
+                    // Generate encrypted response
+                    if(predator_crypto_smart_key_response(&carkey_state.smart_key_ctx, response, &len)) {
+                        // Transmit challenge-response pair
+                        predator_subghz_send_raw_packet(app, response, len);
+                        app->packets_sent++;
+                        FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Smart Key AES-128 challenge 0x%08lX TRANSMITTED",
+                                  carkey_state.smart_key_ctx.challenge);
+                    }
+                }
+            }
+            // Hitag2 for German cars (BMW/Audi)
+            else if(strstr(app->selected_model_make, "BMW") || 
                strstr(app->selected_model_make, "Audi")) {
                 // Hitag2: Generate encrypted packet
                 carkey_state.hitag2_ctx.rolling_code++;

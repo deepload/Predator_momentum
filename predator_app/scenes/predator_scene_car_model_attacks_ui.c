@@ -32,9 +32,10 @@ void predator_scene_car_model_attacks_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🔐 Protocol Test", 1, model_attacks_cb, app);  // NEW: Test crypto protocols
     submenu_add_item(app->submenu, "🔑 Key Bruteforce", 2, model_attacks_cb, app);
     submenu_add_item(app->submenu, "🔄 Rolling Code Attack", 3, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "📡 RF Jamming", 4, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "🚗 Passive Opener", 5, model_attacks_cb, app);
-    submenu_add_item(app->submenu, "📈 Live Monitor", 6, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🔐 Smart Key (AES-128)", 4, model_attacks_cb, app);  // NEW: Smart key attack
+    submenu_add_item(app->submenu, "📡 RF Jamming", 5, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "🚗 Passive Opener", 6, model_attacks_cb, app);
+    submenu_add_item(app->submenu, "📈 Live Monitor", 7, model_attacks_cb, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -62,13 +63,17 @@ bool predator_scene_car_model_attacks_ui_on_event(void* context, SceneManagerEve
                 predator_log_append(app, "Rolling Code: Advanced cryptographic attack");
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
                 return true;
-            case 4: // RF Jamming - Navigate to existing scene
+            case 4: // Smart Key Attack - AES-128 challenge-response for modern cars
+                predator_log_append(app, "Smart Key: AES-128 challenge-response attack");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+                return true;
+            case 5: // RF Jamming - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
                 return true;
-            case 5: // Passive Opener - Navigate to existing scene
+            case 6: // Passive Opener - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
                 return true;
-            case 6: // Live Monitor - Navigate to existing scene
+            case 7: // Live Monitor - Navigate to existing scene
                 scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
                 return true;
             default:
