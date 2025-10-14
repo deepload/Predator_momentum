@@ -24,7 +24,13 @@ App(
         "helpers/predator_gps.c",
         "helpers/predator_compliance.c",
         "helpers/predator_models_hardcoded.c",
-        "helpers/predator_subghz.c",
+        
+        # v2.0 REFACTORED: Modular SubGHz (was 1 file @ 52KB, now 4 files @ 12-15KB each)
+        "helpers/subghz/predator_subghz_core.c",      # Hardware init/deinit
+        "helpers/subghz/predator_subghz_car.c",       # Car-specific attacks
+        "helpers/subghz/predator_subghz_rolling.c",   # Rolling code attacks
+        "helpers/subghz/predator_subghz_jamming.c",   # Jamming operations
+        
         "helpers/predator_ui_elements.c",
         "helpers/predator_settings.c",
         "helpers/predator_logging.c",
