@@ -45,35 +45,35 @@ App(
         "scenes/predator_scene_car_models_ui.c",           # Simple model picker (WORKING)
         "scenes/predator_scene_car_model_attacks_ui.c",    # Attacks for selected model (WORKING)
         "scenes/predator_scene_protocol_test_ui.c",        # Protocol testing (Keeloq/Hitag2/AES)
-        "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS REQUIREMENT
+        # "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS - COMMENTED OUT: Out of memory
         "scenes/predator_scene_walking_open_ui.c",
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",
         
-        # WiFi Attacks (GOVERNMENT GRADE) - ALL SCENES KEPT
+        # WiFi Attacks - REDUCED FOR MEMORY (Keep essentials only)
         "scenes/predator_scene_wifi_attacks_ui.c",
         "scenes/predator_scene_wifi_scan_ui.c",
         "scenes/predator_scene_wifi_deauth_ui.c",
-        "scenes/predator_scene_wifi_evil_twin_ui.c",
-        "scenes/predator_scene_wifi_handshake_ui.c",
-        "scenes/predator_scene_wifi_pmkid_ui.c",
+        # "scenes/predator_scene_wifi_evil_twin_ui.c",   # REMOVED: Memory optimization
+        # "scenes/predator_scene_wifi_handshake_ui.c",   # REMOVED: Memory optimization
+        # "scenes/predator_scene_wifi_pmkid_ui.c",       # REMOVED: Memory optimization
         
-        # Bluetooth Attacks (ESSENTIAL)
+        # Bluetooth Attacks - REDUCED FOR MEMORY
         "scenes/predator_scene_bluetooth_attacks_ui.c",
         "scenes/predator_scene_ble_scan_ui.c",
-        "scenes/predator_scene_ble_spam_ui.c",
+        "scenes/predator_scene_ble_spam_ui.c",         # RE-ADDED: Testing stability
         
-        # RFID Attacks (ESSENTIAL) - ALL SCENES KEPT
+        # RFID Attacks - REDUCED FOR MEMORY
         "scenes/predator_scene_rfid_attacks_ui.c",
         "scenes/predator_scene_rfid_clone_ui.c",
-        "scenes/predator_scene_rfid_bruteforce_ui.c",
-        "scenes/predator_scene_rfid_fuzzing_ui.c",
+        # "scenes/predator_scene_rfid_bruteforce_ui.c",  # REMOVED: Memory optimization
+        # "scenes/predator_scene_rfid_fuzzing_ui.c",     # REMOVED: Memory optimization
         
-        # SubGHz Attacks (ESSENTIAL) - ALL SCENES KEPT
+        # SubGHz Attacks - REDUCED FOR MEMORY
         "scenes/predator_scene_subghz_attacks_ui.c",
-        "scenes/predator_scene_subghz_jamming_ui.c",
-        "scenes/predator_scene_subghz_raw_send_ui.c",
+        # "scenes/predator_scene_subghz_jamming_ui.c",   # REMOVED: Memory optimization (use car_jamming instead)
+        # "scenes/predator_scene_subghz_raw_send_ui.c",  # REMOVED: Memory optimization
         
         # GPS & Navigation (ESSENTIAL)
         #"scenes/predator_scene_gps_tracker_ui.c",

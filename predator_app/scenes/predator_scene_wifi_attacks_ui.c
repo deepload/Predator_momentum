@@ -50,21 +50,21 @@ bool predator_scene_wifi_attacks_ui_on_event(void* context, SceneManagerEvent ev
                 scene_manager_next_scene(app->scene_manager, PredatorSceneWifiDeauthUI);
             }
             return true;
-        case 3: // Evil Twin
-            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
-                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
-            }
-            return true;
-        case 4: // Handshake
-            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
-                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
-            }
-            return true;
-        case 5: // PMKID
-            if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
-                scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
-            }
-            return true;
+        // case 3: // Evil Twin - REMOVED: Memory optimization
+        //     if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+        //         scene_manager_next_scene(app->scene_manager, PredatorSceneWifiEvilTwinUI);
+        //     }
+        //     return true;
+        // case 4: // Handshake - REMOVED: Memory optimization
+        //     if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+        //         scene_manager_next_scene(app->scene_manager, PredatorSceneWifiHandshakeUI);
+        //     }
+        //     return true;
+        // case 5: // PMKID - REMOVED: Memory optimization
+        //     if(predator_full_detection_show_requirements_popup(app, PredatorAttackWiFi)) {
+        //         scene_manager_next_scene(app->scene_manager, PredatorSceneWifiPmkidUI);
+        //     }
+        //     return true;
         default:
             consumed = false;
             break;

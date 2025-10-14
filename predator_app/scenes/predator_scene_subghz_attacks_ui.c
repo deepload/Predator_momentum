@@ -23,8 +23,7 @@ void predator_scene_subghz_attacks_ui_on_enter(void* context) {
 }
 
 bool predator_scene_subghz_attacks_ui_on_event(void* context, SceneManagerEvent event) {
-    PredatorApp* app = context;
-    bool consumed = false;
+    UNUSED(context); // All scenes removed for memory optimization
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
@@ -32,22 +31,8 @@ bool predator_scene_subghz_attacks_ui_on_event(void* context, SceneManagerEvent 
         return false;
     }
     
-    if(event.type == SceneManagerEventTypeCustom) {
-        consumed = true;
-        switch(event.event) {
-        case SubmenuIndexSubGhzJamming:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
-            break;
-        case SubmenuIndexSubGhzRawSend:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzRawSendUI);
-            break;
-        default:
-            consumed = false;
-            break;
-        }
-    }
-    
-    return consumed;
+    // All SubGHz attacks removed for memory optimization - use car attack scenes instead
+    return false;
 }
 
 void predator_scene_subghz_attacks_ui_on_exit(void* context) {

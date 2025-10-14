@@ -39,12 +39,12 @@ bool predator_scene_rfid_attacks_ui_on_event(void* context, SceneManagerEvent ev
         case SubmenuIndexRfidClone:
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
             break;
-        case SubmenuIndexRfidBruteforce:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
-            break;
-        case SubmenuIndexRfidFuzzing:
-            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidFuzzingUI);
-            break;
+        // case SubmenuIndexRfidBruteforce: // REMOVED: Memory optimization
+        //     scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
+        //     break;
+        // case SubmenuIndexRfidFuzzing: // REMOVED: Memory optimization
+        //     scene_manager_next_scene(app->scene_manager, PredatorSceneRfidFuzzingUI);
+        //     break;
         default:
             consumed = false;
             break;
