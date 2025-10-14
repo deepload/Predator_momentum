@@ -17,8 +17,8 @@ ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
 ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // RE-ADDED: Testing stability
-// ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Memory optimization
-// ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // REMOVED: Memory optimization
+// ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Out of memory
+ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // KEPT: More efficient than handshake
 
 // Bluetooth Attacks - REDUCED FOR MEMORY
 ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)
