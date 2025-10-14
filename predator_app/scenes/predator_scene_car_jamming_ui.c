@@ -231,6 +231,16 @@ static void car_jamming_ui_timer_callback(void* context) {
         // Update jamming time
         jamming_state.jamming_time_ms = furi_get_tick() - jamming_start_tick;
         
+        // PRODUCTION: Send real jamming packets every 100ms
+        if(app->subghz_txrx) {
+            // Send jamming signal burst - real RF noise generation
+            predator_subghz_send_jamming_attack(app, jamming_state.frequency);
+            jamming_state.power_level = 100; // Max power
+            
+            FURI_LOG_D("CarJamming", "[REAL HW] Jamming burst sent at %lu Hz", 
+                      jamming_state.frequency);
+        }
+        
         // Auto-stop after 5 minutes for safety
         if(jamming_state.jamming_time_ms > 300000) {
             jamming_state.status = JammingStatusComplete;
@@ -241,7 +251,7 @@ static void car_jamming_ui_timer_callback(void* context) {
                     jamming_state.frequency_str);
             predator_log_append(app, log_msg);
             
-            FURI_LOG_I("JammingUI", "Jamming auto-stopped after 5 minutes");
+            FURI_LOG_I("JammingUI", "[REAL HW] Jamming auto-stopped after 5 minutes");
         }
         
         // Trigger view update

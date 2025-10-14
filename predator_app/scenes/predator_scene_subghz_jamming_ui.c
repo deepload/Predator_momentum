@@ -198,6 +198,15 @@ static void rf_jamming_ui_timer_callback(void* context) {
     if(jamming_state.status == RFJammingStatusJamming) {
         jamming_state.jamming_time_ms = furi_get_tick() - jamming_start_tick;
         
+        // PRODUCTION: Send real jamming packets every 100ms
+        if(app->subghz_txrx) {
+            // Send jamming signal burst - real RF noise generation
+            uint32_t frequency = PREDATOR_FREQUENCIES[jamming_state.freq_index];
+            predator_subghz_send_jamming_attack(app, frequency);
+            
+            FURI_LOG_D("RFJamming", "[REAL HW] Jamming burst sent at %lu Hz", frequency);
+        }
+        
         // Auto-stop after 5 minutes for safety
         if(jamming_state.jamming_time_ms > 300000) {
             jamming_state.status = RFJammingStatusComplete;
@@ -208,7 +217,7 @@ static void rf_jamming_ui_timer_callback(void* context) {
                     jamming_state.frequency_str);
             predator_log_append(app, log_msg);
             
-            FURI_LOG_I("RFJammingUI", "Jamming auto-stopped after 5 minutes");
+            FURI_LOG_I("RFJammingUI", "[REAL HW] Jamming auto-stopped after 5 minutes");
         }
         
         if(app->view_dispatcher) {

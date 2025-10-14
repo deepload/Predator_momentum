@@ -29,7 +29,8 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // PROFESSIONAL - OPTIMIZED FOR MEMORY & FUNCTIONALITY
     submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Car Models", 2, main_menu_submenu_callback, app);
-    // submenu_add_item(app->submenu, "🚧 Parking Barriers", 3, main_menu_submenu_callback, app);  // COMMENTED OUT: Memory issue
+    submenu_add_item(app->submenu, "🚶 Walking Open (PARIS)", 3, main_menu_submenu_callback, app);  // ELON'S DEMO
+    submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);  // Swiss Gov
     submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
@@ -83,9 +84,12 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 2: // Car Models
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelsUI);
             return true;
-        // case 3: // Parking Barriers - COMMENTED OUT: Memory issue
-        //     scene_manager_next_scene(app->scene_manager, PredatorSceneParkingBarriersUI);
-        //     return true;
+        case 3: // Walking Open - ELON'S PARIS DEMO
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);
+            return true;
+        case 15: // Parking Barriers - Swiss Government
+            scene_manager_next_scene(app->scene_manager, PredatorSceneParkingBarriersUI);
+            return true;
         case 4: // WiFi Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
             return true;
