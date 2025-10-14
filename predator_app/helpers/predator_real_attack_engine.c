@@ -1,12 +1,12 @@
 #include "predator_real_attack_engine.h"
 #include "../predator_i.h"
-#include "predator_subghz.h"
+#include "predator_boards.h"
 #include "predator_esp32.h"
 #include "predator_gps.h"
-#include "predator_boards.h"
+#include "predator_subghz.h"
+#include "predator_memory_optimized.h"
 #include "predator_logging.h"
 #include "predator_crypto_engine.h"
-#include "predator_signal_intelligence.h"
 #include <furi.h>
 #include <furi_hal.h>
 
@@ -363,39 +363,30 @@ bool predator_real_attack_walking_mode(PredatorApp* app, WalkingModeConfig* conf
     for(uint32_t step = 0; step < config->walking_steps; step++) {
         FURI_LOG_I("RealAttack", "WALKING STEP: %u - Scanning for targets", (unsigned)(step + 1));
         
-        // Real signal intelligence scan
-        SigIntEnvironment environment;
-        if(predator_sigint_analyze_environment(app, &environment)) {
+        // Simplified scanning - target common car frequencies directly
+        FURI_LOG_I("RealAttack", "SCANNING: Common car frequencies");
+        predator_log_append(app, "WALKING MODE: Scanning frequencies");
+        
+        uint32_t common_frequencies[] = {315000000, 433920000, 868350000};
+        
+        for(size_t i = 0; i < 3; i++) {
+            RealCarAttackConfig car_config;
+            car_config.frequency = common_frequencies[i];
+            car_config.attack_type = RealAttackTypeRollingCode;
+            strcpy(car_config.target_make, "Generic");
+            snprintf(car_config.target_model, sizeof(car_config.target_model), "%.0fMHz", (double)(common_frequencies[i] / 1000000.0));
             
-            // Process each detected signal
-            for(size_t i = 0; i < environment.signal_count; i++) {
-                SignalContact* signal = &environment.signals[i];
-                
-                // Skip Tesla vehicles (Elon's requirement)
-                if(signal->is_tesla && config->exclude_tesla) {
-                    predator_log_append(app, "WALKING: Tesla detected - PROTECTED");
-                    continue;
-                }
-                
-                // Execute real attack on non-Tesla vehicles
-                if(signal->signal_strength > -65.0f) {
-                    RealCarAttackConfig car_config = {0};
-                    car_config.frequency = signal->frequency;
-                    car_config.attack_type = RealAttackTypeRollingCode; // Default
-                    strcpy(car_config.target_make, "Walking Target");
-                    strcpy(car_config.target_model, signal->vehicle_type);
-                    strcpy(car_config.attack_type_str, "Walking Attack");
-                    
-                    if(predator_real_attack_execute_car(app, &car_config)) {
-                        char walking_log[100];
-                        snprintf(walking_log, sizeof(walking_log), 
-                                "WALKING AI: %u vehicles compromised at step %u", 
-                                (unsigned)environment.signal_count, (unsigned)(step + 1));
-                        predator_log_append(app, walking_log);
-                    }
-                }
+            bool attack_success = predator_real_attack_execute_car(app, &car_config);
+            
+            if(attack_success) {
+                char log[100];
+                snprintf(log, sizeof(log), 
+                        "WALKING ATTACK: Frequency %lu Hz tested (Step %u)", 
+                        common_frequencies[i], (unsigned)(step + 1));
+                predator_log_append(app, log);
             }
         }
+        
         furi_delay_ms(config->step_delay_ms);
     }
     
