@@ -8,11 +8,20 @@
 extern "C" {
 #endif
 
+// Continent classification for car brands
+typedef enum {
+    CarContinentEurope,
+    CarContinentAsia,
+    CarContinentAmerica,
+    CarContinentCount
+} CarContinent;
+
 typedef struct {
     char make[16];
     char model[40];
     uint32_t frequency; // Hz
     char remote_type[16];
+    CarContinent continent; // Continent of manufacture
 } PredatorCarModel;
 
 // Returns number of models currently loaded from CSV (0 if none)

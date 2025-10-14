@@ -18,34 +18,55 @@ void predator_scene_car_models_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app || !app->submenu) return;
 
+    submenu_reset(app->submenu);
+    
+    // Set header with continent name (no dynamic allocation)
+    const char* continent_name = predator_models_get_continent_name(app->selected_continent);
+    char header[32];
+    snprintf(header, sizeof(header), "🚗 %s", continent_name);
+    submenu_set_header(app->submenu, header);
+
+    // Count filtered models on-the-fly (no large array allocation)
     const size_t total = predator_models_get_hardcoded_count();
-    const uint16_t total_pages = (total + CAR_MODELS_PER_PAGE - 1) / CAR_MODELS_PER_PAGE;
+    size_t filtered_count = 0;
+    for(size_t i = 0; i < total; i++) {
+        if(predator_models_is_continent(i, app->selected_continent)) {
+            filtered_count++;
+        }
+    }
+    
+    const uint16_t total_pages = (filtered_count + CAR_MODELS_PER_PAGE - 1) / CAR_MODELS_PER_PAGE;
     if(car_models_page >= total_pages) car_models_page = 0;
 
-    submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🚗 Car Models");
-
-    // Pagination controls (first row)
+    // Pagination header
     if(total_pages > 1) {
         char hdr[24];
         snprintf(hdr, sizeof(hdr), "Page %u/%u", (unsigned)(car_models_page + 1), (unsigned)total_pages);
         submenu_add_item(app->submenu, hdr, 10000, car_models_submenu_cb, app);
     }
 
-    // Populate current page
+    // Add models for current page (on-the-fly filtering, no array)
     const size_t start = car_models_page * CAR_MODELS_PER_PAGE;
-    const size_t end = (start + CAR_MODELS_PER_PAGE <= total) ? (start + CAR_MODELS_PER_PAGE) : total;
-    for(size_t i = start; i < end; i++) {
-        const PredatorCarModel* model = predator_models_get_hardcoded(i);
-        if(!model) continue;
-        char label[32];
-        // Make + model trimmed to fit (avoid truncation warnings)
-        snprintf(label, sizeof(label), "%.15s %.15s", model->make, model->model);
-        // Use index+1 as event id to distinguish from pagination ids
-        submenu_add_item(app->submenu, label, (uint32_t)(i + 1), car_models_submenu_cb, app);
+    const size_t end = start + CAR_MODELS_PER_PAGE;
+    size_t displayed = 0;
+    size_t filtered_idx = 0;
+    
+    for(size_t i = 0; i < total && displayed < CAR_MODELS_PER_PAGE; i++) {
+        if(!predator_models_is_continent(i, app->selected_continent)) continue;
+        
+        if(filtered_idx >= start && filtered_idx < end) {
+            const PredatorCarModel* model = predator_models_get_hardcoded(i);
+            if(model) {
+                char label[32];
+                snprintf(label, sizeof(label), "%.15s %.15s", model->make, model->model);
+                submenu_add_item(app->submenu, label, (uint32_t)(i + 1), car_models_submenu_cb, app);
+                displayed++;
+            }
+        }
+        filtered_idx++;
     }
 
-    // Next/Prev
+    // Navigation buttons
     if(total_pages > 1) {
         submenu_add_item(app->submenu, "Next Page ▶", 20001, car_models_submenu_cb, app);
         submenu_add_item(app->submenu, "◀ Prev Page", 20002, car_models_submenu_cb, app);

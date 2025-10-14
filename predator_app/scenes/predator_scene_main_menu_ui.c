@@ -82,7 +82,7 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             return true;
         case 2: // Car Models
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarModelsUI);
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarContinentUI);
             return true;
         case 3: // Walking Open - ELON'S PARIS DEMO
             scene_manager_next_scene(app->scene_manager, PredatorSceneWalkingOpenUI);

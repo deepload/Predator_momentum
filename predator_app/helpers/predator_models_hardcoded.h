@@ -19,6 +19,11 @@ bool predator_models_uses_rolling_code(size_t index);
 bool predator_models_uses_smart_key(size_t index);
 bool predator_models_uses_fixed_code(size_t index);
 
+// Continent detection
+CarContinent predator_models_get_continent(size_t index);
+const char* predator_models_get_continent_name(CarContinent continent);
+bool predator_models_is_continent(size_t index, CarContinent continent);
+
 #ifdef __cplusplus
 }
 #endif
