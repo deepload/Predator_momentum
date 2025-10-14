@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_ui_clean.h"
+#include "../helpers/predator_boards.h"
 #include "predator_submenu_index.h"
 
 // Main Menu - Professional UI (Memory Optimized, No Guards)
@@ -29,17 +30,20 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // PROFESSIONAL - OPTIMIZED FOR MEMORY & FUNCTIONALITY
     submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Car Models", 2, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚶 Walking Open (PARIS)", 3, main_menu_submenu_callback, app);  // ELON'S DEMO
-    submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);  // Swiss Gov
+    submenu_add_item(app->submenu, "🚶 Walking Open (PARIS)", 3, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);
-    // submenu_add_item(app->submenu, "🛰️ GPS Tracker", 8, main_menu_submenu_callback, app);  // Temp disabled
-    // submenu_add_item(app->submenu, "🚙 Wardriving", 9, main_menu_submenu_callback, app);  // Temp disabled
-    // submenu_add_item(app->submenu, "🎭 Social Engineering", 10, main_menu_submenu_callback, app);  // Temp disabled
     submenu_add_item(app->submenu, "📊 Module Status", 8, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔧 Board Selection", 12, main_menu_submenu_callback, app);
+    
+    // MEMORY EFFICIENT: Show current board (40 bytes stack, no heap)
+    char board_item[40];
+    const char* board_name = predator_boards_get_config(app->board_type)->name;
+    snprintf(board_item, sizeof(board_item), "🔧 %.28s", board_name);
+    submenu_add_item(app->submenu, board_item, 12, main_menu_submenu_callback, app);
+    
     submenu_add_item(app->submenu, "⚙️ Settings", 13, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "ℹ️ About", 14, main_menu_submenu_callback, app);
     

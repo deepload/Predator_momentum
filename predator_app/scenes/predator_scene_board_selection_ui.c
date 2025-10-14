@@ -341,40 +341,28 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
         return true;
     }
     
-    // PROFESSIONAL: Handle success complete event - board selected, go back to previous scene
+    // PROFESSIONAL: Handle success complete event - board selected
     if(event.type == SceneManagerEventTypeCustom && event.event == 998) {
-        // Board successfully selected, return to previous scene
-        FURI_LOG_I("BoardSelection", "Board selection complete, going back");
+        FURI_LOG_I("BoardSelection", "Board selection complete");
         predator_log_append(app, "BoardSelection: Board configured successfully");
         
-        // CRITICAL: Check if main menu is in the scene stack
-        // If it is, we can safely go back. If not, navigate to it.
-        if(scene_manager_has_previous_scene(app->scene_manager, PredatorSceneMainMenuUI)) {
-            // Main menu is in the stack - search for it and go there
-            FURI_LOG_I("BoardSelection", "Main menu found in stack - navigating there");
-            if(!scene_manager_search_and_switch_to_previous_scene(app->scene_manager, PredatorSceneMainMenuUI)) {
-                // Fallback: just go back one scene
-                scene_manager_previous_scene(app->scene_manager);
-            }
-        } else {
-            // Main menu NOT in stack - this is unusual, navigate to it directly
-            FURI_LOG_W("BoardSelection", "Main menu not in stack! Navigating to main menu");
-            scene_manager_next_scene(app->scene_manager, PredatorSceneMainMenuUI);
-        }
-        return true;  // We handled this event - framework won't process it again
+        // SIMPLE FIX: Just search for and switch to main menu
+        // Don't go back, go TO main menu directly
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, PredatorSceneMainMenuUI);
+        
+        return true;  // We handled this event
     }
     
-    // Handle back button - DON'T process it on success screen
+    // Handle back button
     if(event.type == SceneManagerEventTypeBack) {
-        // If we're on success screen, DON'T let framework process Back
-        // The success screen already sent event 998 which handles navigation
+        // If we're on success screen, go to main menu (don't let framework handle)
         if(board_state.current_screen == BoardScreenSuccess) {
-            FURI_LOG_W("BoardSelection", "Back on success screen - ignoring (already handled by event 998)");
-            return true;  // Consume the event, prevent framework from processing
+            FURI_LOG_I("BoardSelection", "Back on success screen - going to main menu");
+            scene_manager_search_and_switch_to_previous_scene(app->scene_manager, PredatorSceneMainMenuUI);
+            return true;  // We handled it
         }
-        // For other screens (Main, Details, Confirm), let framework handle Back normally
-        FURI_LOG_I("BoardSelection", "Back on non-success screen - letting framework handle");
-        return false;  // Let framework do default back navigation
+        // For other screens, let framework handle normally
+        return false;
     }
     
     return false; // Let framework handle other events
