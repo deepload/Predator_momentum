@@ -36,6 +36,7 @@ typedef struct {
 } WalkingOpenState;
 
 static WalkingOpenState walking_state;
+static View* walking_open_view = NULL; // Track view for cleanup
 static uint32_t walking_start_tick = 0;
 
 // Use the FULL hardcoded models database (90+ models!)
@@ -367,15 +368,15 @@ void predator_scene_walking_open_ui_on_enter(void* context) {
     }
     
     // Create view with callbacks
-    View* view = view_alloc();
-    if(!view) {
+    walking_open_view = view_alloc();
+    if(!walking_open_view) {
         FURI_LOG_E("WalkingOpen", "Failed to allocate view");
         return;
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, walking_open_ui_draw_callback);
-    view_set_input_callback(view, walking_open_ui_input_callback);
+    view_set_context(walking_open_view, app);
+    view_set_draw_callback(walking_open_view, walking_open_ui_draw_callback);
+    view_set_input_callback(walking_open_view, walking_open_ui_input_callback);
     
     // Setup timer for real-time updates
     app->timer = furi_timer_alloc(walking_open_ui_timer_callback, FuriTimerTypePeriodic, app);
@@ -383,7 +384,7 @@ void predator_scene_walking_open_ui_on_enter(void* context) {
         furi_timer_start(app->timer, 100); // 10 FPS updates
     }
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWalkingOpenUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewWalkingOpenUI, walking_open_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewWalkingOpenUI);
     
     FURI_LOG_I("WalkingOpen", "Walking Open initialized for production assessment");
@@ -414,10 +415,14 @@ void predator_scene_walking_open_ui_on_exit(void* context) {
     // Stop walking open
     walking_state.status = WalkingIdle;
     
-    // Remove view
+    // CRITICAL: Free view to prevent memory leak
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewWalkingOpenUI);
     }
+    if(walking_open_view) {
+        view_free(walking_open_view);
+        walking_open_view = NULL;
+    }
     
-    FURI_LOG_I("WalkingOpen", "Walking Open exited");
+    FURI_LOG_I("WalkingOpen", "Walking Open exited - view freed");
 }

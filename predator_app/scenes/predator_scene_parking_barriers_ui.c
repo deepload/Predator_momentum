@@ -43,6 +43,7 @@ typedef struct {
 } ParkingBarrierState;
 
 static ParkingBarrierState barrier_state;
+static View* parking_barrier_view = NULL; // Track view for cleanup
 
 // Swiss Parking Barrier Frequencies (Government Research)
 static const uint32_t parking_frequencies[] = {
@@ -416,14 +417,14 @@ void predator_scene_parking_barriers_ui_on_enter(void* context) {
     predator_log_append(app, "KKS REQUIREMENT: Public & private barrier testing");
     
     // Create view
-    View* view = view_alloc();
-    if(!view) return;
+    parking_barrier_view = view_alloc();
+    if(!parking_barrier_view) return;
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, parking_barrier_draw_callback);
-    view_set_input_callback(view, parking_barrier_input_callback);
+    view_set_context(parking_barrier_view, app);
+    view_set_draw_callback(parking_barrier_view, parking_barrier_draw_callback);
+    view_set_input_callback(parking_barrier_view, parking_barrier_input_callback);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewParkingBarriersUI, view);
+    view_dispatcher_add_view(app->view_dispatcher, PredatorViewParkingBarriersUI, parking_barrier_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewParkingBarriersUI);
     
     // Start timer for attack simulation
@@ -460,23 +461,20 @@ void predator_scene_parking_barriers_ui_on_exit(void* context) {
         app->timer = NULL;
     }
     
-    // Stop any running attack
+    // Stop attack if running
     if(barrier_state.status == BarrierStatusAttacking) {
         predator_subghz_stop_attack(app);
-        predator_log_append(app, "PARKING BARRIERS: Attack stopped on exit");
     }
     
-    // Clean up view
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewParkingBarriersUI);
-    
-    // Log session summary
-    if(barrier_state.barriers_opened > 0) {
-        char summary[128];
-        snprintf(summary, sizeof(summary), 
-                 "PARKING SESSION: %lu barriers opened - Swiss Government testing complete",
-                 barrier_state.barriers_opened);
-        predator_log_append(app, summary);
+    // CRITICAL: Free view to prevent memory leak
+    if(app->view_dispatcher) {
+        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewParkingBarriersUI);
+    }
+    if(parking_barrier_view) {
+        view_free(parking_barrier_view);
+        parking_barrier_view = NULL;
     }
     
-    FURI_LOG_I("ParkingBarriers", "Swiss Government parking barrier testing exited");
+    predator_log_append(app, "PARKING BARRIERS: Testing session ended");
+    FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Parking barriers scene exited - view freed");
 }
