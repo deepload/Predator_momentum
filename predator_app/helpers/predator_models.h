@@ -16,6 +16,16 @@ typedef enum {
     CarContinentCount
 } CarContinent;
 
+// Cryptographic protocols used by car remotes
+typedef enum {
+    CryptoProtocolNone,        // Fixed code replay (no crypto)
+    CryptoProtocolKeeloq,      // 528-round rolling code (most common)
+    CryptoProtocolHitag2,      // BMW/Audi/VW LFSR cipher
+    CryptoProtocolAES128,      // Modern smart key
+    CryptoProtocolTesla,       // Tesla-specific protocol
+    CryptoProtocolCount
+} CryptoProtocol;
+
 typedef struct {
     char make[16];
     char model[40];
@@ -40,6 +50,16 @@ size_t predator_models_load_csv(Storage* storage, const char* path);
 
 // Load models from default path: /ext/apps_data/predator/car_models.csv
 size_t predator_models_load_default(Storage* storage);
+
+// ===== CRYPTO PROTOCOL DETECTION =====
+// Detect correct cryptographic protocol based on model data (remote_type + frequency + make)
+CryptoProtocol predator_models_get_protocol(size_t index);
+
+// Get protocol name as string
+const char* predator_models_get_protocol_name(CryptoProtocol protocol);
+
+// Check if model uses specific protocol
+bool predator_models_uses_protocol(size_t index, CryptoProtocol protocol);
 
 #ifdef __cplusplus
 }

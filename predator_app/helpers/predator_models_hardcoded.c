@@ -376,3 +376,66 @@ const char* predator_models_get_continent_name(CarContinent continent) {
 bool predator_models_is_continent(size_t index, CarContinent continent) {
     return predator_models_get_continent(index) == continent;
 }
+
+// ===== CRYPTO PROTOCOL DETECTION (INTELLIGENT) =====
+// Automatically detects the correct crypto algorithm based on model data
+
+CryptoProtocol predator_models_get_protocol(size_t index) {
+    const PredatorCarModel* model = predator_models_get_hardcoded(index);
+    if(!model) return CryptoProtocolNone;
+    
+    // Use the remote_type field from database (NOT just brand name!)
+    
+    // FIXED CODE: No encryption, simple replay
+    if(strcmp(model->remote_type, "Fixed Code") == 0) {
+        return CryptoProtocolNone;
+    }
+    
+    // SMART KEY: AES-128 or Tesla-specific
+    if(strcmp(model->remote_type, "Smart Key") == 0) {
+        // Tesla uses proprietary protocol
+        if(strcmp(model->make, "Tesla") == 0) {
+            return CryptoProtocolTesla;
+        }
+        // All other smart keys use AES-128
+        return CryptoProtocolAES128;
+    }
+    
+    // ROLLING CODE: Keeloq OR Hitag2 (depends on frequency + manufacturer)
+    if(strcmp(model->remote_type, "Rolling Code") == 0) {
+        // Hitag2: German brands at 868MHz
+        if(model->frequency >= 868000000 && model->frequency < 869000000) {
+            if(strcmp(model->make, "BMW") == 0 ||
+               strcmp(model->make, "Audi") == 0 ||
+               strcmp(model->make, "Volkswagen") == 0 ||
+               strcmp(model->make, "Porsche") == 0 ||
+               strcmp(model->make, "Skoda") == 0 ||
+               strcmp(model->make, "Seat") == 0) {
+                return CryptoProtocolHitag2;
+            }
+        }
+        
+        // All other rolling code vehicles use Keeloq
+        return CryptoProtocolKeeloq;
+    }
+    
+    // Default: No encryption
+    return CryptoProtocolNone;
+}
+
+// Get protocol name as human-readable string
+const char* predator_models_get_protocol_name(CryptoProtocol protocol) {
+    switch(protocol) {
+        case CryptoProtocolNone:    return "Fixed Code (Replay)";
+        case CryptoProtocolKeeloq:  return "Keeloq Rolling Code";
+        case CryptoProtocolHitag2:  return "Hitag2 (BMW/Audi)";
+        case CryptoProtocolAES128:  return "AES-128 Smart Key";
+        case CryptoProtocolTesla:   return "Tesla Protocol";
+        default:                    return "Unknown";
+    }
+}
+
+// Check if model uses specific protocol
+bool predator_models_uses_protocol(size_t index, CryptoProtocol protocol) {
+    return predator_models_get_protocol(index) == protocol;
+}

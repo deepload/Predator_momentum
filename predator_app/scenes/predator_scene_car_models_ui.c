@@ -59,6 +59,7 @@ void predator_scene_car_models_ui_on_enter(void* context) {
             if(model) {
                 char label[32];
                 snprintf(label, sizeof(label), "%.15s %.15s", model->make, model->model);
+                // Store model index in event ID for later protocol detection
                 submenu_add_item(app->submenu, label, (uint32_t)(i + 1), car_models_submenu_cb, app);
                 displayed++;
             }
@@ -99,6 +100,9 @@ bool predator_scene_car_models_ui_on_event(void* context, SceneManagerEvent even
             size_t idx = (size_t)event.event - 1;
             const PredatorCarModel* model = predator_models_get_hardcoded(idx);
             if(model) {
+                // CRITICAL: Store model index for protocol detection
+                app->selected_model_index = idx;
+                
                 // Persist selection on app (bounded copies)
                 app->selected_model_freq = model->frequency;
                 strncpy(app->selected_model_make, model->make, sizeof(app->selected_model_make) - 1);
