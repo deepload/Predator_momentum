@@ -17,16 +17,20 @@ void predator_scene_barrier_manufacturer_select_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "SELECT MANUFACTURER");
     
-    // Option 1: Try all manufacturers automatically
-    submenu_add_item(app->submenu, "🔄 Try All (Auto)", 0, manufacturer_select_submenu_cb, app);
+    // Option 1: Try all manufacturers automatically (now tries all 10!)
+    submenu_add_item(app->submenu, "🔄 Try All 10 (Auto)", 0, manufacturer_select_submenu_cb, app);
     
-    // Option 2-7: Individual manufacturers
+    // Option 2-11: Individual manufacturers (10 total)
     submenu_add_item(app->submenu, "🏭 CAME (Italy)", 1, manufacturer_select_submenu_cb, app);
     submenu_add_item(app->submenu, "🏭 BFT (Italy)", 2, manufacturer_select_submenu_cb, app);
     submenu_add_item(app->submenu, "🏭 Nice (France)", 3, manufacturer_select_submenu_cb, app);
     submenu_add_item(app->submenu, "🏭 Somfy (France)", 4, manufacturer_select_submenu_cb, app);
     submenu_add_item(app->submenu, "🏭 Faac (Italy)", 5, manufacturer_select_submenu_cb, app);
     submenu_add_item(app->submenu, "🏭 Hörmann (Swiss)", 6, manufacturer_select_submenu_cb, app);
+    submenu_add_item(app->submenu, "🏭 Benincà (Italy)", 7, manufacturer_select_submenu_cb, app);
+    submenu_add_item(app->submenu, "🏭 DEA System (Italy)", 8, manufacturer_select_submenu_cb, app);
+    submenu_add_item(app->submenu, "🏭 Ditec (Italy)", 9, manufacturer_select_submenu_cb, app);
+    submenu_add_item(app->submenu, "🏭 Roger Tech (Italy)", 10, manufacturer_select_submenu_cb, app);
     
     submenu_set_selected_item(app->submenu, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
@@ -47,19 +51,20 @@ bool predator_scene_barrier_manufacturer_select_ui_on_event(void* context, Scene
     
     // Handle manufacturer selection
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event <= 6) {
+        if(event.event <= 10) {
             // Store manufacturer selection
             if(event.event == 0) {
-                // Try all manufacturers
+                // Try all manufacturers (now 10 total!)
                 app->selected_barrier_manufacturer = 0xFF;  // Special value for "try all"
-                predator_log_append(app, "MODE: Try All Manufacturers");
+                predator_log_append(app, "MODE: Try All 10 Manufacturers");
             } else {
-                // Specific manufacturer (1-6 maps to BarrierManufacturer enum 0-5)
+                // Specific manufacturer (1-10 maps to BarrierManufacturer enum 0-9)
                 app->selected_barrier_manufacturer = event.event - 1;
                 
                 const char* manufacturer_names[] = {
                     "CAME (Italy)", "BFT (Italy)", "Nice (France)",
-                    "Somfy (France)", "Faac (Italy)", "Hörmann (Swiss)"
+                    "Somfy (France)", "Faac (Italy)", "Hörmann (Swiss)",
+                    "Benincà (Italy)", "DEA System (Italy)", "Ditec (Italy)", "Roger Tech (Italy)"
                 };
                 
                 char log_msg[64];
