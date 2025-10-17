@@ -348,15 +348,11 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
         return true;
     }
     
-    // SIMPLIFIED: Handle back button
+    // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
         FURI_LOG_E("BoardSelection", "==== BACK EVENT ==== Screen: %d", board_state.current_screen);
-        
-        // Just pop this scene - main menu is below
         scene_manager_previous_scene(app->scene_manager);
-        
-        // CRITICAL: ALWAYS return true to let view dispatcher handle exit prevention
-        return true;
+        return true;  // Consumed - prevents framework bug
     }
     
     return false; // Let framework handle other events

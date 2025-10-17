@@ -74,9 +74,8 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
     if(!app) return false;
 
     if(event.type == SceneManagerEventTypeBack) {
-        // CRITICAL FIX: Just pop one scene - main menu is below
         scene_manager_previous_scene(app->scene_manager);
-        return true;  // Never return false - view dispatcher will handle
+        return true;  // Consumed - prevents framework bug
     }
 
     if(event.type == SceneManagerEventTypeCustom) {

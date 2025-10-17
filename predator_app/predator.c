@@ -78,29 +78,17 @@ static bool predator_custom_event_callback(void* context, uint32_t event) {
 static bool predator_back_event_callback(void* context) {
     // Check for NULL context
     if(context == NULL) {
-        FURI_LOG_E("Predator", "NULL context in back event callback");
-        return true;  // NEVER allow exit
+        return false;
     }
     
     PredatorApp* app = context;
     
-    FURI_LOG_E("Predator", "========== VIEW DISPATCHER BACK EVENT ==========");
-    
-    // Check if scene manager exists
+    // Simple: Just let scene manager handle it
     if(app->scene_manager) {
-        // Call scene manager to let scenes handle back events
-        bool handled = scene_manager_handle_back_event(app->scene_manager);
-        FURI_LOG_E("Predator", "Scene manager returned: %d", handled);
-        
-        // NUCLEAR OPTION: IGNORE the scene manager's return value
-        // ALWAYS return true to prevent ANY possibility of app exit
-        FURI_LOG_W("Predator", "VIEW DISPATCHER: Forcing return TRUE - app CANNOT exit via back button");
-        return true;
+        return scene_manager_handle_back_event(app->scene_manager);
     }
     
-    // Default to true to prevent exit
-    FURI_LOG_W("Predator", "Invalid scene manager in back event handler");
-    return true;
+    return false;
 }
 
 static void predator_tick_event_callback(void* context) {
@@ -644,14 +632,9 @@ int32_t predator_app(void* p) {
     
     // Only run view dispatcher if it was successfully initialized
     if(app->view_dispatcher) {
-        FURI_LOG_I("Predator", "🔥 Starting view dispatcher main loop");
         view_dispatcher_run(app->view_dispatcher);
-        FURI_LOG_E("Predator", "⚠️⚠️⚠️ VIEW DISPATCHER EXITED - APP IS CLOSING ⚠️⚠️⚠️");
-        FURI_LOG_E("Predator", "This should only happen on intentional exit (main menu double-press)");
-        FURI_LOG_E("Predator", "If you just pressed BACK once, this is a FRAMEWORK BUG!");
     } else {
         FURI_LOG_E("Predator", "View dispatcher is NULL, cannot run app");
-        // Critical error - try to show an error directly to notification system
         if(app->notifications) {
             notification_message(app->notifications, &sequence_error);
         }
