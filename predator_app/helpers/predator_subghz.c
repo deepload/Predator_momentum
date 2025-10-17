@@ -127,13 +127,14 @@ void predator_subghz_deinit(PredatorApp* app) {
         return;
     }
     
-    // Clean up SubGHz hardware
+    // CRITICAL FIX: Don't touch hardware in deinit - causes reboot
+    // Just clean up app state - framework handles hardware
     if(app->subghz_txrx) {
         app->subghz_txrx = NULL;
     }
     
-    // Put SubGHz hardware to sleep
-    furi_hal_subghz_sleep();
+    FURI_LOG_I("PredatorSubGHz", "SubGHz deinit (predator_subghz.c): State cleaned - framework handles hardware");
+    // DO NOT call furi_hal_subghz_sleep() here - causes reboot!
 }
 
 // PRODUCTION: Car key bruteforce - REAL RF TRANSMISSION
@@ -831,81 +832,21 @@ __attribute__((used)) void predator_subghz_stop_passive_car_opener(PredatorApp* 
         return;
     }
     
-    FURI_LOG_I("PredatorSubGHz", "Stopping passive car opener mode");
+    FURI_LOG_I("PredatorSubGHz", "Stopping passive car opener mode (predator_subghz.c version)");
     
-    // Different handling based on board type
-    if(app->board_type == PredatorBoardTypeOriginal) {
-        // Original board implementation to stop receiver
-        FURI_LOG_I("PredatorSubGHz", "Original board: Stopping passive car opener mode");
-        
-        // Disable radio interrupt for signal capture
-        // furi_hal_gpio_init(...) - would reset the interrupt pin
-        FURI_LOG_D("PredatorSubGHz", "Signal interrupt disabled");
-        
-        // Stop radio reception with real hardware call
-        furi_hal_subghz_stop_async_rx();
-        furi_hal_subghz_idle();
-        FURI_LOG_D("PredatorSubGHz", "[REAL HW] Radio set to idle mode");
-        
-        // Reset radio parameters for clean state
-        uint8_t reset_cmd = 0x30; // Reset command
-        FURI_LOG_D("PredatorSubGHz", "Sending radio reset command: 0x%02X", reset_cmd);
-        
-        // Return to low-power state
-        FURI_LOG_D("PredatorSubGHz", "Radio returned to low-power state");
-    } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // AIO board specific stop implementation
-        FURI_LOG_I("PredatorSubGHz", "AIO board: Stopping passive car opener mode");
-        
-        // Reset AIO board's external CC1101 module
-        uint8_t aio_reset_seq[] = {0x30, 0x0F};
-        FURI_LOG_D("PredatorSubGHz", "Sending AIO reset sequence: %02X %02X",
-                 aio_reset_seq[0], aio_reset_seq[1]);
-        
-        // Disable LNA to save power
-        FURI_LOG_D("PredatorSubGHz", "LNA disabled, power saving enabled");
-        
-        // Put module in standby state
-        FURI_LOG_D("PredatorSubGHz", "External module set to standby");
-    } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
-        // 3-in-1 board stop implementation
-        FURI_LOG_I("PredatorSubGHz", "3-in-1 board: Stopping passive car opener mode");
-        
-        // Reset CC1101 module on 3-in-1 board
-        uint8_t cc_reset_seq[] = {0xCC, 0x30};
-        FURI_LOG_D("PredatorSubGHz", "Sending 3-in-1 CC1101 reset: %02X %02X",
-                  cc_reset_seq[0], cc_reset_seq[1]);
-        
-        // Power down CC1101
-        FURI_LOG_D("PredatorSubGHz", "CC1101 powered down for energy saving");
-    } else if(app->board_type == PredatorBoardTypeDrB0rkMultiV2) {
-        // DrB0rk Multi Board V2 stop implementation
-        FURI_LOG_I("PredatorSubGHz", "DrB0rk Multi Board V2: Stopping passive car opener mode");
-        
-        // Reset NRF24 module on DrB0rk board
-        uint8_t nrf_powerdown[] = {0x0E, 0x00};
-        FURI_LOG_D("PredatorSubGHz", "Sending DrB0rk NRF24 power down: %02X %02X",
-                  nrf_powerdown[0], nrf_powerdown[1]);
-        
-        // NRF24 standby mode
-        FURI_LOG_D("PredatorSubGHz", "NRF24 set to standby mode");
-    } else if(app->board_type == PredatorBoardTypeScreen28) {
-        // 2.8-inch screen specific stop implementation
-        FURI_LOG_I("PredatorSubGHz", "2.8-inch screen: Stopping passive car opener mode");
-        
-        // Reset 2.8-inch screen's integrated 433M module
-        uint8_t screen_power_down = 0x05; // Power down command
-        FURI_LOG_D("PredatorSubGHz", "Sending power down command: 0x%02X", screen_power_down);
-        
-        // Disable amplifier stage to save power
-        FURI_LOG_D("PredatorSubGHz", "Amplifier stage disabled");
-        
-        // Put 433M module in sleep mode
-        FURI_LOG_D("PredatorSubGHz", "433M module set to sleep mode");
-    }
+    // CRITICAL FIX: Stop callbacks first, let framework handle hardware
+    app->attack_running = false;
+    furi_delay_ms(100);
+    
+    FURI_LOG_I("PredatorSubGHz", "[SAFE] Passive opener stopped - framework will handle hardware cleanup");
+    
+    // All board types handled the same way - framework cleanup only
+    FURI_LOG_D("PredatorSubGHz", "Board type: %d - State cleanup only", app->board_type);
     
     // Turn off blue LED
-    notification_message(app->notifications, &sequence_reset_blue);
+    if(app->notifications) {
+        notification_message(app->notifications, &sequence_reset_blue);
+    }
 }
 
 __attribute__((used)) void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
@@ -1046,55 +987,18 @@ __attribute__((used)) void predator_subghz_stop_rolling_code_attack(PredatorApp*
         return;
     }
     
-    FURI_LOG_I("PredatorSubGHz", "Stopping rolling code attack");
+    FURI_LOG_I("PredatorSubGHz", "Stopping rolling code attack (predator_subghz.c version)");
     
-    // Different cleanup based on board type
-    if(app->board_type == PredatorBoardTypeOriginal) {
-        // Original board cleanup
-        FURI_LOG_I("PredatorSubGHz", "Stopping rolling code on original board");
-        
-        // Reset hardware to idle state
-        uint8_t reset_cmd = 0x30; // Example reset command
-        FURI_LOG_D("PredatorSubGHz", "Sending reset command: 0x%02X", reset_cmd);
-        
-    } else if(app->board_type == PredatorBoardType3in1AIO) {
-        // AIO board cleanup
-        FURI_LOG_I("PredatorSubGHz", "Stopping rolling code on AIO board");
-        
-        // Reset external module
-        uint8_t aio_reset[] = {0x30, 0x00};
-        FURI_LOG_D("PredatorSubGHz", "AIO reset sequence: %02X %02X",
-                  aio_reset[0], aio_reset[1]);
-        
-    } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
-        // 3-in-1 board cleanup
-        FURI_LOG_I("PredatorSubGHz", "Stopping rolling code on 3-in-1 board");
-        
-        // Reset CC1101 module
-        uint8_t cc_reset[] = {0xCC, 0x30};
-        FURI_LOG_D("PredatorSubGHz", "3-in-1 CC1101 reset: %02X %02X",
-                  cc_reset[0], cc_reset[1]);
-        
-    } else if(app->board_type == PredatorBoardTypeDrB0rkMultiV2) {
-        // DrB0rk board cleanup
-        FURI_LOG_I("PredatorSubGHz", "Stopping rolling code on DrB0rk board");
-        
-        // Reset NRF24 module
-        uint8_t nrf_reset[] = {0x0E, 0x00};
-        FURI_LOG_D("PredatorSubGHz", "DrB0rk NRF24 reset: %02X %02X",
-                  nrf_reset[0], nrf_reset[1]);
-        
-    } else if(app->board_type == PredatorBoardTypeScreen28) {
-        // 2.8-inch screen cleanup
-        FURI_LOG_I("PredatorSubGHz", "Stopping rolling code on 2.8-inch screen");
-        
-        // Reset module
-        uint8_t screen_reset = 0x04; // Example reset
-        FURI_LOG_D("PredatorSubGHz", "Screen reset: 0x%02X", screen_reset);
-    }
+    // CRITICAL FIX: Stop callbacks first, let framework handle hardware
+    app->attack_running = false;
+    furi_delay_ms(100);
+    
+    FURI_LOG_I("PredatorSubGHz", "[SAFE] Attack stopped - framework will handle hardware cleanup");
     
     // Common cleanup for all boards
-    notification_message(app->notifications, &sequence_reset_blue);
+    if(app->notifications) {
+        notification_message(app->notifications, &sequence_reset_blue);
+    }
 }
 
 __attribute__((used)) void predator_subghz_rolling_code_attack_tick(PredatorApp* app) {

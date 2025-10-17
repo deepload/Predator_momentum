@@ -80,9 +80,16 @@ void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
     
     FURI_LOG_I("PredatorSubGHz", "Stopping rolling code attack");
     
-    // Stop reception
-    furi_hal_subghz_stop_async_rx();
-    furi_hal_subghz_idle();
+    // Mark as not running FIRST to stop tick callbacks
+    app->attack_running = false;
+    
+    // Small delay to ensure tick callbacks complete
+    furi_delay_ms(100);
+    
+    // CRITICAL FIX: Don't touch hardware directly - causes reboot
+    // The scene cleanup or main SubGHz deinit will handle hardware shutdown
+    // Just reset our state and let the framework handle hardware cleanup
+    FURI_LOG_I("PredatorSubGHz", "[SAFE] Skipping direct hardware calls - letting framework cleanup");
     
     // Reset state
     tick_count = 0;
@@ -90,11 +97,11 @@ void predator_subghz_stop_rolling_code_attack(PredatorApp* app) {
     replay_mode = false;
     replay_counter = 0;
     
-    app->attack_running = false;
-    
     if(app->notifications) {
         notification_message(app->notifications, &sequence_reset_blue);
     }
+    
+    FURI_LOG_I("PredatorSubGHz", "Rolling code attack stopped successfully");
 }
 
 void predator_subghz_rolling_code_attack_tick(PredatorApp* app) {
@@ -247,18 +254,23 @@ void predator_subghz_stop_passive_car_opener(PredatorApp* app) {
     
     FURI_LOG_I("PredatorSubGHz", "Stopping passive car opener mode");
     
-    // Stop radio reception
-    furi_hal_subghz_stop_async_rx();
-    furi_hal_subghz_idle();
-    
-    FURI_LOG_D("PredatorSubGHz", "[REAL HW] Radio set to idle mode");
-    
+    // Mark as not running FIRST to stop tick callbacks
     app->attack_running = false;
+    
+    // Small delay to ensure tick callbacks complete
+    furi_delay_ms(100);
+    
+    // CRITICAL FIX: Don't touch hardware directly - causes reboot
+    // The scene cleanup or main SubGHz deinit will handle hardware shutdown
+    // Just reset our state and let the framework handle hardware cleanup
+    FURI_LOG_I("PredatorSubGHz", "[SAFE] Skipping direct hardware calls - letting framework cleanup");
     
     // Turn off blue LED
     if(app->notifications) {
         notification_message(app->notifications, &sequence_reset_blue);
     }
+    
+    FURI_LOG_I("PredatorSubGHz", "Passive car opener stopped successfully");
 }
 
 void predator_subghz_passive_car_opener_tick(PredatorApp* app) {

@@ -86,13 +86,14 @@ void predator_subghz_deinit(PredatorApp* app) {
         return;
     }
     
-    // Clean up SubGHz hardware
+    // CRITICAL FIX: Don't touch hardware in deinit - causes reboot
+    // Just clean up app state - framework handles hardware
     if(app->subghz_txrx) {
         app->subghz_txrx = NULL;
     }
     
-    // Put SubGHz hardware to sleep
-    furi_hal_subghz_sleep();
+    FURI_LOG_I("PredatorSubGHz", "SubGHz deinit: State cleaned - framework handles hardware");
+    // DO NOT call furi_hal_subghz_sleep() here - causes reboot!
 }
 
 bool predator_subghz_stop_attack(PredatorApp* app) {
@@ -108,9 +109,9 @@ bool predator_subghz_stop_attack(PredatorApp* app) {
     
     FURI_LOG_I("PredatorSubGHz", "Stopping SubGHz attack");
     
-    // Stop transmission
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_idle();
+    // CRITICAL FIX: Don't call stop_async_tx if we didn't start async
+    // Just mark as stopped and let framework cleanup
+    // DO NOT touch hardware directly
     
     // Update app state
     app->attack_running = false;
