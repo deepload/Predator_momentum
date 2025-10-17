@@ -330,15 +330,21 @@ void predator_scene_barrier_attack_ui_on_enter(void* context) {
                   barrier_manufacturer_names[barrier_attack_state.manufacturer]);
     }
     
-    // Create view
-    barrier_attack_view = view_alloc();
-    if(!barrier_attack_view) return;
+    // Create view with callbacks (only if not already created)
+    if(!barrier_attack_view) {
+        barrier_attack_view = view_alloc();
+        if(!barrier_attack_view) {
+            FURI_LOG_E("BarrierAttack", "Failed to allocate view");
+            return;
+        }
+        
+        view_set_context(barrier_attack_view, app);
+        view_set_draw_callback(barrier_attack_view, barrier_attack_draw_callback);
+        view_set_input_callback(barrier_attack_view, barrier_attack_input_callback);
+        
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewBarrierAttackUI, barrier_attack_view);
+    }
     
-    view_set_context(barrier_attack_view, app);
-    view_set_draw_callback(barrier_attack_view, barrier_attack_draw_callback);
-    view_set_input_callback(barrier_attack_view, barrier_attack_input_callback);
-    
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBarrierAttackUI, barrier_attack_view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewBarrierAttackUI);
     
     // Start timer
@@ -391,16 +397,15 @@ void predator_scene_barrier_attack_ui_on_exit(void* context) {
     // Stop attack
     if(barrier_attack_state.status == BarrierAttackStatusAttacking) {
         predator_subghz_stop_attack(app);
+        
+        char log_msg[64];
+        snprintf(log_msg, sizeof(log_msg), "Barrier Attack EXIT: %lu codes", 
+                barrier_attack_state.codes_tried);
+        predator_log_append(app, log_msg);
     }
     
-    // Remove view
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBarrierAttackUI);
-    }
-    if(barrier_attack_view) {
-        view_free(barrier_attack_view);
-        barrier_attack_view = NULL;
-    }
+    barrier_attack_state.status = BarrierAttackStatusIdle;
+    // DON'T remove/free view - we reuse it next time (match CarKeyBruteforce pattern)
     
     FURI_LOG_I("BarrierAttack", "Barrier attack UI exited");
 }
