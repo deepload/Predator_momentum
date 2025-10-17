@@ -445,21 +445,26 @@ bool predator_scene_parking_barriers_ui_on_event(void* context, SceneManagerEven
         return true;  // Consumed - prevents framework bug
     }
     
-    // Handle menu selections - navigate to attack scenes
+    // Handle menu selections - navigate to Car Key Bruteforce for barrier opening
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event >= 1 && event.event <= 6) {
             // Store barrier type for logging
             barrier_state.barrier_type = (ParkingBarrierType)(event.event - 1);
             
-            // Log barrier type selected
+            // Log barrier opening attack
             char log_msg[128];
             snprintf(log_msg, sizeof(log_msg), 
-                     "BARRIER: %s (433.92 MHz Swiss KKS)",
+                     "BARRIER OPENING: %s",
                      barrier_type_names[barrier_state.barrier_type]);
             predator_log_append(app, log_msg);
             
-            // Navigate to SubGHz Jamming attack for barrier opening
-            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
+            // Add technical details
+            predator_log_append(app, "Attack: Keeloq Barrier Opening");
+            predator_log_append(app, "Frequency: 433.92 MHz (Swiss KKS)");
+            predator_log_append(app, "Method: Real Barrier Codes");
+            
+            // Navigate to dedicated Barrier Attack scene with proper manufacturer keys!
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBarrierAttackUI);
             return true;
         }
         return true;
