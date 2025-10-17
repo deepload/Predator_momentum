@@ -453,19 +453,22 @@ void predator_scene_parking_barriers_ui_on_exit(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
-    // Stop timer
+    // Stop attack FIRST if running
+    if(barrier_state.status == BarrierStatusAttacking) {
+        barrier_state.status = BarrierStatusIdle;  // Stop callbacks immediately
+        predator_subghz_stop_attack(app);
+    }
+    
+    // Stop timer AFTER stopping attack
     if(app->timer) {
         furi_timer_stop(app->timer);
+        // Small delay to ensure timer callback completes
+        furi_delay_ms(50);
         furi_timer_free(app->timer);
         app->timer = NULL;
     }
     
-    // Stop attack if running
-    if(barrier_state.status == BarrierStatusAttacking) {
-        predator_subghz_stop_attack(app);
-    }
-    
-    // CRITICAL: Free view to prevent memory leak
+    // CRITICAL: Free view LAST after everything stopped
     if(app->view_dispatcher) {
         view_dispatcher_remove_view(app->view_dispatcher, PredatorViewParkingBarriersUI);
     }
