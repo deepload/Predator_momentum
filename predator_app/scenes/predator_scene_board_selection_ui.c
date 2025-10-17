@@ -3,7 +3,6 @@
 #include "../helpers/predator_boards.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_gps.h"
-#include "../helpers/predator_constants.h"
 #include "../helpers/predator_logging.h"
 #include <gui/view.h>
 #include <notification/notification_messages.h>
@@ -48,9 +47,11 @@ static void draw_main_screen(Canvas* canvas) {
         safe_index = PredatorBoardTypeOriginal;
     }
     
+    // CRITICAL FIX: Use actual board config names (same as main menu)
+    const char* board_name = predator_boards_get_name(safe_index);
     snprintf(board_display, sizeof(board_display), "%s%s", 
              anim_offset == 0 ? "► " : anim_offset == 1 ? "▶ " : "▷ ",
-             PREDATOR_BOARD_NAMES[safe_index]);
+             board_name);
     canvas_draw_str(canvas, 2, 25, board_display);
     
     // Quick capabilities preview
@@ -78,7 +79,8 @@ static void draw_details_screen(Canvas* canvas) {
     if(safe_index >= PredatorBoardTypeCount) {
         safe_index = PredatorBoardTypeOriginal;
     }
-    canvas_draw_str(canvas, 2, 22, PREDATOR_BOARD_NAMES[safe_index]);
+    // CRITICAL FIX: Use actual board config name
+    canvas_draw_str(canvas, 2, 22, predator_boards_get_name(safe_index));
     
     // Detailed capabilities
     bool has_esp32 = (board_state.selected_index == PredatorBoardType3in1AIO || 
@@ -107,7 +109,8 @@ static void draw_confirm_screen(Canvas* canvas) {
     if(safe_index >= PredatorBoardTypeCount) {
         safe_index = PredatorBoardTypeOriginal;
     }
-    canvas_draw_str(canvas, 2, 35, PREDATOR_BOARD_NAMES[safe_index]);
+    // CRITICAL FIX: Use actual board config name
+    canvas_draw_str(canvas, 2, 35, predator_boards_get_name(safe_index));
     
     if(board_state.hardware_tested) {
         canvas_draw_str(canvas, 2, 45, "✓ Hardware Test: PASSED");
@@ -131,7 +134,8 @@ static void draw_success_screen(Canvas* canvas) {
     if(safe_index >= PredatorBoardTypeCount) {
         safe_index = PredatorBoardTypeOriginal;
     }
-    canvas_draw_str(canvas, 2, 35, PREDATOR_BOARD_NAMES[safe_index]);
+    // CRITICAL FIX: Use actual board config name
+    canvas_draw_str(canvas, 2, 35, predator_boards_get_name(safe_index));
     
     // Success animation
     uint8_t anim = (board_state.animation_tick / 5) % 4;
@@ -251,7 +255,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
                         
                         // Log successful selection
                         predator_log_append(board_state.app, "Board configured:");
-                        predator_log_append(board_state.app, PREDATOR_BOARD_NAMES[board_state.selected_index]);
+                        predator_log_append(board_state.app, predator_boards_get_name(board_state.selected_index));
                         
                         // Trigger success notification
                         trigger_success_notification(board_state.app);

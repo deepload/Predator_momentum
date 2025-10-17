@@ -68,11 +68,8 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📊 Module Status", 8, main_menu_submenu_callback, app);
     
-    // MEMORY EFFICIENT: Show current board (40 bytes stack, no heap)
-    char board_item[40];
-    const char* board_name = predator_boards_get_config(app->board_type)->name;
-    snprintf(board_item, sizeof(board_item), "🔧 %.28s", board_name);
-    submenu_add_item(app->submenu, board_item, 12, main_menu_submenu_callback, app);
+    // Simple card/board selection menu item
+    submenu_add_item(app->submenu, "🔧 Card Selection", 12, main_menu_submenu_callback, app);
     
     submenu_add_item(app->submenu, "⚙️ Settings", 13, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "ℹ️ About", 14, main_menu_submenu_callback, app);
