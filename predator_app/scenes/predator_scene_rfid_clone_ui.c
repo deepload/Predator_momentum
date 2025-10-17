@@ -213,31 +213,32 @@ static void rfid_clone_ui_timer_callback(void* context) {
             return; // Don't continue without hardware
         }
         
-        // Generate UID on first read
+        // Complete operation when all blocks processed
         if(rfid_state.blocks_read >= rfid_state.total_blocks) {
             rfid_state.blocks_read = rfid_state.total_blocks;
             rfid_state.status = RfidCloneStatusComplete;
             
-            // Real card data from NFC hardware
-            snprintf(rfid_state.card_data, sizeof(rfid_state.card_data), 
-                    "[REAL_NFC_DATA]\nType: %s\nBlocks: %u", 
-                    rfid_state.card_type, (unsigned)rfid_state.total_blocks);
-            
             char log_msg[64];
-            snprintf(log_msg, sizeof(log_msg), "RFID Read COMPLETE: %s (%s)", 
-                    rfid_state.card_type, rfid_state.uid);
+            
+            // Different messages for reading vs cloning
+            if(rfid_state.status == RfidCloneStatusReading || 
+               rfid_state.card_data[0] == '\0') {
+                // Reading complete
+                snprintf(rfid_state.card_data, sizeof(rfid_state.card_data), 
+                        "[REAL_NFC_DATA]\nType: %s\nBlocks: %u", 
+                        rfid_state.card_type, (unsigned)rfid_state.total_blocks);
+                
+                snprintf(log_msg, sizeof(log_msg), "RFID Read COMPLETE: %s (%s)", 
+                        rfid_state.card_type, rfid_state.uid);
+                FURI_LOG_I("RfidCloneUI", "Reading complete");
+            } else {
+                // Cloning complete
+                snprintf(log_msg, sizeof(log_msg), "RFID Clone COMPLETE: %s (%s)", 
+                        rfid_state.card_type, rfid_state.uid);
+                FURI_LOG_I("RfidCloneUI", "Cloning complete");
+            }
+            
             predator_log_append(app, log_msg);
-            
-            FURI_LOG_I("RfidCloneUI", "Reading complete");
-        } else if(rfid_state.status == RfidCloneStatusCloning) {
-            rfid_state.status = RfidCloneStatusComplete;
-            
-            char log_msg[64];
-            snprintf(log_msg, sizeof(log_msg), "RFID Clone COMPLETE: %s (%s)", 
-                    rfid_state.card_type, rfid_state.uid);
-            predator_log_append(app, log_msg);
-            
-            FURI_LOG_I("RfidCloneUI", "Cloning complete");
         }
         
         // Trigger view update
