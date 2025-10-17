@@ -74,7 +74,11 @@ static const char* barrier_manufacturer_names[] = {
 
 static void draw_barrier_attack_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 10, "BARRIER OPENING");
+    if(barrier_attack_state.app && barrier_attack_state.app->selected_barrier_manufacturer == 0xFF) {
+        canvas_draw_str(canvas, 2, 10, "BARRIER: TRY ALL");
+    } else {
+        canvas_draw_str(canvas, 2, 10, "BARRIER OPENING");
+    }
     canvas_draw_line(canvas, 0, 12, 128, 12);
 }
 
@@ -259,18 +263,43 @@ static void barrier_attack_timer_callback(void* context) {
            barrier_attack_state.attack_time_ms > 60000) {
             
             predator_subghz_stop_attack(app);
-            barrier_attack_state.status = BarrierAttackStatusComplete;
             
-            char final_msg[128];
-            snprintf(final_msg, sizeof(final_msg),
-                     "BARRIER ATTACK COMPLETE: %lu barriers opened, %lu codes in %lums",
-                     barrier_attack_state.barriers_opened,
-                     barrier_attack_state.codes_tried,
-                     barrier_attack_state.attack_time_ms);
-            predator_log_append(app, final_msg);
-            
-            FURI_LOG_I("BarrierAttack", "[BARRIER] Attack complete: %lu opened",
-                      barrier_attack_state.barriers_opened);
+            // Check if "Try All" mode and we haven't tried all manufacturers yet
+            if(app->selected_barrier_manufacturer == 0xFF && 
+               barrier_attack_state.manufacturer < BarrierManufacturerHormann) {
+                
+                // Move to next manufacturer
+                barrier_attack_state.manufacturer++;
+                barrier_attack_state.codes_tried = 0;
+                barrier_attack_state.start_tick = furi_get_tick();
+                barrier_attack_state.keeloq_ctx.manufacturer_key = 
+                    barrier_manufacturer_keys[barrier_attack_state.manufacturer];
+                barrier_attack_state.keeloq_ctx.counter = 0;
+                
+                char next_msg[96];
+                snprintf(next_msg, sizeof(next_msg),
+                         "NEXT: Trying %s...",
+                         barrier_manufacturer_names[barrier_attack_state.manufacturer]);
+                predator_log_append(app, next_msg);
+                
+                FURI_LOG_I("BarrierAttack", "[TRY ALL] Moving to: %s",
+                          barrier_manufacturer_names[barrier_attack_state.manufacturer]);
+                
+                // Restart attack with new manufacturer
+                execute_barrier_attack(&barrier_attack_state);
+            } else {
+                // All done (either specific manufacturer finished or tried all 6)
+                barrier_attack_state.status = BarrierAttackStatusComplete;
+                
+                char final_msg[128];
+                snprintf(final_msg, sizeof(final_msg),
+                         "ATTACK COMPLETE: %lu barriers opened",
+                         barrier_attack_state.barriers_opened);
+                predator_log_append(app, final_msg);
+                
+                FURI_LOG_I("BarrierAttack", "[BARRIER] Attack complete: %lu opened",
+                          barrier_attack_state.barriers_opened);
+            }
         }
         
         // Trigger redraw
@@ -284,12 +313,22 @@ void predator_scene_barrier_attack_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
-    // Get barrier type from parent scene
-    // Default to Hörmann (Swiss common) for KKS testing
+    // Get barrier type and manufacturer selection from app context
     memset(&barrier_attack_state, 0, sizeof(BarrierAttackState));
     barrier_attack_state.app = app;
     barrier_attack_state.status = BarrierAttackStatusIdle;
-    barrier_attack_state.manufacturer = BarrierManufacturerHormann;  // Swiss default
+    
+    // Check if "Try All Manufacturers" mode
+    if(app->selected_barrier_manufacturer == 0xFF) {
+        // Start with first manufacturer (CAME)
+        barrier_attack_state.manufacturer = BarrierManufacturerCame;
+        FURI_LOG_I("BarrierAttack", "MODE: Try All Manufacturers (starting with CAME)");
+    } else {
+        // Use specific manufacturer selected by user
+        barrier_attack_state.manufacturer = (BarrierManufacturer)app->selected_barrier_manufacturer;
+        FURI_LOG_I("BarrierAttack", "MODE: Specific manufacturer: %s", 
+                  barrier_manufacturer_names[barrier_attack_state.manufacturer]);
+    }
     
     // Create view
     barrier_attack_view = view_alloc();

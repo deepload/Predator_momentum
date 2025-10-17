@@ -12,6 +12,7 @@ ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
 ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // RE-ADDED: Swiss Gov requirement - Testing stability
+ADD_SCENE(predator, barrier_manufacturer_select_ui, BarrierManufacturerSelectUI)  // SWISS KKS: Choose manufacturer or try all
 ADD_SCENE(predator, barrier_attack_ui, BarrierAttackUI)      // SWISS KKS: Dedicated barrier opening with real manufacturer keys
 
 // WiFi Attacks - REDUCED FOR MEMORY (Keep essentials only)

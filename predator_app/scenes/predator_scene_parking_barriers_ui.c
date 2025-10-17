@@ -413,8 +413,14 @@ void predator_scene_parking_barriers_ui_on_enter(void* context) {
     barrier_state.status = BarrierStatusIdle;
     barrier_state.frequency_index = 0;  // Default to 433.92 MHz
     barrier_state.swiss_mode = true;     // Swiss Government KKS mode
-    if(!app->submenu) return;
     
+    // Critical: Ensure submenu exists
+    if(!app->submenu) {
+        FURI_LOG_E("ParkingBarriers", "ERROR: Submenu is NULL!");
+        return;
+    }
+    
+    // Reset and rebuild submenu
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🚧 PARKING BARRIERS");
     
@@ -425,6 +431,15 @@ void predator_scene_parking_barriers_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🛒 Shopping Mall", 4, parking_barriers_submenu_cb, app);
     submenu_add_item(app->submenu, "✈️ Airport Parking", 5, parking_barriers_submenu_cb, app);
     submenu_add_item(app->submenu, "🇨🇭 Government Facility", 6, parking_barriers_submenu_cb, app);
+    
+    // Reset selection to first item (critical for proper focus after returning)
+    submenu_set_selected_item(app->submenu, 0);
+    
+    // Critical: Ensure view_dispatcher exists before switching
+    if(!app->view_dispatcher) {
+        FURI_LOG_E("ParkingBarriers", "ERROR: View dispatcher is NULL!");
+        return;
+    }
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
@@ -445,26 +460,24 @@ bool predator_scene_parking_barriers_ui_on_event(void* context, SceneManagerEven
         return true;  // Consumed - prevents framework bug
     }
     
-    // Handle menu selections - navigate to Car Key Bruteforce for barrier opening
+    // Handle menu selections - navigate to Barrier Attack with proper manufacturer
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event >= 1 && event.event <= 6) {
             // Store barrier type for logging
             barrier_state.barrier_type = (ParkingBarrierType)(event.event - 1);
             
-            // Log barrier opening attack
+            // CRITICAL: Store barrier type in app context for manufacturer selection
+            app->selected_barrier_type = event.event;  // 1-6
+            
+            // Log barrier type selected
             char log_msg[128];
             snprintf(log_msg, sizeof(log_msg), 
-                     "BARRIER OPENING: %s",
+                     "BARRIER TYPE: %s",
                      barrier_type_names[barrier_state.barrier_type]);
             predator_log_append(app, log_msg);
             
-            // Add technical details
-            predator_log_append(app, "Attack: Keeloq Barrier Opening");
-            predator_log_append(app, "Frequency: 433.92 MHz (Swiss KKS)");
-            predator_log_append(app, "Method: Real Barrier Codes");
-            
-            // Navigate to dedicated Barrier Attack scene with proper manufacturer keys!
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBarrierAttackUI);
+            // Navigate to manufacturer selection (choose specific or try all)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneBarrierManufacturerSelectUI);
             return true;
         }
         return true;
