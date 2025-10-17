@@ -38,10 +38,11 @@ bool predator_scene_barrier_manufacturer_select_ui_on_event(void* context, Scene
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button
+    // Handle back button - CRITICAL: Match CarModelsUI pattern exactly
     if(event.type == SceneManagerEventTypeBack) {
+        // Go back to parking barriers selection
         scene_manager_previous_scene(app->scene_manager);
-        return true;
+        return true;  // Must return true when explicitly calling scene_manager_previous_scene()
     }
     
     // Handle manufacturer selection
@@ -78,8 +79,6 @@ bool predator_scene_barrier_manufacturer_select_ui_on_event(void* context, Scene
 
 void predator_scene_barrier_manufacturer_select_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app || !app->submenu) return;
-    
-    submenu_reset(app->submenu);
-    FURI_LOG_I("ManufacturerSelect", "Manufacturer selection menu exited");
+    if(!app) return;
+    // Nothing to cleanup: using shared submenu (match CarModelsUI pattern)
 }

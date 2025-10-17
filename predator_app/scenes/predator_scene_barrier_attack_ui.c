@@ -353,15 +353,21 @@ bool predator_scene_barrier_attack_ui_on_event(void* context, SceneManagerEvent 
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button
+    // Handle back button - CRITICAL: Return false to let scene manager handle navigation
     if(event.type == SceneManagerEventTypeBack) {
         // Stop attack if running
         if(barrier_attack_state.status == BarrierAttackStatusAttacking) {
             barrier_attack_state.status = BarrierAttackStatusComplete;
             predator_subghz_stop_attack(app);
+            
+            char log_msg[64];
+            snprintf(log_msg, sizeof(log_msg), "Barrier attack STOPPED by user: %lu codes", 
+                    barrier_attack_state.codes_tried);
+            predator_log_append(app, log_msg);
         }
-        scene_manager_previous_scene(app->scene_manager);
-        return true;
+        // Return false to let scene manager do default back navigation (go to previous scene)
+        // Returning true would exit the app!
+        return false;
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

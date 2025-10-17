@@ -454,10 +454,11 @@ bool predator_scene_parking_barriers_ui_on_event(void* context, SceneManagerEven
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button - return to main menu
+    // Handle back button - return false to let scene manager handle navigation
     if(event.type == SceneManagerEventTypeBack) {
-        scene_manager_previous_scene(app->scene_manager);
-        return true;  // Consumed - prevents framework bug
+        // Return false to let scene manager do default back navigation
+        // Returning true would exit the app!
+        return false;
     }
     
     // Handle menu selections - navigate to Barrier Attack with proper manufacturer
@@ -488,19 +489,6 @@ bool predator_scene_parking_barriers_ui_on_event(void* context, SceneManagerEven
 
 void predator_scene_parking_barriers_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app || !app->submenu) return;
-    
-    // Stop attack if running
-    if(barrier_state.status == BarrierStatusAttacking) {
-        barrier_state.status = BarrierStatusIdle;
-        predator_subghz_stop_attack(app);
-        
-        FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Attack stopped: %lu barriers, %lu packets",
-                  barrier_state.barriers_opened, barrier_state.packets_sent);
-    }
-    
-    submenu_reset(app->submenu);
-    
-    predator_log_append(app, "PARKING BARRIERS: Session ended");
-    FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Parking barriers scene exited");
+    if(!app) return;
+    // Nothing to cleanup: using shared submenu (match CarContinentUI pattern)
 }
