@@ -26,6 +26,7 @@ typedef struct {
 
 static RFJammingState jamming_state;
 static uint32_t jamming_start_tick = 0;
+static View* subghz_jamming_view = NULL;  // Static view - create once, reuse
 
 
 static void draw_rf_jamming_header(Canvas* canvas) {
@@ -249,17 +250,21 @@ void predator_scene_subghz_jamming_ui_on_enter(void* context) {
         return;
     }
     
-    View* view = view_alloc();
-    if(!view) {
-        FURI_LOG_E("RFJammingUI", "Failed to allocate view");
-        return;
+    // Create view with callbacks (only if not already created)
+    if(!subghz_jamming_view) {
+        subghz_jamming_view = view_alloc();
+        if(!subghz_jamming_view) {
+            FURI_LOG_E("RFJammingUI", "Failed to allocate view");
+            return;
+        }
+        
+        view_set_context(subghz_jamming_view, app);
+        view_set_draw_callback(subghz_jamming_view, rf_jamming_ui_draw_callback);
+        view_set_input_callback(subghz_jamming_view, rf_jamming_ui_input_callback);
+        
+        view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubGhzJammingUI, subghz_jamming_view);
     }
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, rf_jamming_ui_draw_callback);
-    view_set_input_callback(view, rf_jamming_ui_input_callback);
-    
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewSubGhzJammingUI, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubGhzJammingUI);
     
     FURI_LOG_I("RFJammingUI", "RF Jamming UI initialized");
@@ -309,10 +314,7 @@ void predator_scene_subghz_jamming_ui_on_exit(void* context) {
     }
     
     jamming_state.status = RFJammingStatusIdle;
-    
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSubGhzJammingUI);
-    }
+    // DON'T remove/free view - we reuse it next time (match CarKeyBruteforce pattern)
     
     FURI_LOG_I("RFJammingUI", "RF Jamming UI exited");
 }
