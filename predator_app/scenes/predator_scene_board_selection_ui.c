@@ -26,14 +26,17 @@ typedef struct {
     PredatorApp* app;
 } BoardSelectionState;
 
-static BoardSelectionState board_state;
-static View* board_selection_view = NULL;
+// UNUSED: Board Selection now uses Submenu widget
+// static BoardSelectionState board_state;
+// static View* board_selection_view = NULL;
 
+// UNUSED: Board Selection now uses Submenu widget
+/*
 // ULTIMATE BOARD SELECTION SCREENS
 
 static void draw_main_screen(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 15, 10, "🔧 BOARD SELECTION");
+    canvas_draw_str(canvas, 15, 10, "BOARD SELECTION");
     canvas_draw_line(canvas, 0, 12, 128, 12);
     
     // Animated selection indicator
@@ -145,7 +148,10 @@ static void draw_success_screen(Canvas* canvas) {
     
     canvas_draw_str(canvas, 2, 58, "Any key=Back  Back=Main Menu");
 }
+*/
 
+// UNUSED: Board Selection now uses Submenu widget
+/*
 static void board_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     if(!canvas) return;
@@ -186,6 +192,10 @@ static void trigger_success_notification(PredatorApp* app) {
     }
 }
 
+*/
+
+// UNUSED: Board Selection now uses Submenu widget
+/*
 static bool board_input_callback(InputEvent* event, void* context) {
     UNUSED(context);
     if(!event || event->type != InputTypeShort) return false;
@@ -293,103 +303,82 @@ static bool board_input_callback(InputEvent* event, void* context) {
     
     return consumed;
 }
+*/
+
+static void board_selection_submenu_cb(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
+    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
 
 void predator_scene_board_selection_ui_on_enter(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    // ULTIMATE INITIALIZATION - Reset all state
-    memset(&board_state, 0, sizeof(BoardSelectionState));
-    board_state.app = app;
-    board_state.current_screen = BoardScreenMain;
-    board_state.selected_index = 0;
-    board_state.selection_confirmed = false;
-    board_state.hardware_tested = false;
-    board_state.animation_tick = 0;
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "SELECT BOARD");
     
-    // Set current board as selected if valid
+    // Get current board name
+    const char* current_board = "None";
     if(app->board_type < PredatorBoardTypeCount) {
-        board_state.selected_index = app->board_type;
-    } else {
-        // Default to Original Predator if invalid board type
-        board_state.selected_index = PredatorBoardTypeOriginal;
+        const PredatorBoardConfig* config = predator_boards_get_config(app->board_type);
+        if(config) current_board = config->name;
     }
     
-    // Create view with timer for animations
-    board_selection_view = view_alloc();
-    if(!board_selection_view) return;
+    char header[64];
+    snprintf(header, sizeof(header), "Current: %s", current_board);
+    submenu_add_item(app->submenu, header, 0, board_selection_submenu_cb, app);
     
-    view_set_context(board_selection_view, app);
-    view_set_draw_callback(board_selection_view, board_draw_callback);
-    view_set_input_callback(board_selection_view, board_input_callback);
+    // Add all available boards
+    submenu_add_item(app->submenu, "Original Predator", PredatorBoardTypeOriginal + 1, board_selection_submenu_cb, app);
+    submenu_add_item(app->submenu, "3in1 AIO Board V1.4", PredatorBoardType3in1AIO + 1, board_selection_submenu_cb, app);
+    submenu_add_item(app->submenu, "DrB0rk Multi-Board", PredatorBoardTypeDrB0rkMultiV2 + 1, board_selection_submenu_cb, app);
+    submenu_add_item(app->submenu, "2.8\" Screen Board", PredatorBoardTypeScreen28 + 1, board_selection_submenu_cb, app);
     
-    // Enable continuous redraw for animations
-    view_set_update_callback(board_selection_view, NULL);
-    view_set_update_callback_context(board_selection_view, app);
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewBoardSelectionUI, board_selection_view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewBoardSelectionUI);
-    
-    // Start animation timer
-    if(app->timer) {
-        furi_timer_stop(app->timer);
-        furi_timer_free(app->timer);
-        app->timer = NULL;
-    }
+    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION ENTERED ==========");
 }
 
 bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle animation updates
-    if(event.type == SceneManagerEventTypeCustom && event.event == 1) {
-        // Trigger redraw for animations
-        return true;
-    }
-    
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        FURI_LOG_E("BoardSelection", "==== BACK EVENT ==== Screen: %d", board_state.current_screen);
+        FURI_LOG_E("BoardSelection", "==== BACK EVENT ====");
         scene_manager_previous_scene(app->scene_manager);
         return true;  // Consumed - prevents framework bug
     }
     
-    return false; // Let framework handle other events
+    // Handle board selection
+    if(event.type == SceneManagerEventTypeCustom && event.event > 0) {
+        PredatorBoardType selected = (PredatorBoardType)(event.event - 1);
+        if(selected < PredatorBoardTypeCount) {
+            app->board_type = selected;
+            FURI_LOG_I("BoardSelection", "Board selected: %d", selected);
+            predator_log_append(app, "Board configured");
+            predator_log_append(app, predator_boards_get_name(selected));
+            
+            // Success notification
+            if(app->notifications) {
+                notification_message(app->notifications, &sequence_success);
+            }
+            
+            // Go back to main menu
+            scene_manager_previous_scene(app->scene_manager);
+        }
+        return true;
+    }
+    
+    return false;
 }
 
 void predator_scene_board_selection_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION EXITING ==========");
-    FURI_LOG_I("BoardSelection", "Current screen: %d, Confirmed: %d", 
-               board_state.current_screen, board_state.selection_confirmed);
+    if(!app || !app->submenu) return;
     
-    if(!app) {
-        FURI_LOG_E("BoardSelection", "ERROR: app is NULL!");
-        return;
-    }
+    submenu_reset(app->submenu);
     
-    // Stop animation timer
-    if(app->timer) {
-        furi_timer_stop(app->timer);
-        furi_timer_free(app->timer);
-        app->timer = NULL;
-    }
-    
-    // Clean up view properly
-    view_dispatcher_remove_view(app->view_dispatcher, PredatorViewBoardSelectionUI);
-    if(board_selection_view) {
-        view_free(board_selection_view);
-        board_selection_view = NULL;
-    }
-    
-    // Log final board selection
-    if(board_state.selection_confirmed) {
-        FURI_LOG_I("BoardSelection", "Board selection complete - returning to previous scene");
-        predator_log_append(app, "Board selection complete - Swiss Demo Ready!");
-    } else {
-        FURI_LOG_W("BoardSelection", "Board selection cancelled - no board confirmed");
-    }
-    
-    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION EXIT COMPLETE ==========");
+    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION EXITED ==========");
 }

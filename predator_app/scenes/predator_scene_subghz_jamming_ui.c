@@ -272,6 +272,16 @@ bool predator_scene_subghz_jamming_ui_on_event(void* context, SceneManagerEvent 
     PredatorApp* app = context;
     if(!app) return false;
     
+    // Handle back button - stop jamming and return to previous scene
+    if(event.type == SceneManagerEventTypeBack) {
+        // Stop jamming attack
+        predator_subghz_stop_attack(app);
+        FURI_LOG_I("RFJammingUI", "Jamming stopped by user");
+        
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
+    }
+    
     if(event.type == SceneManagerEventTypeCustom) {
         return true;
     }

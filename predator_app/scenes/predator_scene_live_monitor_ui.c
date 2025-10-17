@@ -219,6 +219,12 @@ bool predator_scene_live_monitor_ui_on_event(void* context, SceneManagerEvent ev
     PredatorApp* app = context;
     if(!app) return false;
     
+    // Handle back button - return to previous scene
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
+    }
+    
     if(event.type == SceneManagerEventTypeCustom) {
         return true;
     }

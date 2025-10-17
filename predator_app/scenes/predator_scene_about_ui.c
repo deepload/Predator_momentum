@@ -10,6 +10,8 @@ typedef struct {
     uint8_t total_pages;
 } AboutState;
 
+// UNUSED: About now uses Submenu widget
+/*
 static AboutState about_state;
 
 static void draw_predator_logo(Canvas* canvas) {
@@ -115,32 +117,26 @@ static bool about_ui_input_callback(InputEvent* event, void* context) {
     
     return true;
 }
+*/
 
 void predator_scene_about_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
-    memset(&about_state, 0, sizeof(AboutState));
-    about_state.current_page = 0;
-    about_state.total_pages = 5;
+    if(!app->submenu) return;
     
-    if(!app->view_dispatcher) {
-        FURI_LOG_E("AboutUI", "View dispatcher is NULL");
-        return;
-    }
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "ABOUT");
     
-    View* view = view_alloc();
-    if(!view) {
-        FURI_LOG_E("AboutUI", "Failed to allocate view");
-        return;
-    }
+    submenu_add_item(app->submenu, "Predator Professional", 0, NULL, app);
+    submenu_add_item(app->submenu, "Version: 1.4.0", 0, NULL, app);
+    submenu_add_item(app->submenu, "Swiss Government Grade", 0, NULL, app);
+    submenu_add_item(app->submenu, "Tesla Security Testing", 0, NULL, app);
+    submenu_add_item(app->submenu, "90+ Car Models", 0, NULL, app);
+    submenu_add_item(app->submenu, "5 Expansion Boards", 0, NULL, app);
+    submenu_add_item(app->submenu, "WiFi+BT+GPS+SubGHz+NFC", 0, NULL, app);
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, about_ui_draw_callback);
-    view_set_input_callback(view, about_ui_input_callback);
-    
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewAboutUI, view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewAboutUI);
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
     FURI_LOG_I("AboutUI", "About UI initialized");
 }
@@ -149,8 +145,10 @@ bool predator_scene_about_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
     
-    if(event.type == SceneManagerEventTypeCustom) {
-        return true;
+    // Handle back button - return to main menu
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
     }
     
     return false;
@@ -158,11 +156,9 @@ bool predator_scene_about_ui_on_event(void* context, SceneManagerEvent event) {
 
 void predator_scene_about_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewAboutUI);
-    }
+    submenu_reset(app->submenu);
     
     FURI_LOG_I("AboutUI", "About UI exited");
 }

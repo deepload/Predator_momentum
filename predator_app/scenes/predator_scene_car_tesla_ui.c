@@ -25,8 +25,9 @@ typedef struct {
     bool subghz_ready;
 } TeslaState;
 
+// UNUSED: Tesla Security now uses Submenu widget
+/*
 static TeslaState tesla_state;
-static View* tesla_view = NULL;
 static uint32_t attack_start_tick = 0;
 
 static void draw_tesla_header(Canvas* canvas) {
@@ -238,43 +239,78 @@ static void tesla_ui_timer_callback(void* context) {
         }
     }
 }
+*/
+
+static void tesla_submenu_callback(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
+    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
 
 void predator_scene_car_tesla_ui_on_enter(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    memset(&tesla_state, 0, sizeof(TeslaState));
-    tesla_state.status = TeslaStatusIdle;
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "TESLA SECURITY");
     
-    if(!app->view_dispatcher) {
-        FURI_LOG_E("TeslaUI", "View dispatcher is NULL");
-        return;
-    }
+    submenu_add_item(app->submenu, "Charge Port Exploit", 1, tesla_submenu_callback, app);
+    submenu_add_item(app->submenu, "Key Fob Clone", 2, tesla_submenu_callback, app);
+    submenu_add_item(app->submenu, "Mobile App Bypass", 3, tesla_submenu_callback, app);
+    submenu_add_item(app->submenu, "Sentry Defeat", 4, tesla_submenu_callback, app);
+    submenu_add_item(app->submenu, "Autopilot Jam", 5, tesla_submenu_callback, app);
+    submenu_add_item(app->submenu, "Battery System", 6, tesla_submenu_callback, app);
+    submenu_add_item(app->submenu, "Walking Open Mode", 7, tesla_submenu_callback, app);
     
-    tesla_view = view_alloc();
-    if(!tesla_view) {
-        FURI_LOG_E("TeslaUI", "Failed to allocate view");
-        return;
-    }
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
-    view_set_context(tesla_view, app);
-    view_set_draw_callback(tesla_view, tesla_ui_draw_callback);
-    view_set_input_callback(tesla_view, tesla_ui_input_callback);
-    
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarTeslaUI, tesla_view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarTeslaUI);
-    
-    FURI_LOG_I("TeslaUI", "Tesla Attack UI initialized");
-    
-    app->timer = furi_timer_alloc(tesla_ui_timer_callback, FuriTimerTypePeriodic, app);
-    furi_timer_start(app->timer, 100);
+    FURI_LOG_I("TeslaUI", "Tesla Security UI initialized");
 }
 
 bool predator_scene_car_tesla_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     if(!app) return false;
     
+    // Handle back button - return to main menu
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
+    }
+    
     if(event.type == SceneManagerEventTypeCustom) {
+        // Navigate to actual attack execution scenes (like car models does)
+        switch(event.event) {
+            case 1: // Charge Port - navigate to key bruteforce (configured for Tesla)
+                predator_log_append(app, "Tesla: Charge Port Exploit");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+                return true;
+            case 2: // Key Fob - navigate to key bruteforce
+                predator_log_append(app, "Tesla: Key Fob Clone Attack");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+                return true;
+            case 3: // Mobile App - navigate to key bruteforce  
+                predator_log_append(app, "Tesla: Mobile App Bypass");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+                return true;
+            case 4: // Sentry - navigate to jamming
+                predator_log_append(app, "Tesla: Sentry Mode Defeat");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
+                return true;
+            case 5: // Autopilot - navigate to jamming
+                predator_log_append(app, "Tesla: Autopilot Jamming");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarJammingUI);
+                return true;
+            case 6: // Battery - navigate to key bruteforce
+                predator_log_append(app, "Tesla: Battery System Hack");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarKeyBruteforceUI);
+                return true;
+            case 7: // Walking Open - navigate to passive opener
+                predator_log_append(app, "Tesla: Walking Open Mode");
+                scene_manager_next_scene(app->scene_manager, PredatorSceneCarPassiveOpenerUI);
+                return true;
+            default:
+                break;
+        }
         return true;
     }
     
@@ -283,33 +319,9 @@ bool predator_scene_car_tesla_ui_on_event(void* context, SceneManagerEvent event
 
 void predator_scene_car_tesla_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    if(app->timer) {
-        furi_timer_stop(app->timer);
-        furi_timer_free(app->timer);
-        app->timer = NULL;
-    }
+    submenu_reset(app->submenu);
     
-    if(tesla_state.status == TeslaStatusAttacking) {
-        predator_subghz_stop_attack(app);
-        
-        char log_msg[64];
-        snprintf(log_msg, sizeof(log_msg), "Tesla Attack EXIT: %lu signals sent", 
-                tesla_state.signals_sent);
-        predator_log_append(app, log_msg);
-    }
-    
-    tesla_state.status = TeslaStatusIdle;
-    
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewCarTeslaUI);
-    }
-    // Free allocated view to prevent memory leak
-    if(tesla_view) {
-        view_free(tesla_view);
-        tesla_view = NULL;
-    }
-    
-    FURI_LOG_I("TeslaUI", "Tesla Attack UI exited");
+    FURI_LOG_I("TeslaUI", "Tesla Security UI exited");
 }

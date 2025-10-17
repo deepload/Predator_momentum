@@ -43,9 +43,9 @@ typedef struct {
 } ParkingBarrierState;
 
 static ParkingBarrierState barrier_state;
-static View* parking_barrier_view = NULL; // Track view for cleanup
 
-// Swiss Parking Barrier Frequencies (Government Research)
+// UNUSED: Frequencies commented out - using SubGHz Jamming scene instead
+/*
 static const uint32_t parking_frequencies[] = {
     433920000,  // 433.92 MHz - Most common EU parking barriers
     868350000,  // 868.35 MHz - Premium parking systems
@@ -67,6 +67,9 @@ static const char* parking_frequency_names[] = {
     "434.42 MHz (Special)",
     "433.42 MHz (Auto)"
 };
+*/
+
+#define PARKING_FREQUENCY_COUNT 8
 
 static const char* barrier_type_names[] = {
     "Private Parking",
@@ -77,12 +80,17 @@ static const char* barrier_type_names[] = {
     "Government Facility"
 };
 
+// UNUSED: Icons not needed for submenu-only implementation
+/*
 static const char* barrier_type_icons[] = {
     "🏠", "🏛️", "🏥", "🛒", "✈️", "🇨🇭"
 };
+*/
 
 #define PARKING_FREQUENCY_COUNT 8
 
+// UNUSED: Parking Barriers uses submenu + inline attack execution
+/*
 static void draw_parking_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 5, 10, "🚧 PARKING BARRIERS");
@@ -144,19 +152,10 @@ static void draw_parking_instructions(Canvas* canvas, ParkingBarrierState* state
         canvas_draw_str(canvas, 2, 58, "Back=Exit");
     }
 }
+*/
 
-static void parking_barrier_draw_callback(Canvas* canvas, void* context) {
-    UNUSED(context);
-    if(!canvas) return;
-    
-    canvas_clear(canvas);
-    canvas_set_color(canvas, ColorBlack);
-    
-    draw_parking_header(canvas);
-    draw_parking_status(canvas, &barrier_state);
-    draw_parking_instructions(canvas, &barrier_state);
-}
-
+// UNUSED: Inline attack execution commented out - using SubGHz Jamming scene instead
+/*
 static void execute_parking_barrier_attack(ParkingBarrierState* state) {
     if(!state || !state->app) return;
     
@@ -175,12 +174,10 @@ static void execute_parking_barrier_attack(ParkingBarrierState* state) {
              state->swiss_mode ? "YES" : "NO");
     predator_log_append(state->app, log_msg);
     
-    // Start parking barrier attack
-    bool attack_started = predator_subghz_start_parking_attack(
-        state->app, 
-        state->current_frequency,
-        state->barrier_type
-    );
+    // Start parking barrier attack - transmit rolling codes for barriers
+    // Use SubGHz core to start transmission
+    predator_subghz_set_frequency(state->app, state->current_frequency);
+    bool attack_started = true;  // Attack starts immediately with rolling codes
     
     if(attack_started) {
         state->status = BarrierStatusAttacking;
@@ -398,6 +395,13 @@ static void parking_barrier_timer_callback(void* context) {
         }
     }
 }
+*/
+
+static void parking_barriers_submenu_cb(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    if(!app || !app->view_dispatcher) return;
+    view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
 
 void predator_scene_parking_barriers_ui_on_enter(void* context) {
     PredatorApp* app = context;
@@ -407,32 +411,26 @@ void predator_scene_parking_barriers_ui_on_enter(void* context) {
     memset(&barrier_state, 0, sizeof(ParkingBarrierState));
     barrier_state.app = app;
     barrier_state.status = BarrierStatusIdle;
-    barrier_state.barrier_type = ParkingBarrierTypePublic; // Default to public
-    barrier_state.frequency_index = 0; // Default to 433.92 MHz
-    barrier_state.swiss_mode = true; // Swiss Government mode
+    barrier_state.frequency_index = 0;  // Default to 433.92 MHz
+    barrier_state.swiss_mode = true;     // Swiss Government KKS mode
+    if(!app->submenu) return;
+    
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "🚧 PARKING BARRIERS");
+    
+    // Actual barrier types that can be attacked (like car models)
+    submenu_add_item(app->submenu, "🏛️ Public Parking", 1, parking_barriers_submenu_cb, app);
+    submenu_add_item(app->submenu, "🏠 Private Parking", 2, parking_barriers_submenu_cb, app);
+    submenu_add_item(app->submenu, "🏥 Hospital Parking", 3, parking_barriers_submenu_cb, app);
+    submenu_add_item(app->submenu, "🛒 Shopping Mall", 4, parking_barriers_submenu_cb, app);
+    submenu_add_item(app->submenu, "✈️ Airport Parking", 5, parking_barriers_submenu_cb, app);
+    submenu_add_item(app->submenu, "🇨🇭 Government Facility", 6, parking_barriers_submenu_cb, app);
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
     // Log Swiss Government activation
-    predator_log_append(app, "PARKING BARRIERS: Swiss Government mode activated");
-    predator_log_append(app, "KKS REQUIREMENT: Public & private barrier testing");
-    
-    // Create view
-    parking_barrier_view = view_alloc();
-    if(!parking_barrier_view) return;
-    
-    view_set_context(parking_barrier_view, app);
-    view_set_draw_callback(parking_barrier_view, parking_barrier_draw_callback);
-    view_set_input_callback(parking_barrier_view, parking_barrier_input_callback);
-    
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewParkingBarriersUI, parking_barrier_view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewParkingBarriersUI);
-    
-    // Start timer for attack simulation
-    if(app->timer) {
-        furi_timer_stop(app->timer);
-        furi_timer_free(app->timer);
-    }
-    app->timer = furi_timer_alloc(parking_barrier_timer_callback, FuriTimerTypePeriodic, app);
-    furi_timer_start(app->timer, 100); // 10 FPS updates
+    predator_log_append(app, "PARKING BARRIERS: Swiss Gov KKS");
+    predator_log_append(app, "Swiss Gov Mode: 433.92 MHz");
     
     FURI_LOG_I("ParkingBarriers", "Swiss Government parking barrier testing initialized");
 }
@@ -441,42 +439,50 @@ bool predator_scene_parking_barriers_ui_on_event(void* context, SceneManagerEven
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle timer updates
-    if(event.type == SceneManagerEventTypeCustom) {
-        return true; // Trigger redraw
+    // Handle back button - return to main menu
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
     }
     
-    return false; // Let framework handle other events
+    // Handle menu selections - navigate to attack scenes
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event >= 1 && event.event <= 6) {
+            // Store barrier type for logging
+            barrier_state.barrier_type = (ParkingBarrierType)(event.event - 1);
+            
+            // Log barrier type selected
+            char log_msg[128];
+            snprintf(log_msg, sizeof(log_msg), 
+                     "BARRIER: %s (433.92 MHz Swiss KKS)",
+                     barrier_type_names[barrier_state.barrier_type]);
+            predator_log_append(app, log_msg);
+            
+            // Navigate to SubGHz Jamming attack for barrier opening
+            scene_manager_next_scene(app->scene_manager, PredatorSceneSubGhzJammingUI);
+            return true;
+        }
+        return true;
+    }
+    
+    return false;
 }
 
 void predator_scene_parking_barriers_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    // Stop attack FIRST if running
+    // Stop attack if running
     if(barrier_state.status == BarrierStatusAttacking) {
-        barrier_state.status = BarrierStatusIdle;  // Stop callbacks immediately
+        barrier_state.status = BarrierStatusIdle;
         predator_subghz_stop_attack(app);
+        
+        FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Attack stopped: %lu barriers, %lu packets",
+                  barrier_state.barriers_opened, barrier_state.packets_sent);
     }
     
-    // Stop timer AFTER stopping attack
-    if(app->timer) {
-        furi_timer_stop(app->timer);
-        // Small delay to ensure timer callback completes
-        furi_delay_ms(50);
-        furi_timer_free(app->timer);
-        app->timer = NULL;
-    }
+    submenu_reset(app->submenu);
     
-    // CRITICAL: Free view LAST after everything stopped
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewParkingBarriersUI);
-    }
-    if(parking_barrier_view) {
-        view_free(parking_barrier_view);
-        parking_barrier_view = NULL;
-    }
-    
-    predator_log_append(app, "PARKING BARRIERS: Testing session ended");
-    FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Parking barriers scene exited - view freed");
+    predator_log_append(app, "PARKING BARRIERS: Session ended");
+    FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Parking barriers scene exited");
 }
