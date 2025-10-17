@@ -139,7 +139,7 @@ static void draw_parking_instructions(Canvas* canvas, ParkingBarrierState* state
     } else if(state->status == BarrierStatusAttacking) {
         canvas_draw_str(canvas, 2, 58, "Attacking... Back=Stop");
     } else if(state->status == BarrierStatusSuccess) {
-        canvas_draw_str(canvas, 2, 58, "SUCCESS! Back=Continue");
+        canvas_draw_str(canvas, 2, 58, "Barrier opened! Back=Continue");
     } else {
         canvas_draw_str(canvas, 2, 58, "Back=Exit");
     }
@@ -332,64 +332,63 @@ static void parking_barrier_timer_callback(void* context) {
             }
         }
         
-        // PRODUCTION: Real success detection based on SubGHz response
-        // Check for barrier acknowledgment signal
+        // SWISS GOVERNMENT: Real success detection - ONLY when barrier actually responds
+        // REMOVED FAKE SUCCESS FALLBACKS - government contract requires real results
         if(app->subghz_txrx && furi_hal_subghz_rx_pipe_not_empty()) {
-            // Real barrier response detected!
-            barrier_state.barriers_opened++;
-            barrier_state.status = BarrierStatusSuccess;
+            // Verify it's actually a barrier response signal
+            bool signal_detected = furi_hal_subghz_get_data_gpio();
+            int8_t rssi = furi_hal_subghz_get_rssi();
             
-            char success_msg[64];
-            snprintf(success_msg, sizeof(success_msg), 
-                     "[REAL HW] BARRIER OPENED: %s", 
-                     barrier_type_names[barrier_state.barrier_type]);
-            predator_log_append(app, success_msg);
-            
-            FURI_LOG_I("ParkingBarriers", "[REAL HW] Barrier responded after %lu packets", 
-                      barrier_state.packets_sent);
-            
-            // Success notification
-            if(app->notifications) {
-                notification_message(app->notifications, &sequence_success);
-            }
-        }
-        
-        // Fallback: Success after reasonable packet count (demo mode)
-        if(barrier_state.packets_sent >= 50 && barrier_state.barriers_opened == 0) {
-            barrier_state.barriers_opened++;
-            barrier_state.status = BarrierStatusSuccess;
-            
-            char success_msg[80];
-            snprintf(success_msg, sizeof(success_msg), 
-                     "[CRYPTO DEMO] BARRIER TEST: %s (%lu encrypted packets)", 
-                     barrier_type_names[barrier_state.barrier_type],
-                     barrier_state.packets_sent);
-            predator_log_append(app, success_msg);
-            
-            FURI_LOG_I("ParkingBarriers", "[CRYPTO] Demo success after %lu packets", 
-                      barrier_state.packets_sent);
-            
-            if(app->notifications) {
-                notification_message(app->notifications, &sequence_success);
-            }
-        }
-        
-        // Auto-complete after 10 seconds or 200 packets
-        if(barrier_state.attack_time_ms > 10000 || barrier_state.packets_sent >= 200) {
-            if(barrier_state.status != BarrierStatusSuccess) {
+            if(signal_detected && rssi > -80) {
+                // Real barrier response detected!
+                barrier_state.barriers_opened++;
                 barrier_state.status = BarrierStatusSuccess;
+                
+                char success_msg[96];
+                snprintf(success_msg, sizeof(success_msg), 
+                         "✅ [SWISS GOV] BARRIER OPENED: %s (RSSI:%d, %lu packets)", 
+                         barrier_type_names[barrier_state.barrier_type],
+                         rssi,
+                         barrier_state.packets_sent);
+                predator_log_append(app, success_msg);
+                
+                FURI_LOG_I("ParkingBarriers", "[REAL HW] Barrier responded after %lu packets (RSSI:%d)", 
+                          barrier_state.packets_sent, rssi);
+                
+                // Stop attack on success
+                predator_subghz_stop_attack(app);
+                
+                // Success notification
+                if(app->notifications) {
+                    notification_message(app->notifications, &sequence_success);
+                }
+            } else {
+                FURI_LOG_D("ParkingBarriers", "[REAL HW] Signal detected but too weak: RSSI %d", rssi);
             }
+        }
+        
+        // Auto-stop after 30 seconds or 500 packets (no fake success)
+        if(barrier_state.attack_time_ms > 30000 || barrier_state.packets_sent >= 500) {
+            // Only stop, don't fake success
             predator_subghz_stop_attack(app);
+            barrier_state.status = BarrierStatusIdle;
             
             char final_msg[128];
-            snprintf(final_msg, sizeof(final_msg), 
-                     "PARKING ATTACK COMPLETE: %lu barriers, %lu encrypted packets in %lums",
-                     barrier_state.barriers_opened,
-                     barrier_state.packets_sent,
-                     barrier_state.attack_time_ms);
+            if(barrier_state.barriers_opened > 0) {
+                snprintf(final_msg, sizeof(final_msg), 
+                         "✅ [SWISS GOV] COMPLETE: %lu barriers opened, %lu encrypted packets in %lums",
+                         barrier_state.barriers_opened,
+                         barrier_state.packets_sent,
+                         barrier_state.attack_time_ms);
+            } else {
+                snprintf(final_msg, sizeof(final_msg), 
+                         "⚠️ [SWISS GOV] TIMEOUT: No barrier response. %lu encrypted packets sent in %lums",
+                         barrier_state.packets_sent,
+                         barrier_state.attack_time_ms);
+            }
             predator_log_append(app, final_msg);
             
-            FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Attack completed: %lu barriers, %lu packets", 
+            FURI_LOG_I("ParkingBarriers", "[SWISS GOV] Attack ended: %lu barriers, %lu packets", 
                       barrier_state.barriers_opened, barrier_state.packets_sent);
         }
         

@@ -155,9 +155,11 @@ static void car_key_bruteforce_ui_draw_callback(Canvas* canvas, void* context) {
     if(carkey_state.status == CarKeyBruteforceStatusAttacking) {
         canvas_draw_str(canvas, 30, 64, "OK=Stop  Back=Exit");
     } else if(carkey_state.status == CarKeyBruteforceStatusSuccess) {
-        canvas_draw_str(canvas, 25, 64, "Key found! Back=Exit");
+        canvas_draw_str(canvas, 2, 64, "Car unlocked! Check vehicle");
     } else if(carkey_state.status == CarKeyBruteforceStatusIdle) {
         canvas_draw_str(canvas, 25, 64, "OK=Start  Back=Exit");
+    } else if(carkey_state.status == CarKeyBruteforceStatusComplete) {
+        canvas_draw_str(canvas, 10, 64, "No response. Try closer?");
     } else {
         canvas_draw_str(canvas, 40, 64, "Back=Exit");
     }
@@ -370,25 +372,31 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
             carkey_state.eta_seconds = (codes_remaining * ms_per_code) / 1000;
         }
         
-        // Real key detection based on SubGHz response
-        if(carkey_state.codes_tried >= carkey_state.total_codes / 5 && 
-           carkey_state.found_code[0] == '\0') {
-            // Check for real vehicle response
+        // Real key detection based on ACTUAL SubGHz vehicle response
+        // REMOVED FAKE SUCCESS FALLBACK - only succeed if car actually responds
+        if(carkey_state.found_code[0] == '\0') {
+            // Check for REAL vehicle response from hardware
             if(app->subghz_txrx && furi_hal_subghz_rx_pipe_not_empty()) {
-                carkey_state.status = CarKeyBruteforceStatusSuccess;
-                FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Key found - vehicle responded!");
-            } else {
-                carkey_state.status = CarKeyBruteforceStatusSuccess; // Fallback for demo
+                // Verify it's actually a response by checking GPIO state
+                bool signal_detected = furi_hal_subghz_get_data_gpio();
+                
+                // Only succeed if we detect actual signal from car
+                if(signal_detected) {
+                    carkey_state.status = CarKeyBruteforceStatusSuccess;
+                    snprintf(carkey_state.found_code, sizeof(carkey_state.found_code), "0x%04lX", 
+                            (unsigned long)(carkey_state.codes_tried & 0xFFFF));
+                    
+                    char log_msg[96];
+                    snprintf(log_msg, sizeof(log_msg), "SUCCESS: Car responded! Code %s after %lu attempts", 
+                            carkey_state.found_code, carkey_state.codes_tried);
+                    predator_log_append(app, log_msg);
+                    
+                    FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Car responded to code %s!", carkey_state.found_code);
+                    
+                    // Stop attack on real success
+                    predator_subghz_stop_attack(app);
+                }
             }
-            snprintf(carkey_state.found_code, sizeof(carkey_state.found_code), "0x%04lX", 
-                    (unsigned long)(carkey_state.codes_tried & 0xFFFF));
-            
-            char log_msg[64];
-            snprintf(log_msg, sizeof(log_msg), "Car Key Bruteforce SUCCESS: %s after %lu codes", 
-                    carkey_state.found_code, carkey_state.codes_tried);
-            predator_log_append(app, log_msg);
-            
-            FURI_LOG_I("CarKeyBruteforceUI", "Key found: %s", carkey_state.found_code);
         }
         
         // Complete when all codes tried

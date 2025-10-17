@@ -115,9 +115,11 @@ static void tesla_ui_draw_callback(Canvas* canvas, void* context) {
     if(tesla_state.status == TeslaStatusAttacking) {
         canvas_draw_str(canvas, 30, 64, "OK=Stop  Back=Exit");
     } else if(tesla_state.status == TeslaStatusSuccess) {
-        canvas_draw_str(canvas, 20, 64, "Port opened! Back=Exit");
+        canvas_draw_str(canvas, 10, 64, "Port open! Check Tesla");
     } else if(tesla_state.status == TeslaStatusIdle) {
         canvas_draw_str(canvas, 25, 64, "OK=Start  Back=Exit");
+    } else if(tesla_state.status == TeslaStatusComplete) {
+        canvas_draw_str(canvas, 5, 64, "No Tesla nearby. Move closer?");
     } else {
         canvas_draw_str(canvas, 40, 64, "Back=Exit");
     }
@@ -199,18 +201,25 @@ static void tesla_ui_timer_callback(void* context) {
             FURI_LOG_I("TeslaUI", "[REAL HW] Tesla signal %lu transmitted", tesla_state.signals_sent);
         }
         
-        // Real charge port opening detection based on SubGHz response
-        if(tesla_state.signals_sent >= 20 && !tesla_state.charge_port_opened) {
-            // Real hardware would detect successful charge port opening
-            // Check for real response from Tesla vehicle
+        // Real charge port opening detection - ONLY succeed if Tesla actually responds
+        // REMOVED FAKE SUCCESS - only logs success when car actually responds
+        if(!tesla_state.charge_port_opened) {
+            // Check for REAL response from Tesla vehicle via SubGHz
             if(furi_hal_subghz_rx_pipe_not_empty()) {
-                tesla_state.status = TeslaStatusSuccess;
-                tesla_state.charge_port_opened = true;
-                FURI_LOG_I("TeslaUI", "[REAL HW] Tesla charge port opened - real response detected");
+                // Verify it's actually a signal, not just noise
+                bool signal_detected = furi_hal_subghz_get_data_gpio();
+                
+                if(signal_detected) {
+                    tesla_state.status = TeslaStatusSuccess;
+                    tesla_state.charge_port_opened = true;
+                    
+                    predator_log_append(app, "SUCCESS: Tesla charge port opened - car responded!");
+                    FURI_LOG_I("TeslaUI", "[REAL HW] Tesla charge port opened - real response detected");
+                    
+                    // Stop attack on success
+                    predator_subghz_stop_attack(app);
+                }
             }
-            
-            predator_log_append(app, "Tesla Attack SUCCESS: Charge port opened!");
-            FURI_LOG_I("TeslaUI", "Charge port opened successfully");
         }
         
         // Auto-stop after 2 minutes
