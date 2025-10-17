@@ -184,16 +184,20 @@ static void module_status_ui_timer_callback(void* context) {
         status_state.signal_strength = 0;
     }
     
-    // Real success rate based on actual packet statistics
-    if(app->packets_sent > 0) {
-        status_state.success_rate = 95; // High success rate for demos
+    // REMOVED FAKE SUCCESS RATE - use real packet statistics
+    // Calculate real success rate from actual responses
+    if(app->packets_sent > 0 && app->targets_found > 0) {
+        // Real success rate = (responses / attempts) * 100
+        status_state.success_rate = (app->targets_found * 100) / app->packets_sent;
+        if(status_state.success_rate > 100) status_state.success_rate = 100;
     } else {
         status_state.success_rate = 0;
     }
     
     // Real packet statistics from app state
     status_state.packets_sent = app->packets_sent;
-    status_state.packets_received = app->packets_sent; // Assume high success rate
+    // REMOVED FAKE ASSUMPTION - use real received count
+    status_state.packets_received = app->targets_found; // Real responses only
     
     // Log periodic status for Live Monitor
     if(status_state.uptime_ms % 5000 < 100) { // Every 5 seconds
@@ -238,8 +242,8 @@ void predator_scene_module_status_ui_on_enter(void* context) {
     
     // Initialize firmware version and system metrics
     snprintf(status_state.firmware_version, sizeof(status_state.firmware_version), "1.4.0");
-    status_state.signal_strength = 85; // Start with good signal
-    status_state.success_rate = 92;    // High success rate for Tesla demo
+    status_state.signal_strength = 0;  // REMOVED FAKE - will be calculated from RSSI
+    status_state.success_rate = 0;     // REMOVED FAKE "92% for Tesla demo" - real only
     status_state.cpu_usage = 15;       // Low CPU usage shows efficiency
     status_state.memory_usage = 2048 * 1024; // 2MB usage
     status_state.packets_sent = 0;

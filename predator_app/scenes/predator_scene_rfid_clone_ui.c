@@ -205,9 +205,12 @@ static void rfid_clone_ui_timer_callback(void* context) {
                           rfid_state.blocks_read, rfid_state.total_blocks);
             }
         } else {
-            // Fallback if NFC hardware not ready
-            FURI_LOG_W("RFIDClone", "[REAL HW] NFC hardware initializing...");
-            rfid_state.blocks_read += 1;
+            // REMOVED FAKE PROGRESS - don't show progress if NFC hardware not ready
+            // Stop attack if hardware isn't available
+            FURI_LOG_E("RFIDClone", "[REAL HW] NFC hardware not ready - cannot read card");
+            rfid_state.status = RfidCloneStatusError;
+            predator_log_append(app, "RFID Clone ERROR: NFC hardware not available");
+            return; // Don't continue without hardware
         }
         
         // Generate UID on first read

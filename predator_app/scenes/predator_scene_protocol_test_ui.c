@@ -234,8 +234,10 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
                     success = predator_crypto_format_tesla_packet(0xA1, 0x123456, &packet);
                     if(success) predator_log_append(app, "TESLA: 315MHz PSK smart key packet generated ✅");
                 } else {
+                    // REMOVED FAKE SUCCESS - only succeed if packet actually generated
+                    // For generic packets, still need real validation
                     predator_log_append(app, "PACKET: Generic packet format used");
-                    success = true;
+                    // success remains false unless explicitly set by crypto functions above
                 }
                 
                 if(success) {

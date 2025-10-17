@@ -209,26 +209,25 @@ static void wifi_evil_twin_ui_timer_callback(void* context) {
                 const char* status_cmd = "list -c\n"; // List clients command
                 predator_uart_tx(app->esp32_uart, (uint8_t*)status_cmd, strlen(status_cmd));
                 FURI_LOG_I("WiFiEvilTwin", "[REAL HW] Checking for connected clients");
+                
+                // REMOVED FAKE INCREMENT - only count real clients from ESP32 response
                 // Real client count from ESP32 response parsing
-                // In production, parse ESP32 response for actual client count
-                if(app->wifi_ap_count > 0) {
+                if(app->wifi_ap_count > 0 && app->targets_found > eviltwin_state.clients_connected) {
                     eviltwin_state.clients_connected = app->targets_found;
-                } else {
-                    eviltwin_state.clients_connected++; // Fallback increment
+                    FURI_LOG_I("WiFiEvilTwin", "[REAL HW] Client connected: %u total", 
+                              eviltwin_state.clients_connected);
                 }
             }
             
-            // Check for handshake captures
+            // Check for handshake captures - REMOVED AUTO INCREMENT
             if(eviltwin_state.clients_connected > 0 && eviltwin_state.broadcast_time_ms % 10000 < 100) {
                 const char* handshake_cmd = "handshake\n";
                 predator_uart_tx(app->esp32_uart, (uint8_t*)handshake_cmd, strlen(handshake_cmd));
                 FURI_LOG_I("WiFiEvilTwin", "[REAL HW] Checking for handshakes");
-                eviltwin_state.handshakes_captured++; // Real count from ESP32
                 
-                char log_msg[64];
-                snprintf(log_msg, sizeof(log_msg), "Handshake captured! Total: %u", 
-                        (unsigned)eviltwin_state.handshakes_captured);
-                predator_log_append(app, log_msg);
+                // REMOVED FAKE INCREMENT - only count if ESP32 actually captured handshake
+                // In production, parse ESP32 response to check if handshake was actually captured
+                // Don't increment without confirmation
             }
         }
         
