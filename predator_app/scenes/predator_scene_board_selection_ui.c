@@ -278,13 +278,16 @@ static bool board_input_callback(InputEvent* event, void* context) {
             break;
             
         case BoardScreenSuccess:
-            // PROFESSIONAL: Success screen - any key sends event to go back
-            // Don't navigate here, let on_event handler do it to avoid conflicts
-            FURI_LOG_I("BoardSelection", "Success screen - key pressed, sending back event");
-            if(board_state.app && board_state.app->view_dispatcher) {
-                view_dispatcher_send_custom_event(board_state.app->view_dispatcher, 998);
+            // CRITICAL FIX: Success screen - DON'T consume back button!
+            // Let it propagate to on_event handler
+            if(event->type == InputTypeShort && event->key == InputKeyBack) {
+                FURI_LOG_I("BoardSelection", "Success screen - BACK button, NOT consuming (let on_event handle it)");
+                consumed = false;  // DON'T consume - let it propagate
+            } else {
+                // Other keys - consume them
+                FURI_LOG_I("BoardSelection", "Success screen - key %d type %d, consuming", event->key, event->type);
+                consumed = true;
             }
-            consumed = true;
             break;
     }
     
@@ -345,28 +348,15 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
         return true;
     }
     
-    // PROFESSIONAL: Handle success complete event - board selected
-    if(event.type == SceneManagerEventTypeCustom && event.event == 998) {
-        FURI_LOG_I("BoardSelection", "Board selection complete");
-        predator_log_append(app, "BoardSelection: Board configured successfully");
-        
-        // SIMPLE FIX: Just search for and switch to main menu
-        // Don't go back, go TO main menu directly
-        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, PredatorSceneMainMenuUI);
-        
-        return true;  // We handled this event
-    }
-    
-    // Handle back button
+    // SIMPLIFIED: Handle back button
     if(event.type == SceneManagerEventTypeBack) {
-        // If we're on success screen, go to main menu (don't let framework handle)
-        if(board_state.current_screen == BoardScreenSuccess) {
-            FURI_LOG_I("BoardSelection", "Back on success screen - going to main menu");
-            scene_manager_search_and_switch_to_previous_scene(app->scene_manager, PredatorSceneMainMenuUI);
-            return true;  // We handled it
-        }
-        // For other screens, let framework handle normally
-        return false;
+        FURI_LOG_E("BoardSelection", "==== BACK EVENT ==== Screen: %d", board_state.current_screen);
+        
+        // Just pop this scene - main menu is below
+        scene_manager_previous_scene(app->scene_manager);
+        
+        // CRITICAL: ALWAYS return true to let view dispatcher handle exit prevention
+        return true;
     }
     
     return false; // Let framework handle other events
@@ -374,7 +364,14 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
 
 void predator_scene_board_selection_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION EXITING ==========");
+    FURI_LOG_I("BoardSelection", "Current screen: %d, Confirmed: %d", 
+               board_state.current_screen, board_state.selection_confirmed);
+    
+    if(!app) {
+        FURI_LOG_E("BoardSelection", "ERROR: app is NULL!");
+        return;
+    }
     
     // Stop animation timer
     if(app->timer) {
@@ -392,6 +389,11 @@ void predator_scene_board_selection_ui_on_exit(void* context) {
     
     // Log final board selection
     if(board_state.selection_confirmed) {
+        FURI_LOG_I("BoardSelection", "Board selection complete - returning to previous scene");
         predator_log_append(app, "Board selection complete - Swiss Demo Ready!");
+    } else {
+        FURI_LOG_W("BoardSelection", "Board selection cancelled - no board confirmed");
     }
+    
+    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION EXIT COMPLETE ==========");
 }

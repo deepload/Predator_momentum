@@ -28,8 +28,9 @@ bool predator_scene_bluetooth_attacks_ui_on_event(void* context, SceneManagerEve
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        // Return false to let scene manager navigate back
-        return false;
+        // CRITICAL FIX: Just pop one scene - main menu is below
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Never return false - view dispatcher will handle
     }
     
     if(event.type == SceneManagerEventTypeCustom) {

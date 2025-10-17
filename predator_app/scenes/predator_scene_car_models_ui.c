@@ -81,8 +81,9 @@ bool predator_scene_car_models_ui_on_event(void* context, SceneManagerEvent even
     if(!app) return false;
 
     if(event.type == SceneManagerEventTypeBack) {
-        // Return false to let scene manager navigate back
-        return false;
+        // CRITICAL FIX: Go back to continent selection
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Never return false
     }
 
     if(event.type == SceneManagerEventTypeCustom) {

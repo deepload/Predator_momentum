@@ -277,9 +277,12 @@ bool predator_scene_module_status_ui_on_event(void* context, SceneManagerEvent e
     PredatorApp* app = context;
     if(!app) return false;
     
-    // Handle back button - return to main menu
+    // Handle back button - DON'T switch scenes here!
+    // Just return false to let the framework handle it naturally
     if(event.type == SceneManagerEventTypeBack) {
-        // Return false to let scene manager navigate back
+        FURI_LOG_E("ModuleStatusUI", "Back pressed - letting framework handle (return false)");
+        // Return FALSE - let scene manager handle the navigation
+        // This should pop the scene without causing the FuriEventLoop bug
         return false;
     }
     
