@@ -2,6 +2,12 @@
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_esp32.h"
 #include "../helpers/predator_real_attack_engine.h"
+#include "../helpers/predator_crypto_engine.h"    // NTCIP protocol crypto
+#include "../helpers/predator_boards.h"           // Multi-board support
+#include "../helpers/predator_gps.h"              // Location tracking for traffic lights
+#include "../helpers/predator_error.h"            // Error handling
+#include "../helpers/predator_ui_elements.h"      // Advanced UI components
+#include "../predator_uart.h"                     // UART for ESP32 communication
 #include <gui/view.h>
 #include <string.h>
 
