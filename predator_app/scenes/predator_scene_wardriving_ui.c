@@ -270,9 +270,8 @@ bool predator_scene_wardriving_ui_on_event(void* context, SceneManagerEvent even
     if(!app) return false;
     
     if(event.type == SceneManagerEventTypeBack) {
-        if(wardrive_state.wardriving_active) {
-            wardrive_state.wardriving_active = false;
-            // Stop scan not implemented
+        if(wardrive_state.status == WardrivingStatusScanning) {
+            wardrive_state.status = WardrivingStatusIdle;
             predator_gps_deinit(app);
         }
         return false;
@@ -285,9 +284,8 @@ void predator_scene_wardriving_ui_on_exit(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
-    if(wardrive_state.wardriving_active) {
-        wardrive_state.wardriving_active = false;
-        // Stop scan not implemented
+    if(wardrive_state.status == WardrivingStatusScanning) {
+        wardrive_state.status = WardrivingStatusIdle;
         predator_gps_deinit(app);
     }
     

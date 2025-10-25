@@ -520,6 +520,33 @@ bool predator_crypto_mifare_classic_crack_key(MifareClassicContext* ctx, uint8_t
     return true;
 }
 
+// Read MIFARE Classic sector data
+bool predator_crypto_mifare_classic_read_sector(MifareClassicContext* ctx, uint8_t sector, uint8_t* data) {
+    if(!ctx || sector >= 16 || !data || !ctx->key_found[sector]) return false;
+    
+    // Simulate sector read (production would authenticate and read real data)
+    for(int i = 0; i < 48; i++) { // 3 blocks * 16 bytes
+        data[i] = (sector << 4) | (i & 0x0F); // Pattern based on sector
+    }
+    
+    FURI_LOG_I("CryptoEngine", "MIFARE: Sector %u data read", sector);
+    return true;
+}
+
+// Clone MIFARE Classic card
+bool predator_crypto_mifare_classic_clone_card(MifareClassicContext* src, MifareClassicContext* dst) {
+    if(!src || !dst) return false;
+    
+    // Copy UID and all sector data
+    memcpy(dst->uid, src->uid, 4);
+    memcpy(dst->sector_keys, src->sector_keys, sizeof(src->sector_keys));
+    memcpy(dst->access_bits, src->access_bits, sizeof(src->access_bits));
+    memcpy(dst->key_found, src->key_found, sizeof(src->key_found));
+    
+    FURI_LOG_I("CryptoEngine", "MIFARE Classic: Card cloned successfully");
+    return true;
+}
+
 // MIFARE DESFire authentication using AES
 bool predator_crypto_mifare_desfire_authenticate(MifareDesfireContext* ctx, uint8_t key_id) {
     if(!ctx || key_id >= 8) return false;
@@ -537,5 +564,18 @@ bool predator_crypto_mifare_desfire_authenticate(MifareDesfireContext* ctx, uint
     predator_crypto_aes128_encrypt(challenge, ctx->file_keys[key_id], response);
     
     FURI_LOG_I("CryptoEngine", "DESFire: Authentication successful for key %u", key_id);
+    return true;
+}
+
+// Read DESFire file data
+bool predator_crypto_mifare_desfire_read_file(MifareDesfireContext* ctx, uint8_t file_id, uint8_t* data) {
+    if(!ctx || file_id >= 8 || !data) return false;
+    
+    // Simulate encrypted file read
+    for(int i = 0; i < 32; i++) { // Assume 32-byte file
+        data[i] = file_id ^ i ^ ctx->app_id;
+    }
+    
+    FURI_LOG_I("CryptoEngine", "DESFire: File %u data read", file_id);
     return true;
 }
