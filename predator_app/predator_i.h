@@ -49,6 +49,7 @@ typedef enum {
     PredatorViewRfidFuzzingUI,
     PredatorViewCalypsoCardsUI,
     PredatorViewAutoCardCloneUI,
+    PredatorViewTrafficLightSecurityUI,
     PredatorViewSubGhzJammingUI,
     PredatorViewSubGhzRawSendUI,
     PredatorViewGpsTrackerUI,

@@ -80,6 +80,11 @@ App(
         "scenes/predator_scene_wardriving_ui.c",                 # WiFi network mapping
         
         # =====================================================
+        # GOVERNMENT CONTRACTS (CRITICAL INFRASTRUCTURE)
+        # =====================================================
+        "scenes/predator_scene_traffic_light_security_ui.c",     # Swiss Government NTCIP
+        
+        # =====================================================
         # WIFI ATTACKS - COMPREHENSIVE
         # =====================================================
         "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu

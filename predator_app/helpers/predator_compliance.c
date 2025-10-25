@@ -7,7 +7,7 @@
 static PredatorRegion s_region = PredatorRegionUnblock;
 
 static PredatorRegion parse_region_code(const char* code) {
-    if(!code) return PredatorRegionUnblock;
+    if(!code) return PredatorRegionUnblock; // Default to full access
     if(strncmp(code, "US", 2) == 0) return PredatorRegionUS;
     if(strncmp(code, "EU", 2) == 0) return PredatorRegionEU;
     if(strncmp(code, "CH", 2) == 0) return PredatorRegionCH;
@@ -15,7 +15,7 @@ static PredatorRegion parse_region_code(const char* code) {
     if(strncmp(code, "CN", 2) == 0) return PredatorRegionCN;
     if(strncmp(code, "AUTO", 4) == 0) return PredatorRegionAuto;
     if(strncmp(code, "UNBLOCK", 7) == 0) return PredatorRegionUnblock;
-    return PredatorRegionUnblock; // Default to unrestricted
+    return PredatorRegionUnblock; // Default to full access when unknown
 }
 
 const char* predator_compliance_region_str(PredatorRegion region) {
