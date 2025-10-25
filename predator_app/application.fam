@@ -24,7 +24,13 @@ App(
         "helpers/predator_gps.c",
         "helpers/predator_compliance.c",
         "helpers/predator_models_hardcoded.c",
-        "helpers/predator_subghz.c",
+        
+        # v2.0 REFACTORED: Modular SubGHz (was 1 file @ 52KB, now 4 files @ 12-15KB each)
+        "helpers/subghz/predator_subghz_core.c",      # Hardware init/deinit
+        "helpers/subghz/predator_subghz_car.c",       # Car-specific attacks
+        "helpers/subghz/predator_subghz_rolling.c",   # Rolling code attacks
+        "helpers/subghz/predator_subghz_jamming.c",   # Jamming operations
+        
         "helpers/predator_ui_elements.c",
         "helpers/predator_settings.c",
         "helpers/predator_logging.c",
@@ -47,7 +53,9 @@ App(
         "scenes/predator_scene_car_model_attacks_ui.c",    # Attacks for selected model (WORKING)
         "scenes/predator_scene_protocol_test_ui.c",        # Protocol testing (Keeloq/Hitag2/AES)
         "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS - RE-ADDED: Testing stability
-        "scenes/predator_scene_walking_open_ui.c",
+        "scenes/predator_scene_barrier_manufacturer_select_ui.c",  # SWISS KKS: Choose manufacturer or try all
+        "scenes/predator_scene_barrier_attack_ui.c",   # SWISS KKS: Dedicated barrier opening attack
+        # "scenes/predator_scene_walking_open_ui.c",    # REMOVED: Konami code easter egg replaces this
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",

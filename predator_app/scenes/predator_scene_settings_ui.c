@@ -29,7 +29,8 @@ typedef struct {
 
 static SettingsState settings_state;
 
-
+// UNUSED: Settings now uses Submenu widget
+/*
 static void draw_settings_header(Canvas* canvas) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "SETTINGS");
@@ -194,6 +195,7 @@ static bool settings_ui_input_callback(InputEvent* event, void* context) {
     
     return true;
 }
+*/
 
 void predator_scene_settings_ui_on_enter(void* context) {
     PredatorApp* app = context;
@@ -221,23 +223,25 @@ void predator_scene_settings_ui_on_enter(void* context) {
     
     FURI_LOG_I("SettingsUI", "Settings initialized: region=%d", settings_state.region_index);
     
-    if(!app->view_dispatcher) {
-        FURI_LOG_E("SettingsUI", "View dispatcher is NULL");
-        return;
-    }
+    if(!app->submenu) return;
     
-    View* view = view_alloc();
-    if(!view) {
-        FURI_LOG_E("SettingsUI", "Failed to allocate view");
-        return;
-    }
+    // Convert to submenu display
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "SETTINGS");
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, settings_ui_draw_callback);
-    view_set_input_callback(view, settings_ui_input_callback);
+    // Show current region
+    const char* regions[] = {"AUTO", "EU", "US", "JP", "UNBLOCK"};
+    char region_str[64];
+    snprintf(region_str, sizeof(region_str), "Region: %s", regions[settings_state.region_index]);
+    submenu_add_item(app->submenu, region_str, 0, NULL, app);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewSettingsUI, view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSettingsUI);
+    submenu_add_item(app->submenu, "Region: Auto-detect", 1, NULL, app);
+    submenu_add_item(app->submenu, "Region: EU (Europe)", 2, NULL, app);
+    submenu_add_item(app->submenu, "Region: US (America)", 3, NULL, app);
+    submenu_add_item(app->submenu, "Region: JP (Japan)", 4, NULL, app);
+    submenu_add_item(app->submenu, "Region: UNBLOCK (All)", 5, NULL, app);
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
     FURI_LOG_I("SettingsUI", "Settings UI initialized");
 }
@@ -248,8 +252,8 @@ bool predator_scene_settings_ui_on_event(void* context, SceneManagerEvent event)
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        // Return false to let scene manager navigate back
-        return false;
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
     }
     
     if(event.type == SceneManagerEventTypeCustom) {
@@ -261,11 +265,9 @@ bool predator_scene_settings_ui_on_event(void* context, SceneManagerEvent event)
 
 void predator_scene_settings_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewSettingsUI);
-    }
+    submenu_reset(app->submenu);
     
     FURI_LOG_I("SettingsUI", "Settings UI exited");
 }

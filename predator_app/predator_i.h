@@ -39,6 +39,7 @@ typedef enum {
     PredatorViewBleSpamUI,
     PredatorViewCarTeslaUI,
     PredatorViewParkingBarriersUI,
+    PredatorViewBarrierAttackUI,
     PredatorViewWalkingOpenUI,
     PredatorViewCarJammingUI,
     PredatorViewCarKeyBruteforceUI,
@@ -186,6 +187,10 @@ typedef struct PredatorApp {
     uint32_t selected_model_freq;
     char selected_model_make[16];
     char selected_model_name[40];
+    
+    // Barrier attack selection
+    uint8_t selected_barrier_type;          // 1-6: Public, Private, Hospital, Mall, Airport, Government
+    uint8_t selected_barrier_manufacturer;  // 0-5: Manufacturer, 0xFF: Try all
 } PredatorApp;
 
 

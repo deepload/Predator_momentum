@@ -78,20 +78,17 @@ static bool predator_custom_event_callback(void* context, uint32_t event) {
 static bool predator_back_event_callback(void* context) {
     // Check for NULL context
     if(context == NULL) {
-        FURI_LOG_E("Predator", "NULL context in back event callback");
         return false;
     }
     
     PredatorApp* app = context;
     
-    // Check if scene manager exists
+    // Simple: Just let scene manager handle it
     if(app->scene_manager) {
         return scene_manager_handle_back_event(app->scene_manager);
     }
     
-    // Default to true to allow exit if scene manager is invalid
-    FURI_LOG_W("Predator", "Invalid scene manager in back event handler");
-    return true;
+    return false;
 }
 
 static void predator_tick_event_callback(void* context) {
@@ -302,35 +299,66 @@ PredatorApp* predator_app_alloc() {
     // Initialize hardware modules with robust error handling
     furi_hal_power_suppress_charge_enter();
     
-    // Try to load board type from storage or auto-detect
-    app->board_type = predator_boards_load_selection(app->storage);
+    // Try to load board type from storage
+    PredatorBoardType loaded_board = predator_boards_load_selection(app->storage);
     
-    // Auto-optimize for detected board type
-    if(app->board_type != PredatorBoardTypeUnknown) {
-        FURI_LOG_I("Predator", "Auto-optimizing for board: %s", 
-                  predator_boards_get_name(app->board_type));
-        predator_boards_optimize_for_board(app->board_type);
+    // CRITICAL FIX: Always validate loaded board against actual hardware
+    if(loaded_board != PredatorBoardTypeUnknown && loaded_board != PredatorBoardTypeOriginal) {
+        FURI_LOG_I("Predator", "Loaded board from config: %s - validating hardware...", 
+                  predator_boards_get_name(loaded_board));
+        
+        // Quick validation: Try to detect actual hardware
+        PredatorBoardType detected_board = predator_boards_detect();
+        
+        if(detected_board == PredatorBoardTypeUnknown || detected_board == PredatorBoardTypeOriginal) {
+            // No expansion board detected - saved board may be disconnected!
+            FURI_LOG_W("Predator", "⚠️ No expansion hardware detected, but board config says: %s", 
+                      predator_boards_get_name(loaded_board));
+            FURI_LOG_W("Predator", "⚠️ Falling back to Original board (naked Flipper)");
+            
+            // Reset to Original since nothing is detected
+            app->board_type = PredatorBoardTypeOriginal;
+            predator_boards_save_selection(app->storage, app->board_type);
+        } else {
+            // Hardware detected - use it
+            app->board_type = detected_board;
+            if(detected_board != loaded_board) {
+                FURI_LOG_W("Predator", "⚠️ Hardware mismatch! Config: %s, Detected: %s", 
+                          predator_boards_get_name(loaded_board),
+                          predator_boards_get_name(detected_board));
+                FURI_LOG_I("Predator", "Using detected hardware: %s", 
+                          predator_boards_get_name(detected_board));
+                predator_boards_save_selection(app->storage, app->board_type);
+            }
+        }
+    } else if(loaded_board == PredatorBoardTypeOriginal) {
+        // Original is safe default - just use it
+        app->board_type = loaded_board;
+        FURI_LOG_I("Predator", "Using Original Predator board (naked Flipper)");
     } else {
-        FURI_LOG_W("Predator", "Unknown board type, using safe defaults");
-    }
-    if (app->board_type == PredatorBoardTypeUnknown) {
-        // Try to auto-detect board
+        // Unknown - try auto-detect
+        FURI_LOG_I("Predator", "No board config found - attempting auto-detection...");
         app->board_type = predator_boards_detect();
         
         if (app->board_type != PredatorBoardTypeUnknown) {
             // Save detected board type
             predator_boards_save_selection(app->storage, app->board_type);
-            FURI_LOG_I("Predator", "Auto-detected board type: %s", 
+            FURI_LOG_I("Predator", "✓ Auto-detected board type: %s", 
                       predator_boards_get_name(app->board_type));
         } else {
             // Default to original if detection fails
             app->board_type = PredatorBoardTypeOriginal;
-            FURI_LOG_I("Predator", "Using default board type: %s", 
-                      predator_boards_get_name(app->board_type));
+            FURI_LOG_I("Predator", "No expansion board detected - using Original (naked Flipper)");
+            predator_boards_save_selection(app->storage, app->board_type);
         }
-    } else {
-        FURI_LOG_I("Predator", "Loaded board type from config: %s", 
-                  predator_boards_get_name(app->board_type));
+    }
+    
+    // Log final board selection
+    FURI_LOG_I("Predator", "🔧 Active board: %s", predator_boards_get_name(app->board_type));
+    
+    // Auto-optimize for detected board type
+    if(app->board_type != PredatorBoardTypeUnknown) {
+        predator_boards_optimize_for_board(app->board_type);
     }
 
     // Perform ONLY the minimal GPIO configuration in a critical section.
@@ -607,7 +635,6 @@ int32_t predator_app(void* p) {
         view_dispatcher_run(app->view_dispatcher);
     } else {
         FURI_LOG_E("Predator", "View dispatcher is NULL, cannot run app");
-        // Critical error - try to show an error directly to notification system
         if(app->notifications) {
             notification_message(app->notifications, &sequence_error);
         }

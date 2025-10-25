@@ -27,6 +27,8 @@ typedef struct {
     uint8_t cpu_usage;
 } ModuleStatusState;
 
+// UNUSED: Module Status now uses Submenu widget instead of custom view
+/*
 static ModuleStatusState status_state;
 static uint32_t start_tick = 0;
 
@@ -91,7 +93,10 @@ static void draw_module_status_info(Canvas* canvas, ModuleStatusState* state) {
     }
     canvas_draw_str(canvas, 70, 62, uptime_str);
 }
+*/
 
+// UNUSED: Custom view callbacks - Module Status now uses Submenu widget
+/*
 static void module_status_ui_draw_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     furi_assert(context);
@@ -105,20 +110,15 @@ static void module_status_ui_draw_callback(Canvas* canvas, void* context) {
     draw_module_status_info(canvas, &status_state);
     
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 40, 64, "Back=Exit");
+    canvas_draw_str(canvas, 30, 64, "OK=Return to Menu");
 }
 
 static bool module_status_ui_input_callback(InputEvent* event, void* context) {
-    PredatorApp* app = context;
-    if(!app) return false;
+    UNUSED(event);
+    UNUSED(context);
     
-    if(event->type == InputTypeShort) {
-        if(event->key == InputKeyBack) {
-            return false; // Let scene manager handle back
-        }
-    }
-    
-    return true;
+    // Don't handle anything - let framework do it all
+    return false;
 }
 
 static void module_status_ui_timer_callback(void* context) {
@@ -184,16 +184,20 @@ static void module_status_ui_timer_callback(void* context) {
         status_state.signal_strength = 0;
     }
     
-    // Real success rate based on actual packet statistics
-    if(app->packets_sent > 0) {
-        status_state.success_rate = 95; // High success rate for demos
+    // REMOVED FAKE SUCCESS RATE - use real packet statistics
+    // Calculate real success rate from actual responses
+    if(app->packets_sent > 0 && app->targets_found > 0) {
+        // Real success rate = (responses / attempts) * 100
+        status_state.success_rate = (app->targets_found * 100) / app->packets_sent;
+        if(status_state.success_rate > 100) status_state.success_rate = 100;
     } else {
         status_state.success_rate = 0;
     }
     
     // Real packet statistics from app state
     status_state.packets_sent = app->packets_sent;
-    status_state.packets_received = app->packets_sent; // Assume high success rate
+    // REMOVED FAKE ASSUMPTION - use real received count
+    status_state.packets_received = app->targets_found; // Real responses only
     
     // Log periodic status for Live Monitor
     if(status_state.uptime_ms % 5000 < 100) { // Every 5 seconds
@@ -209,64 +213,69 @@ static void module_status_ui_timer_callback(void* context) {
         view_dispatcher_send_custom_event(app->view_dispatcher, 0);
     }
 }
+*/
+
+static void module_status_submenu_cb(void* context, uint32_t index) {
+    PredatorApp* app = context;
+    UNUSED(index);
+    UNUSED(app);
+    // No action needed - this is just a display scene
+}
 
 void predator_scene_module_status_ui_on_enter(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    memset(&status_state, 0, sizeof(ModuleStatusState));
-    start_tick = furi_get_tick();
+    submenu_reset(app->submenu);
+    submenu_set_header(app->submenu, "MODULE STATUS");
     
-    // Initialize comprehensive system status
+    // Get board name
+    const char* board_name = "Unknown";
     switch(app->board_type) {
         case PredatorBoardTypeOriginal:
-            snprintf(status_state.board_name, sizeof(status_state.board_name), "Original");
+            board_name = "Original";
             break;
         case PredatorBoardType3in1AIO:
-            snprintf(status_state.board_name, sizeof(status_state.board_name), "3in1 AIO");
+            board_name = "3in1 AIO";
             break;
         case PredatorBoardTypeDrB0rkMultiV2:
-            snprintf(status_state.board_name, sizeof(status_state.board_name), "DrB0rk");
+            board_name = "DrB0rk";
             break;
         case PredatorBoardTypeScreen28:
-            snprintf(status_state.board_name, sizeof(status_state.board_name), "2.8\" Screen");
+            board_name = "2.8\" Screen";
             break;
         default:
-            snprintf(status_state.board_name, sizeof(status_state.board_name), "Unknown");
             break;
     }
     
-    // Initialize firmware version and system metrics
-    snprintf(status_state.firmware_version, sizeof(status_state.firmware_version), "1.4.0");
-    status_state.signal_strength = 85; // Start with good signal
-    status_state.success_rate = 92;    // High success rate for Tesla demo
-    status_state.cpu_usage = 15;       // Low CPU usage shows efficiency
-    status_state.memory_usage = 2048 * 1024; // 2MB usage
-    status_state.packets_sent = 0;
-    status_state.packets_received = 0;
+    char item[64];
     
-    if(!app->view_dispatcher) {
-        FURI_LOG_E("ModuleStatusUI", "View dispatcher is NULL");
-        return;
-    }
+    // Board info
+    snprintf(item, sizeof(item), "Board: %s", board_name);
+    submenu_add_item(app->submenu, item, 1, module_status_submenu_cb, app);
     
-    View* view = view_alloc();
-    if(!view) {
-        FURI_LOG_E("ModuleStatusUI", "Failed to allocate view");
-        return;
-    }
+    // Hardware status
+    snprintf(item, sizeof(item), "ESP32: %s", app->esp32_uart ? "OK" : "OFF");
+    submenu_add_item(app->submenu, item, 2, module_status_submenu_cb, app);
     
-    view_set_context(view, app);
-    view_set_draw_callback(view, module_status_ui_draw_callback);
-    view_set_input_callback(view, module_status_ui_input_callback);
+    snprintf(item, sizeof(item), "GPS: %s", app->gps_uart ? "OK" : "OFF");
+    submenu_add_item(app->submenu, item, 3, module_status_submenu_cb, app);
     
-    view_dispatcher_add_view(app->view_dispatcher, PredatorViewModuleStatusUI, view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewModuleStatusUI);
+    snprintf(item, sizeof(item), "SubGHz: %s", app->subghz_txrx ? "READY" : "OFF");
+    submenu_add_item(app->submenu, item, 4, module_status_submenu_cb, app);
+    
+    submenu_add_item(app->submenu, "BLE: OK", 5, module_status_submenu_cb, app);
+    
+    // Stats
+    snprintf(item, sizeof(item), "Packets Sent: %lu", (unsigned long)app->packets_sent);
+    submenu_add_item(app->submenu, item, 6, module_status_submenu_cb, app);
+    
+    snprintf(item, sizeof(item), "Targets Found: %lu", (unsigned long)app->targets_found);
+    submenu_add_item(app->submenu, item, 7, module_status_submenu_cb, app);
+    
+    view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
     
     FURI_LOG_I("ModuleStatusUI", "Module Status UI initialized");
-    
-    app->timer = furi_timer_alloc(module_status_ui_timer_callback, FuriTimerTypePeriodic, app);
-    furi_timer_start(app->timer, 1000); // Update every second
 }
 
 bool predator_scene_module_status_ui_on_event(void* context, SceneManagerEvent event) {
@@ -275,8 +284,8 @@ bool predator_scene_module_status_ui_on_event(void* context, SceneManagerEvent e
     
     // Handle back button - return to main menu
     if(event.type == SceneManagerEventTypeBack) {
-        // Return false to let scene manager navigate back
-        return false;
+        scene_manager_previous_scene(app->scene_manager);
+        return true;  // Consumed - prevents framework bug
     }
     
     if(event.type == SceneManagerEventTypeCustom) {
@@ -288,17 +297,9 @@ bool predator_scene_module_status_ui_on_event(void* context, SceneManagerEvent e
 
 void predator_scene_module_status_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    if(!app) return;
+    if(!app || !app->submenu) return;
     
-    if(app->timer) {
-        furi_timer_stop(app->timer);
-        furi_timer_free(app->timer);
-        app->timer = NULL;
-    }
-    
-    if(app->view_dispatcher) {
-        view_dispatcher_remove_view(app->view_dispatcher, PredatorViewModuleStatusUI);
-    }
+    submenu_reset(app->submenu);
     
     FURI_LOG_I("ModuleStatusUI", "Module Status UI exited");
 }
