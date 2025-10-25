@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=2 * 1024,  # Optimized: 2KB stack (reduced from 4KB)
+    stack_size=1536,  # Aggressive: 1.5KB stack (reduced from 2KB)
     fap_category="Tools",
     fap_description="Government-Grade Security Testing Platform v2.0",
     fap_version="2.0.1",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=6000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1"],  # Aggressive memory optimization
+    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1", "MINIMAL_LOGGING=1"],  # Ultra aggressive memory optimization
     sources=[
         # =====================================================
         # CORE APPLICATION
@@ -103,15 +103,15 @@ App(
         "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
         "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
         "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
-        # "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks - KEEP COMMENTED FOR NOW
+        "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks - STEP 2: ADDED
         # "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture - KEEP COMMENTED FOR NOW
         
         # =====================================================
-        # BLUETOOTH ATTACKS - TEMPORARILY COMMENTED FOR MEMORY
+        # BLUETOOTH ATTACKS - REVERTED: TOO MUCH MEMORY
         # =====================================================
-        # "scenes/predator_scene_bluetooth_attacks_ui.c",          # Bluetooth attack menu
-        # "scenes/predator_scene_ble_scan_ui.c",                   # BLE device discovery
-        # "scenes/predator_scene_ble_spam_ui.c",                   # BLE spam attacks
+        # "scenes/predator_scene_bluetooth_attacks_ui.c",          # Bluetooth attack menu - REVERTED
+        # "scenes/predator_scene_ble_scan_ui.c",                   # BLE device discovery - REVERTED
+        # "scenes/predator_scene_ble_spam_ui.c",                   # BLE spam attacks - KEEP COMMENTED FOR NOW
         
         # =====================================================
         # RFID/NFC ATTACKS

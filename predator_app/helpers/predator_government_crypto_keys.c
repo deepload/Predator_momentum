@@ -365,9 +365,8 @@ static const size_t government_keys_count = sizeof(classified_government_keys) /
 static ClassificationLevel current_clearance = ClassificationCosmicTopSecret; // Swiss Intelligence
 
 bool predator_gov_crypto_init(void) {
-    FURI_LOG_I("GovCrypto", "🔐 NATO/Government Crypto Database Initialized");
-    FURI_LOG_I("GovCrypto", "📊 Countries: %zu | Clearance: COSMIC TOP SECRET", government_keys_count);
-    FURI_LOG_I("GovCrypto", "🇨🇭 Swiss Intelligence Operation: ACTIVE");
+    FURI_LOG_I("GovCrypto", "Init");
+    FURI_LOG_I("GovCrypto", "Keys: %zu", government_keys_count);
     return true;
 }
 
@@ -377,14 +376,12 @@ bool predator_gov_crypto_get_key_by_country(const char* country_code, Government
     for(size_t i = 0; i < government_keys_count; i++) {
         if(strcmp(classified_government_keys[i].country_code, country_code) == 0) {
             if(!predator_gov_crypto_check_clearance(classified_government_keys[i].classification)) {
-                FURI_LOG_W("GovCrypto", "⚠️ Insufficient clearance for %s", country_code);
+                FURI_LOG_W("GovCrypto", "Not found: %s", country_code);
                 return false;
             }
             
             memcpy(key_out, &classified_government_keys[i], sizeof(GovernmentCryptoKey));
-            FURI_LOG_I("GovCrypto", "🔑 Retrieved %s: %s [%s]", country_code, 
-                      classified_government_keys[i].operational_name,
-                      predator_gov_crypto_get_classification_name(classified_government_keys[i].classification));
+            FURI_LOG_I("GovCrypto", "Key: %s", country_code);
             return true;
         }
     }

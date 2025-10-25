@@ -21,14 +21,14 @@ ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // RE-ADDED: Swiss 
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
-// ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // KEEP COMMENTED FOR NOW
+ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // STEP 2: ADDED
 // ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Out of memory
 // ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // KEEP COMMENTED FOR NOW
 
-// Bluetooth Attacks - TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION
-// ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)
-// ADD_SCENE(predator, ble_scan_ui, BleScanUI)
-// ADD_SCENE(predator, ble_spam_ui, BleSpamUI)               // COMMENTED FOR MEMORY
+// Bluetooth Attacks - REVERTED: TOO MUCH MEMORY
+// ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)  // REVERTED
+// ADD_SCENE(predator, ble_scan_ui, BleScanUI)                    // REVERTED
+// ADD_SCENE(predator, ble_spam_ui, BleSpamUI)               // KEEP COMMENTED FOR NOW
 
 // RFID Attacks - REDUCED FOR MEMORY
 ADD_SCENE(predator, rfid_attacks_ui, RfidAttacksUI)
