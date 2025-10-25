@@ -17,7 +17,7 @@ void predator_scene_bluetooth_attacks_ui_on_enter(void* context) {
     submenu_set_header(app->submenu, "📱 Bluetooth Attacks");
     
     submenu_add_item(app->submenu, "📱 BLE Scan", SubmenuIndexBleScan, bluetooth_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "💥 BLE Spam", SubmenuIndexBleSpam, bluetooth_attacks_submenu_callback, app);
+    // submenu_add_item(app->submenu, "💥 BLE Spam", SubmenuIndexBleSpam, bluetooth_attacks_submenu_callback, app);  // STEP 2: COMMENTED
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -38,9 +38,9 @@ bool predator_scene_bluetooth_attacks_ui_on_event(void* context, SceneManagerEve
         case SubmenuIndexBleScan:
             scene_manager_next_scene(app->scene_manager, PredatorSceneBleScanUI);
             break;
-        case SubmenuIndexBleSpam: // RE-ADDED: Testing stability
-            scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);
-            break;
+        // case SubmenuIndexBleSpam: // STEP 2: COMMENTED
+        //     scene_manager_next_scene(app->scene_manager, PredatorSceneBleSpamUI);
+        //     break;
         default:
             consumed = false;
             break;

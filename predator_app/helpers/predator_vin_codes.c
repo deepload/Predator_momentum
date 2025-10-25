@@ -108,6 +108,8 @@ static const VinCodeMapping vin_code_database[] = {
     {"Polestar", 0x4C503100, "LP1", "China"},                // Polestar: LP1 (Real VIN)
     {"Zeekr", 0x4C5A4500, "LZE", "China"},                   // Zeekr: LZE (Real VIN)
     
+    // TEMPORARILY COMMENTED FOR SIZE OPTIMIZATION - RESTORE WHEN NEEDED
+    /*
     // 🇮🇳 INDIAN MANUFACTURERS (Real VIN Prefixes)
     {"Tata", 0x4D413100, "MA1", "India"},                    // Tata: MA1 (Real VIN)
     {"Mahindra", 0x4D413300, "MA3", "India"},                // Mahindra: MA3 (Real VIN)
@@ -136,13 +138,15 @@ static const VinCodeMapping vin_code_database[] = {
     
     // 🇹🇷 TURKISH MANUFACTURERS (Real VIN Prefixes)
     {"Togg", 0x4E4C5400, "NLT", "Turkey"},                   // Togg: NLT (Real VIN)
+    */
+    
 };
 
 static const size_t vin_code_database_count = sizeof(vin_code_database) / sizeof(vin_code_database[0]);
 
 bool predator_vin_codes_init(void) {
-    FURI_LOG_I("VinCodes", "🔐 Initializing VIN-based manufacturer codes");
-    FURI_LOG_I("VinCodes", "📊 Database: %zu manufacturers with real VIN prefixes", vin_code_database_count);
+    FURI_LOG_I("VinCodes", "🔐 VIN Init");
+    FURI_LOG_I("VinCodes", "📊 DB: %zu mfg", vin_code_database_count);
     return true;
 }
 

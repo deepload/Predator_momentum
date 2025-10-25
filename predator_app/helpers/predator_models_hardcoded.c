@@ -239,75 +239,16 @@ static const PredatorCarModel hardcoded_models[] = {
     {"Kia", "Various Smart", 433920000, "Smart Key", CarContinentAsia},
     
     // ========================================================================
-    // CHINESE MANUFACTURERS 🇨🇳 (China Standard 433.92MHz)
+    // CHINESE MANUFACTURERS 🇨🇳 (China Standard 433.92MHz) - OPTIMIZED
     // ========================================================================
     
-    // BYD (比亚迪) - World's Largest EV Maker
-    {"BYD", "Han 2020+", 433920000, "Smart Key", CarContinentAsia},
-    {"BYD", "Tang 2018+", 433920000, "Smart Key", CarContinentAsia},
-    {"BYD", "Song Plus", 433920000, "Rolling Code", CarContinentAsia},
-    {"BYD", "Seal 2022+", 433920000, "Smart Key", CarContinentAsia},
-    {"BYD", "Dolphin 2021+", 433920000, "Smart Key", CarContinentAsia},
-    {"BYD", "Various Rolling", 433920000, "Rolling Code", CarContinentAsia},
+    // Major Chinese EVs - ESSENTIAL ONLY
+    {"BYD", "All Models", 433920000, "Smart Key", CarContinentAsia},
+    {"NIO", "All Models", 433920000, "Smart Key", CarContinentAsia},
+    {"Xpeng", "All Models", 433920000, "Smart Key", CarContinentAsia},
+    {"Geely", "All Models", 433920000, "Rolling Code", CarContinentAsia},
     
-    // NIO (蔚来) - Premium EVs
-    {"NIO", "ES6 2019+", 433920000, "Smart Key", CarContinentAsia},
-    {"NIO", "ES8 2018+", 433920000, "Smart Key", CarContinentAsia},
-    {"NIO", "ET5 2022+", 433920000, "Smart Key", CarContinentAsia},
-    {"NIO", "ET7 2022+", 433920000, "Smart Key", CarContinentAsia},
-    
-    // XPENG (小鹏) - Tech-Focused EVs
-    {"Xpeng", "P7 2020+", 433920000, "Smart Key", CarContinentAsia},
-    {"Xpeng", "P5 2021+", 433920000, "Smart Key", CarContinentAsia},
-    {"Xpeng", "G9 2022+", 433920000, "Smart Key", CarContinentAsia},
-    {"Xpeng", "G3 2019+", 433920000, "Smart Key", CarContinentAsia},
-    
-    // GEELY (吉利) - Major Manufacturer
-    {"Geely", "Emgrand GT", 433920000, "Rolling Code", CarContinentAsia},
-    {"Geely", "Boyue 2018+", 433920000, "Rolling Code", CarContinentAsia},
-    {"Geely", "Coolray 2020+", 433920000, "Smart Key", CarContinentAsia},
-    {"Geely", "Various Rolling", 433920000, "Rolling Code", CarContinentAsia},
-    
-    // GREAT WALL (长城) - SUVs & Pickups
-    {"Great Wall", "Haval H6", 433920000, "Rolling Code", CarContinentAsia},
-    {"Great Wall", "WEY VV7", 433920000, "Smart Key", CarContinentAsia},
-    {"Great Wall", "Tank 300", 433920000, "Rolling Code", CarContinentAsia},
-    
-    // MG (SAIC Motor) - Global Brand
-    {"MG", "ZS EV 2019+", 433920000, "Smart Key", CarContinentAsia},
-    {"MG", "HS 2019+", 433920000, "Rolling Code", CarContinentAsia},
-    {"MG", "Various", 433920000, "Rolling Code", CarContinentAsia},
-    
-    // ROEWE (上汽荣威) - SAIC Brand
-    {"Roewe", "RX5 2016+", 433920000, "Rolling Code", CarContinentAsia},
-    {"Roewe", "i6 2017+", 433920000, "Rolling Code", CarContinentAsia},
-    
-    // CHANGAN (长安)
-    {"Changan", "CS75 Plus", 433920000, "Rolling Code", CarContinentAsia},
-    {"Changan", "UNI-T 2020+", 433920000, "Smart Key", CarContinentAsia},
-    {"Changan", "Eado 2018+", 433920000, "Rolling Code", CarContinentAsia},
-    
-    // HONGQI (红旗) - Luxury State Cars
-    {"Hongqi", "H9 2020+", 433920000, "Smart Key", CarContinentAsia},
-    {"Hongqi", "E-HS9 2021+", 433920000, "Smart Key", CarContinentAsia},
-    
-    // LI AUTO (理想) - Extended-Range EVs
-    {"Li Auto", "Li ONE 2019+", 433920000, "Smart Key", CarContinentAsia},
-    {"Li Auto", "L7 2023+", 433920000, "Smart Key", CarContinentAsia},
-    {"Li Auto", "L8 2022+", 433920000, "Smart Key", CarContinentAsia},
-    {"Li Auto", "L9 2022+", 433920000, "Smart Key", CarContinentAsia},
-    
-    // ZEEKR (极氪) - Geely's Premium EV
-    {"Zeekr", "001 2021+", 433920000, "Smart Key", CarContinentAsia},
-    {"Zeekr", "X 2023+", 433920000, "Smart Key", CarContinentAsia},
-    
-    // LYNK & CO (领克) - Geely-Volvo Joint
-    {"Lynk & Co", "01 2017+", 433920000, "Rolling Code", CarContinentAsia},
-    {"Lynk & Co", "03 2018+", 433920000, "Smart Key", CarContinentAsia},
-    
-    // JAC (江淮) - Commercial & Passenger
-    {"JAC", "iEV7S", 433920000, "Fixed Code", CarContinentAsia},
-    {"JAC", "Various", 433920000, "Rolling Code", CarContinentAsia},
+    // === END CHINESE MANUFACTURERS ===
     
     // AIWAYS (爱驰) - EV Startup
     {"Aiways", "U5 2019+", 433920000, "Smart Key", CarContinentAsia},
