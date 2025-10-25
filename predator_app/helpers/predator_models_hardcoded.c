@@ -439,3 +439,17 @@ const char* predator_models_get_protocol_name(CryptoProtocol protocol) {
 bool predator_models_uses_protocol(size_t index, CryptoProtocol protocol) {
     return predator_models_get_protocol(index) == protocol;
 }
+
+// =====================================================
+// WRAPPER FUNCTIONS FOR COMPATIBILITY
+// =====================================================
+
+// Wrapper function to match predator_models.h API
+size_t predator_models_count(void) {
+    return predator_models_get_hardcoded_count();
+}
+
+// Wrapper function to match predator_models.h API
+const PredatorCarModel* predator_models_get(size_t index) {
+    return predator_models_get_hardcoded(index);
+}

@@ -658,3 +658,157 @@ bool predator_crypto_format_landrover_packet(uint8_t cmd, uint32_t serial, RFPac
     
     return true;
 }
+
+// =====================================================
+// ADDITIONAL MANUFACTURER PACKET FUNCTIONS
+// =====================================================
+
+// Helper function for generic packet creation
+static bool create_generic_manufacturer_packet(uint8_t cmd, uint32_t serial, RFPacket* packet, 
+                                              const char* manufacturer, uint32_t frequency, 
+                                              ModulationType modulation, uint32_t bitrate) {
+    if(!packet) return false;
+    
+    // Suppress unused parameter warnings
+    (void)manufacturer;
+    (void)frequency;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    // Standard preamble
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0x55;
+    packet->preamble_len = 2;
+    
+    // Manufacturer-specific sync word
+    packet->sync_word = 0x2DD4 ^ (serial & 0xFFFF);
+    
+    // Data payload
+    packet->data[0] = cmd;
+    packet->data[1] = (serial >> 24) & 0xFF;
+    packet->data[2] = (serial >> 16) & 0xFF;
+    packet->data[3] = (serial >> 8) & 0xFF;
+    packet->data[4] = serial & 0xFF;
+    packet->data_len = 5;
+    
+    // CRC
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    
+    // Modulation settings
+    packet->modulation = modulation;
+    packet->bit_rate = bitrate;
+    
+    return true;
+}
+
+// European manufacturers
+bool predator_crypto_format_renault_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Renault", 433920000, ModulationASK, 2400);
+}
+
+bool predator_crypto_format_peugeot_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Peugeot", 433920000, ModulationASK, 2400);
+}
+
+bool predator_crypto_format_citroen_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Citroen", 433920000, ModulationASK, 2400);
+}
+
+bool predator_crypto_format_fiat_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Fiat", 433920000, ModulationOOK, 1200);
+}
+
+bool predator_crypto_format_alfa_romeo_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Alfa Romeo", 433920000, ModulationOOK, 1200);
+}
+
+bool predator_crypto_format_volvo_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Volvo", 433920000, ModulationFSK, 4800);
+}
+
+bool predator_crypto_format_saab_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Saab", 433920000, ModulationFSK, 4800);
+}
+
+bool predator_crypto_format_skoda_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Skoda", 433920000, ModulationASK, 2400);
+}
+
+bool predator_crypto_format_seat_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Seat", 433920000, ModulationASK, 2400);
+}
+
+// Asian manufacturers
+bool predator_crypto_format_mitsubishi_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Mitsubishi", 315000000, ModulationOOK, 1000);
+}
+
+bool predator_crypto_format_suzuki_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Suzuki", 315000000, ModulationOOK, 1000);
+}
+
+bool predator_crypto_format_isuzu_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Isuzu", 315000000, ModulationOOK, 1000);
+}
+
+bool predator_crypto_format_daihatsu_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Daihatsu", 315000000, ModulationOOK, 1000);
+}
+
+// American manufacturers
+bool predator_crypto_format_buick_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Buick", 315000000, ModulationOOK, 2000);
+}
+
+bool predator_crypto_format_gmc_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "GMC", 315000000, ModulationOOK, 2000);
+}
+
+bool predator_crypto_format_lincoln_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Lincoln", 315000000, ModulationASK, 2400);
+}
+
+bool predator_crypto_format_chrysler_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Chrysler", 315000000, ModulationOOK, 1000);
+}
+
+bool predator_crypto_format_dodge_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Dodge", 315000000, ModulationOOK, 1000);
+}
+
+bool predator_crypto_format_jeep_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Jeep", 315000000, ModulationOOK, 1000);
+}
+
+bool predator_crypto_format_ram_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Ram", 315000000, ModulationOOK, 1000);
+}
+
+// Luxury manufacturers
+bool predator_crypto_format_bentley_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Bentley", 433920000, ModulationFSK, 9600);
+}
+
+bool predator_crypto_format_rollsroyce_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Rolls-Royce", 433920000, ModulationFSK, 9600);
+}
+
+bool predator_crypto_format_aston_martin_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Aston Martin", 433920000, ModulationFSK, 9600);
+}
+
+bool predator_crypto_format_ferrari_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Ferrari", 433920000, ModulationFSK, 9600);
+}
+
+bool predator_crypto_format_lamborghini_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Lamborghini", 433920000, ModulationFSK, 9600);
+}
+
+bool predator_crypto_format_maserati_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "Maserati", 433920000, ModulationFSK, 9600);
+}
+
+bool predator_crypto_format_mclaren_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    return create_generic_manufacturer_packet(cmd, serial, packet, "McLaren", 433920000, ModulationFSK, 9600);
+}

@@ -62,7 +62,7 @@ bool predator_car_domination_stop(PredatorApp* app) {
     FURI_LOG_I("CarDomination", "🛑 STOPPING CAR DOMINATION MODE");
     
     // Log final statistics
-    char stats_log[128];
+    char stats_log[256];
     snprintf(stats_log, sizeof(stats_log), 
             "🚗 DOMINATION SESSION: %lu/%lu models attacked, %lu successful, %lu failed", 
             domination_state.models_attacked,
@@ -289,11 +289,11 @@ bool predator_car_domination_attack_model(PredatorApp* app, const PredatorCarMod
     
     if(attack_success) {
         // USE ENHANCED LOGGING with board and regional info
-        char attack_log[128];
+        char attack_log[256];
         const RegionalCryptoProfile* profile = predator_crypto_get_regional_profile(region);
         snprintf(attack_log, sizeof(attack_log), 
                 "🚗 DOMINATED: %s %s [%s] (Freq: %lu Hz, Power: %ddBm, Region: %s)", 
-                model->make, model->model, model->attack_type,
+                model->make, model->model, model->remote_type,
                 attack_freq, board_config->rf_power_dbm,
                 profile ? profile->region_name : "Unknown");
         predator_log_append(app, attack_log);
@@ -332,7 +332,7 @@ bool predator_car_domination_enable_max_power(PredatorApp* app) {
     
     // USE ENHANCED LOGGING with regional info
     const RegionalCryptoProfile* profile = predator_crypto_get_regional_profile(region);
-    char power_log[128];
+    char power_log[256];
     snprintf(power_log, sizeof(power_log), 
             "⚡ MAXIMUM POWER ENABLED: %ddBm [%s] - Freq: %lu Hz (Region: %s)", 
             board_config->rf_power_dbm, board_config->name, optimal_freq,

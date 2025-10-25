@@ -265,51 +265,6 @@ extern const uint8_t CALYPSO_MPK_MASTER_KEY[16];          // Krakow MPK
 extern const uint8_t CALYPSO_POLISH_SAM_KEYS[][16];
 extern const size_t CALYPSO_POLISH_SAM_KEYS_COUNT;
 
-// 🇮🇹 ITALIAN ATM KEYS (Milan Transport)
-extern const uint8_t CALYPSO_ATM_MASTER_KEY[16];
-extern const uint8_t CALYPSO_ATM_SAM_KEYS[][16];
-extern const size_t CALYPSO_ATM_SAM_KEYS_COUNT;
-
-// 🇧🇪 BELGIAN MOBIB KEYS
-extern const uint8_t CALYPSO_MOBIB_MASTER_KEY[16];
-extern const uint8_t CALYPSO_MOBIB_SAM_KEYS[][16];
-extern const size_t CALYPSO_MOBIB_SAM_KEYS_COUNT;
-
-// 🇳🇱 NETHERLANDS OV-CHIPKAART KEYS
-extern const uint8_t CALYPSO_OV_MASTER_KEY[16];
-extern const uint8_t CALYPSO_OV_SAM_KEYS[][16];
-extern const size_t CALYPSO_OV_SAM_KEYS_COUNT;
-
-// 🇬🇧 LONDON TFL KEYS (Oyster Card)
-extern const uint8_t CALYPSO_TFL_MASTER_KEY[16];
-extern const uint8_t CALYPSO_TFL_SAM_KEYS[][16];
-extern const size_t CALYPSO_TFL_SAM_KEYS_COUNT;
-
-// 🇩🇪 GERMAN TRANSPORT KEYS (BVG Berlin, MVV Munich)
-extern const uint8_t CALYPSO_BVG_MASTER_KEY[16];
-extern const uint8_t CALYPSO_MVV_MASTER_KEY[16];
-extern const uint8_t CALYPSO_GERMAN_SAM_KEYS[][16];
-extern const size_t CALYPSO_GERMAN_SAM_KEYS_COUNT;
-
-// 🇫🇮 FINNISH HSL KEYS (Helsinki)
-extern const uint8_t CALYPSO_HSL_MASTER_KEY[16];
-extern const uint8_t CALYPSO_HSL_SAM_KEYS[][16];
-extern const size_t CALYPSO_HSL_SAM_KEYS_COUNT;
-
-// 🇩🇰 DANISH REJSEKORT KEYS
-extern const uint8_t CALYPSO_REJSEKORT_MASTER_KEY[16];
-extern const uint8_t CALYPSO_REJSEKORT_SAM_KEYS[][16];
-extern const size_t CALYPSO_REJSEKORT_SAM_KEYS_COUNT;
-
-// 🇸🇪 SWEDISH SL KEYS (Stockholm)
-extern const uint8_t CALYPSO_SL_MASTER_KEY[16];
-extern const uint8_t CALYPSO_SL_SAM_KEYS[][16];
-extern const size_t CALYPSO_SL_SAM_KEYS_COUNT;
-
-// 🇦🇹 AUSTRIAN WIENER LINIEN KEYS (Vienna)
-extern const uint8_t CALYPSO_WIENER_MASTER_KEY[16];
-extern const uint8_t CALYPSO_WIENER_SAM_KEYS[][16];
-extern const size_t CALYPSO_WIENER_SAM_KEYS_COUNT;
 
 // =====================================================
 // CALYPSO PRODUCTION KEY FUNCTIONS
