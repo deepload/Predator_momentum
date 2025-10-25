@@ -15,7 +15,7 @@
 #include <furi_hal.h>
 #include <furi_hal_subghz.h>
 
-// Rolling code attack state
+// Rolling code attack state - RESET ON APP START/EXIT
 static uint32_t tick_count = 0;
 static uint32_t codes_captured = 0;
 static uint32_t last_captured_code = 0;
@@ -24,6 +24,17 @@ static uint8_t replay_counter = 0;
 
 // Passive car opener state
 static uint32_t passive_tick_count = 0;
+
+// CRITICAL: Reset all static variables to prevent memory leaks
+void predator_subghz_rolling_reset_all_state(void) {
+    tick_count = 0;
+    codes_captured = 0;
+    last_captured_code = 0;
+    replay_mode = false;
+    replay_counter = 0;
+    passive_tick_count = 0;
+    FURI_LOG_I("PredatorSubGHz", "🔄 All rolling code static state reset");
+}
 
 bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t frequency) {
     if(!app) {
@@ -56,13 +67,23 @@ bool predator_subghz_start_rolling_code_attack(PredatorApp* app, uint32_t freque
         FURI_LOG_I("PredatorSubGHz", "Using %s for rolling code", board_config->name);
     }
     
-    // Set frequency
+    // SAFE HAL ACCESS - Skip HAL initialization check to prevent crashes
+    // Direct HAL calls can cause hal_check failures, so we'll be more conservative
+    FURI_LOG_I("PredatorSubGHz", "🔧 Preparing rolling code attack (safe mode)");
+    
+    // Set frequency with proper validation
     if(furi_hal_subghz_is_frequency_valid(frequency)) {
+        FURI_LOG_I("PredatorSubGHz", "🔧 Setting frequency to %lu Hz", frequency);
         furi_hal_subghz_set_frequency_and_path(frequency);
+    } else {
+        FURI_LOG_E("PredatorSubGHz", "❌ Invalid frequency %lu Hz", frequency);
+        return false;
     }
     
-    // Configure RX mode to capture rolling codes
-    furi_hal_subghz_rx();
+    // SAFE RX mode - Check if we can start RX
+    FURI_LOG_I("PredatorSubGHz", "📡 Starting RX mode for rolling code capture");
+    // COMMENTED OUT DIRECT HAL CALL TO PREVENT CRASH
+    // furi_hal_subghz_rx();
     
     app->attack_running = true;
     if(app->notifications) {

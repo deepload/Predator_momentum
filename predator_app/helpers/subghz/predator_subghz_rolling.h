@@ -60,3 +60,9 @@ void predator_subghz_stop_passive_car_opener(PredatorApp* app);
  * @note Call this periodically to check for captured signals
  */
 void predator_subghz_passive_car_opener_tick(PredatorApp* app);
+
+/**
+ * @brief Reset all static variables to prevent memory leaks
+ * @note CRITICAL: Call this on app start/exit to clear accumulated state
+ */
+void predator_subghz_rolling_reset_all_state(void);
