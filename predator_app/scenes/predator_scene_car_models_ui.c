@@ -51,20 +51,21 @@ void predator_scene_car_models_ui_on_enter(void* context) {
     size_t displayed = 0;
     size_t filtered_idx = 0;
     
-    for(size_t i = 0; i < total && displayed < CAR_MODELS_PER_PAGE; i++) {
+    for(size_t i = 0; i < total; i++) {
         if(!predator_models_is_continent(i, app->selected_continent)) continue;
         
-        if(filtered_idx >= start && filtered_idx < end) {
+        if(filtered_idx >= start && filtered_idx < end && displayed < CAR_MODELS_PER_PAGE) {
             const PredatorCarModel* model = predator_models_get_hardcoded(i);
             if(model) {
                 char label[32];
                 snprintf(label, sizeof(label), "%.15s %.15s", model->make, model->model);
-                // Store model index in event ID for later protocol detection
                 submenu_add_item(app->submenu, label, (uint32_t)(i + 1), car_models_submenu_cb, app);
                 displayed++;
             }
         }
         filtered_idx++;
+        
+        if(displayed >= CAR_MODELS_PER_PAGE) break;
     }
 
     // Navigation buttons
