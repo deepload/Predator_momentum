@@ -17,18 +17,18 @@ ADD_SCENE(predator, barrier_manufacturer_select_ui, BarrierManufacturerSelectUI)
 ADD_SCENE(predator, barrier_attack_ui, BarrierAttackUI)      // SWISS KKS: Dedicated barrier opening with real manufacturer keys
 ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // RE-ADDED: Swiss Gov requirement - Testing stability
 
-// WiFi Attacks - REDUCED FOR MEMORY (Keep essentials only)
-ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
-ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
-ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
-ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // RE-ADDED: Testing stability
+// WiFi Attacks - TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION
+// ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
+// ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
+// ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
+// ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // COMMENTED FOR MEMORY
 // ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Out of memory
-ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // KEPT: More efficient than handshake
+// ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // COMMENTED FOR MEMORY
 
-// Bluetooth Attacks - REDUCED FOR MEMORY
-ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)
-ADD_SCENE(predator, ble_scan_ui, BleScanUI)
-ADD_SCENE(predator, ble_spam_ui, BleSpamUI)               // KEPT: Memory optimized via on-the-fly filtering
+// Bluetooth Attacks - TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION
+// ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)
+// ADD_SCENE(predator, ble_scan_ui, BleScanUI)
+// ADD_SCENE(predator, ble_spam_ui, BleSpamUI)               // COMMENTED FOR MEMORY
 
 // RFID Attacks - REDUCED FOR MEMORY
 ADD_SCENE(predator, rfid_attacks_ui, RfidAttacksUI)
@@ -38,9 +38,9 @@ ADD_SCENE(predator, calypso_cards_ui, CalypsoCardsUI)     // Government-grade tr
 ADD_SCENE(predator, auto_card_clone_ui, AutoCardCloneUI) // Automated card cloning
 // ADD_SCENE(predator, rfid_fuzzing_ui, RfidFuzzingUI)       // REMOVED: Memory optimization
 
-// SubGHz Attacks - REDUCED FOR MEMORY
-ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
-ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)   // RE-ADDED: Testing stability
+// SubGHz Attacks - TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION
+// ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
+// ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)   // COMMENTED FOR MEMORY
 // ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)  // REMOVED: Memory optimization
 
 // GPS & Navigation (GOVERNMENT APPROVED)
@@ -56,9 +56,9 @@ ADD_SCENE(predator, satellite_communication_ui, SatelliteCommunicationUI) // Sat
 // Social Engineering (TEMPORARILY DISABLED - memory optimization)
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 
-// Crazy Functionalities (ULTIMATE POWER)
-ADD_SCENE(predator, global_surveillance_ui, GlobalSurveillanceUI)
-ADD_SCENE(predator, car_domination_ui, CarDominationUI)
+// Crazy Functionalities (ULTIMATE POWER) - OPTIMIZED FOR MEMORY
+// ADD_SCENE(predator, global_surveillance_ui, GlobalSurveillanceUI)  // COMMENTED FOR MEMORY
+ADD_SCENE(predator, car_domination_ui, CarDominationUI)  // KEEP - ESSENTIAL
 
 // System & Utility (ESSENTIAL)
 ADD_SCENE(predator, module_status_ui, ModuleStatusUI)

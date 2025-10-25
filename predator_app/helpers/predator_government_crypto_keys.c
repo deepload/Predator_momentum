@@ -6,6 +6,7 @@
 // SWISS INTELLIGENCE OPERATION - COSMIC TOP SECRET
 // Contains real government crypto keys from ALL countries worldwide
 
+// TEMPORARILY REDUCED FOR MEMORY - RESTORE WHEN OPTIMIZED
 static const GovernmentCryptoKey classified_government_keys[] = {
     // =====================================================
     // 🇨🇭 SWITZERLAND - PRIMARY INTELLIGENCE PARTNER
@@ -47,10 +48,11 @@ static const GovernmentCryptoKey classified_government_keys[] = {
                       0x4C,0x7B,0x2E,0x6F,0x8A,0x1D,0x5C,0x9E,0x3F,0x7A,0x4B,0x6D,0x2C,0x8F,0x1E,0x5A},
         .key_derivation_salt = {0xB1,0x20,0x25,0xC1,0xD1,0xE1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2025003, .operational_name = "BRITANNIA QUANTUM", .quantum_resistant = true
-    },
+    }
     
+    /* TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION - RESTORE WHEN NEEDED
     // 🇩🇪 GERMANY - BND
-    {
+    ,{
         .country_code = "DE", .country_name = "Germany",
         .agency_name = "Bundesnachrichtendienst (BND)",
         .key_designation = "BND-ENIGMA-2024", .key_type = CryptoTypeAES256,
@@ -356,6 +358,7 @@ static const GovernmentCryptoKey classified_government_keys[] = {
         .key_derivation_salt = {0xF2,0x20,0x26,0xD2,0xE2,0xA2,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2026005, .operational_name = "GALLIC NEXGEN", .quantum_resistant = true
     }
+    */
 };
 
 static const size_t government_keys_count = sizeof(classified_government_keys) / sizeof(classified_government_keys[0]);

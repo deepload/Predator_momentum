@@ -4,14 +4,14 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=4 * 1024,  # Increased: 4KB for government capabilities
+    stack_size=2 * 1024,  # Optimized: 2KB stack (reduced from 4KB)
     fap_category="Tools",
     fap_description="Government-Grade Security Testing Platform v2.0",
     fap_version="2.0.1",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=8000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1"],  # Enhanced for all capabilities
+    cdefines=["HEAP_SIZE=6000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1"],  # Aggressive memory optimization
     sources=[
         # =====================================================
         # CORE APPLICATION
@@ -43,9 +43,9 @@ App(
         "helpers/predator_calypso_production_keys.c", # Calypso transit card production keys
         "helpers/predator_government_crypto_keys.c", # NATO/Government classified crypto keys (Swiss Intelligence)
         
-        # CRAZY FUNCTIONALITIES HELPERS
-        "helpers/predator_global_surveillance.c", # Global surveillance network
-        "helpers/predator_car_domination.c",      # Ultimate car domination mode
+        # CRAZY FUNCTIONALITIES HELPERS - OPTIMIZED FOR MEMORY
+        # "helpers/predator_global_surveillance.c", # Global surveillance network - COMMENTED FOR MEMORY
+        "helpers/predator_car_domination.c",      # Ultimate car domination mode - KEEP
         
         # MODULAR SUBGHZ - v2.0 ARCHITECTURE
         "helpers/subghz/predator_subghz_core.c",     # Hardware init/deinit
@@ -98,20 +98,20 @@ App(
         "scenes/predator_scene_satellite_communication_ui.c",    # Satellite security
         
         # =====================================================
-        # WIFI ATTACKS - COMPREHENSIVE
+        # WIFI ATTACKS - TEMPORARILY COMMENTED FOR MEMORY
         # =====================================================
-        "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
-        "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
-        "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
-        "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks
-        "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture
+        # "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
+        # "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
+        # "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
+        # "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks
+        # "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture
         
         # =====================================================
-        # BLUETOOTH ATTACKS
+        # BLUETOOTH ATTACKS - TEMPORARILY COMMENTED FOR MEMORY
         # =====================================================
-        "scenes/predator_scene_bluetooth_attacks_ui.c",          # Bluetooth attack menu
-        "scenes/predator_scene_ble_scan_ui.c",                   # BLE device discovery
-        "scenes/predator_scene_ble_spam_ui.c",                   # BLE spam attacks
+        # "scenes/predator_scene_bluetooth_attacks_ui.c",          # Bluetooth attack menu
+        # "scenes/predator_scene_ble_scan_ui.c",                   # BLE device discovery
+        # "scenes/predator_scene_ble_spam_ui.c",                   # BLE spam attacks
         
         # =====================================================
         # RFID/NFC ATTACKS
@@ -123,16 +123,16 @@ App(
         "scenes/predator_scene_auto_card_clone_ui.c",            # Automated card cloning
         
         # =====================================================
-        # SUBGHZ ATTACKS
+        # SUBGHZ ATTACKS - TEMPORARILY COMMENTED FOR MEMORY
         # =====================================================
-        "scenes/predator_scene_subghz_attacks_ui.c",             # SubGHz attack menu
-        "scenes/predator_scene_subghz_jamming_ui.c",             # RF jamming
+        # "scenes/predator_scene_subghz_attacks_ui.c",             # SubGHz attack menu
+        # "scenes/predator_scene_subghz_jamming_ui.c",             # RF jamming
         
         # =====================================================
-        # CRAZY FUNCTIONALITIES (ULTIMATE POWER)
+        # CRAZY FUNCTIONALITIES (ULTIMATE POWER) - KEEP ESSENTIAL
         # =====================================================
-        "scenes/predator_scene_global_surveillance_ui.c",       # Global surveillance network
-        "scenes/predator_scene_car_domination_ui.c",            # Ultimate car domination mode
+        # "scenes/predator_scene_global_surveillance_ui.c",       # Global surveillance network - COMMENTED FOR MEMORY
+        "scenes/predator_scene_car_domination_ui.c",            # Ultimate car domination mode - KEEP
         
         # =====================================================
         # SYSTEM & UTILITY
