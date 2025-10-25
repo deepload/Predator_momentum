@@ -91,6 +91,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
     // submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);  // COMMENTED FOR MEMORY
     submenu_add_item(app->submenu, "📊 Live Monitor", 19, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Module Status", 8, main_menu_submenu_callback, app);
     
     // Simple card/board selection menu item
     submenu_add_item(app->submenu, "🔧 Card Selection", 12, main_menu_submenu_callback, app);
