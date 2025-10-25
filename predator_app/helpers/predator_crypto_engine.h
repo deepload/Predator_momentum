@@ -168,12 +168,65 @@ typedef struct {
     uint32_t bit_rate;         // Bit rate (bps)
 } RFPacket;
 
+// Original 6 manufacturers
 bool predator_crypto_format_toyota_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
 bool predator_crypto_format_honda_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
 bool predator_crypto_format_ford_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
 bool predator_crypto_format_bmw_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
 bool predator_crypto_format_mercedes_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
 bool predator_crypto_format_tesla_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+
+// Extended manufacturers - ALL MAJOR BRANDS (40+ total)
+bool predator_crypto_format_audi_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_volkswagen_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_nissan_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_hyundai_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_kia_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_chevrolet_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_subaru_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_mazda_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_lexus_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_infiniti_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_acura_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_cadillac_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_porsche_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_jaguar_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_landrover_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+
+// European manufacturers
+bool predator_crypto_format_renault_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_peugeot_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_citroen_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_fiat_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_alfa_romeo_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_volvo_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_saab_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_skoda_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_seat_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+
+// Asian manufacturers
+bool predator_crypto_format_mitsubishi_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_suzuki_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_isuzu_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_daihatsu_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+
+// American manufacturers
+bool predator_crypto_format_buick_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_gmc_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_lincoln_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_chrysler_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_dodge_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_jeep_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_ram_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+
+// Luxury manufacturers
+bool predator_crypto_format_bentley_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_rollsroyce_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_aston_martin_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_ferrari_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_lamborghini_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_maserati_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
+bool predator_crypto_format_mclaren_packet(uint8_t cmd, uint32_t serial, RFPacket* packet);
 
 // CRC Calculation
 uint16_t predator_crypto_crc16(uint8_t* data, size_t len);

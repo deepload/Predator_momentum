@@ -42,3 +42,15 @@ bool predator_subghz_stop_attack(PredatorApp* app);
  * @note Used by crypto engine for Keeloq/Hitag2 packets
  */
 bool predator_subghz_send_raw_packet(PredatorApp* app, uint8_t* packet, size_t len);
+
+// Specialized functions are declared in their respective modules:
+// - predator_subghz_car.h: Car-specific functions
+// - predator_subghz_rolling.h: Rolling code functions  
+// - predator_subghz_jamming.h: Jamming functions
+
+/**
+ * @brief Get optimal frequency for manufacturer
+ * @param manufacturer Car manufacturer name
+ * @return Optimal frequency in Hz for the manufacturer
+ */
+uint32_t predator_subghz_get_manufacturer_frequency(const char* manufacturer);

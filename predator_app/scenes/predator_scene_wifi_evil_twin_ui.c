@@ -1,7 +1,7 @@
 #include "../predator_i.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_esp32.h"
-#include "../predator_uart.h"
+#include "../predator_uart.h"  // FIXED: For UART functions
 #include <gui/view.h>
 #include <string.h>
 

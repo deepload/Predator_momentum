@@ -1,5 +1,6 @@
 #include "../predator_i.h"
-#include "../helpers/predator_subghz.h"
+#include "../helpers/subghz/predator_subghz_core.h"
+#include "../helpers/subghz/predator_subghz_car.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_crypto_engine.h"  // Real crypto algorithms
 #include "../helpers/predator_models.h"  // Car database with protocol detection

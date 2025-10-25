@@ -257,3 +257,404 @@ bool predator_crypto_format_tesla_packet(uint8_t cmd, uint32_t serial, RFPacket*
     
     return true;
 }
+
+// AUDI packet format (868MHz, FSK, Hitag2)
+bool predator_crypto_format_audi_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    // Audi preamble
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble[2] = 0xAA;
+    packet->preamble_len = 3;
+    
+    // Audi sync word
+    packet->sync_word = 0xA5C3;
+    
+    // Audi uses Hitag2 with rolling code
+    packet->data[0] = 0xA5; // Audi magic byte
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationFSK;
+    packet->bit_rate = 19200;
+    
+    return true;
+}
+
+// VOLKSWAGEN packet format (433MHz, ASK, Keeloq)
+bool predator_crypto_format_volkswagen_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0x55;
+    packet->preamble[1] = 0x55;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    // VW uses Keeloq encryption
+    packet->data[0] = (serial >> 16) & 0xFF;
+    packet->data[1] = (serial >> 8) & 0xFF;
+    packet->data[2] = serial & 0xFF;
+    packet->data[3] = cmd;
+    packet->data_len = 4;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationASK;
+    packet->bit_rate = 9600;
+    
+    return true;
+}
+
+// NISSAN packet format (315MHz, OOK)
+bool predator_crypto_format_nissan_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x693C;
+    
+    // Nissan format
+    packet->data[0] = 0x4E; // 'N' for Nissan
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 4800;
+    
+    return true;
+}
+
+// HYUNDAI packet format (433MHz, ASK)
+bool predator_crypto_format_hyundai_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0x55;
+    packet->preamble[1] = 0x55;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    packet->data[0] = 0x48; // 'H' for Hyundai
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationASK;
+    packet->bit_rate = 9600;
+    
+    return true;
+}
+
+// KIA packet format (433MHz, ASK, similar to Hyundai)
+bool predator_crypto_format_kia_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0x55;
+    packet->preamble[1] = 0x55;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    packet->data[0] = 0x4B; // 'K' for Kia
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationASK;
+    packet->bit_rate = 9600;
+    
+    return true;
+}
+
+// CHEVROLET packet format (315MHz, OOK)
+bool predator_crypto_format_chevrolet_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    packet->data[0] = 0x43; // 'C' for Chevrolet
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 3800;
+    
+    return true;
+}
+
+// SUBARU packet format (315MHz, OOK)
+bool predator_crypto_format_subaru_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0x55;
+    packet->preamble[1] = 0x55;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x693C;
+    
+    packet->data[0] = 0x53; // 'S' for Subaru
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 4000;
+    
+    return true;
+}
+
+// MAZDA packet format (315MHz, OOK)
+bool predator_crypto_format_mazda_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    packet->data[0] = 0x4D; // 'M' for Mazda
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 3800;
+    
+    return true;
+}
+
+// LEXUS packet format (315MHz, OOK, similar to Toyota)
+bool predator_crypto_format_lexus_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    packet->data[0] = 0x4C; // 'L' for Lexus
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 3800;
+    
+    return true;
+}
+
+// INFINITI packet format (315MHz, OOK, similar to Nissan)
+bool predator_crypto_format_infiniti_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x693C;
+    
+    packet->data[0] = 0x49; // 'I' for Infiniti
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 4800;
+    
+    return true;
+}
+
+// ACURA packet format (315MHz, OOK, similar to Honda)
+bool predator_crypto_format_acura_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0x55;
+    packet->preamble[1] = 0x55;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x693C;
+    
+    packet->data[0] = 0x41; // 'A' for Acura
+    packet->data[1] = (serial >> 20) & 0xFF;
+    packet->data[2] = (serial >> 12) & 0xFF;
+    packet->data[3] = (serial >> 4) & 0xFF;
+    packet->data[4] = ((serial & 0x0F) << 4) | (cmd & 0x0F);
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 4000;
+    
+    return true;
+}
+
+// CADILLAC packet format (315MHz, OOK)
+bool predator_crypto_format_cadillac_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble_len = 2;
+    
+    packet->sync_word = 0x2DD4;
+    
+    packet->data[0] = 0x43; // 'C' for Cadillac
+    packet->data[1] = 0x41; // 'A'
+    packet->data[2] = (serial >> 16) & 0xFF;
+    packet->data[3] = (serial >> 8) & 0xFF;
+    packet->data[4] = serial & 0xFF;
+    packet->data[5] = cmd;
+    packet->data_len = 6;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationOOK;
+    packet->bit_rate = 3800;
+    
+    return true;
+}
+
+// PORSCHE packet format (868MHz, FSK, encrypted)
+bool predator_crypto_format_porsche_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0x55;
+    packet->preamble[1] = 0x55;
+    packet->preamble[2] = 0x55;
+    packet->preamble_len = 3;
+    
+    packet->sync_word = 0x911E; // 911 reference
+    
+    packet->data[0] = 0x50; // 'P' for Porsche
+    packet->data[1] = (serial >> 24) & 0xFF;
+    packet->data[2] = (serial >> 16) & 0xFF;
+    packet->data[3] = (serial >> 8) & 0xFF;
+    packet->data[4] = serial & 0xFF;
+    packet->data[5] = cmd;
+    packet->data_len = 6;
+    
+    packet->crc = predator_crypto_crc16(packet->data, packet->data_len);
+    packet->modulation = ModulationFSK;
+    packet->bit_rate = 19200;
+    
+    return true;
+}
+
+// JAGUAR packet format (433MHz, FSK)
+bool predator_crypto_format_jaguar_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble[2] = 0xAA;
+    packet->preamble_len = 3;
+    
+    packet->sync_word = 0x4A47; // Jaguar sync (JG)
+    
+    packet->data[0] = 0x4A; // 'J' for Jaguar
+    packet->data[1] = (serial >> 16) & 0xFF;
+    packet->data[2] = (serial >> 8) & 0xFF;
+    packet->data[3] = serial & 0xFF;
+    packet->data[4] = cmd;
+    packet->data_len = 5;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationFSK;
+    packet->bit_rate = 9600;
+    
+    return true;
+}
+
+// LAND ROVER packet format (433MHz, FSK, similar to Jaguar)
+bool predator_crypto_format_landrover_packet(uint8_t cmd, uint32_t serial, RFPacket* packet) {
+    if(!packet) return false;
+    
+    memset(packet, 0, sizeof(RFPacket));
+    
+    packet->preamble[0] = 0xAA;
+    packet->preamble[1] = 0xAA;
+    packet->preamble[2] = 0xAA;
+    packet->preamble_len = 3;
+    
+    packet->sync_word = 0x4C52; // Land Rover sync (LR)
+    
+    packet->data[0] = 0x4C; // 'L' for Land Rover
+    packet->data[1] = 0x52; // 'R'
+    packet->data[2] = (serial >> 16) & 0xFF;
+    packet->data[3] = (serial >> 8) & 0xFF;
+    packet->data[4] = serial & 0xFF;
+    packet->data[5] = cmd;
+    packet->data_len = 6;
+    
+    packet->crc = predator_crypto_crc8(packet->data, packet->data_len);
+    packet->modulation = ModulationFSK;
+    packet->bit_rate = 9600;
+    
+    return true;
+}
