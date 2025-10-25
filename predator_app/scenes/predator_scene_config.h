@@ -2,10 +2,11 @@
 ADD_SCENE(predator, main_menu_ui, MainMenuUI)
 
 // Tesla & Car Security (CORE BUSINESS)
+ADD_SCENE(predator, car_attacks_main_ui, CarAttacksMainUI) // Comprehensive car attacks menu with VIN codes
 ADD_SCENE(predator, car_tesla_ui, CarTeslaUI)
 ADD_SCENE(predator, car_continent_ui, CarContinentUI)     // Continent picker (Europe/Asia/America)
-ADD_SCENE(predator, car_models_ui, CarModelsUI)           // Simple model picker
-ADD_SCENE(predator, car_model_attacks_ui, CarModelAttacksUI) // Attacks for selected model
+ADD_SCENE(predator, car_models_ui, CarModelsUI)           // Simple model picker with VIN codes
+ADD_SCENE(predator, car_model_attacks_ui, CarModelAttacksUI) // Attacks for selected model with VIN codes
 ADD_SCENE(predator, protocol_test_ui, ProtocolTestUI)     // Protocol testing (Keeloq/Hitag2/AES)
 ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)      // GOVERNMENT APPROVED: Real-world capability
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
@@ -54,6 +55,10 @@ ADD_SCENE(predator, satellite_communication_ui, SatelliteCommunicationUI) // Sat
 
 // Social Engineering (TEMPORARILY DISABLED - memory optimization)
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
+
+// Crazy Functionalities (ULTIMATE POWER)
+ADD_SCENE(predator, global_surveillance_ui, GlobalSurveillanceUI)
+ADD_SCENE(predator, car_domination_ui, CarDominationUI)
 
 // System & Utility (ESSENTIAL)
 ADD_SCENE(predator, module_status_ui, ModuleStatusUI)

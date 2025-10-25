@@ -64,6 +64,8 @@ typedef enum {
     PredatorViewSettingsUI,
     PredatorViewAboutUI,
     PredatorViewLiveMonitorUI,
+    PredatorViewGlobalSurveillanceUI,  // CRAZY: Global surveillance network
+    PredatorViewCarDominationUI,       // CRAZY: Ultimate car domination mode
     PredatorViewMainMenuClean,  // CLEAN UI: Professional main menu
     PredatorViewBoardSelectionProfessional,  // PROFESSIONAL: Clean board selection
 } PredatorView;

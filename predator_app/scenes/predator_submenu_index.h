@@ -46,4 +46,8 @@ typedef enum {
     SubmenuIndexRfidClone,
     SubmenuIndexRfidBruteforce,
     SubmenuIndexRfidFuzzing,
+    
+    // CRAZY FUNCTIONALITIES (ULTIMATE POWER)
+    SubmenuIndexGlobalSurveillance,
+    SubmenuIndexCarDomination,
 } SubmenuIndex;

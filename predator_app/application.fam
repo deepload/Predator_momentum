@@ -38,6 +38,14 @@ App(
         "helpers/predator_crypto_engine.c",       # KeeLoq, Hitag2, AES-128, Tesla protocols
         "helpers/predator_crypto_packets.c",      # Manufacturer-specific RF packets
         "helpers/predator_real_attack_engine.c",  # Real hardware attack implementations
+        "helpers/predator_regional_crypto_keys.c", # Worldwide regional crypto keys (EU, Swiss, GCC, Asia)
+        "helpers/predator_vin_codes.c",          # Real VIN-based manufacturer codes (Government Grade)
+        "helpers/predator_calypso_production_keys.c", # Calypso transit card production keys
+        "helpers/predator_government_crypto_keys.c", # NATO/Government classified crypto keys (Swiss Intelligence)
+        
+        # CRAZY FUNCTIONALITIES HELPERS
+        "helpers/predator_global_surveillance.c", # Global surveillance network
+        "helpers/predator_car_domination.c",      # Ultimate car domination mode
         
         # MODULAR SUBGHZ - v2.0 ARCHITECTURE
         "helpers/subghz/predator_subghz_core.c",     # Hardware init/deinit
@@ -56,10 +64,11 @@ App(
         # =====================================================
         # TESLA & AUTOMOTIVE SECURITY (CORE BUSINESS)
         # =====================================================
+        "scenes/predator_scene_car_attacks_main_ui.c",           # Comprehensive car attacks menu with VIN codes
         "scenes/predator_scene_car_tesla_ui.c",                    # Tesla-specific attacks
         "scenes/predator_scene_car_continent_ui.c",               # Geographic car selection
-        "scenes/predator_scene_car_models_ui.c",                  # 178 car database interface
-        "scenes/predator_scene_car_model_attacks_ui.c",           # Per-model attack selection
+        "scenes/predator_scene_car_models_ui.c",                  # 178 car database interface with VIN codes
+        "scenes/predator_scene_car_model_attacks_ui.c",           # Per-model attack selection with VIN codes
         "scenes/predator_scene_car_key_bruteforce_ui.c",          # Key bruteforce with crypto visualization
         "scenes/predator_scene_car_jamming_ui.c",                 # RF jamming attacks
         "scenes/predator_scene_car_passive_opener_ui.c",          # Passive key exploitation
@@ -118,6 +127,12 @@ App(
         # =====================================================
         "scenes/predator_scene_subghz_attacks_ui.c",             # SubGHz attack menu
         "scenes/predator_scene_subghz_jamming_ui.c",             # RF jamming
+        
+        # =====================================================
+        # CRAZY FUNCTIONALITIES (ULTIMATE POWER)
+        # =====================================================
+        "scenes/predator_scene_global_surveillance_ui.c",       # Global surveillance network
+        "scenes/predator_scene_car_domination_ui.c",            # Ultimate car domination mode
         
         # =====================================================
         # SYSTEM & UTILITY
