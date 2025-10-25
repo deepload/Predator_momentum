@@ -103,7 +103,7 @@ App(
         "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
         "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
         "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
-        "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks - STEP 2: ADDED
+        # "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks - REVERTED: OUT OF MEMORY
         # "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture - KEEP COMMENTED FOR NOW
         
         # =====================================================

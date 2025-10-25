@@ -21,7 +21,7 @@ ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // RE-ADDED: Swiss 
 ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
 ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
 ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
-ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // STEP 2: ADDED
+// ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // REVERTED: OUT OF MEMORY
 // ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Out of memory
 // ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // KEEP COMMENTED FOR NOW
 
