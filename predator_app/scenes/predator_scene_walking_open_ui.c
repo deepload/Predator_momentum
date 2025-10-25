@@ -2,7 +2,9 @@
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_models_hardcoded.h"
 #include "../helpers/predator_gps.h"
-#include "../helpers/predator_subghz.h"  // ADDED: For real RF transmission
+#include "../helpers/subghz/predator_subghz_core.h"  // FIXED: For real RF transmission
+#include "../helpers/subghz/predator_subghz_car.h"     // Car-specific functions
+#include "../helpers/subghz/predator_subghz_rolling.h" // Rolling code functions
 #include <gui/view.h>
 #include <notification/notification_messages.h>
 #include <math.h>

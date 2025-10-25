@@ -1,6 +1,6 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
-#include "../helpers/predator_subghz.h"
+#include "../helpers/subghz/predator_subghz_core.h"
 #include "../helpers/predator_logging.h"
 
 // Attack methods for the model selected in app->selected_model_*

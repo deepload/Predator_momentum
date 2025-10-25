@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_crypto_engine.h"
+// Crypto packets functions are in crypto_engine.h
 #include "../helpers/predator_models.h"
 #include "../helpers/predator_logging.h"
 #include <string.h>

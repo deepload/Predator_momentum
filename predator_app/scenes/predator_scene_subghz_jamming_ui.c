@@ -1,5 +1,6 @@
 #include "../predator_i.h"
-#include "../helpers/predator_subghz.h"
+#include "../helpers/subghz/predator_subghz_core.h"
+#include "../helpers/subghz/predator_subghz_jamming.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_constants.h"
 #include <gui/view.h>
