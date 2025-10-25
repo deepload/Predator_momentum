@@ -65,6 +65,7 @@ App(
         "scenes/predator_scene_car_passive_opener_ui.c",          # Passive key exploitation
         "scenes/predator_scene_protocol_test_ui.c",               # Protocol testing (KeeLoq/Hitag2/AES)
         "scenes/predator_scene_walking_open_ui.c",                # Real-world walking attacks
+        "scenes/predator_scene_advanced_car_hacking_ui.c",        # CAN/OBD/TPMS/Keyless attacks
         
         # =====================================================
         # GOVERNMENT CONTRACTS
