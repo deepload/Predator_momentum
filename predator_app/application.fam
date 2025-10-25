@@ -55,7 +55,7 @@ App(
         "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS - RE-ADDED: Testing stability
         "scenes/predator_scene_barrier_manufacturer_select_ui.c",  # SWISS KKS: Choose manufacturer or try all
         "scenes/predator_scene_barrier_attack_ui.c",   # SWISS KKS: Dedicated barrier opening attack
-        # "scenes/predator_scene_walking_open_ui.c",    # REMOVED: Konami code easter egg replaces this
+        "scenes/predator_scene_walking_open_ui.c",    # GOVERNMENT APPROVED: Real-world capability
         "scenes/predator_scene_car_key_bruteforce_ui.c",
         "scenes/predator_scene_car_jamming_ui.c",
         "scenes/predator_scene_car_passive_opener_ui.c",
@@ -84,9 +84,9 @@ App(
         "scenes/predator_scene_subghz_jamming_ui.c",   # RE-ADDED: Testing stability
         # "scenes/predator_scene_subghz_raw_send_ui.c",  # REMOVED: Memory optimization
         
-        # GPS & Navigation (ESSENTIAL)
-        #"scenes/predator_scene_gps_tracker_ui.c",
-        #"scenes/predator_scene_wardriving_ui.c",
+        # GPS & Navigation (GOVERNMENT APPROVED)
+        "scenes/predator_scene_gps_tracker_ui.c",
+        "scenes/predator_scene_wardriving_ui.c",
         
         # Social Engineering (ESSENTIAL)
         #"scenes/predator_scene_social_engineering_ui.c",

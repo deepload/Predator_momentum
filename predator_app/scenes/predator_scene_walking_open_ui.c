@@ -413,7 +413,7 @@ void predator_scene_walking_open_ui_on_exit(void* context) {
     }
     
     // CRITICAL FIX: Stop rolling code attack if running
-    if(walking_state.status == WalkingAttacking || app->attack_running) {
+    if(walking_state.status == WalkingActive || app->attack_running) {
         FURI_LOG_I("WalkingOpen", "Stopping active rolling code attack");
         predator_subghz_stop_rolling_code_attack(app);
     }

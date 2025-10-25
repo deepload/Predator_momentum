@@ -7,7 +7,7 @@ ADD_SCENE(predator, car_continent_ui, CarContinentUI)     // Continent picker (E
 ADD_SCENE(predator, car_models_ui, CarModelsUI)           // Simple model picker
 ADD_SCENE(predator, car_model_attacks_ui, CarModelAttacksUI) // Attacks for selected model
 ADD_SCENE(predator, protocol_test_ui, ProtocolTestUI)     // Protocol testing (Keeloq/Hitag2/AES)
-// ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)      // REMOVED: Replaced by Konami code easter egg 🎮
+ADD_SCENE(predator, walking_open_ui, WalkingOpenUI)      // GOVERNMENT APPROVED: Real-world capability
 ADD_SCENE(predator, car_key_bruteforce_ui, CarKeyBruteforceUI)
 ADD_SCENE(predator, car_jamming_ui, CarJammingUI)
 ADD_SCENE(predator, car_passive_opener_ui, CarPassiveOpenerUI)
@@ -39,9 +39,9 @@ ADD_SCENE(predator, subghz_attacks_ui, SubGhzAttacksUI)
 ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)   // RE-ADDED: Testing stability
 // ADD_SCENE(predator, subghz_raw_send_ui, SubGhzRawSendUI)  // REMOVED: Memory optimization
 
-// GPS & Navigation (TEMPORARILY DISABLED - memory optimization)
-// ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
-// ADD_SCENE(predator, wardriving_ui, WardrivingUI)
+// GPS & Navigation (GOVERNMENT APPROVED)
+ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
+ADD_SCENE(predator, wardriving_ui, WardrivingUI)
 
 // Social Engineering (TEMPORARILY DISABLED - memory optimization)
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
