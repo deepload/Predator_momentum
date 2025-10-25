@@ -2,10 +2,6 @@
 #include "predator_logging.h"
 #include <string.h>
 
-// 🔐 NATO/GOVERNMENT CLASSIFIED CRYPTO KEYS DATABASE
-// SWISS INTELLIGENCE OPERATION - COSMIC TOP SECRET
-// Contains real government crypto keys from ALL countries worldwide
-
 // TEMPORARILY REDUCED FOR MEMORY - RESTORE WHEN OPTIMIZED
 static const GovernmentCryptoKey classified_government_keys[] = {
     // =====================================================
@@ -22,10 +18,7 @@ static const GovernmentCryptoKey classified_government_keys[] = {
         .key_version = 2025001, .operational_name = "ALPINE QUANTUM", .quantum_resistant = true
     },
     
-    // =====================================================
-    // 🏛️ NATO COUNTRIES - COSMIC TOP SECRET/TOP SECRET
-    // =====================================================
-    
+
     // 🇺🇸 UNITED STATES - NSA/CIA
     {
         .country_code = "US", .country_name = "United States",
