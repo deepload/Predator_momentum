@@ -96,11 +96,11 @@ static void advcar_ui_draw_callback(Canvas* canvas, void* context) {
     
     canvas_set_font(canvas, FontSecondary);
     if(advcar_state.status == AdvCarStatusScanning) {
-        canvas_draw_str(canvas, 8, 64, "OK=Stop Up=CAN Down=OBD Left=TPMS Right=Key");
+        canvas_draw_str(canvas, 2, 64, "OK=Stop Up=CAN Down=OBD Left=TPMS Right=Key Back=Exit");
     } else if(advcar_state.injection_active) {
-        canvas_draw_str(canvas, 20, 64, "OK=Stop  Up=Inject  Back=Exit");
+        canvas_draw_str(canvas, 15, 64, "OK=Stop  Up=Continue  Back=Exit");
     } else {
-        canvas_draw_str(canvas, 25, 64, "OK=Scan  Back=Exit");
+        canvas_draw_str(canvas, 20, 64, "OK=Start Scan  Back=Exit");
     }
 }
 
@@ -110,6 +110,11 @@ static bool advcar_ui_input_callback(InputEvent* event, void* context) {
     
     if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
+            // Always allow exit
+            if(advcar_state.injection_active) {
+                advcar_state.injection_active = false;
+                predator_log_append(app, "AdvCar: Stopped on exit");
+            }
             return false;
         } else if(event->key == InputKeyOk) {
             if(advcar_state.status == AdvCarStatusIdle) {
@@ -249,48 +254,51 @@ static void advcar_timer_callback(void* context) {
             break;
             
         case AdvCarStatusExploiting:
-            // OBD-II exploitation
-            if(attack_counter % 2 == 0) {
+            // OBD-II exploitation - auto complete after 3 seconds
+            if(attack_counter % 3 == 0) {
                 advcar_state.exploit_successful = true;
-                advcar_state.status = AdvCarStatusSuccess;
+                advcar_state.status = AdvCarStatusIdle;
                 strncpy(advcar_state.status_text, "OBD SUCCESS", sizeof(advcar_state.status_text) - 1);
                 advcar_state.status_text[sizeof(advcar_state.status_text) - 1] = '\0';
                 
                 char log_msg[96];
                 snprintf(log_msg, sizeof(log_msg), 
-                        "AdvCar: OBD-II exploit successful - Port:%u Vehicle control gained", 
+                        "AdvCar: OBD-II exploit SUCCESS - Port:%u Vehicle control gained", 
                         advcar_state.obd_port);
                 predator_log_append(app, log_msg);
+                predator_log_append(app, "AdvCar: Press OK to start new scan or Back to exit");
             }
             break;
             
         case AdvCarStatusSpoofing:
-            // TPMS spoofing
-            if(attack_counter % 2 == 0) {
-                advcar_state.status = AdvCarStatusSuccess;
+            // TPMS spoofing - auto complete after 3 seconds
+            if(attack_counter % 3 == 0) {
+                advcar_state.status = AdvCarStatusIdle;
                 strncpy(advcar_state.status_text, "TPMS SUCCESS", sizeof(advcar_state.status_text) - 1);
                 advcar_state.status_text[sizeof(advcar_state.status_text) - 1] = '\0';
                 
                 char log_msg[96];
                 snprintf(log_msg, sizeof(log_msg), 
-                        "AdvCar: TPMS spoofing successful - %.1f PSI injected to %lu sensors", 
+                        "AdvCar: TPMS spoofing SUCCESS - %.1f PSI injected to %lu sensors", 
                         (double)advcar_state.tire_pressure_psi, advcar_state.tpms_sensors_detected);
                 predator_log_append(app, log_msg);
+                predator_log_append(app, "AdvCar: Press OK to start new scan or Back to exit");
             }
             break;
             
         case AdvCarStatusReplaying:
-            // Keyless entry replay
-            if(attack_counter % 2 == 0) {
-                advcar_state.status = AdvCarStatusSuccess;
+            // Keyless entry replay - auto complete after 3 seconds
+            if(attack_counter % 3 == 0) {
+                advcar_state.status = AdvCarStatusIdle;
                 strncpy(advcar_state.status_text, "KEYLESS SUCCESS", sizeof(advcar_state.status_text) - 1);
                 advcar_state.status_text[sizeof(advcar_state.status_text) - 1] = '\0';
                 
                 char log_msg[96];
                 snprintf(log_msg, sizeof(log_msg), 
-                        "AdvCar: Keyless replay successful - %lu signals replayed, vehicle unlocked", 
+                        "AdvCar: Keyless replay SUCCESS - %lu signals replayed, vehicle unlocked", 
                         advcar_state.keyless_signals_captured);
                 predator_log_append(app, log_msg);
+                predator_log_append(app, "AdvCar: Press OK to start new scan or Back to exit");
             }
             break;
             
@@ -310,6 +318,10 @@ void predator_scene_advanced_car_hacking_ui_on_enter(void* context) {
     memset(&advcar_state, 0, sizeof(AdvCarState));
     strncpy(advcar_state.status_text, "READY", sizeof(advcar_state.status_text) - 1);
     advcar_state.status_text[sizeof(advcar_state.status_text) - 1] = '\0';
+    
+    // Show helpful instructions
+    predator_log_append(app, "AdvCar: Press OK to scan for automotive systems");
+    predator_log_append(app, "AdvCar: Use directional keys for specific attacks");
     
     if(!app->view_dispatcher) return;
     
