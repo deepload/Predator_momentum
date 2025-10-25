@@ -283,6 +283,12 @@ bool predator_gps_parse_nmea(PredatorApp* app, const char* sentence) {
             app->gps_connected = true;
         }
         
+        // Get altitude (field 9) - meters above sea level
+        char* alt_str = predator_get_next_field(sentence, 9, ',');
+        if(alt_str && strlen(alt_str) > 0) {
+            app->altitude = strtof(alt_str, NULL);
+        }
+        
         return true;
     }
     
@@ -295,7 +301,13 @@ bool predator_gps_parse_nmea(PredatorApp* app, const char* sentence) {
         char* status_field = predator_get_next_field(sentence, 2, ',');
         if(status_field && *status_field == 'A') {
             app->gps_connected = true;
-            // We could also parse additional fields here if needed
+            
+            // Get speed over ground (field 7) - knots
+            char* speed_str = predator_get_next_field(sentence, 7, ',');
+            if(speed_str && strlen(speed_str) > 0) {
+                float speed_knots = strtof(speed_str, NULL);
+                app->speed_kmh = speed_knots * 1.852f; // Convert knots to km/h
+            }
         }
         
         return true;
@@ -316,6 +328,16 @@ bool predator_gps_get_coordinates(PredatorApp* app, float* lat, float* lon) {
 uint32_t predator_gps_get_satellites(PredatorApp* app) {
     if(!app) return 0;
     return app->satellites;
+}
+
+float predator_gps_get_altitude(PredatorApp* app) {
+    if(!app) return 0.0f;
+    return app->altitude;
+}
+
+float predator_gps_get_speed_kmh(PredatorApp* app) {
+    if(!app) return 0.0f;
+    return app->speed_kmh;
 }
 
 bool predator_gps_is_connected(PredatorApp* app) {

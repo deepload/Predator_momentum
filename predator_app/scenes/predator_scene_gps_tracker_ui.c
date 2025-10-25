@@ -133,8 +133,8 @@ static void gps_tracker_timer_callback(void* context) {
     
     // Get GPS data
     if(predator_gps_get_coordinates(app, &gps_state.latitude, &gps_state.longitude)) {
-        gps_state.altitude = 0.0f; // Altitude not implemented in GPS helper
-        gps_state.speed_kmh = 0.0f; // Speed not implemented in GPS helper
+        gps_state.altitude = predator_gps_get_altitude(app);
+        gps_state.speed_kmh = predator_gps_get_speed_kmh(app);
         gps_state.satellites = predator_gps_get_satellites(app);
         
         if(gps_state.satellites >= 4) {

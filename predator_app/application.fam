@@ -4,101 +4,118 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="predator_app",
     requires=["gui", "dialogs", "storage", "notification", "subghz", "nfc", "bt", "gpio", "power"],
-    stack_size=3 * 1024,  # Stable: 3KB (tested working)
+    stack_size=4 * 1024,  # Increased: 4KB for government capabilities
     fap_category="Tools",
-    fap_description="Professional Security Toolkit - Memory Optimized",
-    fap_version="2.0",
+    fap_description="Government-Grade Security Testing Platform v2.0",
+    fap_version="2.0.1",
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=6000", "MEMORY_OPTIMIZED=1", "EMERGENCY_MODE=1"],  # Stable: tested working for real HW
+    cdefines=["HEAP_SIZE=8000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1"],  # Enhanced for all capabilities
     sources=[
-        # Core application
+        # =====================================================
+        # CORE APPLICATION
+        # =====================================================
         "predator.c",
         "predator_uart.c",
 
-        # Essential helpers only
-        "helpers/predator_boards.c",
-        "helpers/predator_error.c",
-        "helpers/predator_esp32.c",
-        "helpers/predator_gps.c",
-        "helpers/predator_compliance.c",
-        "helpers/predator_models_hardcoded.c",
+        # =====================================================
+        # ESSENTIAL HELPERS - ALL CAPABILITIES
+        # =====================================================
+        "helpers/predator_boards.c",              # Multi-board support (5 boards)
+        "helpers/predator_error.c",               # Error handling system
+        "helpers/predator_esp32.c",               # WiFi/Bluetooth via ESP32
+        "helpers/predator_gps.c",                 # GPS tracking & wardriving
+        "helpers/predator_compliance.c",          # Region compliance (UNBLOCKED)
+        "helpers/predator_models_hardcoded.c",    # 178 car models database
+        "helpers/predator_settings.c",            # Configuration management
+        "helpers/predator_logging.c",             # Live logging system
+        "helpers/predator_ui_elements.c",         # UI components
+        "helpers/predator_constants.c",           # Shared constants
+        "helpers/predator_memory_optimized.c",    # Memory management (includes watchdog)
         
-        # v2.0 REFACTORED: Modular SubGHz (was 1 file @ 52KB, now 4 files @ 12-15KB each)
-        "helpers/subghz/predator_subghz_core.c",      # Hardware init/deinit
-        "helpers/subghz/predator_subghz_car.c",       # Car-specific attacks
-        "helpers/subghz/predator_subghz_rolling.c",   # Rolling code attacks
-        "helpers/subghz/predator_subghz_jamming.c",   # Jamming operations
+        # CRYPTO ENGINE - PRODUCTION READY
+        "helpers/predator_crypto_engine.c",       # KeeLoq, Hitag2, AES-128, Tesla protocols
+        "helpers/predator_crypto_packets.c",      # Manufacturer-specific RF packets
+        "helpers/predator_real_attack_engine.c",  # Real hardware attack implementations
         
-        "helpers/predator_ui_elements.c",
-        "helpers/predator_settings.c",
-        "helpers/predator_logging.c",
-        "helpers/predator_real_attack_engine.c",
-        "helpers/predator_memory_optimized.c",  # OPTIMIZED: Replaces 4 heavy helpers
-        "helpers/predator_constants.c",  # SHARED: Constants implementation
-        "helpers/predator_crypto_engine.c",  # PRODUCTION: Keeloq, Hitag2, AES-128
-        "helpers/predator_crypto_packets.c",  # PRODUCTION: Manufacturer-specific packets
+        # MODULAR SUBGHZ - v2.0 ARCHITECTURE
+        "helpers/subghz/predator_subghz_core.c",     # Hardware init/deinit
+        "helpers/subghz/predator_subghz_car.c",      # Car-specific attacks
+        "helpers/subghz/predator_subghz_rolling.c",  # Rolling code attacks
+        "helpers/subghz/predator_subghz_jamming.c",  # Jamming operations
         
-        # Scene router
+        # =====================================================
+        # SCENE SYSTEM
+        # =====================================================
         "scenes/predator_scene.c",
-
-        # PROFESSIONAL - ESSENTIAL SCENES ONLY
+        
+        # MAIN INTERFACE
         "scenes/predator_scene_main_menu_ui.c",
         
-        # Tesla & Car Security (CORE BUSINESS)
-        "scenes/predator_scene_car_tesla_ui.c",
-        "scenes/predator_scene_car_continent_ui.c",        # NEW: Continent picker (Europe/Asia/America)
-        "scenes/predator_scene_car_models_ui.c",           # Simple model picker (WORKING)
-        "scenes/predator_scene_car_model_attacks_ui.c",    # Attacks for selected model (WORKING)
-        "scenes/predator_scene_protocol_test_ui.c",        # Protocol testing (Keeloq/Hitag2/AES)
-        "scenes/predator_scene_parking_barriers_ui.c",  # SWISS GOVERNMENT KKS - RE-ADDED: Testing stability
-        "scenes/predator_scene_barrier_manufacturer_select_ui.c",  # SWISS KKS: Choose manufacturer or try all
-        "scenes/predator_scene_barrier_attack_ui.c",   # SWISS KKS: Dedicated barrier opening attack
-        "scenes/predator_scene_walking_open_ui.c",    # GOVERNMENT APPROVED: Real-world capability
-        "scenes/predator_scene_car_key_bruteforce_ui.c",
-        "scenes/predator_scene_car_jamming_ui.c",
-        "scenes/predator_scene_car_passive_opener_ui.c",
+        # =====================================================
+        # TESLA & AUTOMOTIVE SECURITY (CORE BUSINESS)
+        # =====================================================
+        "scenes/predator_scene_car_tesla_ui.c",                    # Tesla-specific attacks
+        "scenes/predator_scene_car_continent_ui.c",               # Geographic car selection
+        "scenes/predator_scene_car_models_ui.c",                  # 178 car database interface
+        "scenes/predator_scene_car_model_attacks_ui.c",           # Per-model attack selection
+        "scenes/predator_scene_car_key_bruteforce_ui.c",          # Key bruteforce with crypto visualization
+        "scenes/predator_scene_car_jamming_ui.c",                 # RF jamming attacks
+        "scenes/predator_scene_car_passive_opener_ui.c",          # Passive key exploitation
+        "scenes/predator_scene_protocol_test_ui.c",               # Protocol testing (KeeLoq/Hitag2/AES)
+        "scenes/predator_scene_walking_open_ui.c",                # Real-world walking attacks
         
-        # WiFi Attacks - REDUCED FOR MEMORY (Keep essentials only)
-        "scenes/predator_scene_wifi_attacks_ui.c",
-        "scenes/predator_scene_wifi_scan_ui.c",
-        "scenes/predator_scene_wifi_deauth_ui.c",
-        "scenes/predator_scene_wifi_evil_twin_ui.c",   # RE-ADDED: Testing stability
-        # "scenes/predator_scene_wifi_handshake_ui.c",   # REMOVED: Out of memory
-        "scenes/predator_scene_wifi_pmkid_ui.c",       # KEPT: More important than handshake
+        # =====================================================
+        # GOVERNMENT CONTRACTS
+        # =====================================================
+        "scenes/predator_scene_parking_barriers_ui.c",           # Swiss Government KKS
+        "scenes/predator_scene_barrier_manufacturer_select_ui.c", # Barrier manufacturer selection
+        "scenes/predator_scene_barrier_attack_ui.c",             # Dedicated barrier attacks
         
-        # Bluetooth Attacks - REDUCED FOR MEMORY
-        "scenes/predator_scene_bluetooth_attacks_ui.c",
-        "scenes/predator_scene_ble_scan_ui.c",
-        "scenes/predator_scene_ble_spam_ui.c",         # RE-ADDED: Testing stability
+        # =====================================================
+        # GPS & SURVEILLANCE (GOVERNMENT APPROVED)
+        # =====================================================
+        "scenes/predator_scene_gps_tracker_ui.c",                # Real-time GPS tracking
+        "scenes/predator_scene_wardriving_ui.c",                 # WiFi network mapping
         
-        # RFID Attacks - REDUCED FOR MEMORY
-        "scenes/predator_scene_rfid_attacks_ui.c",
-        "scenes/predator_scene_rfid_clone_ui.c",
-        "scenes/predator_scene_rfid_bruteforce_ui.c",  # RE-ADDED: Testing stability
-        # "scenes/predator_scene_rfid_fuzzing_ui.c",     # REMOVED: Memory optimization
+        # =====================================================
+        # WIFI ATTACKS - COMPREHENSIVE
+        # =====================================================
+        "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
+        "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
+        "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
+        "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks
+        "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture
         
-        # SubGHz Attacks - REDUCED FOR MEMORY
-        "scenes/predator_scene_subghz_attacks_ui.c",
-        "scenes/predator_scene_subghz_jamming_ui.c",   # RE-ADDED: Testing stability
-        # "scenes/predator_scene_subghz_raw_send_ui.c",  # REMOVED: Memory optimization
+        # =====================================================
+        # BLUETOOTH ATTACKS
+        # =====================================================
+        "scenes/predator_scene_bluetooth_attacks_ui.c",          # Bluetooth attack menu
+        "scenes/predator_scene_ble_scan_ui.c",                   # BLE device discovery
+        "scenes/predator_scene_ble_spam_ui.c",                   # BLE spam attacks
         
-        # GPS & Navigation (GOVERNMENT APPROVED)
-        "scenes/predator_scene_gps_tracker_ui.c",
-        "scenes/predator_scene_wardriving_ui.c",
+        # =====================================================
+        # RFID/NFC ATTACKS
+        # =====================================================
+        "scenes/predator_scene_rfid_attacks_ui.c",               # RFID attack menu
+        "scenes/predator_scene_rfid_clone_ui.c",                 # Card cloning
+        "scenes/predator_scene_rfid_bruteforce_ui.c",            # RFID bruteforce
+        "scenes/predator_scene_calypso_cards_ui.c",              # Calypso transit cards
         
-        # Social Engineering (ESSENTIAL)
-        #"scenes/predator_scene_social_engineering_ui.c",
+        # =====================================================
+        # SUBGHZ ATTACKS
+        # =====================================================
+        "scenes/predator_scene_subghz_attacks_ui.c",             # SubGHz attack menu
+        "scenes/predator_scene_subghz_jamming_ui.c",             # RF jamming
         
-        # Government Contracts (CRITICAL) - Temporarily disabled due to compilation errors
-        # "scenes/predator_scene_traffic_light_security_ui.c",
-        
-        # System & Utility (ESSENTIAL)
-        "scenes/predator_scene_module_status_ui.c",
-        "scenes/predator_scene_board_selection_ui.c",
-        "scenes/predator_scene_settings_ui.c",
-        "scenes/predator_scene_about_ui.c",
-        "scenes/predator_scene_live_monitor_ui.c",
+        # =====================================================
+        # SYSTEM & UTILITY
+        # =====================================================
+        "scenes/predator_scene_module_status_ui.c",              # Hardware monitoring
+        "scenes/predator_scene_board_selection_ui.c",            # Multi-board management
+        "scenes/predator_scene_settings_ui.c",                   # Configuration
+        "scenes/predator_scene_about_ui.c",                      # System information
+        "scenes/predator_scene_live_monitor_ui.c",               # Real-time monitoring
     ],
 )
