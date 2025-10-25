@@ -2,6 +2,8 @@
 #include "predator_scene.h"
 #include "../helpers/subghz/predator_subghz_core.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_vin_codes.h"
+#include "../helpers/predator_models_hardcoded.h"
 
 // Attack methods for the model selected in app->selected_model_*
 // Navigates to existing attack scenes with proper UI and live status
@@ -18,13 +20,19 @@ void predator_scene_car_model_attacks_ui_on_enter(void* context) {
 
     submenu_reset(app->submenu);
 
-    char header[48];
-    // Show Make Model and MHz (integer formatting, trimmed to fit safely)
+    char header[64];
+    // Get real VIN code for this manufacturer
+    char vin_prefix[8] = {0};
+    predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
+    uint32_t vin_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
+    
+    // Show Make Model, VIN code, and MHz
     unsigned long mhz_i = (unsigned long)(app->selected_model_freq / 1000000U);
     unsigned long mhz_d = (unsigned long)((app->selected_model_freq % 1000000U) / 10000U); // 2 decimals
-    snprintf(header, sizeof(header), "🚗 %.12s %.16s (%lu.%02luMHz)",
+    snprintf(header, sizeof(header), "🚗 %.10s %.12s [%s:0x%08lX] %lu.%02luMHz",
              app->selected_model_make,
              app->selected_model_name,
+             vin_prefix, vin_code,
              mhz_i, mhz_d);
     submenu_set_header(app->submenu, header);
 

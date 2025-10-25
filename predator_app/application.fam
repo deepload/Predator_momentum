@@ -39,6 +39,8 @@ App(
         "helpers/predator_crypto_packets.c",      # Manufacturer-specific RF packets
         "helpers/predator_real_attack_engine.c",  # Real hardware attack implementations
         "helpers/predator_regional_crypto_keys.c", # Worldwide regional crypto keys (EU, Swiss, GCC, Asia)
+        "helpers/predator_vin_codes.c",          # Real VIN-based manufacturer codes (Government Grade)
+        "helpers/predator_calypso_production_keys.c", # Calypso transit card production keys
         
         # CRAZY FUNCTIONALITIES HELPERS
         "helpers/predator_global_surveillance.c", # Global surveillance network

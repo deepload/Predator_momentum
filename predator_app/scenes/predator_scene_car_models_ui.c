@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_models_hardcoded.h"
+#include "../helpers/predator_vin_codes.h"
 
 // Simple, memory-safe car models list -> selects one model and moves to attacks scene
 // Uses existing app->submenu only. No dynamic allocations.
@@ -57,8 +58,12 @@ void predator_scene_car_models_ui_on_enter(void* context) {
         if(filtered_idx >= start && filtered_idx < end && displayed < CAR_MODELS_PER_PAGE) {
             const PredatorCarModel* model = predator_models_get_hardcoded(i);
             if(model) {
-                char label[32];
-                snprintf(label, sizeof(label), "%.15s %.15s", model->make, model->model);
+                // Get real VIN code for this manufacturer
+                char vin_prefix[8] = {0};
+                predator_vin_get_prefix_string(model->make, vin_prefix);
+                
+                char label[48];
+                snprintf(label, sizeof(label), "%.12s %.12s [%s]", model->make, model->model, vin_prefix);
                 submenu_add_item(app->submenu, label, (uint32_t)(i + 1), car_models_submenu_cb, app);
                 displayed++;
             }
