@@ -102,6 +102,7 @@ App(
         "scenes/predator_scene_rfid_clone_ui.c",                 # Card cloning
         "scenes/predator_scene_rfid_bruteforce_ui.c",            # RFID bruteforce
         "scenes/predator_scene_calypso_cards_ui.c",              # Calypso transit cards
+        "scenes/predator_scene_auto_card_clone_ui.c",            # Automated card cloning
         
         # =====================================================
         # SUBGHZ ATTACKS

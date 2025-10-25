@@ -16,6 +16,9 @@ void predator_scene_rfid_attacks_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "💳 RFID/NFC Attacks");
     
+    // AUTOMATED CLONING
+    submenu_add_item(app->submenu, "🤖 Auto Card Clone", 10, rfid_attacks_submenu_callback, app);
+    
     // GOVERNMENT-GRADE CARD SUPPORT
     submenu_add_item(app->submenu, "🎫 Calypso Cards", 1, rfid_attacks_submenu_callback, app);
     submenu_add_item(app->submenu, "🚇 MIFARE Classic", 2, rfid_attacks_submenu_callback, app);
@@ -44,6 +47,9 @@ bool predator_scene_rfid_attacks_ui_on_event(void* context, SceneManagerEvent ev
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
+        case 10: // Auto Card Clone
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAutoCardCloneUI);
+            break;
         case 1: // Calypso Cards
             scene_manager_next_scene(app->scene_manager, PredatorSceneCalypsoCardsUI);
             break;

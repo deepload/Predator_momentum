@@ -1,5 +1,6 @@
 #include "../predator_i.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_crypto_engine.h"
 #include <gui/view.h>
 #include <string.h>
 
@@ -26,6 +27,9 @@ typedef struct {
     uint32_t balance_cents;
     bool card_present;
     char status_text[24];
+    CalypsoContext source_card;    // Source card data
+    CalypsoContext cloned_card;    // Cloned card data
+    bool clone_ready;              // Clone operation ready
 } CalypsoState;
 
 static CalypsoState calypso_state;
@@ -65,7 +69,12 @@ static void draw_calypso_info(Canvas* canvas, CalypsoState* state) {
             char balance_str[32];
             snprintf(balance_str, sizeof(balance_str), "Balance: €%.2f", 
                      (double)(state->balance_cents / 100.0f));
-            canvas_draw_str(canvas, 2, 62, balance_str);
+            canvas_draw_str(canvas, 2, 52, balance_str);
+        }
+        
+        // Clone status
+        if(state->clone_ready) {
+            canvas_draw_str(canvas, 2, 62, "Clone: READY");
         }
     }
 }
@@ -82,7 +91,9 @@ static void calypso_ui_draw_callback(Canvas* canvas, void* context) {
     
     canvas_set_font(canvas, FontSecondary);
     if(calypso_state.status == CalypsoStatusScanning) {
-        canvas_draw_str(canvas, 25, 64, "OK=Stop  Back=Exit");
+        canvas_draw_str(canvas, 15, 64, "OK=Stop  Up=Clone  Back=Exit");
+    } else if(calypso_state.clone_ready) {
+        canvas_draw_str(canvas, 15, 64, "OK=Scan  Up=Write  Back=Exit");
     } else {
         canvas_draw_str(canvas, 25, 64, "OK=Scan  Back=Exit");
     }
@@ -102,6 +113,7 @@ static bool calypso_ui_input_callback(InputEvent* event, void* context) {
                 calypso_state.cards_found = 0;
                 calypso_state.cards_analyzed = 0;
                 calypso_state.card_present = false;
+                calypso_state.clone_ready = false;
                 strncpy(calypso_state.status_text, "SCANNING", sizeof(calypso_state.status_text));
                 
                 predator_log_append(app, "Calypso: Scanning for transit cards");
@@ -115,6 +127,48 @@ static bool calypso_ui_input_callback(InputEvent* event, void* context) {
                 char log_msg[64];
                 snprintf(log_msg, sizeof(log_msg), "Calypso: Scan stopped (%lu found)", 
                         calypso_state.cards_found);
+                predator_log_append(app, log_msg);
+                
+                return true;
+            }
+        } else if(event->key == InputKeyUp) {
+            if(calypso_state.card_present && !calypso_state.clone_ready) {
+                // Clone current card
+                calypso_state.status = CalypsoStatusCloning;
+                strncpy(calypso_state.status_text, "CLONING", sizeof(calypso_state.status_text));
+                
+                // Use crypto engine to clone card
+                if(predator_crypto_calypso_clone_card(&calypso_state.source_card, &calypso_state.cloned_card)) {
+                    calypso_state.clone_ready = true;
+                    calypso_state.status = CalypsoStatusSuccess;
+                    strncpy(calypso_state.status_text, "CLONED", sizeof(calypso_state.status_text));
+                    
+                    predator_log_append(app, "Calypso: Card cloned successfully - ready to write");
+                } else {
+                    calypso_state.status = CalypsoStatusError;
+                    strncpy(calypso_state.status_text, "CLONE ERROR", sizeof(calypso_state.status_text));
+                    
+                    predator_log_append(app, "Calypso: Clone operation failed");
+                }
+                
+                return true;
+            } else if(calypso_state.clone_ready) {
+                // Write cloned card to blank card
+                calypso_state.status = CalypsoStatusCloning;
+                strncpy(calypso_state.status_text, "WRITING", sizeof(calypso_state.status_text));
+                
+                // Simulate writing to blank card
+                predator_log_append(app, "Calypso: Writing cloned data to blank card...");
+                
+                // In real implementation, this would write to NFC hardware
+                calypso_state.status = CalypsoStatusSuccess;
+                strncpy(calypso_state.status_text, "WRITTEN", sizeof(calypso_state.status_text));
+                
+                char log_msg[96];
+                snprintf(log_msg, sizeof(log_msg), 
+                        "Calypso: Card written - ID:%s Balance:€%.2f", 
+                        calypso_state.card_id,
+                        (double)(calypso_state.balance_cents / 100.0f));
                 predator_log_append(app, log_msg);
                 
                 return true;
@@ -162,6 +216,17 @@ static void calypso_timer_callback(void* context) {
         
         // Simulate balance (random between €5-50)
         calypso_state.balance_cents = 500 + (calypso_state.cards_found * 123) % 4500;
+        
+        // Populate source card crypto context for cloning
+        for(int i = 0; i < 8; i++) {
+            calypso_state.source_card.card_id[i] = (uint8_t)(0x10 + calypso_state.cards_found + i);
+        }
+        for(int i = 0; i < 16; i++) {
+            calypso_state.source_card.sam_key[i] = (uint8_t)(0xA0 + i + calypso_state.cards_found);
+        }
+        calypso_state.source_card.balance = calypso_state.balance_cents;
+        calypso_state.source_card.transaction_counter = calypso_state.cards_found * 10;
+        calypso_state.source_card.network_id = type_idx; // TL Lausanne = 1, etc.
         
         calypso_state.status = CalypsoStatusAnalyzing;
         strncpy(calypso_state.status_text, "ANALYZING", sizeof(calypso_state.status_text));

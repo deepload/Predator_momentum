@@ -33,6 +33,7 @@ ADD_SCENE(predator, rfid_attacks_ui, RfidAttacksUI)
 ADD_SCENE(predator, rfid_clone_ui, RfidCloneUI)
 ADD_SCENE(predator, rfid_bruteforce_ui, RfidBruteforceUI) // RE-ADDED: Testing stability
 ADD_SCENE(predator, calypso_cards_ui, CalypsoCardsUI)     // Government-grade transit cards
+ADD_SCENE(predator, auto_card_clone_ui, AutoCardCloneUI) // Automated card cloning
 // ADD_SCENE(predator, rfid_fuzzing_ui, RfidFuzzingUI)       // REMOVED: Memory optimization
 
 // SubGHz Attacks - REDUCED FOR MEMORY
