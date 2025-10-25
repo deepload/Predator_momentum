@@ -45,6 +45,9 @@ ADD_SCENE(predator, subghz_jamming_ui, SubGhzJammingUI)   // RE-ADDED: Testing s
 ADD_SCENE(predator, gps_tracker_ui, GpsTrackerUI)
 ADD_SCENE(predator, wardriving_ui, WardrivingUI)
 
+// Government Contracts (CRITICAL INFRASTRUCTURE)
+ADD_SCENE(predator, traffic_light_security_ui, TrafficLightSecurityUI) // Swiss Government NTCIP
+
 // Social Engineering (TEMPORARILY DISABLED - memory optimization)
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 

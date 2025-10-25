@@ -74,6 +74,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     // GOVERNMENT APPROVED - ALL CAPABILITIES ACCESSIBLE
     submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Car Models", 2, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚦 Traffic Lights", 20, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🛰️ GPS Tracker", 17, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📍 Wardriving", 18, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);
@@ -149,6 +150,9 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             break;
         case 2: // Car Models
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarContinentUI);
+            break;
+        case 20: // Traffic Lights - Swiss Government
+            scene_manager_next_scene(app->scene_manager, PredatorSceneTrafficLightSecurityUI);
             break;
         case 17: // GPS Tracker - Government Approved
             scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
