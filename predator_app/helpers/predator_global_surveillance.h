@@ -5,6 +5,7 @@
 #include "predator_esp32.h"
 #include "predator_crypto_engine.h"
 #include "predator_logging.h"
+#include "predator_real_attack_engine.h"
 #include "subghz/predator_subghz_core.h"
 
 // 🌍 GLOBAL SURVEILLANCE NETWORK
@@ -21,7 +22,8 @@ typedef enum {
 
 typedef struct {
     SurveillanceStatus status;
-    GPSCoordinates current_location;
+    float current_latitude;
+    float current_longitude;
     uint32_t wifi_networks_mapped;
     uint32_t subghz_signals_analyzed;
     uint32_t crypto_protocols_identified;

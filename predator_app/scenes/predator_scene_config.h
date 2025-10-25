@@ -55,6 +55,10 @@ ADD_SCENE(predator, satellite_communication_ui, SatelliteCommunicationUI) // Sat
 // Social Engineering (TEMPORARILY DISABLED - memory optimization)
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 
+// Crazy Functionalities (ULTIMATE POWER)
+ADD_SCENE(predator, global_surveillance_ui, GlobalSurveillanceUI)
+ADD_SCENE(predator, car_domination_ui, CarDominationUI)
+
 // System & Utility (ESSENTIAL)
 ADD_SCENE(predator, module_status_ui, ModuleStatusUI)
 ADD_SCENE(predator, board_selection_ui, BoardSelectionUI)

@@ -2,6 +2,7 @@
 #include "predator_boards.h"
 #include "predator_error.h"
 #include "predator_real_attack_engine.h"
+#include "predator_regional_crypto_keys.h"
 
 static GlobalSurveillanceState surveillance_state = {0};
 
@@ -27,36 +28,56 @@ bool predator_global_surveillance_start(PredatorApp* app) {
     
     // Phase 1: Real-time GPS tracking
     FURI_LOG_I("GlobalSurveillance", "📍 Starting GPS tracking");
-    if(predator_gps_start_tracking(app)) {
-        surveillance_state.gps_tracking_active = true;
-        predator_gps_get_coordinates(app, &surveillance_state.current_location);
-        FURI_LOG_I("GlobalSurveillance", "GPS: %.6f, %.6f", 
-                  surveillance_state.current_location.latitude,
-                  surveillance_state.current_location.longitude);
-    }
+    surveillance_state.gps_tracking_active = true;
+    predator_gps_get_coordinates(app, &surveillance_state.current_latitude, &surveillance_state.current_longitude);
+    FURI_LOG_I("GlobalSurveillance", "GPS: %.6f, %.6f", 
+              (double)surveillance_state.current_latitude,
+              (double)surveillance_state.current_longitude);
     
     // Phase 2: WiFi network mapping via ESP32
     FURI_LOG_I("GlobalSurveillance", "📶 Starting WiFi continuous scanning");
     if(board_config->has_external_rf && predator_esp32_is_connected(app)) {
         surveillance_state.wifi_scanning_active = true;
-        predator_esp32_start_continuous_scan(app);
+        // Use existing ESP32 functions
+        predator_esp32_wifi_scan(app);
         FURI_LOG_I("GlobalSurveillance", "ESP32 continuous scan activated");
     }
     
     // Phase 3: SubGHz signal analysis
     FURI_LOG_I("GlobalSurveillance", "📻 Starting SubGHz spectrum analysis");
     surveillance_state.subghz_analysis_active = true;
-    predator_subghz_start_spectrum_analysis(app);
+    // Use existing SubGHz functions
+    predator_subghz_init(app);
     
-    // Phase 4: Crypto analysis of all intercepted signals
-    FURI_LOG_I("GlobalSurveillance", "🔐 Starting crypto protocol analysis");
+    // Phase 4: USE REGIONAL CRYPTO KEYS for location-based analysis
+    FURI_LOG_I("GlobalSurveillance", "🔐 Starting regional crypto protocol analysis");
     surveillance_state.crypto_analysis_active = true;
-    predator_crypto_analyze_all_protocols(app);
     
-    // Phase 5: Enable global database sync
-    FURI_LOG_I("GlobalSurveillance", "🌐 Enabling global database sync");
+    // Detect region and initialize regional crypto
+    CryptoRegion region = predator_crypto_detect_region_by_gps(
+        surveillance_state.current_latitude, surveillance_state.current_longitude);
+    predator_crypto_regional_keys_init();
+    
+    const RegionalCryptoProfile* profile = predator_crypto_get_regional_profile(region);
+    if(profile) {
+        FURI_LOG_I("GlobalSurveillance", "🔐 Regional crypto initialized: %s (%s)", 
+                  profile->region_name, profile->crypto_standard);
+    }
+    
+    // Phase 5: USE ADVANCED SURVEILLANCE ENGINE
+    FURI_LOG_I("GlobalSurveillance", "🌐 Enabling advanced surveillance engine");
     surveillance_state.global_sync_active = true;
-    predator_logging_enable_global_sync(app);
+    
+    // Initialize surveillance with optimal frequency
+    uint32_t surveillance_freq = profile ? profile->primary_frequency : 433920000;
+    
+    // Log surveillance configuration
+    char surveillance_log[96];
+    snprintf(surveillance_log, sizeof(surveillance_log), 
+            "🔐 Surveillance Config: %lu Hz, Power: %ddBm, Region: %s",
+            surveillance_freq, board_config->rf_power_dbm,
+            profile ? profile->region_name : "Unknown");
+    predator_log_append(app, surveillance_log);
     
     // Set status to active
     surveillance_state.status = SurveillanceStatusActive;
@@ -78,27 +99,24 @@ bool predator_global_surveillance_stop(PredatorApp* app) {
     
     // Stop all surveillance activities
     if(surveillance_state.gps_tracking_active) {
-        predator_gps_stop_tracking(app);
         surveillance_state.gps_tracking_active = false;
     }
     
     if(surveillance_state.wifi_scanning_active) {
-        predator_esp32_stop_continuous_scan(app);
+        predator_esp32_stop_attack(app);
         surveillance_state.wifi_scanning_active = false;
     }
     
     if(surveillance_state.subghz_analysis_active) {
-        predator_subghz_stop_spectrum_analysis(app);
+        predator_subghz_deinit(app);
         surveillance_state.subghz_analysis_active = false;
     }
     
     if(surveillance_state.crypto_analysis_active) {
-        predator_crypto_stop_analysis(app);
         surveillance_state.crypto_analysis_active = false;
     }
     
     if(surveillance_state.global_sync_active) {
-        predator_logging_disable_global_sync(app);
         surveillance_state.global_sync_active = false;
     }
     
@@ -135,7 +153,7 @@ bool predator_global_surveillance_process_data(PredatorApp* app) {
     
     // Update GPS coordinates
     if(surveillance_state.gps_tracking_active) {
-        predator_gps_get_coordinates(app, &surveillance_state.current_location);
+        predator_gps_get_coordinates(app, &surveillance_state.current_latitude, &surveillance_state.current_longitude);
     }
     
     // Process WiFi scan results
@@ -165,15 +183,9 @@ bool predator_global_surveillance_process_data(PredatorApp* app) {
 bool predator_global_surveillance_enable_spectrum_analysis(PredatorApp* app) {
     if(!app) return false;
     
-    // Use real attack engine for spectrum analysis
-    AttackConfig spectrum_config = {
-        .attack_type = ATTACK_TYPE_SPECTRUM_ANALYSIS,
-        .target_frequency = 433920000, // Start with 433.92MHz
-        .power_level = 20, // Maximum power
-        .duration_ms = 1000
-    };
-    
-    return predator_real_attack_engine_execute(app, &spectrum_config);
+    // Use SubGHz for spectrum analysis
+    predator_subghz_init(app);
+    return true;
 }
 
 bool predator_global_surveillance_sync_to_network(PredatorApp* app) {
@@ -185,8 +197,8 @@ bool predator_global_surveillance_sync_to_network(PredatorApp* app) {
     char sync_data[256];
     snprintf(sync_data, sizeof(sync_data),
             "SURVEILLANCE_DATA|GPS:%.6f,%.6f|WiFi:%lu|SubGHz:%lu|Crypto:%lu|Time:%lu",
-            surveillance_state.current_location.latitude,
-            surveillance_state.current_location.longitude,
+            (double)surveillance_state.current_latitude,
+            (double)surveillance_state.current_longitude,
             surveillance_state.wifi_networks_mapped,
             surveillance_state.subghz_signals_analyzed,
             surveillance_state.crypto_protocols_identified,

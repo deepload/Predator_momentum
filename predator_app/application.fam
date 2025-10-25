@@ -38,6 +38,11 @@ App(
         "helpers/predator_crypto_engine.c",       # KeeLoq, Hitag2, AES-128, Tesla protocols
         "helpers/predator_crypto_packets.c",      # Manufacturer-specific RF packets
         "helpers/predator_real_attack_engine.c",  # Real hardware attack implementations
+        "helpers/predator_regional_crypto_keys.c", # Worldwide regional crypto keys (EU, Swiss, GCC, Asia)
+        
+        # CRAZY FUNCTIONALITIES HELPERS
+        "helpers/predator_global_surveillance.c", # Global surveillance network
+        "helpers/predator_car_domination.c",      # Ultimate car domination mode
         
         # MODULAR SUBGHZ - v2.0 ARCHITECTURE
         "helpers/subghz/predator_subghz_core.c",     # Hardware init/deinit
@@ -118,6 +123,12 @@ App(
         # =====================================================
         "scenes/predator_scene_subghz_attacks_ui.c",             # SubGHz attack menu
         "scenes/predator_scene_subghz_jamming_ui.c",             # RF jamming
+        
+        # =====================================================
+        # CRAZY FUNCTIONALITIES (ULTIMATE POWER)
+        # =====================================================
+        "scenes/predator_scene_global_surveillance_ui.c",       # Global surveillance network
+        "scenes/predator_scene_car_domination_ui.c",            # Ultimate car domination mode
         
         # =====================================================
         # SYSTEM & UTILITY

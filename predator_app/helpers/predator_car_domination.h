@@ -4,6 +4,7 @@
 #include "predator_models_hardcoded.h"
 #include "predator_gps.h"
 #include "predator_crypto_engine.h"
+#include "predator_real_attack_engine.h"
 #include "subghz/predator_subghz_core.h"
 #include "predator_logging.h"
 
@@ -21,7 +22,8 @@ typedef enum {
 
 typedef struct {
     CarDominationStatus status;
-    GPSCoordinates current_location;
+    float current_latitude;
+    float current_longitude;
     uint32_t total_models_loaded;
     uint32_t models_attacked;
     uint32_t successful_attacks;
@@ -70,7 +72,7 @@ bool predator_car_domination_process_next_model(PredatorApp* app);
  * @param model Car model to attack
  * @return true if attack successful, false otherwise
  */
-bool predator_car_domination_attack_model(PredatorApp* app, const CarModel* model);
+bool predator_car_domination_attack_model(PredatorApp* app, const PredatorCarModel* model);
 
 /**
  * @brief Enable maximum power mode for car domination

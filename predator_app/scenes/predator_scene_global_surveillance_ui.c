@@ -40,7 +40,7 @@ static void draw_surveillance_status(Canvas* canvas, GlobalSurveillanceState* st
     // Location
     char location_str[32];
     snprintf(location_str, sizeof(location_str), "GPS: %.2f,%.2f", 
-            state->current_location.latitude, state->current_location.longitude);
+            (double)state->current_latitude, (double)state->current_longitude);
     canvas_draw_str(canvas, 2, 32, location_str);
 }
 

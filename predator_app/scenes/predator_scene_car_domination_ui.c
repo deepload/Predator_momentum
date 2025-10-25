@@ -112,7 +112,7 @@ static void car_domination_ui_draw_callback(Canvas* canvas, void* context) {
             success_rate = ((float)domination_state->successful_attacks / domination_state->models_attacked) * 100.0f;
         }
         char rate_str[32];
-        snprintf(rate_str, sizeof(rate_str), "SUCCESS: %.1f%%", success_rate);
+        snprintf(rate_str, sizeof(rate_str), "SUCCESS: %.1f%%", (double)success_rate);
         canvas_draw_str(canvas, 30, 64, rate_str);
     } else {
         canvas_draw_str(canvas, 25, 64, "OK=Stop   Back=Exit");

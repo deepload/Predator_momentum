@@ -1,6 +1,10 @@
 #include "../predator_i.h"
 #include "predator_scene.h"
 #include "../helpers/predator_boards.h"
+#include "../helpers/predator_regional_crypto_keys.h"  // Regional crypto keys
+#include "../helpers/predator_global_surveillance.h"   // Global surveillance
+#include "../helpers/predator_car_domination.h"       // Car domination
+#include "../helpers/predator_logging.h"              // Enhanced logging
 #include "predator_submenu_index.h"
 
 // Main Menu - Professional UI (Memory Optimized, No Guards)
