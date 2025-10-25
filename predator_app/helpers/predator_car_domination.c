@@ -110,16 +110,16 @@ bool predator_car_domination_process_next_model(PredatorApp* app) {
     }
     
     // Update state with current model
-    strncpy(domination_state.current_manufacturer, current_model->manufacturer, 
+    strncpy(domination_state.current_manufacturer, current_model->make, 
            sizeof(domination_state.current_manufacturer) - 1);
     strncpy(domination_state.current_model, current_model->model, 
            sizeof(domination_state.current_model) - 1);
     
     // Get optimal frequency for this manufacturer
-    domination_state.current_frequency = predator_subghz_get_manufacturer_frequency(current_model->manufacturer);
+    domination_state.current_frequency = predator_subghz_get_manufacturer_frequency(current_model->make);
     
     FURI_LOG_I("CarDomination", "🎯 Targeting: %s %s (Freq: %lu Hz)", 
-              current_model->manufacturer, current_model->model, domination_state.current_frequency);
+              current_model->make, current_model->model, domination_state.current_frequency);
     
     // Attack this model
     domination_state.status = CarDominationStatusAttacking;
@@ -170,25 +170,25 @@ bool predator_car_domination_attack_model(PredatorApp* app, const PredatorCarMod
     
     // Log the real VIN code being used
     char vin_prefix[8] = {0};
-    predator_vin_get_prefix_string(model->manufacturer, vin_prefix);
+    predator_vin_get_prefix_string(model->make, vin_prefix);
     FURI_LOG_I("CarDomination", "🔐 Using REAL VIN code: %s (0x%08lX) for %s", 
-              vin_prefix, manufacturer_code, model->manufacturer);
+              vin_prefix, manufacturer_code, model->make);
     
     // MANUFACTURER-SPECIFIC ATTACK USING REAL VIN CODES
     // Use the real VIN-based code we retrieved above
-    if(strstr(model->manufacturer, "Tesla")) {
+    if(strstr(model->make, "Tesla")) {
         attack_success = predator_crypto_format_tesla_packet(0x01, manufacturer_code, NULL);
-    } else if(strstr(model->manufacturer, "BMW")) {
+    } else if(strstr(model->make, "BMW")) {
         attack_success = predator_crypto_format_bmw_packet(0x01, manufacturer_code, NULL);
-    } else if(strstr(model->manufacturer, "Mercedes")) {
+    } else if(strstr(model->make, "Mercedes")) {
         attack_success = predator_crypto_format_mercedes_packet(0x01, manufacturer_code, NULL);
-    } else if(strstr(model->manufacturer, "Audi")) {
+    } else if(strstr(model->make, "Audi")) {
         attack_success = predator_crypto_format_audi_packet(0x01, manufacturer_code, NULL);
-    } else if(strstr(model->manufacturer, "Ford")) {
+    } else if(strstr(model->make, "Ford")) {
         attack_success = predator_crypto_format_ford_packet(0x01, manufacturer_code, NULL);
-    } else if(strstr(model->manufacturer, "Toyota")) {
+    } else if(strstr(model->make, "Toyota")) {
         attack_success = predator_crypto_format_toyota_packet(0x01, manufacturer_code, NULL);
-    } else if(strstr(model->manufacturer, "Honda")) {
+    } else if(strstr(model->make, "Honda")) {
         attack_success = predator_crypto_format_honda_packet(0x01, manufacturer_code, NULL);
     
     // EXTENDED MANUFACTURERS - REAL VIN-BASED MANUFACTURER CODES

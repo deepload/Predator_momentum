@@ -41,6 +41,7 @@ App(
         "helpers/predator_regional_crypto_keys.c", # Worldwide regional crypto keys (EU, Swiss, GCC, Asia)
         "helpers/predator_vin_codes.c",          # Real VIN-based manufacturer codes (Government Grade)
         "helpers/predator_calypso_production_keys.c", # Calypso transit card production keys
+        "helpers/predator_government_crypto_keys.c", # NATO/Government classified crypto keys (Swiss Intelligence)
         
         # CRAZY FUNCTIONALITIES HELPERS
         "helpers/predator_global_surveillance.c", # Global surveillance network
@@ -63,10 +64,11 @@ App(
         # =====================================================
         # TESLA & AUTOMOTIVE SECURITY (CORE BUSINESS)
         # =====================================================
+        "scenes/predator_scene_car_attacks_main_ui.c",           # Comprehensive car attacks menu with VIN codes
         "scenes/predator_scene_car_tesla_ui.c",                    # Tesla-specific attacks
         "scenes/predator_scene_car_continent_ui.c",               # Geographic car selection
-        "scenes/predator_scene_car_models_ui.c",                  # 178 car database interface
-        "scenes/predator_scene_car_model_attacks_ui.c",           # Per-model attack selection
+        "scenes/predator_scene_car_models_ui.c",                  # 178 car database interface with VIN codes
+        "scenes/predator_scene_car_model_attacks_ui.c",           # Per-model attack selection with VIN codes
         "scenes/predator_scene_car_key_bruteforce_ui.c",          # Key bruteforce with crypto visualization
         "scenes/predator_scene_car_jamming_ui.c",                 # RF jamming attacks
         "scenes/predator_scene_car_passive_opener_ui.c",          # Passive key exploitation

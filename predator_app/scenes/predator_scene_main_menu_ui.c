@@ -76,8 +76,8 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_set_header(app->submenu, "🔥 PREDATOR v2.0 NUCLEAR");
     
     // GOVERNMENT APPROVED - ALL CAPABILITIES ACCESSIBLE
-    submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚗 Car Models", 2, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚗 Car Attacks (Complete)", 1, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "⚡ Tesla Security Suite", 2, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🔧 Advanced Car Hack", 21, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚦 Traffic Lights", 20, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🏭 Industrial SCADA", 22, main_menu_submenu_callback, app);
@@ -153,11 +153,11 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     if(event.type == SceneManagerEventTypeCustom) {
         FURI_LOG_D("MainMenu", "Menu item selected: %lu", event.event);
         switch(event.event) {
-        case 1: // Tesla Security
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
+        case 1: // Car Attacks (Complete)
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarAttacksMainUI);
             break;
-        case 2: // Car Models
-            scene_manager_next_scene(app->scene_manager, PredatorSceneCarContinentUI);
+        case 2: // Tesla Security Suite
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCarTeslaUI);
             break;
         case 21: // Advanced Car Hacking
             scene_manager_next_scene(app->scene_manager, PredatorSceneAdvancedCarHackingUI);
