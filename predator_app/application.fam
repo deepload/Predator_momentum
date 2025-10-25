@@ -11,7 +11,7 @@ App(
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1", "MINIMAL_LOGGING=1"],  # Ultra aggressive memory optimization
+    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1", "MINIMAL_LOGGING=1", "GLOBAL_SURVEILLANCE_DISABLED=1"],  # Ultra aggressive memory optimization
     sources=[
         # =====================================================
         # CORE APPLICATION
@@ -44,7 +44,7 @@ App(
         "helpers/predator_government_crypto_keys.c", # NATO/Government classified crypto keys (Swiss Intelligence)
         
         # CRAZY FUNCTIONALITIES HELPERS - OPTIMIZED FOR MEMORY
-        # "helpers/predator_global_surveillance.c", # Global surveillance network - COMMENTED FOR MEMORY
+        # "helpers/predator_global_surveillance.c", # Global surveillance network - MEMORY OPTIMIZED OUT
         "helpers/predator_car_domination.c",      # Ultimate car domination mode - KEEP
         
         # MODULAR SUBGHZ - v2.0 ARCHITECTURE
@@ -131,7 +131,7 @@ App(
         # =====================================================
         # CRAZY FUNCTIONALITIES (ULTIMATE POWER) - KEEP ESSENTIAL
         # =====================================================
-        # "scenes/predator_scene_global_surveillance_ui.c",       # Global surveillance network - COMMENTED FOR MEMORY
+        # "scenes/predator_scene_global_surveillance_ui.c",       # Global surveillance network - MEMORY OPTIMIZED OUT
         "scenes/predator_scene_car_domination_ui.c",            # Ultimate car domination mode - KEEP
         
         # =====================================================

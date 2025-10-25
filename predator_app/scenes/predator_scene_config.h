@@ -57,7 +57,7 @@ ADD_SCENE(predator, satellite_communication_ui, SatelliteCommunicationUI) // Sat
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)
 
 // Crazy Functionalities (ULTIMATE POWER) - OPTIMIZED FOR MEMORY
-// ADD_SCENE(predator, global_surveillance_ui, GlobalSurveillanceUI)  // COMMENTED FOR MEMORY
+// ADD_SCENE(predator, global_surveillance_ui, GlobalSurveillanceUI)  // MEMORY OPTIMIZED OUT
 ADD_SCENE(predator, car_domination_ui, CarDominationUI)  // KEEP - ESSENTIAL
 
 // System & Utility (ESSENTIAL)

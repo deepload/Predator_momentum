@@ -83,6 +83,9 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🏭 Industrial SCADA", 22, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Social Engineering", 23, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🛰️ Satellite Comm", 24, main_menu_submenu_callback, app);
+#ifndef GLOBAL_SURVEILLANCE_DISABLED
+    submenu_add_item(app->submenu, "🌍 Global Surveillance", 25, main_menu_submenu_callback, app);
+#endif
     submenu_add_item(app->submenu, "🛰️ GPS Tracker", 17, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📍 Wardriving", 18, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);
@@ -175,6 +178,11 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 24: // Satellite Communication
             scene_manager_next_scene(app->scene_manager, PredatorSceneSatelliteCommunicationUI);
             break;
+#ifndef GLOBAL_SURVEILLANCE_DISABLED
+        case 25: // Global Surveillance
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGlobalSurveillanceUI);
+            break;
+#endif
         case 17: // GPS Tracker - Government Approved
             scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
             break;
