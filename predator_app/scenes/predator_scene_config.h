@@ -48,6 +48,9 @@ ADD_SCENE(predator, wardriving_ui, WardrivingUI)
 
 // Government Contracts (CRITICAL INFRASTRUCTURE)
 ADD_SCENE(predator, traffic_light_security_ui, TrafficLightSecurityUI) // Swiss Government NTCIP
+ADD_SCENE(predator, industrial_scada_ui, IndustrialScadaUI)           // Industrial control systems
+ADD_SCENE(predator, social_engineering_toolkit_ui, SocialEngineeringToolkitUI) // Advanced social engineering
+ADD_SCENE(predator, satellite_communication_ui, SatelliteCommunicationUI) // Satellite security
 
 // Social Engineering (TEMPORARILY DISABLED - memory optimization)
 // ADD_SCENE(predator, social_engineering_ui, SocialEngineeringUI)

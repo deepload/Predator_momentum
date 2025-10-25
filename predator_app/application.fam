@@ -84,6 +84,9 @@ App(
         # GOVERNMENT CONTRACTS (CRITICAL INFRASTRUCTURE)
         # =====================================================
         "scenes/predator_scene_traffic_light_security_ui.c",     # Swiss Government NTCIP
+        "scenes/predator_scene_industrial_scada_ui.c",           # Industrial control systems
+        "scenes/predator_scene_social_engineering_toolkit_ui.c", # Advanced social engineering
+        "scenes/predator_scene_satellite_communication_ui.c",    # Satellite security
         
         # =====================================================
         # WIFI ATTACKS - COMPREHENSIVE
