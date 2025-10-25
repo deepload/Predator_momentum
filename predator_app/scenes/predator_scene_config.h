@@ -17,13 +17,13 @@ ADD_SCENE(predator, barrier_manufacturer_select_ui, BarrierManufacturerSelectUI)
 ADD_SCENE(predator, barrier_attack_ui, BarrierAttackUI)      // SWISS KKS: Dedicated barrier opening with real manufacturer keys
 ADD_SCENE(predator, parking_barriers_ui, ParkingBarriersUI)  // RE-ADDED: Swiss Gov requirement - Testing stability
 
-// WiFi Attacks - TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION
-// ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
-// ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
-// ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
-// ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // COMMENTED FOR MEMORY
+// WiFi Attacks - STEP 1: ADD BACK ESSENTIAL WIFI
+ADD_SCENE(predator, wifi_attacks_ui, WifiAttacksUI)
+ADD_SCENE(predator, wifi_scan_ui, WifiScanUI)
+ADD_SCENE(predator, wifi_deauth_ui, WifiDeauthUI)
+// ADD_SCENE(predator, wifi_evil_twin_ui, WifiEvilTwinUI)   // KEEP COMMENTED FOR NOW
 // ADD_SCENE(predator, wifi_handshake_ui, WifiHandshakeUI)   // REMOVED: Out of memory
-// ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // COMMENTED FOR MEMORY
+// ADD_SCENE(predator, wifi_pmkid_ui, WifiPmkidUI)           // KEEP COMMENTED FOR NOW
 
 // Bluetooth Attacks - TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION
 // ADD_SCENE(predator, bluetooth_attacks_ui, BluetoothAttacksUI)

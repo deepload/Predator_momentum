@@ -98,13 +98,13 @@ App(
         "scenes/predator_scene_satellite_communication_ui.c",    # Satellite security
         
         # =====================================================
-        # WIFI ATTACKS - TEMPORARILY COMMENTED FOR MEMORY
+        # WIFI ATTACKS - STEP 1: ADD BACK ESSENTIAL WIFI
         # =====================================================
-        # "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
-        # "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
-        # "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
-        # "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks
-        # "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture
+        "scenes/predator_scene_wifi_attacks_ui.c",               # WiFi attack menu
+        "scenes/predator_scene_wifi_scan_ui.c",                  # Network discovery
+        "scenes/predator_scene_wifi_deauth_ui.c",                # Deauthentication attacks
+        # "scenes/predator_scene_wifi_evil_twin_ui.c",             # Rogue AP attacks - KEEP COMMENTED FOR NOW
+        # "scenes/predator_scene_wifi_pmkid_ui.c",                 # PMKID capture - KEEP COMMENTED FOR NOW
         
         # =====================================================
         # BLUETOOTH ATTACKS - TEMPORARILY COMMENTED FOR MEMORY

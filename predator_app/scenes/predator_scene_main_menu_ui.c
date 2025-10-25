@@ -86,7 +86,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_add_item(app->submenu, "🛰️ GPS Tracker", 17, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📍 Wardriving", 18, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);
-    // submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);  // COMMENTED FOR MEMORY
+    submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);  // STEP 1: RESTORED
     // submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);  // COMMENTED FOR MEMORY
     submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
     // submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);  // COMMENTED FOR MEMORY
@@ -186,8 +186,8 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 19: // Live Monitor
             scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             break;
-        case 4: // WiFi Attacks - TEMPORARILY DISABLED FOR MEMORY
-            // scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
+        case 4: // WiFi Attacks - STEP 1: RESTORED
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);
             break;
         case 5: // Bluetooth Attacks - TEMPORARILY DISABLED FOR MEMORY
             // scene_manager_next_scene(app->scene_manager, PredatorSceneBluetoothAttacksUI);
