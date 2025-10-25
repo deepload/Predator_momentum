@@ -147,7 +147,7 @@ bool predator_vin_codes_init(void) {
 }
 
 uint32_t predator_vin_get_manufacturer_code(const PredatorCarModel* model) {
-    if(!model || !model->make) return 0x12345678; // Fallback for invalid input
+    if(!model || model->make[0] == '\0') return 0x12345678; // Fallback for invalid input
     
     return predator_vin_get_code_by_manufacturer(model->make);
 }

@@ -152,6 +152,7 @@ bool predator_scene_car_attacks_main_ui_on_event(void* context, SceneManagerEven
                 {
                     // Show VIN database statistics
                     char stats_log[128];
+                    const size_t total_models = predator_models_get_hardcoded_count();
                     snprintf(stats_log, sizeof(stats_log), 
                             "📊 VIN Database: %zu car models, 70+ manufacturers with real VIN codes", 
                             total_models);

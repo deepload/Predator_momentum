@@ -7,6 +7,42 @@
 // Used by: French Navigo, Swiss SBB, Italian transport, Belgian MOBIB, etc.
 
 // =====================================================
+// CALYPSO DATA STRUCTURES AND ENUMS
+// =====================================================
+
+typedef enum {
+    CalypsoKeyTypeAES128,
+    CalypsoKeyTypeAES256,
+    CalypsoKeyTypeDES,
+    CalypsoKeyType3DES
+} CalypsoKeyType;
+
+typedef enum {
+    CalypsoClassificationTest,
+    CalypsoClassificationProduction,
+    CalypsoClassificationGovernment
+} CalypsoClassification;
+
+typedef enum {
+    CalypsoSecurityLevel1,
+    CalypsoSecurityLevel2,
+    CalypsoSecurityLevel3
+} CalypsoSecurityLevel;
+
+typedef struct {
+    const char* system_name;
+    const char* country_code;
+    const char* operator_name;
+    CalypsoKeyType key_type;
+    CalypsoClassification classification;
+    uint8_t master_key[16];
+    uint8_t diversification_key[16];
+    uint32_t key_version;
+    const char* operational_name;
+    CalypsoSecurityLevel security_level;
+} CalypsoProductionKey;
+
+// =====================================================
 // CALYPSO NETWORK IDENTIFIERS
 // =====================================================
 
@@ -283,7 +319,7 @@ extern const size_t CALYPSO_WIENER_SAM_KEYS_COUNT;
  * @brief Initialize Calypso production key database
  * @return true if initialization successful
  */
-bool predator_calypso_keys_init(void);
+bool predator_calypso_init(void);
 
 /**
  * @brief Get master key for specific network
@@ -353,3 +389,49 @@ const char* predator_calypso_get_network_name(CalypsoNetworkId network_id);
  * @return true if all keys are valid
  */
 bool predator_calypso_validate_key_database(void);
+
+/**
+ * @brief Get all production keys
+ * @param keys_out Output pointer to keys array
+ * @param count_out Output count of keys
+ * @return true if successful
+ */
+bool predator_calypso_get_all_keys(const CalypsoProductionKey** keys_out, size_t* count_out);
+
+/**
+ * @brief Get classification name string
+ * @param classification Classification enum
+ * @return Classification name string
+ */
+const char* predator_calypso_get_classification_name(CalypsoClassification classification);
+
+/**
+ * @brief Get security level name string
+ * @param level Security level enum
+ * @return Security level name string
+ */
+const char* predator_calypso_get_security_level_name(CalypsoSecurityLevel level);
+
+/**
+ * @brief Diversify key for specific card
+ * @param base_key Base production key
+ * @param card_uid Card UID
+ * @param uid_length UID length
+ * @param diversified_key_out Output diversified key
+ * @return true if successful
+ */
+bool predator_calypso_diversify_key(const CalypsoProductionKey* base_key, 
+                                   const uint8_t* card_uid, 
+                                   size_t uid_length,
+                                   uint8_t* diversified_key_out);
+
+/**
+ * @brief Validate card data
+ * @param card_data Card data
+ * @param data_length Data length
+ * @param key Production key for validation
+ * @return true if valid
+ */
+bool predator_calypso_validate_card(const uint8_t* card_data, 
+                                   size_t data_length,
+                                   const CalypsoProductionKey* key);
