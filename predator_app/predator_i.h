@@ -47,6 +47,8 @@ typedef enum {
     PredatorViewRfidCloneUI,
     PredatorViewRfidBruteforceUI,
     PredatorViewRfidFuzzingUI,
+    PredatorViewCalypsoCardsUI,
+    PredatorViewAutoCardCloneUI,
     PredatorViewSubGhzJammingUI,
     PredatorViewSubGhzRawSendUI,
     PredatorViewGpsTrackerUI,
@@ -152,6 +154,8 @@ typedef struct PredatorApp {
     bool gps_connected;
     float latitude;
     float longitude;
+    float altitude;
+    float speed_kmh;
     uint32_t satellites;
     struct PredatorUart* gps_uart;
     

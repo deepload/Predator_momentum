@@ -14,11 +14,22 @@ void predator_scene_rfid_attacks_ui_on_enter(void* context) {
     if(!app || !app->submenu) return;
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "💳 RFID Attacks");
+    submenu_set_header(app->submenu, "💳 RFID/NFC Attacks");
     
-    submenu_add_item(app->submenu, "💳 RFID Clone", SubmenuIndexRfidClone, rfid_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔓 RFID Bruteforce", SubmenuIndexRfidBruteforce, rfid_attacks_submenu_callback, app);
-    submenu_add_item(app->submenu, "🎯 RFID Fuzzing", SubmenuIndexRfidFuzzing, rfid_attacks_submenu_callback, app);
+    // AUTOMATED CLONING
+    submenu_add_item(app->submenu, "🤖 Auto Card Clone", 10, rfid_attacks_submenu_callback, app);
+    
+    // GOVERNMENT-GRADE CARD SUPPORT
+    submenu_add_item(app->submenu, "🎫 Calypso Cards", 1, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🚇 MIFARE Classic", 2, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🏢 MIFARE DESFire", 3, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🏦 EMV Payment Cards", 4, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🆔 HID Prox Cards", 5, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔑 EM4100/4102", 6, rfid_attacks_submenu_callback, app);
+    
+    // GENERIC ATTACKS
+    submenu_add_item(app->submenu, "💳 Generic Clone", SubmenuIndexRfidClone, rfid_attacks_submenu_callback, app);
+    submenu_add_item(app->submenu, "🔓 Bruteforce Attack", SubmenuIndexRfidBruteforce, rfid_attacks_submenu_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
 }
@@ -36,15 +47,33 @@ bool predator_scene_rfid_attacks_ui_on_event(void* context, SceneManagerEvent ev
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         switch(event.event) {
-        case SubmenuIndexRfidClone:
+        case 10: // Auto Card Clone
+            scene_manager_next_scene(app->scene_manager, PredatorSceneAutoCardCloneUI);
+            break;
+        case 1: // Calypso Cards
+            scene_manager_next_scene(app->scene_manager, PredatorSceneCalypsoCardsUI);
+            break;
+        case 2: // MIFARE Classic
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
             break;
-        case SubmenuIndexRfidBruteforce: // RE-ADDED: Testing stability
+        case 3: // MIFARE DESFire
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
+            break;
+        case 4: // EMV Payment Cards
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
+            break;
+        case 5: // HID Prox Cards
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
+            break;
+        case 6: // EM4100/4102
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
+            break;
+        case SubmenuIndexRfidClone: // Generic Clone
+            scene_manager_next_scene(app->scene_manager, PredatorSceneRfidCloneUI);
+            break;
+        case SubmenuIndexRfidBruteforce: // Bruteforce Attack
             scene_manager_next_scene(app->scene_manager, PredatorSceneRfidBruteforceUI);
             break;
-        // case SubmenuIndexRfidFuzzing: // REMOVED: Memory optimization
-        //     scene_manager_next_scene(app->scene_manager, PredatorSceneRfidFuzzingUI);
-        //     break;
         default:
             consumed = false;
             break;

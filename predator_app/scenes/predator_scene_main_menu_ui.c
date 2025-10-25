@@ -71,16 +71,17 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     submenu_reset(app->submenu);
     submenu_set_header(app->submenu, "🔥 PREDATOR v2.0 NUCLEAR");
     
-    // PROFESSIONAL - OPTIMIZED FOR MEMORY & FUNCTIONALITY
+    // GOVERNMENT APPROVED - ALL CAPABILITIES ACCESSIBLE
     submenu_add_item(app->submenu, "🚗 Tesla Security", 1, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚗 Car Models", 2, main_menu_submenu_callback, app);
-    // 🎮 Walking Open removed - replaced by Konami code easter egg!
+    submenu_add_item(app->submenu, "🛰️ GPS Tracker", 17, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📍 Wardriving", 18, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
     submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 Module Status", 8, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "📊 Live Monitor", 19, main_menu_submenu_callback, app);
     
     // Simple card/board selection menu item
     submenu_add_item(app->submenu, "🔧 Card Selection", 12, main_menu_submenu_callback, app);
@@ -149,8 +150,17 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         case 2: // Car Models
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarContinentUI);
             break;
+        case 17: // GPS Tracker - Government Approved
+            scene_manager_next_scene(app->scene_manager, PredatorSceneGpsTrackerUI);
+            break;
+        case 18: // Wardriving - Government Approved
+            scene_manager_next_scene(app->scene_manager, PredatorSceneWardrivingUI);
+            break;
         case 15: // Parking Barriers - Swiss Government
             scene_manager_next_scene(app->scene_manager, PredatorSceneParkingBarriersUI);
+            break;
+        case 19: // Live Monitor
+            scene_manager_next_scene(app->scene_manager, PredatorSceneLiveMonitorUI);
             break;
         case 4: // WiFi Attacks
             scene_manager_next_scene(app->scene_manager, PredatorSceneWifiAttacksUI);

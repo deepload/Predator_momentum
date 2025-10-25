@@ -106,6 +106,49 @@ bool predator_crypto_smart_key_challenge(SmartKeyContext* ctx, uint8_t* challeng
 bool predator_crypto_smart_key_response(SmartKeyContext* ctx, uint8_t* response_out, size_t* len);
 bool predator_crypto_aes128_encrypt(uint8_t* data, uint8_t* key, uint8_t* output);
 
+// =====================================================
+// RFID/NFC CARD PROTOCOLS
+// =====================================================
+
+// Calypso Card Context (French transport cards)
+typedef struct {
+    uint8_t card_id[8];        // Card serial number
+    uint8_t sam_key[16];       // SAM diversified key
+    uint32_t balance;          // Current balance in cents
+    uint16_t transaction_counter; // Transaction counter
+    uint8_t network_id;        // Transport network identifier
+} CalypsoContext;
+
+// MIFARE Classic Context
+typedef struct {
+    uint8_t uid[4];            // Card UID
+    uint8_t sector_keys[16][6]; // Sector keys (A keys)
+    uint8_t access_bits[16][4]; // Access conditions per sector
+    bool key_found[16];        // Which sector keys are known
+} MifareClassicContext;
+
+// MIFARE DESFire Context
+typedef struct {
+    uint8_t uid[7];            // Card UID (can be 4 or 7 bytes)
+    uint8_t master_key[16];    // Master application key
+    uint32_t app_id;           // Application ID
+    uint8_t file_keys[8][16];  // File-specific keys
+} MifareDesfireContext;
+
+// Calypso card functions
+bool predator_crypto_calypso_authenticate(CalypsoContext* ctx, uint8_t* challenge, uint8_t* response);
+bool predator_crypto_calypso_read_balance(CalypsoContext* ctx, uint32_t* balance);
+bool predator_crypto_calypso_clone_card(CalypsoContext* src, CalypsoContext* dst);
+
+// MIFARE Classic functions
+bool predator_crypto_mifare_classic_crack_key(MifareClassicContext* ctx, uint8_t sector, uint8_t* key_out);
+bool predator_crypto_mifare_classic_read_sector(MifareClassicContext* ctx, uint8_t sector, uint8_t* data);
+bool predator_crypto_mifare_classic_clone_card(MifareClassicContext* src, MifareClassicContext* dst);
+
+// MIFARE DESFire functions
+bool predator_crypto_mifare_desfire_authenticate(MifareDesfireContext* ctx, uint8_t key_id);
+bool predator_crypto_mifare_desfire_read_file(MifareDesfireContext* ctx, uint8_t file_id, uint8_t* data);
+
 // Manufacturer-Specific Packet Formats
 typedef enum {
     ModulationOOK,    // On-Off Keying
