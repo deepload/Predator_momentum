@@ -36,10 +36,11 @@ static const GovernmentCryptoKey classified_government_keys[] = {
                       0x8E,0x01,0x9A,0xB5,0xC4,0x6A,0x93,0x3C,0x7E,0x76,0x3E,0x98,0x5A,0xC1,0x7A,0x12},
         .key_derivation_salt = {0xA1,0xA2,0x02,0x51,0xAA,0xEA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2025002, .operational_name = "EAGLE QUANTUM", .quantum_resistant = true
-    },
+    }
     
+    /* COMMENTED OUT FOR SIZE OPTIMIZATION - KEEP SWISS + US ONLY
     // 🇬🇧 UNITED KINGDOM - GCHQ/MI6
-    {
+    ,{
         .country_code = "GB", .country_name = "United Kingdom",
         .agency_name = "Government Communications Headquarters (GCHQ)",
         .key_designation = "GCHQ-TEMPEST-2025", .key_type = CryptoTypeQuantumResistant,
@@ -49,6 +50,7 @@ static const GovernmentCryptoKey classified_government_keys[] = {
         .key_derivation_salt = {0xB1,0x20,0x25,0xC1,0xD1,0xE1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2025003, .operational_name = "BRITANNIA QUANTUM", .quantum_resistant = true
     }
+    */
     
     /* TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION - RESTORE WHEN NEEDED
     // 🇩🇪 GERMANY - BND

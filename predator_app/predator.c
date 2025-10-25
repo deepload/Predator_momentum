@@ -13,12 +13,13 @@
 #include <storage/storage.h>
 
 #include "predator_i.h"
+#include "helpers/predator_memory_optimized.h"
 #include "predator_uart.h"
 #include "helpers/predator_esp32.h"
 #include "helpers/predator_gps.h"
 #include "helpers/predator_error.h"
-#include "helpers/predator_watchdog.h"
 #include "helpers/predator_boards.h"
+#include "helpers/subghz/predator_subghz_rolling.h"
 
 #include "scenes/predator_scene.h"
 
@@ -45,7 +46,7 @@ static bool predator_custom_event_callback(void* context, uint32_t event) {
     
     // Kick watchdog to prevent timeouts - only if app is valid
     if(app) {
-        predator_watchdog_tick(app);
+        predator_watchdog_tick();
     }
     
     // Handle error events specially
@@ -101,7 +102,7 @@ static void predator_tick_event_callback(void* context) {
     PredatorApp* app = context;
     // Kick watchdog on every tick - only if app is valid
     if(app) {
-        predator_watchdog_tick(app);
+        predator_watchdog_tick();
     }
     
     // Enhanced error recovery with progressive strategies - with null checks
@@ -391,14 +392,12 @@ PredatorApp* predator_app_alloc() {
     
     // Initialize watchdog only if error tracking succeeded
     if(app && !app->has_error) {
-        if(!predator_watchdog_init(app)) {
-            FURI_LOG_W("Predator", "Watchdog initialization failed");
-        } else {
-            // Start watchdog with 5 second timeout, but only if initialization succeeded
-            if(app) {
-                predator_watchdog_start(app, 5000);
-            }
-        }
+        predator_watchdog_init();
+        FURI_LOG_I("Predator", "Watchdog initialized");
+        
+        // Start watchdog
+        predator_watchdog_start();
+        FURI_LOG_I("Predator", "Watchdog started");
     }
     
     // Initialize connection status with null checks
@@ -416,6 +415,11 @@ PredatorApp* predator_app_alloc() {
     if(app) {
         predator_compliance_init(app);
     }
+    
+    // 🚨 CRITICAL: Reset all static variables to prevent memory leaks
+    // This must be called on EVERY app start to clear accumulated state
+    predator_subghz_rolling_reset_all_state();
+    FURI_LOG_I("Predator", "🔄 Static state reset - preventing memory leaks");
 
     // Only proceed to first scene if app and scene manager are valid
     if(app && app->scene_manager) {
@@ -435,7 +439,11 @@ void predator_app_free(PredatorApp* app) {
     }
     
     // Stop watchdog first to prevent any issues during cleanup - only if valid
-    predator_watchdog_stop(app);
+    predator_watchdog_stop();
+    
+    // 🚨 CRITICAL: Reset all static variables on app exit to prevent memory leaks
+    predator_subghz_rolling_reset_all_state();
+    FURI_LOG_I("Predator", "🔄 Static state reset on exit - memory leak prevention");
     
     // Free UART connections with error handling
     if(app->esp32_uart) {

@@ -2,32 +2,42 @@
 #include <string.h>
 #include <math.h>
 
+// Frequency macros for size optimization
+#define F315 315000000
+#define F433 433920000  
+#define F868 868350000
+#define F915 915000000
+#define F447 447000000
+#define F429 429000000
+#define F470 470000000
+#define F865 865000000
+
 // 🌍 WORLDWIDE REGIONAL CRYPTO PROFILES
 const RegionalCryptoProfile regional_profiles[] = {
     // EUROPE
-    {RegionEurope, "Europe", 433920000, 868350000, "AES-128", "KeeLoq", 16, true, true, "ETSI"},
-    {RegionSwiss, "Switzerland", 433920000, 868350000, "AES-256", "KKS-Gov", 32, true, true, "BAKOM"},
-    {RegionNordic, "Nordic", 433920000, 868350000, "AES-128", "Nordic-Std", 16, true, true, "NKOM"},
+    {RegionEurope, "Europe", F433, F868, "AES-128", "KeeLoq", 16, true, true, "ETSI"},
+    {RegionSwiss, "Switzerland", F433, F868, "AES-256", "KKS-Gov", 32, true, true, "BAKOM"},
+    {RegionNordic, "Nordic", F433, F868, "AES-128", "Nordic-Std", 16, true, true, "NKOM"},
     
     // MIDDLE EAST & GCC
-    {RegionGCC, "GCC States", 433920000, 915000000, "AES-256", "GCC-Std", 32, true, true, "GCC-TRA"},
-    {RegionMiddleEast, "Middle East", 433920000, 868350000, "AES-128", "ME-Std", 16, true, true, "ITU-R5"},
+    {RegionGCC, "GCC States", F433, F915, "AES-256", "GCC-Std", 32, true, true, "GCC-TRA"},
+    {RegionMiddleEast, "Middle East", F433, F868, "AES-128", "ME-Std", 16, true, true, "ITU-R5"},
     
     // ASIA
-    {RegionAsia, "Asia", 433920000, 315000000, "AES-128", "Asia-Std", 16, true, true, "APT"},
-    {RegionChina, "China", 433920000, 470000000, "SM4-128", "China-Std", 16, true, true, "MIIT"},
-    {RegionJapan, "Japan", 315000000, 429000000, "AES-128", "ARIB-Std", 16, true, true, "MIC"},
-    {RegionKorea, "South Korea", 433920000, 447000000, "ARIA-128", "KR-Std", 16, true, true, "KCC"},
-    {RegionIndia, "India", 433920000, 865000000, "AES-128", "India-Std", 16, true, true, "TEC"},
+    {RegionAsia, "Asia", F433, F315, "AES-128", "Asia-Std", 16, true, true, "APT"},
+    {RegionChina, "China", F433, F470, "SM4-128", "China-Std", 16, true, true, "MIIT"},
+    {RegionJapan, "Japan", F315, F429, "AES-128", "ARIB-Std", 16, true, true, "MIC"},
+    {RegionKorea, "South Korea", F433, F447, "ARIA-128", "KR-Std", 16, true, true, "KCC"},
+    {RegionIndia, "India", F433, F865, "AES-128", "India-Std", 16, true, true, "TEC"},
     
     // AMERICAS
-    {RegionAmericas, "Americas", 315000000, 433920000, "AES-128", "FCC-Std", 16, true, true, "FCC"},
-    {RegionBrazil, "Brazil", 433920000, 915000000, "AES-128", "BR-Std", 16, true, true, "ANATEL"},
+    {RegionAmericas, "Americas", F315, F433, "AES-128", "FCC-Std", 16, true, true, "FCC"},
+    {RegionBrazil, "Brazil", F433, F915, "AES-128", "BR-Std", 16, true, true, "ANATEL"},
     
     // OTHERS
-    {RegionAfrica, "Africa", 433920000, 868350000, "AES-128", "Africa-Std", 16, true, true, "ATU"},
-    {RegionOceania, "Oceania", 433920000, 915000000, "AES-128", "ACMA-Std", 16, true, true, "ACMA"},
-    {RegionRussia, "Russia", 433920000, 868350000, "GOST-128", "RUS-Std", 16, true, true, "ROSKOMNADZOR"}
+    {RegionAfrica, "Africa", F433, F868, "AES-128", "Africa-Std", 16, true, true, "ATU"},
+    {RegionOceania, "Oceania", F433, F915, "AES-128", "ACMA-Std", 16, true, true, "ACMA"},
+    {RegionRussia, "Russia", F433, F868, "GOST-128", "RUS-Std", 16, true, true, "ROSKOMNADZOR"}
 };
 const size_t regional_profiles_count = sizeof(regional_profiles) / sizeof(regional_profiles[0]);
 

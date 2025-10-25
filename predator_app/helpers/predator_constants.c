@@ -3,12 +3,17 @@
 // SHARED CONSTANTS - Memory Optimization Implementation
 // Single definition for all shared arrays
 
-// Common Frequencies (Used by 8+ scenes)
+// Common Frequencies (Used by 8+ scenes) - OPTIMIZED MACROS
+#define F315 315000000
+#define F433 433920000  
+#define F868 868350000
+#define F915 915000000
+
 const uint32_t PREDATOR_FREQUENCIES[] = {
-    315000000,  // 315 MHz - North America
-    433920000,  // 433.92 MHz - Europe/Asia  
-    868350000,  // 868.35 MHz - Europe Premium
-    915000000   // 915 MHz - US ISM
+    F315,  // 315 MHz - North America
+    F433,  // 433.92 MHz - Europe/Asia  
+    F868,  // 868.35 MHz - Europe Premium
+    F915   // 915 MHz - US ISM
 };
 
 const char* PREDATOR_FREQUENCY_NAMES[] = {
