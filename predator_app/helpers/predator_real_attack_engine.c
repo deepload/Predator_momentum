@@ -221,6 +221,7 @@ static bool predator_real_attack_fixed_code(PredatorApp* app, RealCarAttackConfi
 
 // Real Smart Key Attack Implementation
 static bool predator_real_attack_smart_key(PredatorApp* app, RealCarAttackConfig* config) {
+    UNUSED(config); // Suppress unused parameter warning when NO_LOGGING
     FURI_LOG_I("RealAttack", "REAL SMART KEY: Proximity attack on %lu Hz", config->frequency);
     
     // CRITICAL: Use real Tesla charge port transmission (from memories)

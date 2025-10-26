@@ -320,6 +320,7 @@ void predator_subghz_passive_car_opener_tick(PredatorApp* app) {
                 
                 // Process real signal data
                 uint32_t signal_data = level_duration.duration;
+                UNUSED(signal_data); // Suppress unused warning when NO_LOGGING
                 FURI_LOG_D("PredatorSubGHz", "[REAL HW] Received signal duration: %lu", signal_data);
                 
                 app->targets_found++;

@@ -174,6 +174,7 @@ void predator_esp32_init(PredatorApp* app) {
         // Read switch (active-low), but do NOT abort if OFF; we already forced power ON above
         furi_hal_gpio_init(board_config->marauder_switch, GpioModeInput, GpioPullUp, GpioSpeedLow);
         bool switch_on = !furi_hal_gpio_read(board_config->marauder_switch);
+        UNUSED(switch_on); // Suppress unused warning when NO_LOGGING
         FURI_LOG_I("PredatorESP32", "Original board switch state: %s (continuing)", switch_on?"ON":"OFF");
         app->esp32_connected = true;
     } else if(app->board_type == PredatorBoardType3in1AIO) {

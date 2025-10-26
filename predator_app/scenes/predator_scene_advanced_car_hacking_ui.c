@@ -325,8 +325,8 @@ void predator_scene_advanced_car_hacking_ui_on_enter(void* context) {
         uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
         char vin_prefix[8] = {0};
         predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
-        FURI_LOG_I("AdvCarHacking", "🔐 VIN: %s (0x%08lX) for %s advanced testing", 
-                  vin_prefix, manufacturer_code, app->selected_model_make);
+        FURI_LOG_I("AdvCarHacking", "VIN: %s (0x%08lX)", vin_prefix, manufacturer_code);
+        UNUSED(manufacturer_code); // Suppress unused variable warning when NO_LOGGING is enabled
     }
     
     // Show helpful instructions

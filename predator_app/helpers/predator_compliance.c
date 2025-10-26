@@ -74,6 +74,7 @@ void predator_compliance_init(struct PredatorApp* app) {
     char buf[32] = {0};
     if(file_exists_and_read_first_line(storage, "/ext/predator_region.cfg", buf, sizeof(buf))) {
         PredatorRegion r = parse_region_code(buf);
+        UNUSED(r); // Suppress unused warning when NO_LOGGING
         // Override any region to UNBLOCK for Tesla requirements
         predator_compliance_set_region(app, PredatorRegionUnblock);
         FURI_LOG_I("Compliance", "TESLA MODE: Region forced to UNBLOCK (was %s)", predator_compliance_region_str(r));

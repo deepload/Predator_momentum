@@ -199,8 +199,9 @@ PredatorApp* predator_app_alloc() {
         "Unknown Board", "Original Predator", "3in1 AIO V1.4", "DrB0rk Multi V2", 
         "3in1 NRF24+CC1101", "2.8\" Screen", "Auto-Detect"
     };
-    const char* detected_name = (app->board_type < 7) ? board_names[app->board_type] : "Unknown";
-    FURI_LOG_I("Predator", "🏆 ULTIMATE DETECTION RESULT: %s", detected_name);
+    const char* board_name = (app->board_type < 7) ? board_names[app->board_type] : "Unknown";
+    UNUSED(board_name); // Suppress unused warning when NO_LOGGING
+    FURI_LOG_I("Predator", "🏆 ULTIMATE DETECTION RESULT: %s", board_name);
     
     // ⚙️ AUTOMATIC HARDWARE CONFIGURATION
     const PredatorBoardConfig* config = predator_boards_get_config(app->board_type);

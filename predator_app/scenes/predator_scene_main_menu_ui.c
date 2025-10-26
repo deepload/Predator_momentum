@@ -56,11 +56,11 @@ static void main_menu_submenu_callback(void* context, uint32_t index) {
 
 void predator_scene_main_menu_ui_on_enter(void* context) {
     PredatorApp* app = context;
-    FURI_LOG_E("MainMenu", "========== MAIN MENU ENTERED ==========");
-    FURI_LOG_E("MainMenu", "🔥🔥🔥 VERSION 2.0 - NUCLEAR EXIT PROTECTION ACTIVE 🔥🔥🔥");
+    FURI_LOG_E("MainMenu", "MENU ENTER");
+    FURI_LOG_E("MainMenu", "v2.0 EXIT BLOCK");
     
     if(!app || !app->submenu) {
-        FURI_LOG_E("MainMenu", "ERROR: app or submenu is NULL!");
+        FURI_LOG_E("MainMenu", "NULL ERROR");
         return;
     }
     
@@ -69,38 +69,37 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     last_back_press_time = 0;  // Reset back press timer
     allow_exit = false;  // BLOCK all exits until double-press
     
-    FURI_LOG_I("MainMenu", "Menu enter time: %lu, grace period: %d ms, exit BLOCKED", 
-               menu_enter_time, GRACE_PERIOD_MS);
+    FURI_LOG_I("MainMenu", "ENTER t=%lu BLOCK", menu_enter_time);
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "🔥 PREDATOR v2.0 NUCLEAR");
+    submenu_set_header(app->submenu, "PREDATOR v2.0 NUCLEAR");
     
     // GOVERNMENT APPROVED - ALL CAPABILITIES ACCESSIBLE
-    submenu_add_item(app->submenu, "🚗 Car Attacks (Complete)", 1, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "⚡ Tesla Security Suite", 2, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🔧 Advanced Car Hack", 21, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚦 Traffic Lights", 20, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🏭 Industrial SCADA", 22, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📱 Social Engineering", 23, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🛰️ Satellite Comm", 24, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Car Attacks", 1, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Tesla Security", 2, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Car Hack", 21, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Traffic Lights", 20, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "SCADA", 22, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Social Eng", 23, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Satellite", 24, main_menu_submenu_callback, app);
 #ifndef GLOBAL_SURVEILLANCE_DISABLED
-    submenu_add_item(app->submenu, "🌍 Global Surveillance", 25, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Surveillance", 25, main_menu_submenu_callback, app);
 #endif
-    submenu_add_item(app->submenu, "🛰️ GPS Tracker", 17, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📍 Wardriving", 18, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "🚧 Parking Barriers", 15, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📡 WiFi Attacks", 4, main_menu_submenu_callback, app);  // STEP 1: RESTORED
+    submenu_add_item(app->submenu, "GPS", 17, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Wardriving", 18, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Barriers", 15, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "WiFi", 4, main_menu_submenu_callback, app);  // STEP 1: RESTORED
     // submenu_add_item(app->submenu, "📱 Bluetooth Attacks", 5, main_menu_submenu_callback, app);  // REVERTED: TOO MUCH MEMORY
-    submenu_add_item(app->submenu, "💳 RFID Attacks", 6, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "RFID", 6, main_menu_submenu_callback, app);
     // submenu_add_item(app->submenu, "📻 SubGHz Attacks", 7, main_menu_submenu_callback, app);  // COMMENTED FOR MEMORY
-    submenu_add_item(app->submenu, "📊 Live Monitor", 19, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "📊 Module Status", 8, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Monitor", 19, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Status", 8, main_menu_submenu_callback, app);
     
     // Simple card/board selection menu item
-    submenu_add_item(app->submenu, "🔧 Card Selection", 12, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Boards", 12, main_menu_submenu_callback, app);
     
-    submenu_add_item(app->submenu, "⚙️ Settings", 13, main_menu_submenu_callback, app);
-    submenu_add_item(app->submenu, "ℹ️ About", 14, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "Settings", 13, main_menu_submenu_callback, app);
+    submenu_add_item(app->submenu, "About", 14, main_menu_submenu_callback, app);
     
     // 🎮 KONAMI CODE NOTE: Custom input callback breaks submenu navigation
     // TODO: Implement via view_dispatcher input callback instead of view-level override
@@ -112,7 +111,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
 bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event) {
     PredatorApp* app = context;
     
-    FURI_LOG_D("MainMenu", "Event received - type: %d", event.type);
+    FURI_LOG_D("MainMenu", "Event %d", event.type);
     
     // CRITICAL: Handle back button FIRST, before anything else
     // ALWAYS return true to prevent app from exiting
@@ -121,26 +120,24 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
         uint32_t time_since_enter = current_time - menu_enter_time;
         uint32_t time_since_last_back = (last_back_press_time == 0) ? 99999 : (current_time - last_back_press_time);
         
-        FURI_LOG_E("MainMenu", "BACK EVENT - enter:%lu ms ago, last_back:%lu ms ago, allow_exit:%d", 
-                  time_since_enter, time_since_last_back, allow_exit);
+        FURI_LOG_E("MainMenu", "BACK t=%lu last=%lu exit=%d", time_since_enter, time_since_last_back, allow_exit);
         
         // ABSOLUTE PROTECTION: Grace period - ignore ALL back presses for first 1000ms
         if(time_since_enter < GRACE_PERIOD_MS) {
-            FURI_LOG_W("MainMenu", "Back BLOCKED - grace period (%lu ms < %d ms)", 
-                      time_since_enter, GRACE_PERIOD_MS);
+            FURI_LOG_W("MainMenu", "BLOCK grace %lu<%d", time_since_enter, GRACE_PERIOD_MS);
             return true;  // CONSUME - NEVER exit
         }
         
         // Check if this is a double press (second press within timeout)
         if(last_back_press_time != 0 && time_since_last_back < DOUBLE_PRESS_TIMEOUT_MS) {
             // DOUBLE PRESS DETECTED - Allow exit
-            FURI_LOG_E("MainMenu", "!!! DOUBLE BACK PRESS DETECTED - EXITING APP !!!");
+            FURI_LOG_E("MainMenu", "DOUBLE BACK - EXIT");
             allow_exit = true;  // Allow the exit
             PREDATOR_SAFE_EXIT_APP(app);
             return true;
         } else {
             // FIRST PRESS - Show warning and start timer
-            FURI_LOG_W("MainMenu", "FIRST back press - press again within 2s to exit (allow_exit=false)");
+            FURI_LOG_W("MainMenu", "FIRST BACK - 2s to exit");
             last_back_press_time = current_time;
             allow_exit = false;  // Ensure exit is still blocked
             
@@ -155,7 +152,7 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
     
     // Handle menu item selections
     if(event.type == SceneManagerEventTypeCustom) {
-        FURI_LOG_D("MainMenu", "Menu item selected: %lu", event.event);
+        FURI_LOG_D("MainMenu", "Item %lu", event.event);
         switch(event.event) {
         case 1: // Car Attacks (Complete)
             scene_manager_next_scene(app->scene_manager, PredatorSceneCarAttacksMainUI);
@@ -220,22 +217,22 @@ bool predator_scene_main_menu_ui_on_event(void* context, SceneManagerEvent event
             scene_manager_next_scene(app->scene_manager, PredatorSceneAboutUI);
             break;
         default:
-            FURI_LOG_W("MainMenu", "Unknown menu item: %lu", event.event);
+            FURI_LOG_W("MainMenu", "Unknown %lu", event.event);
             break;
         }
         return true;  // Always consume custom events
     }
     
     // CRITICAL: Default return - consume ALL events to prevent app exit
-    FURI_LOG_D("MainMenu", "Event type %d - consuming to prevent exit", event.type);
+    FURI_LOG_D("MainMenu", "Consume %d", event.type);
     return true;
 }
 
 void predator_scene_main_menu_ui_on_exit(void* context) {
     PredatorApp* app = context;
-    FURI_LOG_E("MainMenu", "!!! EXITING MAIN MENU !!! allow_exit=%d", allow_exit);
+    FURI_LOG_E("MainMenu", "EXIT allow=%d", allow_exit);
     if(!allow_exit) {
-        FURI_LOG_E("MainMenu", "WARNING: Main menu exiting WITHOUT double-press! This is a BUG!");
+        FURI_LOG_E("MainMenu", "EXIT BUG - no double press");
     }
     if(app && app->submenu) {
         submenu_reset(app->submenu);

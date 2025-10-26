@@ -135,7 +135,7 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
         if(event->key == InputKeyBack) {
             // DON'T intercept Back here - let view dispatcher handle it
             // The scene manager's on_event will receive SceneManagerEventTypeBack
-            FURI_LOG_I("JammingUI", "Back key in input callback, returning false to pass to scene manager");
+            FURI_LOG_I("JammingUI", "Back");
             return false;
         } else if(event->key == InputKeyOk) {
             if(jamming_state.status == JammingStatusIdle) {
@@ -168,8 +168,7 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
                 }
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("JammingUI", "Jamming %s %s: %lu Hz", 
-                          app->selected_model_make, app->selected_model_name, jamming_state.frequency);
+                FURI_LOG_I("JammingUI", "Start %lu Hz", jamming_state.frequency);
                 return true;
             } else if(jamming_state.status == JammingStatusJamming) {
                 // Stop jamming
@@ -181,7 +180,7 @@ static bool car_jamming_ui_input_callback(InputEvent* event, void* context) {
                         jamming_state.frequency_str, jamming_state.jamming_time_ms / 1000);
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("JammingUI", "Jamming stopped by user");
+                FURI_LOG_I("JammingUI", "Stop");
                 return true;
             }
         } else if(event->key == InputKeyLeft && jamming_state.status == JammingStatusIdle) {
@@ -239,8 +238,7 @@ static void car_jamming_ui_timer_callback(void* context) {
             predator_subghz_send_jamming_attack(app, jamming_state.frequency);
             jamming_state.power_level = 100; // Max power
             
-            FURI_LOG_D("CarJamming", "[REAL HW] Jamming burst sent at %lu Hz", 
-                      jamming_state.frequency);
+            FURI_LOG_D("CarJamming", "[HW] Burst %lu Hz", jamming_state.frequency);
         }
         
         // Auto-stop after 5 minutes for safety
@@ -299,8 +297,8 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
         uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
         char vin_prefix[8] = {0};
         predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
-        FURI_LOG_I("CarJamming", "🔐 VIN: %s (0x%08lX) for %s jamming", 
-                  vin_prefix, manufacturer_code, app->selected_model_make);
+        FURI_LOG_I("CarJamming", "VIN: %s (0x%08lX)", vin_prefix, manufacturer_code);
+        UNUSED(manufacturer_code); // Suppress unused warning when NO_LOGGING
     }
     
     jamming_state.power_level = 75; // Default 75% power
@@ -308,7 +306,7 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
     
     // Setup custom view
     if(!app->view_dispatcher) {
-        FURI_LOG_E("JammingUI", "View dispatcher is NULL");
+        FURI_LOG_E("CarJammingUI", "NULL dispatcher");
         return;
     }
     
@@ -316,7 +314,7 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
     if(!jamming_view) {
         jamming_view = view_alloc();
         if(!jamming_view) {
-            FURI_LOG_E("JammingUI", "Failed to allocate view");
+            FURI_LOG_E("CarJammingUI", "Alloc fail");
             return;
         }
         
@@ -326,12 +324,12 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
         
         // Add view to dispatcher
         view_dispatcher_add_view(app->view_dispatcher, PredatorViewCarJammingUI, jamming_view);
-        FURI_LOG_I("JammingUI", "View allocated and added to dispatcher");
+        FURI_LOG_I("CarJammingUI", "View allocated and added to dispatcher");
     }
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarJammingUI);
     
-    FURI_LOG_I("JammingUI", "Car Jamming UI initialized");
+    FURI_LOG_I("CarJammingUI", "Init");
     
     // Start timer for updates
     app->timer = furi_timer_alloc(car_jamming_ui_timer_callback, FuriTimerTypePeriodic, app);
@@ -394,5 +392,5 @@ void predator_scene_car_jamming_ui_on_exit(void* context) {
     jamming_state.status = JammingStatusIdle;
     // DON'T remove/free view - we reuse it next time
     
-    FURI_LOG_I("JammingUI", "Car Jamming UI exited");
+    FURI_LOG_I("CarJammingUI", "Exit");
 }

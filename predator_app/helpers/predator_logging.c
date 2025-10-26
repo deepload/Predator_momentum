@@ -8,6 +8,12 @@
 #define LOG_PATH "/ext/apps_data/predator/predator_logs.txt"
 
 bool predator_log_append(struct PredatorApp* app, const char* line) {
+#ifdef NO_LOGGING
+    // When NO_LOGGING is defined, do nothing to save memory
+    UNUSED(app);
+    UNUSED(line);
+    return true;
+#else
     if(!line) return false;
     
     // CRITICAL: Only use app->storage if available, otherwise skip logging to prevent memory leaks
@@ -35,4 +41,5 @@ bool predator_log_append(struct PredatorApp* app, const char* line) {
     }
     storage_file_free(file);
     return ok;
+#endif
 }

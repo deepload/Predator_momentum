@@ -246,7 +246,7 @@ PredatorBoardType predator_boards_detect_runtime(void) {
         // Check for any response (simplified detection)
         // Note: For now, assume ESP32 is present if UART initializes successfully
         esp32_detected = true;
-        FURI_LOG_I("BoardDetect", "ESP32 UART initialized successfully");
+        FURI_LOG_I("Boards", "Init");
         
         furi_hal_serial_deinit(uart_handle);
         furi_hal_serial_control_release(uart_handle);
@@ -256,11 +256,11 @@ PredatorBoardType predator_boards_detect_runtime(void) {
     
     // Determine board type based on detection results
     if(esp32_detected) {
-        FURI_LOG_I("BoardDetect", "Detected board with ESP32 - likely Original or 3in1 AIO");
+        FURI_LOG_I("Boards", "Detected board with ESP32 - likely Original or 3in1 AIO");
         return PredatorBoardTypeOriginal; // Default to original for ESP32 boards
     }
     
-    FURI_LOG_W("BoardDetect", "No specific board detected, using Unknown");
+    FURI_LOG_W("Boards", "No specific board detected, using Unknown");
     return PredatorBoardTypeUnknown;
 }
 
@@ -270,7 +270,7 @@ PredatorBoardType predator_boards_load_selection(Storage* storage) {
     // First try runtime detection
     PredatorBoardType detected_type = predator_boards_detect_runtime();
     if(detected_type != PredatorBoardTypeUnknown) {
-        FURI_LOG_I("BoardDetect", "Runtime detection successful");
+        FURI_LOG_I("Boards", "Runtime detection successful");
         // Save the detected type for future use
         predator_boards_save_selection(storage, detected_type);
         return detected_type;
@@ -278,7 +278,7 @@ PredatorBoardType predator_boards_load_selection(Storage* storage) {
     
     // Fall back to saved configuration
     if(!storage_file_exists(storage, PREDATOR_BOARD_SAVE_PATH)) {
-        FURI_LOG_I("BoardDetect", "No saved config, defaulting to Original");
+        FURI_LOG_I("Boards", "No saved config, defaulting to Original");
         return PredatorBoardTypeOriginal; // Safe default
     }
     
@@ -291,7 +291,7 @@ PredatorBoardType predator_boards_load_selection(Storage* storage) {
         if(storage_file_read(file, &board_type, sizeof(board_type)) == sizeof(board_type)) {
             if(board_type < PredatorBoardTypeCount) {
                 type = (PredatorBoardType)board_type;
-                FURI_LOG_I("BoardDetect", "Loaded saved board type: %u", board_type);
+                FURI_LOG_I("Boards", "Loaded saved board type: %u", board_type);
             }
         }
         storage_file_close(file);
@@ -305,16 +305,16 @@ PredatorBoardType predator_boards_load_selection(Storage* storage) {
 bool predator_boards_optimize_for_board(PredatorBoardType board_type) {
     const PredatorBoardConfig* config = predator_boards_get_config(board_type);
     if(!config) {
-        FURI_LOG_E("BoardOptim", "No config found for board type %u", board_type);
+        FURI_LOG_E("Boards", "NULL config for board type %u", board_type);
         return false;
     }
     
-    FURI_LOG_I("BoardOptim", "Optimizing for %s", config->name);
+    FURI_LOG_I("Boards", "Board: %s", config->name);
     
     // Board-specific optimizations
     switch(board_type) {
         case PredatorBoardTypeOriginal:
-            FURI_LOG_I("BoardOptim", "Original board: Max RF power %udBm, GPS+ESP32 enabled", config->rf_power_dbm);
+            FURI_LOG_I("Boards", "Original board: Max RF power %udBm, GPS+ESP32 enabled", config->rf_power_dbm);
             // Enable power switches for maximum performance
             if(config->gps_power_switch) {
                 furi_hal_gpio_init_simple(config->gps_power_switch, GpioModeOutputPushPull);
@@ -327,22 +327,22 @@ bool predator_boards_optimize_for_board(PredatorBoardType board_type) {
             break;
             
         case PredatorBoardType3in1AIO:
-            FURI_LOG_I("BoardOptim", "3in1 AIO: Always-on design, optimizing UART buffers");
+            FURI_LOG_I("Boards", "3in1 AIO: Always-on design, optimizing UART buffers");
             // 3in1 AIO has always-on design, optimize for continuous operation
             break;
             
         case PredatorBoardTypeDrB0rkMultiV2:
-            FURI_LOG_I("BoardOptim", "DrB0rk Multi V2: NRF24 + CC1101 + ESP32 optimization");
+            FURI_LOG_I("Boards", "DrB0rk Multi V2: NRF24 + CC1101 + ESP32 optimization");
             // DrB0rk board has multiple radios, optimize for multi-protocol
             break;
             
         case PredatorBoardTypeScreen28:
-            FURI_LOG_I("BoardOptim", "2.8\" Screen: High-power mode with 800mAh battery");
+            FURI_LOG_I("Boards", "2.8\" Screen: High-power mode with 800mAh battery");
             // Screen board has larger battery, can use higher power modes
             break;
             
         default:
-            FURI_LOG_W("BoardOptim", "Unknown board type, using safe defaults");
+            FURI_LOG_E("Boards", "Invalid %d", board_type);
             break;
     }
     
