@@ -33,6 +33,7 @@ App(
         "helpers/predator_ui_elements.c",         # UI components
         "helpers/predator_constants.c",           # Shared constants
         "helpers/predator_memory_optimized.c",    # Memory management (includes watchdog)
+        "helpers/predator_scene_cleanup.c",       # Scene static variable cleanup
         
         # CRYPTO ENGINE - PRODUCTION READY
         "helpers/predator_crypto_engine.c",       # KeeLoq, Hitag2, AES-128, Tesla protocols

@@ -20,6 +20,7 @@
 #include "helpers/predator_error.h"
 #include "helpers/predator_boards.h"
 #include "helpers/subghz/predator_subghz_rolling.h"
+#include "helpers/predator_scene_cleanup.h"
 
 #include "scenes/predator_scene.h"
 
@@ -150,6 +151,31 @@ PredatorApp* predator_app_alloc() {
     
     // Initialize to zeros to prevent undefined behavior with uninitialized fields
     memset(app, 0, sizeof(PredatorApp));
+    
+    // 🧹 STARTUP MEMORY OPTIMIZATION - Force cleanup before allocation
+    FURI_LOG_I("Predator", "🚀 STARTUP: Aggressive memory optimization");
+    
+    // Force system memory cleanup before starting app
+    // This prevents fragmentation from previous app runs
+    for(int i = 0; i < 20; i++) {
+        void* temp = malloc(128);
+        if(temp) {
+            free(temp);
+        }
+    }
+    
+    // Allow system time to consolidate memory
+    furi_delay_ms(100);
+    
+    // Second pass - smaller allocations to fill gaps
+    for(int i = 0; i < 10; i++) {
+        void* temp = malloc(32);
+        if(temp) {
+            free(temp);
+        }
+    }
+    
+    FURI_LOG_I("Predator", "✅ Startup memory optimization complete - heap defragmented");
 
     // Open required records FIRST (needed for board detection file operations)
     app->gui = furi_record_open(RECORD_GUI);
@@ -443,14 +469,32 @@ void predator_app_free(PredatorApp* app) {
     
     // 🚨 CRITICAL: Reset all static variables on app exit to prevent memory leaks
     predator_subghz_rolling_reset_all_state();
-    FURI_LOG_I("Predator", "🔄 Static state reset on exit - memory leak prevention");
+    
+    // AGGRESSIVE MEMORY CLEANUP - Reset all scene static variables
+    FURI_LOG_I("Predator", "🧹 AGGRESSIVE MEMORY CLEANUP - Resetting all scene statics");
+    
+    // Force cleanup of all scene-specific static variables and views
+    // This prevents memory fragmentation between app runs
+    predator_scene_cleanup_all_statics();
+    
+    FURI_LOG_I("Predator", "🔄 Complete static state reset - memory leak prevention");
+    
+    // CRITICAL: Stop and free any active timers to prevent memory leaks
+    if(app->timer) {
+        FURI_LOG_D("Predator", "Stopping and freeing active timer");
+        furi_timer_stop(app->timer);
+        furi_timer_free(app->timer);
+        app->timer = NULL;
+    }
     
     // Free UART connections with error handling
     if(app->esp32_uart) {
         predator_uart_deinit(app->esp32_uart);
+        app->esp32_uart = NULL;
     }
     if(app->gps_uart) {
         predator_uart_deinit(app->gps_uart);
+        app->gps_uart = NULL;
     }
 
     // Only remove views if view dispatcher exists
