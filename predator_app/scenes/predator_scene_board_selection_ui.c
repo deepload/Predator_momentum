@@ -305,7 +305,7 @@ static bool board_input_callback(InputEvent* event, void* context) {
 }
 */
 
-static void board_selection_submenu_cb(void* context, uint32_t index) {
+static void board_selection_callback(void* context, uint32_t index) {
     PredatorApp* app = context;
     if(!app || !app->view_dispatcher) return;
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
@@ -316,28 +316,20 @@ void predator_scene_board_selection_ui_on_enter(void* context) {
     if(!app || !app->submenu) return;
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "SELECT BOARD");
+    submenu_set_header(app->submenu, "🔧 Board Selection - ALL BOARDS SUPPORTED");
     
-    // Get current board name
-    const char* current_board = "None";
-    if(app->board_type < PredatorBoardTypeCount) {
-        const PredatorBoardConfig* config = predator_boards_get_config(app->board_type);
-        if(config) current_board = config->name;
-    }
-    
-    char header[64];
-    snprintf(header, sizeof(header), "Current: %s", current_board);
-    submenu_add_item(app->submenu, header, 0, board_selection_submenu_cb, app);
-    
-    // Add all available boards
-    submenu_add_item(app->submenu, "Original Predator", PredatorBoardTypeOriginal + 1, board_selection_submenu_cb, app);
-    submenu_add_item(app->submenu, "3in1 AIO Board V1.4", PredatorBoardType3in1AIO + 1, board_selection_submenu_cb, app);
-    submenu_add_item(app->submenu, "DrB0rk Multi-Board", PredatorBoardTypeDrB0rkMultiV2 + 1, board_selection_submenu_cb, app);
-    submenu_add_item(app->submenu, "2.8\" Screen Board", PredatorBoardTypeScreen28 + 1, board_selection_submenu_cb, app);
+    // Add all supported board types based on your actual hardware
+    submenu_add_item(app->submenu, "Original Predator Module", PredatorBoardTypeOriginal, board_selection_callback, app);
+    submenu_add_item(app->submenu, "3in1 AIO Board V1.4 (Green PCB)", PredatorBoardType3in1AIO, board_selection_callback, app);
+    submenu_add_item(app->submenu, "DrB0rk Multi Board V2", PredatorBoardTypeDrB0rkMultiV2, board_selection_callback, app);
+    submenu_add_item(app->submenu, "Multi ESP32 Board (Black PCB)", PredatorBoardTypeMultiESP32, board_selection_callback, app);
+    submenu_add_item(app->submenu, "2.8-inch Screen + GPS Module", PredatorBoardTypeScreen28, board_selection_callback, app);
+    submenu_add_item(app->submenu, "2.4G Module with GPS (White PCB)", PredatorBoardType24GModule, board_selection_callback, app);
+    submenu_add_item(app->submenu, "PN532 NFC Writer V4 (Dedicated)", PredatorBoardTypePN532Writer, board_selection_callback, app);
+    submenu_add_item(app->submenu, "---", 200, board_selection_callback, app);
+    submenu_add_item(app->submenu, "Auto-Detect Board", PredatorBoardTypeAutoDetect, board_selection_callback, app);
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewSubmenu);
-    
-    FURI_LOG_E("BoardSelection", "========== BOARD SELECTION ENTERED ==========");
 }
 
 bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent event) {
@@ -352,12 +344,18 @@ bool predator_scene_board_selection_ui_on_event(void* context, SceneManagerEvent
     }
     
     // Handle board selection
-    if(event.type == SceneManagerEventTypeCustom && event.event > 0) {
-        PredatorBoardType selected = (PredatorBoardType)(event.event - 1);
+    if(event.type == SceneManagerEventTypeCustom && event.event != 200) {
+        PredatorBoardType selected = (PredatorBoardType)event.event;
         if(selected < PredatorBoardTypeCount) {
             app->board_type = selected;
-            FURI_LOG_I("BoardSelection", "Board selected: %d", selected);
-            predator_log_append(app, "Board configured");
+            
+            // Save board selection to storage
+            if(app->storage) {
+                predator_boards_save_selection(app->storage, selected);
+            }
+            
+            FURI_LOG_I("BoardSelection", "Board selected: %s", predator_boards_get_name(selected));
+            predator_log_append(app, "Board configured:");
             predator_log_append(app, predator_boards_get_name(selected));
             
             // Success notification

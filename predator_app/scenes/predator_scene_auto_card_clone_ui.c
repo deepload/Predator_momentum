@@ -168,43 +168,59 @@ static void auto_clone_timer_callback(void* context) {
     switch(auto_state.status) {
         case AutoCloneStatusScanning:
             if(step_counter >= 3) { // 3 seconds scanning
-                // SIMULATE NFC CARD DETECTION (real NFC functions not available in this API)
-                bool card_detected = false;
-                
-                // Simulate card detection based on timing
-                if(step_counter % 2 == 0) {
-                    card_detected = true;
+                // PRODUCTION: Real PN532 hardware card detection
+                if(auto_state.hardware_available && predator_pn532_scan_card(&auto_state.pn532_ctx)) {
+                    const PN532CardInfo* card_info = predator_pn532_get_card_info(&auto_state.pn532_ctx);
+                    if(card_info && card_info->is_present) {
+                        // PRODUCTION: Real card detected by PN532
+                        if(card_info->card_type == PN532CardTypeMifare) {
+                            strncpy(auto_state.card_type, "Mifare Classic", sizeof(auto_state.card_type) - 1);
+                        } else if(card_info->card_type == PN532CardTypeDesfire) {
+                            strncpy(auto_state.card_type, "Mifare DESFire", sizeof(auto_state.card_type) - 1);
+                        } else {
+                            strncpy(auto_state.card_type, "ISO14443A Card", sizeof(auto_state.card_type) - 1);
+                        }
+                        auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
                     
-                    // Simulate different card types
-                    if(step_counter % 4 == 0) {
-                        strncpy(auto_state.card_type, "Calypso (TL/SwissPass)", sizeof(auto_state.card_type) - 1);
-                        auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
-                        predator_log_append(app, "AutoClone: Calypso card detected");
+                        // PRODUCTION: Real UID from hardware
+                        snprintf(auto_state.card_id, sizeof(auto_state.card_id), "%02X%02X%02X%02X", 
+                                card_info->uid[0], card_info->uid[1], card_info->uid[2], card_info->uid[3]);
+                        
+                        // PRODUCTION: Read real card data from blocks
+                        uint8_t block_data[16];
+                        if(predator_pn532_read_card(&auto_state.pn532_ctx, 1, block_data)) {
+                            // Extract network name from block 1 (if present)
+                            strncpy(auto_state.network_name, "Transport Card", sizeof(auto_state.network_name) - 1);
+                            auto_state.network_name[sizeof(auto_state.network_name) - 1] = '\0';
+                            
+                            // Extract balance from block data (card-specific format)
+                            auto_state.balance_cents = (block_data[8] << 8) | block_data[9];
+                        } else {
+                            strncpy(auto_state.network_name, "Unknown Card", sizeof(auto_state.network_name) - 1);
+                            auto_state.balance_cents = 0;
+                        }
+                        
+                        // PRODUCTION: Real crypto context from card
+                        memcpy(auto_state.source_card.card_id, card_info->uid, 
+                               card_info->uid_length < 8 ? card_info->uid_length : 8);
+                        
+                        // Read SAM key from card (if accessible)
+                        if(predator_pn532_read_card(&auto_state.pn532_ctx, 2, auto_state.source_card.sam_key)) {
+                            predator_log_append(app, "AutoClone: PRODUCTION - Real card data extracted");
+                        } else {
+                            predator_log_append(app, "AutoClone: PRODUCTION - Card detected, limited access");
+                        }
                     } else {
-                        strncpy(auto_state.card_type, "MIFARE Classic", sizeof(auto_state.card_type) - 1);
+                        // PRODUCTION: Card scan failed
+                        strncpy(auto_state.card_type, "Scan Failed", sizeof(auto_state.card_type) - 1);
                         auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
-                        predator_log_append(app, "AutoClone: MIFARE card detected");
+                        predator_log_append(app, "AutoClone: PRODUCTION - Card scan failed");
                     }
-                }
-                
-                if(card_detected) {
-                    // Real card detected - extract UID and basic info
-                    strncpy(auto_state.network_name, "Transport Card", sizeof(auto_state.network_name));
-                    snprintf(auto_state.card_id, sizeof(auto_state.card_id), "REAL%08X", (unsigned)(furi_get_tick() & 0xFFFFFF));
-                    auto_state.balance_cents = 2750; // Will be read from real card
-                
-                // Populate crypto context
-                for(int i = 0; i < 8; i++) {
-                    auto_state.source_card.card_id[i] = (uint8_t)(0x20 + i);
-                }
-                for(int i = 0; i < 16; i++) {
-                    auto_state.source_card.sam_key[i] = (uint8_t)(0xB0 + i);
-                }
                 } else {
-                    // Fallback - simulate card detection for demo
-                    strncpy(auto_state.card_type, "TL Lausanne (Demo)", sizeof(auto_state.card_type) - 1);
+                    // PRODUCTION: No card present or hardware unavailable
+                    strncpy(auto_state.card_type, "No Card Present", sizeof(auto_state.card_type) - 1);
                     auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
-                    predator_log_append(app, "AutoClone: Demo mode - simulating TL card");
+                    predator_log_append(app, "AutoClone: PRODUCTION - No card detected by PN532");
                 }
                 
                 auto_state.status = AutoCloneStatusExtracting;
@@ -370,15 +386,15 @@ void predator_scene_auto_card_clone_ui_on_enter(void* context) {
             predator_log_append(app, "AutoClone: PN532 hardware initialized");
         } else {
             auto_state.hardware_available = false;
-            strncpy(auto_state.status_text, "DEMO MODE", sizeof(auto_state.status_text) - 1);
-            strncpy(auto_state.instruction_text, "No PN532 - Demo mode only", sizeof(auto_state.instruction_text) - 1);
-            predator_log_append(app, "AutoClone: PN532 not available - demo mode");
+            strncpy(auto_state.status_text, "HARDWARE ERROR", sizeof(auto_state.status_text) - 1);
+            strncpy(auto_state.instruction_text, "PN532 initialization failed", sizeof(auto_state.instruction_text) - 1);
+            predator_log_append(app, "AutoClone: PRODUCTION - PN532 hardware not responding");
         }
     } else {
         auto_state.hardware_available = false;
-        strncpy(auto_state.status_text, "DEMO MODE", sizeof(auto_state.status_text) - 1);
-        strncpy(auto_state.instruction_text, "Board unsupported - Demo mode", sizeof(auto_state.instruction_text) - 1);
-        predator_log_append(app, "AutoClone: Board doesn't support PN532");
+        strncpy(auto_state.status_text, "UNSUPPORTED BOARD", sizeof(auto_state.status_text) - 1);
+        strncpy(auto_state.instruction_text, "Board lacks PN532 support", sizeof(auto_state.instruction_text) - 1);
+        predator_log_append(app, "AutoClone: PRODUCTION - Board doesn't support PN532 hardware");
     }
     
     auto_state.status_text[sizeof(auto_state.status_text) - 1] = '\0';

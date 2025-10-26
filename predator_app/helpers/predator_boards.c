@@ -28,25 +28,25 @@ static const PredatorBoardConfig predator_original_config = {
     .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
-// Configuration for the 3in1 AIO Board V1.4 (based on the image)
+// Configuration for the 3in1 AIO Board V1.4 (Green PCB from image 3)
 static const PredatorBoardConfig predator_3in1_aio_config = {
     .type = PredatorBoardType3in1AIO,
-    .name = "3in1 AIO Board V1.4",
+    .name = "3in1 AIO Board V1.4 (Green PCB)",
     .esp32_tx_pin = &gpio_ext_pc0, // Pin 15 
     .esp32_rx_pin = &gpio_ext_pc1, // Pin 16
     .esp32_baud_rate = 115200,
     .gps_tx_pin = &gpio_ext_pb2, // Pin 13
     .gps_rx_pin = &gpio_ext_pb3, // Pin 14
     .gps_baud_rate = 9600,
-    .gps_power_switch = NULL, // No dedicated switch, always powered
-    .marauder_switch = NULL, // No dedicated switch, always on
+    .gps_power_switch = &gpio_ext_pa4, // GPS power control
+    .marauder_switch = &gpio_ext_pa7, // Marauder switch
     .has_external_rf = true,
-    .rf_power_dbm = 10,
-    // PN532 NFC Writer Support
+    .rf_power_dbm = 15, // Higher power for multi-board
+    // PN532 NFC Writer Support - Shared pins (Flipper Zero GPIO limitations)
     .has_nfc_writer = true,
     .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
-    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
-    .nfc_miso_pin = &gpio_ext_pa4,  // Pin 9  - SPI MISO (shared with GPS power)
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI (shared with marauder)
+    .nfc_miso_pin = &gpio_ext_pb3,  // Pin 14 - SPI MISO (shared with GPS RX)
     .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
     .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
     .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
@@ -76,34 +76,11 @@ static const PredatorBoardConfig predator_drb0rk_multi_v2_config = {
     .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
-// Configuration for the 3-in-1 NRF24 + CC1101 + ESP32 Multiboard
-static const PredatorBoardConfig predator_3in1_nrf_cc_esp_config = {
-    .type = PredatorBoardType3in1NrfCcEsp,
-    .name = "3-in-1 NRF24+CC1101+ESP32",
-    .esp32_tx_pin = &gpio_ext_pc0, // Pin 15
-    .esp32_rx_pin = &gpio_ext_pc1, // Pin 16
-    .esp32_baud_rate = 115200,
-    .gps_tx_pin = &gpio_ext_pb2, // Pin 13
-    .gps_rx_pin = &gpio_ext_pb3, // Pin 14
-    .gps_baud_rate = 9600,
-    .gps_power_switch = NULL, // No dedicated switch
-    .marauder_switch = NULL, // No dedicated switch
-    .has_external_rf = true, 
-    .rf_power_dbm = 10,
-    // PN532 NFC Writer Support
-    .has_nfc_writer = true,
-    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
-    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
-    .nfc_miso_pin = &gpio_ext_pa4,  // Pin 9  - SPI MISO
-    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
-    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
-    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
-};
 
-// Configuration for the 2.8-inch screen Predator ESP32-S2 with GPS and 433M RF
+// Configuration for the 2.8-inch screen + GPS module (from image 5)
 static const PredatorBoardConfig predator_screen28_config = {
     .type = PredatorBoardTypeScreen28,
-    .name = "2.8-inch Predator Screen",
+    .name = "2.8-inch Screen + GPS Module",
     .esp32_tx_pin = &gpio_ext_pc0, // Pin 15
     .esp32_rx_pin = &gpio_ext_pc1, // Pin 16
     .esp32_baud_rate = 115200,
@@ -124,13 +101,87 @@ static const PredatorBoardConfig predator_screen28_config = {
     .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
+// Configuration for Multi-function ESP32 board (black PCB from image 4)
+static const PredatorBoardConfig predator_multi_esp32_config = {
+    .type = PredatorBoardTypeMultiESP32,
+    .name = "Multi ESP32 Board (Black PCB)",
+    .esp32_tx_pin = &gpio_ext_pc0, // Pin 15
+    .esp32_rx_pin = &gpio_ext_pc1, // Pin 16
+    .esp32_baud_rate = 115200,
+    .gps_tx_pin = &gpio_ext_pb2, // Pin 13
+    .gps_rx_pin = &gpio_ext_pb3, // Pin 14
+    .gps_baud_rate = 9600,
+    .gps_power_switch = &gpio_ext_pa4, // GPS power control
+    .marauder_switch = &gpio_ext_pa7, // Marauder switch
+    .has_external_rf = true,
+    .rf_power_dbm = 20, // High power multi-function board
+    // PN532 NFC Writer Support - Shared pins (Flipper Zero GPIO limitations)
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI (shared with marauder)
+    .nfc_miso_pin = &gpio_ext_pb3,  // Pin 14 - SPI MISO (shared with GPS RX)
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pa4,   // Pin 9  - Reset (shared with GPS power)
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
+};
+
+// Configuration for dedicated PN532 NFC Writer board
+static const PredatorBoardConfig predator_pn532_writer_config = {
+    .type = PredatorBoardTypePN532Writer,
+    .name = "PN532 NFC Writer V4 (Dedicated)",
+    .esp32_tx_pin = NULL, // No ESP32 on dedicated NFC board
+    .esp32_rx_pin = NULL,
+    .esp32_baud_rate = 0,
+    .gps_tx_pin = NULL, // No GPS on dedicated NFC board
+    .gps_rx_pin = NULL,
+    .gps_baud_rate = 0,
+    .gps_power_switch = NULL,
+    .marauder_switch = NULL,
+    .has_external_rf = false, // NFC only
+    .rf_power_dbm = 0,
+    // PN532 NFC Writer Support - Dedicated pins
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
+    .nfc_miso_pin = &gpio_ext_pb3,  // Pin 14 - SPI MISO
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt
+};
+
+// Configuration for 2.4G Module with GPS (white PCB from image 5)
+static const PredatorBoardConfig predator_24g_module_config = {
+    .type = PredatorBoardType24GModule,
+    .name = "2.4G Module with GPS (White PCB)",
+    .esp32_tx_pin = &gpio_ext_pc0, // Pin 15
+    .esp32_rx_pin = &gpio_ext_pc1, // Pin 16
+    .esp32_baud_rate = 115200,
+    .gps_tx_pin = &gpio_ext_pb2, // Pin 13
+    .gps_rx_pin = &gpio_ext_pb3, // Pin 14
+    .gps_baud_rate = 9600,
+    .gps_power_switch = &gpio_ext_pa4, // GPS power control
+    .marauder_switch = NULL, // No marauder switch
+    .has_external_rf = true,
+    .rf_power_dbm = 10, // 2.4G optimized
+    // PN532 NFC Writer Support - Shared pins (Flipper Zero GPIO limitations)
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
+    .nfc_miso_pin = &gpio_ext_pb3,  // Pin 14 - SPI MISO (shared with GPS RX)
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
+};
+
 // Array of all supported board configurations
 static const PredatorBoardConfig predator_board_configs[] = {
     predator_original_config,
     predator_3in1_aio_config,
     predator_drb0rk_multi_v2_config,
-    predator_3in1_nrf_cc_esp_config,
-    predator_screen28_config
+    predator_screen28_config,
+    predator_multi_esp32_config,
+    predator_pn532_writer_config,
+    predator_24g_module_config
 };
 
 const PredatorBoardConfig* predator_boards_get_configs() {
@@ -174,16 +225,56 @@ PredatorBoardType predator_boards_detect() {
         furi_hal_serial_control_release(uart_handle);
     }
     
-    // Method 3: Board type determination logic
+    // Method 3: Advanced board type determination logic
     if(has_gps_switch && has_marauder_switch && esp32_responsive) {
         FURI_LOG_I("BoardDetect", "Detected: Original Predator Module");
         return PredatorBoardTypeOriginal;
     } else if(esp32_responsive && !has_gps_switch && !has_marauder_switch) {
-        FURI_LOG_I("BoardDetect", "Detected: 3in1 AIO Board (no switches)");
+        // Check for specific board signatures
+        // Test for screen presence (2.8" screen board) - use available GPIO
+        furi_hal_gpio_init(&gpio_ext_pa4, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        bool has_screen_signal = !furi_hal_gpio_read(&gpio_ext_pa4);
+        
+        if(has_screen_signal) {
+            FURI_LOG_I("BoardDetect", "Detected: 2.8-inch Screen Board");
+            return PredatorBoardTypeScreen28;
+        }
+        
+        // Test for 2.4G module signature - use available GPIO
+        furi_hal_gpio_init(&gpio_ext_pc3, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        bool has_24g_signal = !furi_hal_gpio_read(&gpio_ext_pc3);
+        
+        if(has_24g_signal) {
+            FURI_LOG_I("BoardDetect", "Detected: 2.4G Module with GPS");
+            return PredatorBoardType24GModule;
+        }
+        
+        // Test for multi-ESP32 board (black PCB) - use available GPIO
+        furi_hal_gpio_init(&gpio_ext_pa6, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        bool has_multi_esp32_signal = !furi_hal_gpio_read(&gpio_ext_pa6);
+        
+        if(has_multi_esp32_signal) {
+            FURI_LOG_I("BoardDetect", "Detected: Multi ESP32 Board (Black PCB)");
+            return PredatorBoardTypeMultiESP32;
+        }
+        
+        FURI_LOG_I("BoardDetect", "Detected: 3in1 AIO Board (CC1101+NRF24+ESP32)");
         return PredatorBoardType3in1AIO;
     } else if(esp32_responsive) {
         FURI_LOG_I("BoardDetect", "Detected: ESP32 board (unknown variant)");
         return PredatorBoardTypeOriginal; // Default to original for ESP32 boards
+    } else {
+        // Test for dedicated PN532 NFC Writer (no ESP32)
+        furi_hal_gpio_init(&gpio_ext_pa6, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        furi_hal_gpio_init(&gpio_ext_pa7, GpioModeInput, GpioPullUp, GpioSpeedLow);
+        
+        bool has_nfc_sck = !furi_hal_gpio_read(&gpio_ext_pa6);
+        bool has_nfc_mosi = !furi_hal_gpio_read(&gpio_ext_pa7);
+        
+        if(has_nfc_sck && has_nfc_mosi) {
+            FURI_LOG_I("BoardDetect", "Detected: Dedicated PN532 NFC Writer V4");
+            return PredatorBoardTypePN532Writer;
+        }
     }
     
     FURI_LOG_W("BoardDetect", "No specific board detected, using fallback");
