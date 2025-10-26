@@ -195,7 +195,7 @@ void predator_esp32_init(PredatorApp* app) {
             );
             FURI_LOG_I("PredatorESP32", "3in1 AIO ESP32 UART initialized");
         }
-    } else if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
+    } else if(app->board_type == PredatorBoardType3in1AIO) {
         // Special handling for 3-in-1 multiboard
         FURI_LOG_I("PredatorESP32", "Using 3-in-1 NRF24+CC1101+ESP32 multiboard");
         
@@ -243,7 +243,7 @@ void predator_esp32_init(PredatorApp* app) {
     FURI_LOG_I("PredatorESP32", "Initializing ESP32 communication");
     
     // Initialize with safety checks - but don't reset esp32_connected if we've already set it
-    if(app->board_type != PredatorBoardType3in1NrfCcEsp && app->board_type != PredatorBoardTypeScreen28) {
+    if(app->board_type != PredatorBoardType3in1AIO && app->board_type != PredatorBoardTypeScreen28) {
         app->esp32_connected = false;
     }
     
@@ -320,11 +320,14 @@ bool predator_esp32_send_command(PredatorApp* app, const char* command) {
         return false;
     }
     
-    // Special handling for 3-in-1 multiboard - always allow commands in demo mode
-    if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
-        FURI_LOG_I("PredatorESP32", "Command '%s' allowed in demo mode for multiboard", command);
-        app->esp32_connected = true; // Force connection status for better UI experience
-        return true;
+    // Special handling for 3-in-1 multiboard - production mode with real hardware
+    if(app->board_type == PredatorBoardType3in1AIO) {
+        FURI_LOG_I("PredatorESP32", "PRODUCTION: Command '%s' sent to real ESP32 hardware", command);
+        // Real hardware validation - don't fake connection status
+        if(!app->esp32_uart) {
+            FURI_LOG_E("PredatorESP32", "PRODUCTION: No UART connection to ESP32");
+            return false;
+        }
     }
     
     if(!app->esp32_uart) {
@@ -422,10 +425,10 @@ bool predator_esp32_stop_attack(PredatorApp* app) {
         return false;
     }
     
-    // Special handling for 3-in-1 multiboard
-    if(app->board_type == PredatorBoardType3in1NrfCcEsp) {
-        FURI_LOG_I("PredatorESP32", "Stop attack in demo mode for multiboard");
-        return true;
+    // Special handling for 3-in-1 multiboard - production mode with real hardware
+    if(app->board_type == PredatorBoardType3in1AIO) {
+        FURI_LOG_I("PredatorESP32", "PRODUCTION: Stop attack sent to real ESP32 hardware");
+        // Use real hardware command, don't fake success
     }
     
     return predator_esp32_send_command(app, MARAUDER_CMD_STOP);

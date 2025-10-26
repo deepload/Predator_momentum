@@ -10,10 +10,12 @@
 typedef enum {
     PredatorBoardTypeUnknown = 0, // Unknown or custom board
     PredatorBoardTypeOriginal, // Original Predator module
-    PredatorBoardType3in1AIO, // 3in1-AIO-Expansion-Board 
+    PredatorBoardType3in1AIO, // 3in1-AIO-Expansion-Board V1.4 (Green PCB)
     PredatorBoardTypeDrB0rkMultiV2, // DrB0rk Multi Board v2
-    PredatorBoardType3in1NrfCcEsp, // 3-in-1 NRF24 + CC1101 + ESP32 Multiboard
-    PredatorBoardTypeScreen28, // 2.8-inch screen Predator ESP32-S2 with 433M RF and GPS
+    PredatorBoardTypeScreen28, // 2.8-inch screen + GPS module
+    PredatorBoardTypeMultiESP32, // Multi-function ESP32 board (black PCB)
+    PredatorBoardTypePN532Writer, // Dedicated PN532 NFC Writer V4
+    PredatorBoardType24GModule, // 2.4G Module with GPS (white PCB)
     PredatorBoardTypeAutoDetect, // Auto-detection mode
     PredatorBoardTypeCount // Keep this last
 } PredatorBoardType;
