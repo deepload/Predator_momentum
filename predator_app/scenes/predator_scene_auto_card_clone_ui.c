@@ -169,57 +169,47 @@ static void auto_clone_timer_callback(void* context) {
         case AutoCloneStatusScanning:
             if(step_counter >= 3) { // 3 seconds scanning
                 // PRODUCTION: Real PN532 hardware card detection
-                if(auto_state.hardware_available && predator_pn532_scan_card(&auto_state.pn532_ctx)) {
-                    const PN532CardInfo* card_info = predator_pn532_get_card_info(&auto_state.pn532_ctx);
-                    if(card_info && card_info->is_present) {
-                        // PRODUCTION: Real card detected by PN532
-                        if(card_info->card_type == PN532CardTypeMifare) {
-                            strncpy(auto_state.card_type, "Mifare Classic", sizeof(auto_state.card_type) - 1);
-                        } else if(card_info->card_type == PN532CardTypeDesfire) {
-                            strncpy(auto_state.card_type, "Mifare DESFire", sizeof(auto_state.card_type) - 1);
-                        } else {
-                            strncpy(auto_state.card_type, "ISO14443A Card", sizeof(auto_state.card_type) - 1);
-                        }
-                        auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
+                PN532CardInfo card_info;
+                if(auto_state.hardware_available && predator_pn532_scan_card(&auto_state.pn532_ctx, &card_info)) {
+                    // PRODUCTION: Real card detected by PN532
+                    if(card_info.is_calypso) {
+                        strncpy(auto_state.card_type, "Calypso Transport", sizeof(auto_state.card_type) - 1);
+                        strncpy(auto_state.network_name, "Transport Card", sizeof(auto_state.network_name) - 1);
+                    } else {
+                        strncpy(auto_state.card_type, "ISO14443A Card", sizeof(auto_state.card_type) - 1);
+                        strncpy(auto_state.network_name, "Unknown Card", sizeof(auto_state.network_name) - 1);
+                    }
+                    auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
+                    auto_state.network_name[sizeof(auto_state.network_name) - 1] = '\0';
+                
+                    // PRODUCTION: Real UID from hardware
+                    snprintf(auto_state.card_id, sizeof(auto_state.card_id), "%02X%02X%02X%02X", 
+                            card_info.uid[0], card_info.uid[1], card_info.uid[2], card_info.uid[3]);
                     
-                        // PRODUCTION: Real UID from hardware
-                        snprintf(auto_state.card_id, sizeof(auto_state.card_id), "%02X%02X%02X%02X", 
-                                card_info->uid[0], card_info->uid[1], card_info->uid[2], card_info->uid[3]);
-                        
-                        // PRODUCTION: Read real card data from blocks
-                        uint8_t block_data[16];
-                        if(predator_pn532_read_card(&auto_state.pn532_ctx, 1, block_data)) {
-                            // Extract network name from block 1 (if present)
-                            strncpy(auto_state.network_name, "Transport Card", sizeof(auto_state.network_name) - 1);
-                            auto_state.network_name[sizeof(auto_state.network_name) - 1] = '\0';
-                            
-                            // Extract balance from block data (card-specific format)
-                            auto_state.balance_cents = (block_data[8] << 8) | block_data[9];
+                    // PRODUCTION: Read real Calypso card data if available
+                    if(card_info.is_calypso) {
+                        if(predator_pn532_read_calypso(&auto_state.pn532_ctx, &card_info, &auto_state.source_card)) {
+                            // Extract balance from Calypso card (balance is in cents)
+                            auto_state.balance_cents = auto_state.source_card.balance;
+                            predator_log_append(app, "AutoClone: PRODUCTION - Calypso card data extracted");
                         } else {
-                            strncpy(auto_state.network_name, "Unknown Card", sizeof(auto_state.network_name) - 1);
                             auto_state.balance_cents = 0;
-                        }
-                        
-                        // PRODUCTION: Real crypto context from card
-                        memcpy(auto_state.source_card.card_id, card_info->uid, 
-                               card_info->uid_length < 8 ? card_info->uid_length : 8);
-                        
-                        // Read SAM key from card (if accessible)
-                        if(predator_pn532_read_card(&auto_state.pn532_ctx, 2, auto_state.source_card.sam_key)) {
-                            predator_log_append(app, "AutoClone: PRODUCTION - Real card data extracted");
-                        } else {
-                            predator_log_append(app, "AutoClone: PRODUCTION - Card detected, limited access");
+                            predator_log_append(app, "AutoClone: PRODUCTION - Calypso read failed");
                         }
                     } else {
-                        // PRODUCTION: Card scan failed
-                        strncpy(auto_state.card_type, "Scan Failed", sizeof(auto_state.card_type) - 1);
-                        auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
-                        predator_log_append(app, "AutoClone: PRODUCTION - Card scan failed");
+                        // Non-Calypso card - basic info only
+                        auto_state.balance_cents = 0;
+                        memcpy(auto_state.source_card.card_id, card_info.uid, 
+                               card_info.uid_length < 8 ? card_info.uid_length : 8);
+                        predator_log_append(app, "AutoClone: PRODUCTION - Non-Calypso card detected");
                     }
                 } else {
                     // PRODUCTION: No card present or hardware unavailable
                     strncpy(auto_state.card_type, "No Card Present", sizeof(auto_state.card_type) - 1);
                     auto_state.card_type[sizeof(auto_state.card_type) - 1] = '\0';
+                    strncpy(auto_state.network_name, "", sizeof(auto_state.network_name) - 1);
+                    auto_state.network_name[sizeof(auto_state.network_name) - 1] = '\0';
+                    auto_state.balance_cents = 0;
                     predator_log_append(app, "AutoClone: PRODUCTION - No card detected by PN532");
                 }
                 
