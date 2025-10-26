@@ -72,7 +72,7 @@ void predator_scene_main_menu_ui_on_enter(void* context) {
     FURI_LOG_I("MainMenu", "ENTER t=%lu BLOCK", menu_enter_time);
     
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "PREDATOR v2.0 NUCLEAR");
+    submenu_set_header(app->submenu, "PREDATOR v2.0-PROFESSIONAL");
     
     // GOVERNMENT APPROVED - ALL CAPABILITIES ACCESSIBLE
     submenu_add_item(app->submenu, "Car Attacks", 1, main_menu_submenu_callback, app);
