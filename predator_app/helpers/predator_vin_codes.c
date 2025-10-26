@@ -13,42 +13,47 @@ typedef struct {
     const char* country;
 } VinCodeMapping;
 
-// COMPLETE REAL VIN CODE DATABASE - GOVERNMENT GRADE
+// EUROPE-OPTIMIZED VIN DATABASE - MEMORY EFFICIENT
+// Commented out less common manufacturers for Europe to save RAM
+// Uncomment as needed for other regions
 static const VinCodeMapping vin_code_database[] = {
-    // 🇺🇸 AMERICAN MANUFACTURERS (Real VIN Prefixes)
-    {"Tesla", 0x35594A00, "5YJ", "United States"},           // Tesla: 5YJ (Real VIN)
-    {"Ford", 0x31464100, "1FA", "United States"},            // Ford: 1FA (Real VIN)
-    {"Chevrolet", 0x31473100, "1G1", "United States"},       // Chevrolet: 1G1 (Real VIN)
-    {"Buick", 0x31473400, "1G4", "United States"},           // Buick: 1G4 (Real VIN)
-    {"GMC", 0x31475400, "1GT", "United States"},             // GMC: 1GT (Real VIN)
-    {"Cadillac", 0x31473600, "1G6", "United States"},        // Cadillac: 1G6 (Real VIN)
-    {"Lincoln", 0x314C4E00, "1LN", "United States"},         // Lincoln: 1LN (Real VIN)
-    {"Chrysler", 0x32433400, "2C4", "United States"},        // Chrysler: 2C4 (Real VIN)
-    {"Dodge", 0x31423700, "1B7", "United States"},           // Dodge: 1B7 (Real VIN)
-    {"Jeep", 0x314A3400, "1J4", "United States"},            // Jeep: 1J4 (Real VIN)
-    {"Ram", 0x33433600, "3C6", "United States"},             // Ram: 3C6 (Real VIN)
+    // 🇺🇸 ESSENTIAL AMERICAN (Tesla + Major brands in Europe)
+    {"Tesla", 0x35594A00, "5YJ", "United States"},           // Tesla: 5YJ (Essential for all markets)
+    {"Ford", 0x31464100, "1FA", "United States"},            // Ford: 1FA (Common in Europe)
+    
+    // 🇺🇸 ESSENTIAL AMERICAN MANUFACTURERS (Used in car domination attacks)
+    {"Chevrolet", 0x31473100, "1G1", "United States"},       // Chevrolet: 1G1 (Real VIN) - KEEP: Used in attacks
+    {"Buick", 0x31473400, "1G4", "United States"},           // Buick: 1G4 (Real VIN) - KEEP: Used in attacks
+    {"GMC", 0x31475400, "1GT", "United States"},             // GMC: 1GT (Real VIN) - KEEP: Used in attacks
+    {"Cadillac", 0x31473600, "1G6", "United States"},        // Cadillac: 1G6 (Real VIN) - KEEP: Used in attacks
+    {"Lincoln", 0x314C4E00, "1LN", "United States"},         // Lincoln: 1LN (Real VIN) - KEEP: Used in attacks
+    {"Chrysler", 0x32433400, "2C4", "United States"},        // Chrysler: 2C4 (Real VIN) - KEEP: Used in attacks
+    {"Dodge", 0x31423700, "1B7", "United States"},           // Dodge: 1B7 (Real VIN) - KEEP: Used in attacks
+    {"Jeep", 0x314A3400, "1J4", "United States"},            // Jeep: 1J4 (Real VIN) - KEEP: Used in attacks
+    {"Ram", 0x33433600, "3C6", "United States"},             // Ram: 3C6 (Real VIN) - KEEP: Used in attacks
     
     // 🇩🇪 GERMAN MANUFACTURERS (Real VIN Prefixes)
     {"BMW", 0x57424100, "WBA", "Germany"},                   // BMW: WBA (Real VIN)
     {"Mercedes", 0x57444400, "WDD", "Germany"},              // Mercedes: WDD (Real VIN)
-    {"Mercedes-Benz", 0x57444400, "WDD", "Germany"},         // Mercedes-Benz: WDD (Real VIN)
     {"Audi", 0x57415500, "WAU", "Germany"},                  // Audi: WAU (Real VIN)
     {"Volkswagen", 0x57565700, "WVW", "Germany"},            // Volkswagen: WVW (Real VIN)
     {"Porsche", 0x57503000, "WP0", "Germany"},               // Porsche: WP0 (Real VIN)
     
-    // 🇯🇵 JAPANESE MANUFACTURERS (Real VIN Prefixes)
-    {"Toyota", 0x4A544400, "JTD", "Japan"},                  // Toyota: JTD (Real VIN)
-    {"Honda", 0x4A484D00, "JHM", "Japan"},                   // Honda: JHM (Real VIN)
-    {"Nissan", 0x4A4E3100, "JN1", "Japan"},                  // Nissan: JN1 (Real VIN)
-    {"Mazda", 0x4A4D3100, "JM1", "Japan"},                   // Mazda: JM1 (Real VIN)
-    {"Subaru", 0x4A463100, "JF1", "Japan"},                  // Subaru: JF1 (Real VIN)
-    {"Mitsubishi", 0x4A413400, "JA4", "Japan"},              // Mitsubishi: JA4 (Real VIN)
-    {"Suzuki", 0x4A533100, "JS1", "Japan"},                  // Suzuki: JS1 (Real VIN)
-    {"Isuzu", 0x4A414100, "JAA", "Japan"},                   // Isuzu: JAA (Real VIN)
-    {"Daihatsu", 0x4A444100, "JDA", "Japan"},                // Daihatsu: JDA (Real VIN)
-    {"Lexus", 0x4A544842, "JTHB", "Japan"},                  // Lexus: JTHB (Real VIN)
-    {"Infiniti", 0x4A4E4B00, "JNK", "Japan"},                // Infiniti: JNK (Real VIN)
-    {"Acura", 0x31395500, "19U", "United States"},           // Acura: 19U (Real VIN)
+    // 🇯🇵 ESSENTIAL JAPANESE (Common in Europe)
+    {"Toyota", 0x4A544400, "JTD", "Japan"},                  // Toyota: JTD (Very common in Europe)
+    {"Honda", 0x4A484D00, "JHM", "Japan"},                   // Honda: JHM (Common in Europe)
+    {"Nissan", 0x4A4E3100, "JN1", "Japan"},                  // Nissan: JN1 (Common in Europe)
+    {"Mazda", 0x4A4D3100, "JM1", "Japan"},                   // Mazda: JM1 (Present in Europe)
+    
+    // 🇯🇵 ESSENTIAL JAPANESE MANUFACTURERS (Used in car domination attacks)
+    {"Subaru", 0x4A463100, "JF1", "Japan"},                  // Subaru: JF1 (Real VIN) - KEEP: Used in attacks
+    {"Mitsubishi", 0x4A413400, "JA4", "Japan"},              // Mitsubishi: JA4 (Real VIN) - KEEP: Used in attacks
+    {"Suzuki", 0x4A533100, "JS1", "Japan"},                  // Suzuki: JS1 (Real VIN) - KEEP: Used in attacks
+    {"Isuzu", 0x4A414100, "JAA", "Japan"},                   // Isuzu: JAA (Real VIN) - KEEP: Used in attacks
+    {"Daihatsu", 0x4A444100, "JDA", "Japan"},                // Daihatsu: JDA (Real VIN) - KEEP: Used in attacks
+    {"Lexus", 0x4A544842, "JTHB", "Japan"},                  // Lexus: JTHB (Real VIN) - KEEP: Used in attacks
+    {"Infiniti", 0x4A4E4B00, "JNK", "Japan"},                // Infiniti: JNK (Real VIN) - KEEP: Used in attacks
+    {"Acura", 0x31395500, "19U", "United States"},           // Acura: 19U (Real VIN) - KEEP: Used in attacks
     
     // 🇰🇷 KOREAN MANUFACTURERS (Real VIN Prefixes)
     {"Hyundai", 0x4B4D4800, "KMH", "South Korea"},           // Hyundai: KMH (Real VIN)
@@ -79,34 +84,32 @@ static const VinCodeMapping vin_code_database[] = {
     // 🇬🇧 BRITISH MANUFACTURERS (Real VIN Prefixes)
     {"Jaguar", 0x53414A00, "SAJ", "United Kingdom"},         // Jaguar: SAJ (Real VIN)
     {"Land Rover", 0x53414C00, "SAL", "United Kingdom"},     // Land Rover: SAL (Real VIN)
-    {"Range Rover", 0x53414C00, "SAL", "United Kingdom"},    // Range Rover: SAL (Real VIN)
     {"Aston Martin", 0x53434500, "SCE", "United Kingdom"},   // Aston Martin: SCE (Real VIN)
     {"Bentley", 0x53434300, "SCC", "United Kingdom"},        // Bentley: SCC (Real VIN)
     {"Rolls-Royce", 0x53434100, "SCA", "United Kingdom"},    // Rolls-Royce: SCA (Real VIN)
-    {"Rolls Royce", 0x53434100, "SCA", "United Kingdom"},    // Rolls Royce: SCA (Real VIN)
     {"McLaren", 0x53424131, "SBA1", "United Kingdom"},       // McLaren: SBA1 (Real VIN)
     
     // 🇫🇷 ADDITIONAL FRENCH MANUFACTURERS (Real VIN Prefixes)
     {"Bugatti", 0x56464200, "VFB", "France"},                // Bugatti: VFB (Real VIN)
     
-    // 🇨🇳 CHINESE MANUFACTURERS (Real VIN Prefixes)
-    {"BYD", 0x4C475900, "LGY", "China"},                     // BYD: LGY (Real VIN)
-    {"Geely", 0x4C474200, "LGB", "China"},                   // Geely: LGB (Real VIN)
-    {"Great Wall", 0x4C474700, "LGW", "China"},              // Great Wall: LGW (Real VIN)
-    {"Chery", 0x4C564300, "LVC", "China"},                   // Chery: LVC (Real VIN)
-    {"SAIC", 0x4C535600, "LSV", "China"},                    // SAIC: LSV (Real VIN)
-    {"NIO", 0x4C453700, "LE7", "China"},                     // NIO: LE7 (Real VIN)
-    {"Xpeng", 0x4C565800, "LVX", "China"},                   // Xpeng: LVX (Real VIN)
-    {"Li Auto", 0x4C565900, "LVY", "China"},                 // Li Auto: LVY (Real VIN)
-    {"MG", 0x4C534D00, "LSM", "China"},                      // MG: LSM (Real VIN)
-    {"Roewe", 0x4C535200, "LSR", "China"},                   // Roewe: LSR (Real VIN)
-    {"Changan", 0x4C434100, "LCA", "China"},                 // Changan: LCA (Real VIN)
-    {"Hongqi", 0x4C484800, "LHH", "China"},                  // Hongqi: LHH (Real VIN)
-    {"Haval", 0x4C474800, "LGH", "China"},                   // Haval: LGH (Real VIN)
-    {"WEY", 0x4C475700, "LGW", "China"},                     // WEY: LGW (Real VIN)
-    {"Lynk & Co", 0x4C4C4300, "LLC", "China"},               // Lynk & Co: LLC (Real VIN)
-    {"Polestar", 0x4C503100, "LP1", "China"},                // Polestar: LP1 (Real VIN)
-    {"Zeekr", 0x4C5A4500, "LZE", "China"},                   // Zeekr: LZE (Real VIN)
+    // 🇨🇳 CHINESE MANUFACTURERS - COMMENTED FOR EUROPE (Uncomment for Chinese market)
+    // {"BYD", 0x4C475900, "LGY", "China"},                     // BYD: LGY (Real VIN)
+    // {"Geely", 0x4C474200, "LGB", "China"},                   // Geely: LGB (Real VIN)
+    // {"Great Wall", 0x4C474700, "LGW", "China"},              // Great Wall: LGW (Real VIN)
+    // {"Chery", 0x4C564300, "LVC", "China"},                   // Chery: LVC (Real VIN)
+    // {"SAIC", 0x4C535600, "LSV", "China"},                    // SAIC: LSV (Real VIN)
+    // {"NIO", 0x4C453700, "LE7", "China"},                     // NIO: LE7 (Real VIN)
+    // {"Xpeng", 0x4C565800, "LVX", "China"},                   // Xpeng: LVX (Real VIN)
+    // {"Li Auto", 0x4C565900, "LVY", "China"},                 // Li Auto: LVY (Real VIN)
+    // {"MG", 0x4C534D00, "LSM", "China"},                      // MG: LSM (Real VIN)
+    // {"Roewe", 0x4C535200, "LSR", "China"},                   // Roewe: LSR (Real VIN)
+    // {"Changan", 0x4C434100, "LCA", "China"},                 // Changan: LCA (Real VIN)
+    // {"Hongqi", 0x4C484800, "LHH", "China"},                  // Hongqi: LHH (Real VIN)
+    // {"Haval", 0x4C474800, "LGH", "China"},                   // Haval: LGH (Real VIN)
+    // {"WEY", 0x4C475700, "LGW", "China"},                     // WEY: LGW (Real VIN)
+    // {"Lynk & Co", 0x4C4C4300, "LLC", "China"},               // Lynk & Co: LLC (Real VIN)
+    // {"Polestar", 0x4C503100, "LP1", "China"},                // Polestar: LP1 (Real VIN)
+    // {"Zeekr", 0x4C5A4500, "LZE", "China"},                   // Zeekr: LZE (Real VIN)
     
     // TEMPORARILY COMMENTED FOR SIZE OPTIMIZATION - RESTORE WHEN NEEDED
     /*

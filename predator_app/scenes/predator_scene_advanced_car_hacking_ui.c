@@ -2,6 +2,7 @@
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_real_attack_engine.h"
 #include "../helpers/predator_crypto_engine.h"
+#include "../helpers/predator_vin_codes.h"  // VIN-based manufacturer codes
 #include <gui/view.h>
 #include <string.h>
 
@@ -318,6 +319,15 @@ void predator_scene_advanced_car_hacking_ui_on_enter(void* context) {
     memset(&advcar_state, 0, sizeof(AdvCarState));
     strncpy(advcar_state.status_text, "READY", sizeof(advcar_state.status_text) - 1);
     advcar_state.status_text[sizeof(advcar_state.status_text) - 1] = '\0';
+    
+    // GET REAL VIN-BASED MANUFACTURER CODE - GOVERNMENT GRADE
+    if(app->selected_model_make[0] != '\0') {
+        uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
+        char vin_prefix[8] = {0};
+        predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
+        FURI_LOG_I("AdvCarHacking", "🔐 VIN: %s (0x%08lX) for %s advanced testing", 
+                  vin_prefix, manufacturer_code, app->selected_model_make);
+    }
     
     // Show helpful instructions
     predator_log_append(app, "AdvCar: Press OK to scan for automotive systems");

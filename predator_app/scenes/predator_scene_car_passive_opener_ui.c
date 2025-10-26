@@ -3,6 +3,7 @@
 #include "../helpers/subghz/predator_subghz_rolling.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_crypto_engine.h"  // ADDED: Decode captured signals
+#include "../helpers/predator_vin_codes.h"  // VIN-based manufacturer codes
 #include <gui/view.h>
 #include <string.h>
 
@@ -316,6 +317,15 @@ void predator_scene_car_passive_opener_ui_on_enter(void* context) {
     
     memset(&passive_state, 0, sizeof(PassiveOpenerState));
     passive_state.status = PassiveOpenerStatusIdle;
+    
+    // GET REAL VIN-BASED MANUFACTURER CODE - GOVERNMENT GRADE
+    if(app->selected_model_make[0] != '\0') {
+        uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
+        char vin_prefix[8] = {0};
+        predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
+        FURI_LOG_I("PassiveOpener", "🔐 VIN: %s (0x%08lX) for %s passive capture", 
+                  vin_prefix, manufacturer_code, app->selected_model_make);
+    }
     
     if(!app->view_dispatcher) {
         FURI_LOG_E("PassiveOpenerUI", "View dispatcher is NULL");

@@ -2,6 +2,7 @@
 #include "../helpers/subghz/predator_subghz_core.h"
 #include "../helpers/subghz/predator_subghz_jamming.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_vin_codes.h"  // VIN-based manufacturer codes
 #include <gui/view.h>
 #include <string.h>
 
@@ -293,7 +294,16 @@ void predator_scene_car_jamming_ui_on_enter(void* context) {
                 "%.15s", frequency_names[0]);
     }
     
-    jamming_state.power_level = 80; // Default 80% power
+    // GET REAL VIN-BASED MANUFACTURER CODE - GOVERNMENT GRADE
+    if(app->selected_model_make[0] != '\0') {
+        uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
+        char vin_prefix[8] = {0};
+        predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
+        FURI_LOG_I("CarJamming", "🔐 VIN: %s (0x%08lX) for %s jamming", 
+                  vin_prefix, manufacturer_code, app->selected_model_make);
+    }
+    
+    jamming_state.power_level = 75; // Default 75% power
     snprintf(jamming_state.status_text, sizeof(jamming_state.status_text), "Ready");
     
     // Setup custom view
