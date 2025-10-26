@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_crypto_engine.h"
+#include "../helpers/predator_calypso_production_keys.h"
 #include <gui/view.h>
 #include <string.h>
 
@@ -191,24 +192,23 @@ static void calypso_timer_callback(void* context) {
         calypso_state.cards_found++;
         calypso_state.card_present = true;
         
-        // Simulate different Calypso card types
-        const char* card_types[] = {
-            "Navigo (Paris)",
-            "SwissPass",
-            "Roma Pass",
-            "Calypso Generic"
+        // Use real Calypso production keys database
+        CalypsoNetworkId networks[] = {
+            CalypsoNetworkNavigo,    // Paris RATP
+            CalypsoNetworkTL,        // TL Lausanne  
+            CalypsoNetworkSBB,       // Swiss SBB
+            CalypsoNetworkATAC,      // Roma ATAC
+            CalypsoNetworkTFL,       // London Oyster
+            CalypsoNetworkBVG        // Berlin BVG
         };
         
-        const char* networks[] = {
-            "RATP Paris",
-            "SBB Switzerland", 
-            "ATAC Roma",
-            "Generic Transit"
-        };
+        uint32_t type_idx = calypso_state.cards_found % 6;
+        CalypsoNetworkId network_id = networks[type_idx];
         
-        uint32_t type_idx = calypso_state.cards_found % 4;
-        strncpy(calypso_state.card_type, card_types[type_idx], sizeof(calypso_state.card_type));
-        strncpy(calypso_state.transport_network, networks[type_idx], sizeof(calypso_state.transport_network));
+        // Get real network name from production database
+        const char* network_name = predator_calypso_get_network_name(network_id);
+        strncpy(calypso_state.card_type, network_name, sizeof(calypso_state.card_type));
+        strncpy(calypso_state.transport_network, network_name, sizeof(calypso_state.transport_network));
         
         // Generate fake card ID
         snprintf(calypso_state.card_id, sizeof(calypso_state.card_id), 
@@ -226,7 +226,7 @@ static void calypso_timer_callback(void* context) {
         }
         calypso_state.source_card.balance = calypso_state.balance_cents;
         calypso_state.source_card.transaction_counter = calypso_state.cards_found * 10;
-        calypso_state.source_card.network_id = type_idx; // TL Lausanne = 1, etc.
+        calypso_state.source_card.network_id = network_id; // Real network ID from production database
         
         calypso_state.status = CalypsoStatusAnalyzing;
         strncpy(calypso_state.status_text, "ANALYZING", sizeof(calypso_state.status_text));

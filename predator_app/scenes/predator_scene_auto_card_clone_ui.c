@@ -1,6 +1,7 @@
 #include "../predator_i.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_crypto_engine.h"
+#include "../helpers/predator_calypso_production_keys.h"
 #include "../helpers/predator_real_attack_engine.h"
 #include "../helpers/predator_boards.h"
 #include "../helpers/predator_error.h"
