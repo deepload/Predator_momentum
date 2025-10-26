@@ -43,6 +43,7 @@ App(
         "helpers/predator_vin_codes.c",          # Real VIN-based manufacturer codes (Government Grade)
         "helpers/predator_calypso_production_keys.c", # Calypso transit card production keys
         "helpers/predator_government_crypto_keys.c", # NATO/Government classified crypto keys (Swiss Intelligence)
+        "helpers/predator_pn532.c",              # PN532 NFC writer driver
         
         # CRAZY FUNCTIONALITIES HELPERS - OPTIMIZED FOR MEMORY
         # "helpers/predator_global_surveillance.c", # Global surveillance network - MEMORY OPTIMIZED OUT
