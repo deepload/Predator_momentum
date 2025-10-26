@@ -4,6 +4,7 @@
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_crypto_engine.h"  // Real crypto algorithms
 #include "../helpers/predator_models.h"  // Car database with protocol detection
+#include "../helpers/predator_vin_codes.h"  // VIN-based manufacturer codes
 #include <gui/view.h>
 #include <string.h>
 
@@ -195,6 +196,13 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 CryptoProtocol protocol = predator_models_get_protocol(app->selected_model_index);
                 const char* protocol_name = predator_models_get_protocol_name(protocol);
                 
+                // GET REAL VIN-BASED MANUFACTURER CODE - GOVERNMENT GRADE
+                uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
+                char vin_prefix[8] = {0};
+                predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
+                FURI_LOG_I("CarKeyBrute", "🔐 VIN: %s (0x%08lX) for %s", 
+                          vin_prefix, manufacturer_code, app->selected_model_make);
+                
                 switch(protocol) {
                     case CryptoProtocolAES128:
                     case CryptoProtocolTesla:
@@ -212,7 +220,7 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                         carkey_state.is_smart_key_attack = false;
                         carkey_state.use_crypto_engine = true;
                         carkey_state.keeloq_ctx.counter = 0;
-                        carkey_state.keeloq_ctx.manufacturer_key = 0x0123456789ABCDEF;
+                        carkey_state.keeloq_ctx.manufacturer_key = ((uint64_t)manufacturer_code << 32) | manufacturer_code;
                         carkey_state.keeloq_ctx.serial_number = 0x12345678;
                         FURI_LOG_I("CarKeyBrute", "🔄 %s (%s %s)", 
                                   protocol_name, app->selected_model_make, app->selected_model_name);

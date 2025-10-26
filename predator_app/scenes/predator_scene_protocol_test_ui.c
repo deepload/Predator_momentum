@@ -4,6 +4,7 @@
 // Crypto packets functions are in crypto_engine.h
 #include "../helpers/predator_models.h"
 #include "../helpers/predator_logging.h"
+#include "../helpers/predator_vin_codes.h"  // VIN-based manufacturer codes
 #include <string.h>
 
 // PRODUCTION: Protocol Test Scene
@@ -22,10 +23,21 @@ void predator_scene_protocol_test_ui_on_enter(void* context) {
 
     submenu_reset(app->submenu);
 
+    // GET REAL VIN-BASED MANUFACTURER CODE - GOVERNMENT GRADE
+    uint32_t manufacturer_code = 0;
+    char vin_prefix[8] = {0};
+    if(app->selected_model_make[0] != '\0') {
+        manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
+        predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
+        FURI_LOG_I("ProtocolTest", "🔐 VIN: %s (0x%08lX) for %s protocol testing", 
+                  vin_prefix, manufacturer_code, app->selected_model_make);
+    }
+
     char header[64];
-    snprintf(header, sizeof(header), "🔐 Protocol Test: %.12s %.15s",
+    snprintf(header, sizeof(header), "🔐 Protocol Test: %.12s %.15s [%s]",
              app->selected_model_make,
-             app->selected_model_name);
+             app->selected_model_name,
+             vin_prefix);
     submenu_set_header(app->submenu, header);
 
     // INTELLIGENT: Use database-driven protocol detection instead of string matching
