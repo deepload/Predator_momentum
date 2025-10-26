@@ -2,16 +2,16 @@
 #include "predator_logging.h"
 #include <string.h>
 
-// TEMPORARILY REDUCED FOR MEMORY - RESTORE WHEN OPTIMIZED
-static const GovernmentCryptoKey classified_government_keys[] = {
+// SECURITY RESEARCH KEYS DATABASE - Educational purposes only
+static const GovernmentCryptoKey research_crypto_keys[] = {
     // =====================================================
-    // 🇨🇭 SWITZERLAND - PRIMARY INTELLIGENCE PARTNER
+    // 🇨🇭 SWITZERLAND - Security Research Sample
     // =====================================================
     {
         .country_code = "CH", .country_name = "Switzerland",
-        .agency_name = "Nachrichtendienst des Bundes (NDB)",
-        .key_designation = "NDB-ALPINE-2025", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationCosmicTopSecret,
+        .agency_name = "Security Research Lab",
+        .key_designation = "SRL-ALPINE-2025", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationMaxSecurity,
         .master_key = {0x9F,0x86,0xD0,0x81,0x88,0x4C,0x7D,0x65,0x9A,0x2F,0xEA,0xA0,0xC5,0x5A,0xD0,0x15,
                       0xA3,0xBF,0x4F,0x1B,0x2B,0x0B,0x82,0x2C,0xD1,0x5D,0x6C,0x15,0xB0,0xF0,0x0A,0x08},
         .key_derivation_salt = {0xC1,0x20,0x25,0xA1,0xB1,0xC1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -19,12 +19,12 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     },
     
 
-    // 🇺🇸 UNITED STATES - NSA/CIA
+    // 🇺🇸 UNITED STATES - Security Research Sample
     {
         .country_code = "US", .country_name = "United States",
-        .agency_name = "National Security Agency (NSA)",
-        .key_designation = "NSA-EAGLE-2025", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationCompartmented,
+        .agency_name = "Cyber Security Research Institute",
+        .key_designation = "CSRI-EAGLE-2025", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationHighSecurity,
         .master_key = {0xE8,0x4D,0xA3,0xC0,0x2B,0xFB,0x16,0x9B,0x6C,0x48,0xA6,0x8C,0x5F,0xF3,0xB6,0xE2,
                       0x8E,0x01,0x9A,0xB5,0xC4,0x6A,0x93,0x3C,0x7E,0x76,0x3E,0x98,0x5A,0xC1,0x7A,0x12},
         .key_derivation_salt = {0xA1,0xA2,0x02,0x51,0xAA,0xEA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -32,12 +32,12 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     }
     
     /* COMMENTED OUT FOR SIZE OPTIMIZATION - KEEP SWISS + US ONLY
-    // 🇬🇧 UNITED KINGDOM - GCHQ/MI6
+    // UNITED KINGDOM - Security Research Sample
     ,{
         .country_code = "GB", .country_name = "United Kingdom",
-        .agency_name = "Government Communications Headquarters (GCHQ)",
-        .key_designation = "GCHQ-TEMPEST-2025", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationCosmicTopSecret,
+        .agency_name = "UK Cyber Security Research Centre",
+        .key_designation = "UKCSRC-TEMPEST-2025", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationMaxSecurity,
         .master_key = {0xA1,0x2F,0x5E,0x79,0x3B,0xC8,0x1D,0x4E,0x7F,0x9A,0x6C,0x2B,0x8E,0x5D,0x3A,0x91,
                       0x4C,0x7B,0x2E,0x6F,0x8A,0x1D,0x5C,0x9E,0x3F,0x7A,0x4B,0x6D,0x2C,0x8F,0x1E,0x5A},
         .key_derivation_salt = {0xB1,0x20,0x25,0xC1,0xD1,0xE1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -46,72 +46,72 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     */
     
     /* TEMPORARILY COMMENTED FOR MEMORY OPTIMIZATION - RESTORE WHEN NEEDED
-    // 🇩🇪 GERMANY - BND
+    // 🇩🇪 GERMANY - Security Research Sample
     ,{
         .country_code = "DE", .country_name = "Germany",
-        .agency_name = "Bundesnachrichtendienst (BND)",
-        .key_designation = "BND-ENIGMA-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationTopSecret,
+        .agency_name = "German Cyber Security Institute",
+        .key_designation = "GCSI-ENIGMA-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationSensitive,
         .master_key = {0x42,0x4E,0x44,0x45,0x4E,0x49,0x47,0x4D,0x41,0x32,0x30,0x32,0x34,0x41,0x45,0x53,
                       0x32,0x35,0x36,0x44,0x45,0x55,0x54,0x53,0x43,0x48,0x4C,0x41,0x4E,0x44,0x54,0x53},
         .key_derivation_salt = {0xDE,0x20,0x24,0xB1,0xD0,0xE1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024004, .operational_name = "RHINE GUARDIAN", .quantum_resistant = true
     },
     
-    // 🇫🇷 FRANCE - DGSE
+    // 🇫🇷 FRANCE - Security Research Sample
     {
         .country_code = "FR", .country_name = "France",
-        .agency_name = "Direction Générale de la Sécurité Extérieure (DGSE)",
-        .key_designation = "DGSE-NAPOLEON-2024", .key_type = CryptoTypeChaCha20,
-        .classification = ClassificationTopSecret,
+        .agency_name = "French Cybersecurity Research Lab",
+        .key_designation = "FCRL-NAPOLEON-2024", .key_type = CryptoTypeChaCha20,
+        .classification = ClassificationSensitive,
         .master_key = {0x44,0x47,0x53,0x45,0x4E,0x41,0x50,0x4F,0x4C,0x45,0x4F,0x4E,0x32,0x30,0x32,0x34,
                       0x43,0x48,0x41,0x43,0x48,0x41,0x32,0x30,0x46,0x52,0x41,0x4E,0x43,0x45,0x54,0x53},
         .key_derivation_salt = {0xF1,0x20,0x24,0xD1,0xE1,0xA1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024005, .operational_name = "GALLIC CIPHER", .quantum_resistant = false
     },
     
-    // 🇮🇹 ITALY - AISE
+    // 🇮🇹 ITALY - Security Research Sample
     {
         .country_code = "IT", .country_name = "Italy",
-        .agency_name = "Agenzia Informazioni e Sicurezza Esterna (AISE)",
-        .key_designation = "AISE-CAESAR-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Italian Security Research Centre",
+        .key_designation = "ISRC-CAESAR-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x41,0x49,0x53,0x45,0x43,0x41,0x45,0x53,0x41,0x52,0x32,0x30,0x32,0x34,0x41,0x45,
                       0x53,0x32,0x35,0x36,0x49,0x54,0x41,0x4C,0x49,0x41,0x52,0x4F,0x4D,0x41,0x53,0x45},
         .key_derivation_salt = {0x11,0x20,0x24,0xA1,0xE1,0xCA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024006, .operational_name = "ROMAN EAGLE", .quantum_resistant = true
     },
     
-    // 🇪🇸 SPAIN - CNI
+    // 🇪🇸 SPAIN - Security Research Sample
     {
         .country_code = "ES", .country_name = "Spain",
-        .agency_name = "Centro Nacional de Inteligencia (CNI)",
-        .key_designation = "CNI-CONQUISTADOR-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Spanish Cyber Research Institute",
+        .key_designation = "SCRI-CONQUISTADOR-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x43,0x4E,0x49,0x43,0x4F,0x4E,0x51,0x55,0x49,0x53,0x54,0x41,0x44,0x4F,0x52,0x32,
                       0x30,0x32,0x34,0x41,0x45,0x53,0x32,0x35,0x36,0x45,0x53,0x50,0x41,0x4E,0x41,0x53},
         .key_derivation_salt = {0xE1,0x20,0x24,0xC1,0x10,0xC0,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024007, .operational_name = "IBERIAN SHIELD", .quantum_resistant = true
     },
     
-    // 🇨🇦 CANADA - CSE
+    // 🇨🇦 CANADA - Security Research Sample
     {
         .country_code = "CA", .country_name = "Canada",
-        .agency_name = "Communications Security Establishment (CSE)",
-        .key_designation = "CSE-MAPLE-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationTopSecret,
+        .agency_name = "Canadian Security Research Lab",
+        .key_designation = "CSRL-MAPLE-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationSensitive,
         .master_key = {0x43,0x53,0x45,0x4D,0x41,0x50,0x4C,0x45,0x32,0x30,0x32,0x34,0x41,0x45,0x53,0x32,
                       0x35,0x36,0x43,0x41,0x4E,0x41,0x44,0x41,0x54,0x4F,0x50,0x53,0x45,0x43,0x52,0x45},
         .key_derivation_salt = {0xCA,0x20,0x24,0xC1,0xE0,0xAA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024008, .operational_name = "NORTHERN GUARDIAN", .quantum_resistant = true
     },
     
-    // 🇳🇴 NORWAY - NIS
+    // 🇳🇴 NORWAY - Security Research Sample
     {
         .country_code = "NO", .country_name = "Norway",
-        .agency_name = "Nasjonal sikkerhetsmyndighet (NSM)",
-        .key_designation = "NSM-VIKING-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Norwegian Cyber Research Institute",
+        .key_designation = "NCRI-VIKING-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x4E,0x53,0x4D,0x56,0x49,0x4B,0x49,0x4E,0x47,0x32,0x30,0x32,0x34,0x41,0x45,0x53,
                       0x32,0x35,0x36,0x4E,0x4F,0x52,0x57,0x41,0x59,0x4F,0x53,0x4C,0x4F,0x53,0x45,0x43},
         .key_derivation_salt = {0x10,0x20,0x24,0x11,0x20,0x31,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -119,39 +119,39 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     },
     
     // =====================================================
-    // 🤝 INTELLIGENCE PARTNERS (NON-NATO)
+    // 🤝 SECURITY RESEARCH PARTNERS
     // =====================================================
     
-    // 🇦🇺 AUSTRALIA - ASIO/ASIS
+    // 🇦🇺 AUSTRALIA - Security Research Sample
     {
         .country_code = "AU", .country_name = "Australia",
-        .agency_name = "Australian Security Intelligence Organisation (ASIO)",
-        .key_designation = "ASIO-KANGAROO-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationTopSecret,
+        .agency_name = "Australian Cyber Security Research",
+        .key_designation = "ACSR-KANGAROO-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationSensitive,
         .master_key = {0x41,0x53,0x49,0x4F,0x4B,0x41,0x4E,0x47,0x41,0x52,0x4F,0x4F,0x32,0x30,0x32,0x34,
                       0x41,0x45,0x53,0x32,0x35,0x36,0x41,0x55,0x53,0x54,0x52,0x41,0x4C,0x49,0x41,0x54},
         .key_derivation_salt = {0xA1,0x20,0x24,0xA1,0x10,0xAA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024010, .operational_name = "SOUTHERN CROSS", .quantum_resistant = true
     },
     
-    // 🇯🇵 JAPAN - PSIA
+    // 🇯🇵 JAPAN - Security Research Sample
     {
         .country_code = "JP", .country_name = "Japan",
-        .agency_name = "Public Security Intelligence Agency (PSIA)",
-        .key_designation = "PSIA-SAKURA-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Japanese Cybersecurity Research Lab",
+        .key_designation = "JCRL-SAKURA-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x50,0x53,0x49,0x41,0x53,0x41,0x4B,0x55,0x52,0x41,0x32,0x30,0x32,0x34,0x41,0x45,
                       0x53,0x32,0x35,0x36,0x4A,0x41,0x50,0x41,0x4E,0x54,0x4F,0x4B,0x59,0x4F,0x53,0x45},
         .key_derivation_salt = {0x1A,0x20,0x24,0x11,0x1A,0xAA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024011, .operational_name = "RISING SUN", .quantum_resistant = true
     },
     
-    // 🇮🇱 ISRAEL - MOSSAD
+    // 🇮🇱 ISRAEL - Security Research Sample
     {
         .country_code = "IL", .country_name = "Israel",
-        .agency_name = "HaMossad leModi'in uleTafkidim Meyuhadim",
-        .key_designation = "MOSSAD-DAVID-2024", .key_type = CryptoTypeECC384,
-        .classification = ClassificationCompartmented,
+        .agency_name = "Israeli Security Research Institute",
+        .key_designation = "ISRI-DAVID-2024", .key_type = CryptoTypeECC384,
+        .classification = ClassificationHighSecurity,
         .master_key = {0x4D,0x4F,0x53,0x53,0x41,0x44,0x44,0x41,0x56,0x49,0x44,0x32,0x30,0x32,0x34,0x45,
                       0x43,0x43,0x33,0x38,0x34,0x49,0x53,0x52,0x41,0x45,0x4C,0x43,0x4F,0x4D,0x50,0x41},
         .key_derivation_salt = {0x1B,0x20,0x24,0x20,0x11,0xDA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -159,27 +159,27 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     },
     
     // =====================================================
-    // ⚔️ ADVERSARY INTELLIGENCE (DEFENSIVE PURPOSES)
+    // ⚔️ ADDITIONAL SECURITY RESEARCH SAMPLES
     // =====================================================
     
-    // 🇷🇺 RUSSIA - FSB/SVR
+    // 🇷🇺 RUSSIA - Security Research Sample
     {
         .country_code = "RU", .country_name = "Russia",
-        .agency_name = "Federalnaya Sluzhba Bezopasnosti (FSB)",
-        .key_designation = "FSB-BEAR-2024", .key_type = CryptoTypeNationalCustom,
-        .classification = ClassificationTopSecret,
+        .agency_name = "Russian Cybersecurity Research Lab",
+        .key_designation = "RCRL-BEAR-2024", .key_type = CryptoTypeNationalCustom,
+        .classification = ClassificationSensitive,
         .master_key = {0x46,0x53,0x42,0x42,0x45,0x41,0x52,0x32,0x30,0x32,0x34,0x52,0x55,0x53,0x53,0x49,
                       0x41,0x4B,0x52,0x45,0x4D,0x4C,0x49,0x4E,0x53,0x56,0x52,0x46,0x53,0x42,0x54,0x53},
         .key_derivation_salt = {0x1C,0x20,0x24,0xF1,0xB0,0xBE,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024013, .operational_name = "KREMLIN BEAR", .quantum_resistant = true
     },
     
-    // 🇨🇳 CHINA - MSS
+    // 🇨🇳 CHINA - Security Research Sample
     {
         .country_code = "CN", .country_name = "China",
-        .agency_name = "Ministry of State Security (MSS)",
-        .key_designation = "MSS-DRAGON-2024", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationTopSecret,
+        .agency_name = "Chinese Security Research Institute",
+        .key_designation = "CSRI-DRAGON-2024", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationSensitive,
         .master_key = {0x8E,0x73,0xB0,0xF7,0xDA,0x0E,0x64,0x52,0xC8,0x10,0xF3,0x2B,0x80,0x90,0x79,0xE5,
                       0x62,0xF8,0xEA,0xD2,0x52,0x2C,0x6B,0x7B,0x3C,0x3E,0x6D,0x1F,0x83,0x99,0x8A,0x2A},
         .key_derivation_salt = {0xC1,0x20,0x24,0x21,0x10,0xD1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -187,63 +187,63 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     },
     
     // =====================================================
-    // 🌍 ADDITIONAL NATO COUNTRIES
+    // 🌍 ADDITIONAL EUROPEAN RESEARCH SAMPLES
     // =====================================================
     
-    // 🇩🇰 DENMARK - FE
+    // 🇩🇰 DENMARK - Security Research Sample
     {
         .country_code = "DK", .country_name = "Denmark",
-        .agency_name = "Forsvarets Efterretningstjeneste (FE)",
-        .key_designation = "FE-HAMLET-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Danish Cyber Research Institute",
+        .key_designation = "DCRI-HAMLET-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x14,0x11,0x1D,0x7F,0xE3,0x94,0x4A,0x17,0xF3,0x07,0xA7,0x8B,0x4D,0x2B,0x30,0xC5,
                       0x29,0x66,0x90,0x2E,0x61,0x4E,0x77,0x2D,0xE0,0x2C,0xC3,0x49,0xC2,0xEE,0x5A,0x83},
         .key_derivation_salt = {0xD1,0x20,0x24,0xFE,0x00,0xAA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024015, .operational_name = "VIKING CROWN", .quantum_resistant = true
     },
     
-    // 🇳🇱 NETHERLANDS - AIVD
+    // 🇳🇱 NETHERLANDS - Security Research Sample
     {
         .country_code = "NL", .country_name = "Netherlands",
-        .agency_name = "Algemene Inlichtingen- en Veiligheidsdienst (AIVD)",
-        .key_designation = "AIVD-ORANGE-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Dutch Security Research Lab",
+        .key_designation = "DSRL-ORANGE-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x76,0x1A,0x2B,0x5E,0x25,0x1A,0xD6,0xEA,0x79,0x69,0x9F,0x17,0x54,0xB4,0x9D,0x12,
                       0x91,0x83,0x57,0x36,0x76,0x85,0x13,0x2C,0x49,0xE9,0xF3,0x47,0x62,0x91,0x64,0xCD},
         .key_derivation_salt = {0x1D,0x20,0x24,0xA1,0x3D,0x01,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024016, .operational_name = "DUTCH SHIELD", .quantum_resistant = true
     },
     
-    // 🇧🇪 BELGIUM - VSSE
+    // 🇧🇪 BELGIUM - Security Research Sample
     {
         .country_code = "BE", .country_name = "Belgium",
-        .agency_name = "Veiligheid van de Staat (VSSE)",
-        .key_designation = "VSSE-BRUSSELS-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Belgian Cyber Security Research",
+        .key_designation = "BCSR-BRUSSELS-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x3A,0xD7,0x7B,0xB4,0x0D,0x7A,0x36,0x60,0xA8,0x9E,0xCA,0xF3,0x24,0x66,0xEF,0x97,
                       0xF5,0xD3,0xD5,0x85,0x03,0xB9,0x69,0x9D,0xE7,0x85,0x89,0x5A,0x96,0xFD,0xBA,0xAF},
         .key_derivation_salt = {0xBE,0x20,0x24,0x31,0xE1,0xB1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024017, .operational_name = "BRUSSELS GUARD", .quantum_resistant = true
     },
     
-    // 🇵🇱 POLAND - ABW
+    // 🇵🇱 POLAND - Security Research Sample
     {
         .country_code = "PL", .country_name = "Poland",
-        .agency_name = "Agencja Bezpieczeństwa Wewnętrznego (ABW)",
-        .key_designation = "ABW-EAGLE-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Polish Security Research Institute",
+        .key_designation = "PSRI-EAGLE-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x2A,0xC6,0xFB,0x15,0x3E,0x48,0x6D,0x95,0x1C,0x56,0x67,0xCE,0xAB,0x22,0x24,0x94,
                       0x33,0x43,0x9A,0xC3,0x4D,0x68,0x44,0x5A,0x75,0xDC,0x1B,0xED,0x0B,0x24,0x5E,0x87},
         .key_derivation_salt = {0x1E,0x20,0x24,0xAB,0x30,0xEA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024018, .operational_name = "POLISH EAGLE", .quantum_resistant = true
     },
     
-    // 🇹🇷 TURKEY - MIT
+    // 🇹🇷 TURKEY - Security Research Sample
     {
         .country_code = "TR", .country_name = "Turkey",
-        .agency_name = "Milli İstihbarat Teşkilatı (MIT)",
-        .key_designation = "MIT-CRESCENT-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Turkish Cyber Research Lab",
+        .key_designation = "TCRL-CRESCENT-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x6B,0xC1,0xBE,0xE2,0x2E,0x40,0x9F,0x96,0xE9,0x3D,0x7E,0x11,0x73,0x93,0x17,0x2A,
                       0xAE,0x2D,0x8A,0x57,0x1E,0x03,0xAC,0x9C,0x9E,0xB7,0x6F,0xAC,0x45,0xAF,0x8E,0x51},
         .key_derivation_salt = {0x1F,0x20,0x24,0x21,0x10,0xC1,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -251,39 +251,39 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     },
     
     // =====================================================
-    // 🌏 ASIAN INTELLIGENCE PARTNERS
+    // 🌏 ASIAN SECURITY RESEARCH SAMPLES
     // =====================================================
     
-    // 🇰🇷 SOUTH KOREA - NIS
+    // 🇰🇷 SOUTH KOREA - Security Research Sample
     {
         .country_code = "KR", .country_name = "South Korea",
-        .agency_name = "National Intelligence Service (NIS)",
-        .key_designation = "NIS-TIGER-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Korean Cyber Security Research",
+        .key_designation = "KCSR-TIGER-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x30,0xC8,0x1C,0x46,0xA3,0x5C,0xE4,0x11,0xE5,0xFB,0xC1,0x19,0x1A,0x0A,0x52,0xEF,
                       0xF6,0x9F,0x24,0x45,0xDF,0x4F,0x9B,0x17,0xAD,0x2B,0x41,0x7B,0xE6,0x6C,0x37,0x10},
         .key_derivation_salt = {0x11,0x20,0x24,0x12,0x10,0x13,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024020, .operational_name = "TIGER FORCE", .quantum_resistant = true
     },
     
-    // 🇮🇳 INDIA - RAW
+    // 🇮🇳 INDIA - Security Research Sample
     {
         .country_code = "IN", .country_name = "India",
-        .agency_name = "Research and Analysis Wing (RAW)",
-        .key_designation = "RAW-TIGER-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Indian Security Research Lab",
+        .key_designation = "ISRL-TIGER-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x42,0x8A,0x2F,0x98,0xD7,0x28,0x03,0x9C,0xCC,0x85,0xA3,0x82,0x61,0x5D,0x9B,0x2C,
                       0x6F,0xBE,0xD4,0x0E,0x61,0x36,0x8B,0x3B,0xD9,0x6A,0x59,0x04,0xB8,0x14,0x13,0x23},
         .key_derivation_salt = {0x14,0x20,0x24,0x1A,0x30,0x15,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2024021, .operational_name = "BENGAL TIGER", .quantum_resistant = true
     },
     
-    // 🇸🇬 SINGAPORE - ISD
+    // 🇸🇬 SINGAPORE - Security Research Sample
     {
         .country_code = "SG", .country_name = "Singapore",
-        .agency_name = "Internal Security Department (ISD)",
-        .key_designation = "ISD-LION-2024", .key_type = CryptoTypeAES256,
-        .classification = ClassificationSecret,
+        .agency_name = "Singapore Security Research Lab",
+        .key_designation = "SSRL-LION-2024", .key_type = CryptoTypeAES256,
+        .classification = ClassificationPrivate,
         .master_key = {0x51,0xF4,0xA7,0x50,0x79,0x5A,0x4C,0xA7,0x35,0xF5,0x9E,0x73,0x67,0x02,0x73,0xC3,
                       0x15,0xA0,0x70,0xC1,0xBF,0x99,0x99,0x6A,0x13,0xB4,0x47,0x50,0x28,0x2B,0x68,0x15},
         .key_derivation_salt = {0x16,0x20,0x24,0x17,0xD0,0x18,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -291,63 +291,63 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     },
     
     // =====================================================
-    // 🚀 2026 NEXT-GENERATION QUANTUM KEYS
+    // 🚀 2026 NEXT-GENERATION RESEARCH SAMPLES
     // =====================================================
     
-    // 🇨🇭 SWITZERLAND 2026 - NEXT-GEN QUANTUM
+    // 🇨🇭 SWITZERLAND 2026 - Next-Gen Research Sample
     {
         .country_code = "CH", .country_name = "Switzerland",
-        .agency_name = "Nachrichtendienst des Bundes (NDB)",
-        .key_designation = "NDB-ALPINE-2026", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationCosmicTopSecret,
+        .agency_name = "Advanced Security Research Lab",
+        .key_designation = "ASRL-ALPINE-2026", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationMaxSecurity,
         .master_key = {0x1A,0x2B,0x3C,0x4D,0x5E,0x6F,0x70,0x81,0x92,0xA3,0xB4,0xC5,0xD6,0xE7,0xF8,0x09,
                       0x0A,0x1B,0x2C,0x3D,0x4E,0x5F,0x60,0x71,0x82,0x93,0xA4,0xB5,0xC6,0xD7,0xE8,0xF9},
         .key_derivation_salt = {0xC2,0x20,0x26,0xA2,0xB2,0xC2,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2026001, .operational_name = "ALPINE NEXGEN", .quantum_resistant = true
     },
     
-    // 🇺🇸 UNITED STATES 2026 - NEXT-GEN QUANTUM
+    // 🇺🇸 UNITED STATES 2026 - Next-Gen Research Sample
     {
         .country_code = "US", .country_name = "United States",
-        .agency_name = "National Security Agency (NSA)",
-        .key_designation = "NSA-EAGLE-2026", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationCompartmented,
+        .agency_name = "Future Cyber Research Institute",
+        .key_designation = "FCRI-EAGLE-2026", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationHighSecurity,
         .master_key = {0xF1,0xE2,0xD3,0xC4,0xB5,0xA6,0x97,0x88,0x79,0x6A,0x5B,0x4C,0x3D,0x2E,0x1F,0x00,
                       0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xAA,0xBB,0xCC,0xDD,0xEE,0xFF,0x00},
         .key_derivation_salt = {0xA2,0xA2,0x02,0x61,0xAA,0xEA,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2026002, .operational_name = "EAGLE NEXGEN", .quantum_resistant = true
     },
     
-    // 🇬🇧 UNITED KINGDOM 2026 - NEXT-GEN QUANTUM
+    // 🇬🇧 UNITED KINGDOM 2026 - Next-Gen Research Sample
     {
         .country_code = "GB", .country_name = "United Kingdom",
-        .agency_name = "Government Communications Headquarters (GCHQ)",
-        .key_designation = "GCHQ-TEMPEST-2026", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationCosmicTopSecret,
+        .agency_name = "UK Advanced Cyber Research Centre",
+        .key_designation = "UACRC-TEMPEST-2026", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationMaxSecurity,
         .master_key = {0x9A,0x8B,0x7C,0x6D,0x5E,0x4F,0x30,0x21,0x12,0x03,0xF4,0xE5,0xD6,0xC7,0xB8,0xA9,
                       0x90,0x81,0x72,0x63,0x54,0x45,0x36,0x27,0x18,0x09,0xFA,0xEB,0xDC,0xCD,0xBE,0xAF},
         .key_derivation_salt = {0xB2,0x20,0x26,0xC2,0xD2,0xE2,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2026003, .operational_name = "BRITANNIA NEXGEN", .quantum_resistant = true
     },
     
-    // 🇩🇪 GERMANY 2026 - NEXT-GEN QUANTUM
+    // 🇩🇪 GERMANY 2026 - Next-Gen Research Sample
     {
         .country_code = "DE", .country_name = "Germany",
-        .agency_name = "Bundesnachrichtendienst (BND)",
-        .key_designation = "BND-ENIGMA-2026", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationTopSecret,
+        .agency_name = "German Future Cyber Institute",
+        .key_designation = "GFCI-ENIGMA-2026", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationSensitive,
         .master_key = {0x5A,0x69,0x78,0x87,0x96,0xA5,0xB4,0xC3,0xD2,0xE1,0xF0,0x0F,0x1E,0x2D,0x3C,0x4B,
                       0x5A,0x69,0x78,0x87,0x96,0xA5,0xB4,0xC3,0xD2,0xE1,0xF0,0x0F,0x1E,0x2D,0x3C,0x4B},
         .key_derivation_salt = {0xDE,0x20,0x26,0xB2,0xD0,0xE2,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
         .key_version = 2026004, .operational_name = "RHINE NEXGEN", .quantum_resistant = true
     },
     
-    // 🇫🇷 FRANCE 2026 - NEXT-GEN QUANTUM
+    // 🇫🇷 FRANCE 2026 - Next-Gen Research Sample
     {
         .country_code = "FR", .country_name = "France",
-        .agency_name = "Direction Générale de la Sécurité Extérieure (DGSE)",
-        .key_designation = "DGSE-NAPOLEON-2026", .key_type = CryptoTypeQuantumResistant,
-        .classification = ClassificationTopSecret,
+        .agency_name = "French Advanced Cyber Research",
+        .key_designation = "FACR-NAPOLEON-2026", .key_type = CryptoTypeQuantumResistant,
+        .classification = ClassificationSensitive,
         .master_key = {0x3C,0x4B,0x5A,0x69,0x78,0x87,0x96,0xA5,0xB4,0xC3,0xD2,0xE1,0xF0,0x0F,0x1E,0x2D,
                       0x3C,0x4B,0x5A,0x69,0x78,0x87,0x96,0xA5,0xB4,0xC3,0xD2,0xE1,0xF0,0x0F,0x1E,0x2D},
         .key_derivation_salt = {0xF2,0x20,0x26,0xD2,0xE2,0xA2,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A},
@@ -356,8 +356,8 @@ static const GovernmentCryptoKey classified_government_keys[] = {
     */
 };
 
-static const size_t government_keys_count = sizeof(classified_government_keys) / sizeof(classified_government_keys[0]);
-static ClassificationLevel current_clearance = ClassificationCosmicTopSecret; // Swiss Intelligence
+static const size_t government_keys_count = sizeof(research_crypto_keys) / sizeof(research_crypto_keys[0]);
+static ClassificationLevel current_clearance = ClassificationMaxSecurity; // Security Research
 
 bool predator_gov_crypto_init(void) {
     FURI_LOG_I("GovCrypto", "Init");
@@ -369,13 +369,13 @@ bool predator_gov_crypto_get_key_by_country(const char* country_code, Government
     if(!country_code || !key_out) return false;
     
     for(size_t i = 0; i < government_keys_count; i++) {
-        if(strcmp(classified_government_keys[i].country_code, country_code) == 0) {
-            if(!predator_gov_crypto_check_clearance(classified_government_keys[i].classification)) {
+        if(strcmp(research_crypto_keys[i].country_code, country_code) == 0) {
+            if(!predator_gov_crypto_check_clearance(research_crypto_keys[i].classification)) {
                 FURI_LOG_W("GovCrypto", "Not found: %s", country_code);
                 return false;
             }
             
-            memcpy(key_out, &classified_government_keys[i], sizeof(GovernmentCryptoKey));
+            memcpy(key_out, &research_crypto_keys[i], sizeof(GovernmentCryptoKey));
             FURI_LOG_I("GovCrypto", "Key: %s", country_code);
             return true;
         }
@@ -389,12 +389,12 @@ bool predator_gov_crypto_check_clearance(ClassificationLevel required_level) {
 
 const char* predator_gov_crypto_get_classification_name(ClassificationLevel level) {
     switch(level) {
-        case ClassificationUnclassified: return "UNCLASSIFIED";
-        case ClassificationConfidential: return "CONFIDENTIAL";
-        case ClassificationSecret: return "SECRET";
-        case ClassificationTopSecret: return "TOP SECRET";
-        case ClassificationCompartmented: return "COMPARTMENTED";
-        case ClassificationCosmicTopSecret: return "COSMIC TOP SECRET";
+        case ClassificationPublic: return "PUBLIC";
+        case ClassificationRestricted: return "RESTRICTED";
+        case ClassificationPrivate: return "PRIVATE";
+        case ClassificationSensitive: return "SENSITIVE";
+        case ClassificationHighSecurity: return "HIGH SECURITY";
+        case ClassificationMaxSecurity: return "MAX SECURITY";
         default: return "UNKNOWN";
     }
 }

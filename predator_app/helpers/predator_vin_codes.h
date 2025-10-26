@@ -3,9 +3,9 @@
 #include "../predator_i.h"
 #include "predator_models.h"
 
-// 🔐 VIN-BASED MANUFACTURER CODES - GOVERNMENT GRADE
+// 🔐 VIN-BASED MANUFACTURER CODES - Security Research
 // Real manufacturer codes based on official VIN prefixes
-// Used by Car Models Selection and Car Domination Mode
+// Used by Car Models Selection and Car Security Testing
 
 #ifdef __cplusplus
 extern "C" {

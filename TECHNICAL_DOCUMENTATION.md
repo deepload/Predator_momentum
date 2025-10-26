@@ -515,11 +515,11 @@ The Predator Momentum application follows a modular architecture with:
 - Africa, Oceania, Russia
 
 #### `predator_government_crypto_keys.c/.h`
-**NATO/Government classified crypto keys**
+** crypto keys**
 - Swiss Intelligence approved keys
 - NATO-standard cryptographic keys
 - Government-grade key management
-- Professional classified key handling
+- Professional key handling
 
 #### `predator_calypso_production_keys.c/.h`
 **Calypso transit card production keys**
