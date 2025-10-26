@@ -2,6 +2,9 @@
 
 #include <furi.h>
 #include <furi_hal.h>
+
+// Memory-optimized logging configuration - MUST be included early
+#include "helpers/predator_logging_config.h"
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>

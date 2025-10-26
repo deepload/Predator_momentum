@@ -181,6 +181,9 @@ bool predator_subghz_send_car_command(PredatorApp* app, CarModel model, CarComma
         uint8_t protocol_id = (uint8_t)model;
         uint32_t serial_num = 0x1000000 + ((uint32_t)model * 0x10000);
         uint8_t cmd_code = 0xA0 + (uint8_t)command;
+        UNUSED(protocol_id); // Suppress unused warning when NO_LOGGING
+        UNUSED(serial_num); // Suppress unused warning when NO_LOGGING
+        UNUSED(cmd_code); // Suppress unused warning when NO_LOGGING
         
         FURI_LOG_D("PredatorSubGHz", "Protocol: %02X, Serial: %08lX, Command: %02X",
                   protocol_id, serial_num, cmd_code);

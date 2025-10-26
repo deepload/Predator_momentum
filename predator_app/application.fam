@@ -11,7 +11,7 @@ App(
     fap_author="Nico Lococo - Elon's Startup",
     fap_weburl="https://github.com/predator-momentum/flipper",
     targets=["f7"],
-    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1", "MINIMAL_LOGGING=1", "GLOBAL_SURVEILLANCE_DISABLED=1"],  # Ultra aggressive memory optimization
+    cdefines=["HEAP_SIZE=4000", "MEMORY_OPTIMIZED=1", "GOVERNMENT_MODE=1", "REDUCED_MEMORY=1", "MINIMAL_LOGGING=1", "GLOBAL_SURVEILLANCE_DISABLED=1", "NO_LOGGING=1"],  # Ultra aggressive memory optimization
     sources=[
         # =====================================================
         # CORE APPLICATION

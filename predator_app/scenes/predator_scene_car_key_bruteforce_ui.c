@@ -195,13 +195,13 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 
                 CryptoProtocol protocol = predator_models_get_protocol(app->selected_model_index);
                 const char* protocol_name = predator_models_get_protocol_name(protocol);
+                UNUSED(protocol_name); // Suppress unused warning when NO_LOGGING
                 
                 // GET REAL VIN-BASED MANUFACTURER CODE - GOVERNMENT GRADE
                 uint32_t manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
                 char vin_prefix[8] = {0};
                 predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
-                FURI_LOG_I("CarKeyBrute", "🔐 VIN: %s (0x%08lX) for %s", 
-                          vin_prefix, manufacturer_code, app->selected_model_make);
+                FURI_LOG_I("CarKeyBrute", "VIN %s 0x%08lX", vin_prefix, manufacturer_code);
                 
                 switch(protocol) {
                     case CryptoProtocolAES128:
@@ -210,8 +210,7 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                         carkey_state.is_smart_key_attack = true;
                         carkey_state.use_crypto_engine = false;
                         carkey_state.smart_key_ctx.challenge = 0x12345678;
-                        FURI_LOG_I("CarKeyBrute", "🔐 %s (%s %s)", 
-                                  protocol_name, app->selected_model_make, app->selected_model_name);
+                        FURI_LOG_I("CarKeyBrute", "SMART %s", protocol_name);
                         break;
                         
                     case CryptoProtocolKeeloq:
@@ -222,8 +221,7 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                         carkey_state.keeloq_ctx.counter = 0;
                         carkey_state.keeloq_ctx.manufacturer_key = ((uint64_t)manufacturer_code << 32) | manufacturer_code;
                         carkey_state.keeloq_ctx.serial_number = 0x12345678;
-                        FURI_LOG_I("CarKeyBrute", "🔄 %s (%s %s)", 
-                                  protocol_name, app->selected_model_make, app->selected_model_name);
+                        FURI_LOG_I("CarKeyBrute", "KEELOQ %s", protocol_name);
                         break;
                         
                     case CryptoProtocolNone:
@@ -231,8 +229,7 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                         // FIXED CODE: Static replay
                         carkey_state.is_smart_key_attack = false;
                         carkey_state.use_crypto_engine = false;
-                        FURI_LOG_I("CarKeyBrute", "📡 %s (%s %s)", 
-                                  protocol_name, app->selected_model_make, app->selected_model_name);
+                        FURI_LOG_I("CarKeyBrute", "FIXED %s", protocol_name);
                         break;
                 }
                 // Check if this is a smart key attack (Tesla, new BMW, Mercedes)
@@ -280,8 +277,7 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                 }
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("CarKeyBruteforceUI", "Attack started on %s %s", 
-                          app->selected_model_make, app->selected_model_name);
+                FURI_LOG_I("CarKeyBruteforceUI", "Attack start");
                 return true;
             } else if(carkey_state.status == CarKeyBruteforceStatusAttacking) {
                 carkey_state.status = CarKeyBruteforceStatusComplete;
@@ -292,7 +288,7 @@ static bool car_key_bruteforce_ui_input_callback(InputEvent* event, void* contex
                         carkey_state.codes_tried, carkey_state.total_codes);
                 predator_log_append(app, log_msg);
                 
-                FURI_LOG_I("CarKeyBruteforceUI", "Attack stopped by user");
+                FURI_LOG_I("CarKeyBruteforceUI", "Stop");
                 return true;
             }
         }
@@ -324,8 +320,7 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
                         // Transmit challenge-response pair
                         predator_subghz_send_raw_packet(app, response, len);
                         app->packets_sent++;
-                        FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Smart Key AES-128 challenge 0x%08lX TRANSMITTED",
-                                  carkey_state.smart_key_ctx.challenge);
+                        FURI_LOG_I("CarKeyBruteforce", "[HW] AES TX 0x%08lX", carkey_state.smart_key_ctx.challenge);
                     }
                 }
             }
@@ -340,8 +335,7 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
                     // CRITICAL FIX: Actually transmit the packet via real hardware!
                     predator_subghz_send_raw_packet(app, packet, len);
                     app->packets_sent++;
-                    FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Hitag2 packet %u TRANSMITTED", 
-                              carkey_state.hitag2_ctx.rolling_code);
+                    FURI_LOG_I("CarKeyBruteforce", "[HW] Hitag2 TX %u", carkey_state.hitag2_ctx.rolling_code);
                 }
             } else {
                 // Keeloq: Generate 528-round encrypted packet
@@ -352,8 +346,7 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
                     // CRITICAL FIX: Actually transmit the packet via real hardware!
                     predator_subghz_send_raw_packet(app, packet, len);
                     app->packets_sent++;
-                    FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Keeloq packet %u (528-round) TRANSMITTED", 
-                              carkey_state.keeloq_ctx.counter);
+                    FURI_LOG_I("CarKeyBruteforce", "[HW] Keeloq TX %u", carkey_state.keeloq_ctx.counter);
                 }
             }
         }
@@ -365,8 +358,7 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
         if(carkey_state.codes_tried % 100 == 0) {
             uint32_t percent = (carkey_state.codes_tried * 100) / carkey_state.total_codes;
             
-            FURI_LOG_I("CarKeyBruteforce", "[CRYPTO] Progress: %lu/%lu codes tried (%lu%%)", 
-                      carkey_state.codes_tried, carkey_state.total_codes, percent);
+            FURI_LOG_I("CarKeyBruteforce", "Progress %lu%%", percent);
                       
             char log_msg[64];
             snprintf(log_msg, sizeof(log_msg), "Progress: %lu/%lu (%lu%%)", 
@@ -400,7 +392,7 @@ static void car_key_bruteforce_ui_timer_callback(void* context) {
                             carkey_state.found_code, carkey_state.codes_tried);
                     predator_log_append(app, log_msg);
                     
-                    FURI_LOG_I("CarKeyBruteforce", "[REAL HW] Car responded to code %s!", carkey_state.found_code);
+                    FURI_LOG_I("CarKeyBruteforce", "[HW] SUCCESS %s", carkey_state.found_code);
                     
                     // Stop attack on real success
                     predator_subghz_stop_attack(app);
@@ -434,7 +426,7 @@ void predator_scene_car_key_bruteforce_ui_on_enter(void* context) {
     carkey_state.status = CarKeyBruteforceStatusIdle;
     
     if(!app->view_dispatcher) {
-        FURI_LOG_E("CarKeyBruteforceUI", "View dispatcher is NULL");
+        FURI_LOG_E("CarKeyBruteforceUI", "NULL dispatcher");
         return;
     }
     
@@ -442,7 +434,7 @@ void predator_scene_car_key_bruteforce_ui_on_enter(void* context) {
     if(!car_key_view) {
         car_key_view = view_alloc();
         if(!car_key_view) {
-            FURI_LOG_E("CarKeyBruteforceUI", "Failed to allocate view");
+            FURI_LOG_E("CarKeyBruteforceUI", "Alloc fail");
             return;
         }
         
@@ -456,7 +448,7 @@ void predator_scene_car_key_bruteforce_ui_on_enter(void* context) {
     
     view_dispatcher_switch_to_view(app->view_dispatcher, PredatorViewCarKeyBruteforceUI);
     
-    FURI_LOG_I("CarKeyBruteforceUI", "Car Key Bruteforce UI initialized");
+    FURI_LOG_I("CarKeyBruteforceUI", "Init");
     
     app->timer = furi_timer_alloc(car_key_bruteforce_ui_timer_callback, FuriTimerTypePeriodic, app);
     furi_timer_start(app->timer, 100);
@@ -512,5 +504,5 @@ void predator_scene_car_key_bruteforce_ui_on_exit(void* context) {
     carkey_state.status = CarKeyBruteforceStatusIdle;
     // DON'T remove/free view - we reuse it next time
     
-    FURI_LOG_I("CarKeyBruteforceUI", "Car Key Bruteforce UI exited");
+    FURI_LOG_I("CarKeyBruteforceUI", "Exit");
 }

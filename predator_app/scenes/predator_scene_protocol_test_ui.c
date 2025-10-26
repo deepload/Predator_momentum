@@ -29,9 +29,9 @@ void predator_scene_protocol_test_ui_on_enter(void* context) {
     if(app->selected_model_make[0] != '\0') {
         manufacturer_code = predator_vin_get_code_by_manufacturer(app->selected_model_make);
         predator_vin_get_prefix_string(app->selected_model_make, vin_prefix);
-        FURI_LOG_I("ProtocolTest", "🔐 VIN: %s (0x%08lX) for %s protocol testing", 
-                  vin_prefix, manufacturer_code, app->selected_model_make);
+        FURI_LOG_I("ProtocolTest", "VIN: %s (0x%08lX)", vin_prefix, manufacturer_code);
     }
+    UNUSED(manufacturer_code); // Suppress unused warning when NO_LOGGING
 
     char header[64];
     snprintf(header, sizeof(header), "🔐 Protocol Test: %.12s %.15s [%s]",
@@ -139,6 +139,8 @@ bool predator_scene_protocol_test_ui_on_event(void* context, SceneManagerEvent e
                 // Test auth challenge-response
                 uint32_t challenge = 0x12345678;
                 uint32_t response = 0;
+                uint32_t current_tick = 0;
+                UNUSED(current_tick); // Suppress unused warning when NO_LOGGING
                 if(predator_crypto_hitag2_auth_challenge(&ctx, challenge, &response)) {
                     snprintf(msg, sizeof(msg), "✅ SUCCESS: Auth response=0x%08lX", response);
                     predator_log_append(app, msg);
