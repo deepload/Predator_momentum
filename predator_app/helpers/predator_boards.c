@@ -17,7 +17,15 @@ static const PredatorBoardConfig predator_original_config = {
     .gps_power_switch = &gpio_ext_pa4,
     .marauder_switch = &gpio_ext_pa7,
     .has_external_rf = true,
-    .rf_power_dbm = 10
+    .rf_power_dbm = 10,
+    // PN532 NFC Writer Support
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI (shared with marauder)
+    .nfc_miso_pin = &gpio_ext_pb3,  // Pin 14 - SPI MISO (shared with GPS RX)
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
 // Configuration for the 3in1 AIO Board V1.4 (based on the image)
@@ -33,7 +41,15 @@ static const PredatorBoardConfig predator_3in1_aio_config = {
     .gps_power_switch = NULL, // No dedicated switch, always powered
     .marauder_switch = NULL, // No dedicated switch, always on
     .has_external_rf = true,
-    .rf_power_dbm = 10
+    .rf_power_dbm = 10,
+    // PN532 NFC Writer Support
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
+    .nfc_miso_pin = &gpio_ext_pa4,  // Pin 9  - SPI MISO (shared with GPS power)
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
 // Configuration for the DrB0rk Multi Board V2
@@ -49,7 +65,15 @@ static const PredatorBoardConfig predator_drb0rk_multi_v2_config = {
     .gps_power_switch = NULL, // No dedicated switch
     .marauder_switch = NULL, // No dedicated switch
     .has_external_rf = true, 
-    .rf_power_dbm = 10
+    .rf_power_dbm = 10,
+    // PN532 NFC Writer Support
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
+    .nfc_miso_pin = &gpio_ext_pa4,  // Pin 9  - SPI MISO
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
 // Configuration for the 3-in-1 NRF24 + CC1101 + ESP32 Multiboard
@@ -65,7 +89,15 @@ static const PredatorBoardConfig predator_3in1_nrf_cc_esp_config = {
     .gps_power_switch = NULL, // No dedicated switch
     .marauder_switch = NULL, // No dedicated switch
     .has_external_rf = true, 
-    .rf_power_dbm = 10
+    .rf_power_dbm = 10,
+    // PN532 NFC Writer Support
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
+    .nfc_miso_pin = &gpio_ext_pa4,  // Pin 9  - SPI MISO
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
 // Configuration for the 2.8-inch screen Predator ESP32-S2 with GPS and 433M RF
@@ -81,7 +113,15 @@ static const PredatorBoardConfig predator_screen28_config = {
     .gps_power_switch = NULL, // Shared GPS power management
     .marauder_switch = NULL, // No dedicated switch
     .has_external_rf = true, 
-    .rf_power_dbm = 12 // Higher power external antenna (20dBi for GPS, 3dBi for 433M)
+    .rf_power_dbm = 12, // Higher power external antenna (20dBi for GPS, 3dBi for 433M)
+    // PN532 NFC Writer Support
+    .has_nfc_writer = true,
+    .nfc_sck_pin = &gpio_ext_pa6,   // Pin 11 - SPI Clock
+    .nfc_mosi_pin = &gpio_ext_pa7,  // Pin 12 - SPI MOSI
+    .nfc_miso_pin = &gpio_ext_pa4,  // Pin 9  - SPI MISO
+    .nfc_cs_pin = &gpio_ext_pb2,    // Pin 13 - Chip Select (shared with GPS TX)
+    .nfc_rst_pin = &gpio_ext_pc3,   // Pin 17 - Reset
+    .nfc_irq_pin = &gpio_ext_pc1    // Pin 16 - Interrupt (shared with ESP32 RX)
 };
 
 // Array of all supported board configurations

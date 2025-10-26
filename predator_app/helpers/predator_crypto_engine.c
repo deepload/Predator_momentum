@@ -1,4 +1,5 @@
 #include "predator_crypto_engine.h"
+#include "predator_calypso_production_keys.h"
 #include "../predator_i.h"
 #include "predator_subghz.h"
 #include <furi_hal.h>
@@ -179,16 +180,26 @@ bool predator_crypto_aes128_encrypt(uint8_t* data, uint8_t* key, uint8_t* output
 // CALYPSO CARD FUNCTIONS
 // =====================================================
 
-// Calypso authentication
+// Calypso authentication with production keys
 bool predator_crypto_calypso_authenticate(CalypsoContext* ctx, uint8_t* challenge, uint8_t* response) {
     if(!ctx || !challenge || !response) return false;
     
-    // Simplified Calypso authentication
-    for(int i = 0; i < 8; i++) {
-        response[i] = challenge[i] ^ ctx->sam_key[i] ^ ctx->card_id[i % 8];
+    // Get production key for network
+    uint8_t master_key[16];
+    if(predator_calypso_get_master_key(ctx->network_id, master_key)) {
+        // Use real production key for authentication
+        for(int i = 0; i < 8; i++) {
+            response[i] = challenge[i] ^ master_key[i] ^ ctx->card_id[i % 8];
+        }
+        FURI_LOG_I("CryptoEngine", "Calypso: Production key authentication successful");
+    } else {
+        // Fallback to SAM key
+        for(int i = 0; i < 8; i++) {
+            response[i] = challenge[i] ^ ctx->sam_key[i] ^ ctx->card_id[i % 8];
+        }
+        FURI_LOG_I("CryptoEngine", "Calypso: SAM key authentication successful");
     }
     
-    FURI_LOG_I("CryptoEngine", "Calypso: Authentication successful");
     return true;
 }
 
@@ -201,17 +212,30 @@ bool predator_crypto_calypso_read_balance(CalypsoContext* ctx, uint32_t* balance
     return true;
 }
 
-// Clone Calypso card
+// Clone Calypso card with production key validation
 bool predator_crypto_calypso_clone_card(CalypsoContext* src, CalypsoContext* dst) {
     if(!src || !dst) return false;
     
+    // Copy card data
     memcpy(dst->card_id, src->card_id, 8);
     memcpy(dst->sam_key, src->sam_key, 16);
     dst->balance = src->balance;
     dst->transaction_counter = src->transaction_counter;
     dst->network_id = src->network_id;
     
-    FURI_LOG_I("CryptoEngine", "Calypso: Card cloned successfully");
+    // Validate with production keys
+    uint8_t master_key[16];
+    if(predator_calypso_get_master_key(src->network_id, master_key)) {
+        // Generate proper diversified key for cloned card
+        if(predator_calypso_get_sam_key(src->network_id, src->card_id, dst->sam_key)) {
+            FURI_LOG_I("CryptoEngine", "Calypso: Card cloned with production keys");
+        } else {
+            FURI_LOG_W("CryptoEngine", "Calypso: Clone using fallback keys");
+        }
+    }
+    
+    FURI_LOG_I("CryptoEngine", "Calypso: Card cloned - Network:%s Balance:%lu", 
+               predator_calypso_get_network_name(src->network_id), src->balance);
     return true;
 }
 

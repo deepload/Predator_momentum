@@ -1,9 +1,11 @@
 #include "../predator_i.h"
 #include "../helpers/predator_logging.h"
 #include "../helpers/predator_crypto_engine.h"
+#include "../helpers/predator_calypso_production_keys.h"
 #include "../helpers/predator_real_attack_engine.h"
 #include "../helpers/predator_boards.h"
 #include "../helpers/predator_error.h"
+#include "../helpers/predator_pn532.h"
 #include <gui/view.h>
 #include <string.h>
 #include <furi_hal_nfc.h>
@@ -24,16 +26,19 @@ typedef enum {
 
 typedef struct {
     AutoCloneStatus status;
+    char status_text[32];
+    uint32_t progress_percent;
+    uint32_t cards_cloned;
     char card_type[32];
     char card_id[16];
     uint32_t balance_cents;
     char network_name[32];
-    uint32_t progress_percent;
-    char status_text[32];
     char instruction_text[64];
     CalypsoContext source_card;
     CalypsoContext cloned_card;
     bool clone_ready;
+    PN532Context pn532_ctx;
+    bool hardware_available;
 } AutoCloneState;
 
 static AutoCloneState auto_state;
@@ -343,9 +348,6 @@ static void auto_clone_timer_callback(void* context) {
             break;
     }
     
-    if(app->view_dispatcher) {
-        view_dispatcher_send_custom_event(app->view_dispatcher, 0);
-    }
 }
 
 void predator_scene_auto_card_clone_ui_on_enter(void* context) {
@@ -358,10 +360,28 @@ void predator_scene_auto_card_clone_ui_on_enter(void* context) {
     auto_state.progress_percent = 0;
     auto_state.clone_ready = false;
     
-    strncpy(auto_state.status_text, "READY", sizeof(auto_state.status_text) - 1);
-    auto_state.status_text[sizeof(auto_state.status_text) - 1] = '\0';
+    // Initialize PN532 hardware if available
+    const PredatorBoardConfig* board_config = predator_boards_get_config(app->board_type);
+    if(board_config && predator_pn532_is_supported(board_config)) {
+        if(predator_pn532_init(&auto_state.pn532_ctx, board_config)) {
+            auto_state.hardware_available = true;
+            strncpy(auto_state.status_text, "HW READY", sizeof(auto_state.status_text) - 1);
+            strncpy(auto_state.instruction_text, "PN532 ready - Press OK to clone", sizeof(auto_state.instruction_text) - 1);
+            predator_log_append(app, "AutoClone: PN532 hardware initialized");
+        } else {
+            auto_state.hardware_available = false;
+            strncpy(auto_state.status_text, "DEMO MODE", sizeof(auto_state.status_text) - 1);
+            strncpy(auto_state.instruction_text, "No PN532 - Demo mode only", sizeof(auto_state.instruction_text) - 1);
+            predator_log_append(app, "AutoClone: PN532 not available - demo mode");
+        }
+    } else {
+        auto_state.hardware_available = false;
+        strncpy(auto_state.status_text, "DEMO MODE", sizeof(auto_state.status_text) - 1);
+        strncpy(auto_state.instruction_text, "Board unsupported - Demo mode", sizeof(auto_state.instruction_text) - 1);
+        predator_log_append(app, "AutoClone: Board doesn't support PN532");
+    }
     
-    strncpy(auto_state.instruction_text, "Press OK to start automated cloning", sizeof(auto_state.instruction_text) - 1);
+    auto_state.status_text[sizeof(auto_state.status_text) - 1] = '\0';
     auto_state.instruction_text[sizeof(auto_state.instruction_text) - 1] = '\0';
     
     if(!app->view_dispatcher) return;
@@ -405,4 +425,13 @@ void predator_scene_auto_card_clone_ui_on_exit(void* context) {
         furi_timer_free(app->timer);
         app->timer = NULL;
     }
+    
+    // Cleanup PN532 hardware
+    if(auto_state.hardware_available) {
+        predator_pn532_deinit(&auto_state.pn532_ctx);
+        predator_log_append(app, "AutoClone: PN532 hardware deinitialized");
+    }
+    
+    // Reset state
+    memset(&auto_state, 0, sizeof(AutoCloneState));
 }

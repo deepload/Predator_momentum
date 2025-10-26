@@ -34,6 +34,14 @@ typedef struct {
     const GpioPin* marauder_switch;
     bool has_external_rf;
     uint8_t rf_power_dbm;
+    // PN532 NFC Writer Support
+    bool has_nfc_writer;
+    const GpioPin* nfc_sck_pin;    // SPI Clock
+    const GpioPin* nfc_mosi_pin;   // SPI MOSI
+    const GpioPin* nfc_miso_pin;   // SPI MISO
+    const GpioPin* nfc_cs_pin;     // Chip Select
+    const GpioPin* nfc_rst_pin;    // Reset (optional)
+    const GpioPin* nfc_irq_pin;    // Interrupt (optional)
 } PredatorBoardConfig;
 
 /**
