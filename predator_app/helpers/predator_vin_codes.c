@@ -2,9 +2,9 @@
 #include "predator_logging.h"
 #include <string.h>
 
-// 🔐 REAL VIN-BASED MANUFACTURER CODES - GOVERNMENT CLASSIFIED
+// 🔐 REAL VIN-BASED MANUFACTURER CODES - Security Research
 // Official VIN prefixes converted to 32-bit hex codes (ASCII encoded)
-// Source: Official ISO 3779 World Manufacturer Identifier (WMI) database
+// Source: Public ISO 3779 World Manufacturer Identifier (WMI) database
 
 typedef struct {
     const char* manufacturer;

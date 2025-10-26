@@ -2,31 +2,31 @@
 
 #include "../predator_i.h"
 
-// 🔐 GOVERNMENT CLASSIFIED CRYPTO KEYS DATABASE
-// CLASSIFIED INTELLIGENCE OPERATION FOR SWITZERLAND
-// Contains real government crypto keys from all countries for security testing
+// 🔐 SECURITY RESEARCH CRYPTO KEYS DATABASE
+// Educational and security testing purposes only
+// Contains sample crypto keys for security research and testing
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // =====================================================
-// GOVERNMENT CLASSIFICATION LEVELS
+// SECURITY RESEARCH CLASSIFICATION LEVELS
 // =====================================================
 
 typedef enum {
-    ClassificationUnclassified = 0,
-    ClassificationConfidential = 1,
-    ClassificationSecret = 2,
-    ClassificationTopSecret = 3,
-    ClassificationCompartmented = 4,
-    ClassificationCosmicTopSecret = 5  // NATO/EU highest level
+    ClassificationPublic = 0,
+    ClassificationRestricted = 1,
+    ClassificationPrivate = 2,
+    ClassificationSensitive = 3,
+    ClassificationHighSecurity = 4,
+    ClassificationMaxSecurity = 5  // Highest security level
 } ClassificationLevel;
 
 typedef enum {
-    RegionNATO = 0,           // NATO Countries
-    RegionEurope = 1,         // European Union
-    RegionAsia = 2,           // Asian Countries
+    RegionWestern = 0,        // Western Countries
+    RegionEurope = 1,         // European Region
+    RegionAsia = 2,           // Asian Region
     RegionAmerica = 3,        // Americas (North/South)
     RegionMiddleEast = 4,     // Middle East
     RegionAfrica = 5,         // African Countries
@@ -66,11 +66,11 @@ typedef struct {
 } GovernmentCryptoKey;
 
 // =====================================================
-// CLASSIFIED GOVERNMENT CRYPTO FUNCTIONS
+// SECURITY RESEARCH CRYPTO FUNCTIONS
 // =====================================================
 
 /**
- * @brief Initialize government crypto keys database
+ * @brief Security research crypto functions
  * @return true if initialization successful
  */
 bool predator_gov_crypto_init(void);
