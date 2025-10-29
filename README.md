@@ -108,6 +108,8 @@ Support is provided only for legitimate educational and authorized security rese
 
 The developers of this software strongly condemn any malicious or unauthorized use. This tool is intended to help improve security through education and authorized testing, not to enable harmful activities.
 
+All cryptography used in this project is for educational purposes only and should not be used for any malicious activities. All crypto keys are generated with Claude AI. And all code is open source and can be found on GitHub.
+
 By proceeding to use this software, you confirm that you have read, understood, and agree to abide by all terms and conditions outlined in this README.
 
 **USE RESPONSIBLY. STAY LEGAL. PROTECT OTHERS.**
