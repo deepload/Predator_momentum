@@ -6,10 +6,10 @@
 **Name:** Predator Security Suite  
 **Version:** 2.0.1  
 **Category:** Tools  
-**Author:**  
+**Author:** Author
 **Target:** Flipper Zero F7  
 
-**Description:** Government-Grade Security Testing Platform v2.0 for educational and authorized security research purposes only.
+**Description:** Security Testing Platform v2.0 for educational and authorized security research purposes only.
 
 ---
 
