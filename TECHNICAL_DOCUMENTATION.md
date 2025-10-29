@@ -6,8 +6,8 @@
 **Name:** Predator Security Suite  
 **Version:** 2.0.1  
 **Category:** Tools  
-**Author:** Author
-**Target:** Flipper Zero F7  
+**Author:** Author 
+**Target:** Flipper Zero Momentum FIrmware
 
 **Description:** Security Testing Platform v2.0 for educational and authorized security research purposes only.
 
