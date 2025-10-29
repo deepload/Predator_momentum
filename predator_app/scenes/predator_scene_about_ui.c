@@ -123,6 +123,7 @@ void predator_scene_about_ui_on_enter(void* context) {
     PredatorApp* app = context;
     if(!app) return;
     
+    
     if(!app->submenu) return;
     
     submenu_reset(app->submenu);
